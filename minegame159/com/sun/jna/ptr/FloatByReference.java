@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -7,25 +7,21 @@ import com.sun.jna.ptr.ByReference;
 
 public class FloatByReference
 extends ByReference {
-    public FloatByReference(float lllllIlIllllIll) {
+    public FloatByReference(float f) {
         super(4);
-        FloatByReference lllllIlIlllllII;
-        lllllIlIlllllII.setValue(lllllIlIllllIll);
-    }
-
-    public FloatByReference() {
-        lllllIllIIIIIIl(0.0f);
-        FloatByReference lllllIllIIIIIIl;
-    }
-
-    public void setValue(float lllllIlIlllIlll) {
-        FloatByReference lllllIlIllllIII;
-        lllllIlIllllIII.getPointer().setFloat(0L, lllllIlIlllIlll);
+        this.setValue(f);
     }
 
     public float getValue() {
-        FloatByReference lllllIlIlllIIll;
-        return lllllIlIlllIIll.getPointer().getFloat(0L);
+        return this.getPointer().getFloat(0L);
+    }
+
+    public FloatByReference() {
+        this(0.0f);
+    }
+
+    public void setValue(float f) {
+        this.getPointer().setFloat(0L, f);
     }
 }
 

@@ -1,16 +1,15 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package meteordevelopment.orbit;
 
 public interface ICancellable {
-    public void setCancelled(boolean var1);
+    public boolean isCancelled();
 
     default public void cancel() {
-        ICancellable llllllllllllllllIlllIIlllIIlIlII;
-        llllllllllllllllIlllIIlllIIlIlII.setCancelled(true);
+        this.setCancelled(true);
     }
 
-    public boolean isCancelled();
+    public void setCancelled(boolean var1);
 }
 

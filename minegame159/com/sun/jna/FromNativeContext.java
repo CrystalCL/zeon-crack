@@ -1,19 +1,17 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
 public class FromNativeContext {
-    private /* synthetic */ Class<?> type;
+    private Class<?> type;
 
-    public Class<?> getTargetType() {
-        FromNativeContext lllllllllllllllllllIlIIIllIlIIlI;
-        return lllllllllllllllllllIlIIIllIlIIlI.type;
+    FromNativeContext(Class<?> clazz) {
+        this.type = clazz;
     }
 
-    FromNativeContext(Class<?> lllllllllllllllllllIlIIIllIlIlIl) {
-        FromNativeContext lllllllllllllllllllIlIIIllIlIllI;
-        lllllllllllllllllllIlIIIllIlIllI.type = lllllllllllllllllllIlIIIllIlIlIl;
+    public Class<?> getTargetType() {
+        return this.type;
     }
 }
 

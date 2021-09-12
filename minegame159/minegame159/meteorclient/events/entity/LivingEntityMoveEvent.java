@@ -1,0 +1,20 @@
+/*
+ * Decompiled with CFR 0.151.
+ */
+package minegame159.meteorclient.events.entity;
+
+import net.minecraft.class_1309;
+import net.minecraft.class_243;
+
+public class LivingEntityMoveEvent {
+    public class_1309 entity;
+    private static final LivingEntityMoveEvent INSTANCE = new LivingEntityMoveEvent();
+    public class_243 movement;
+
+    public static LivingEntityMoveEvent get(class_1309 class_13092, class_243 class_2432) {
+        LivingEntityMoveEvent.INSTANCE.entity = class_13092;
+        LivingEntityMoveEvent.INSTANCE.movement = class_2432;
+        return INSTANCE;
+    }
+}
+

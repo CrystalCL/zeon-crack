@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package meteordevelopment.orbit.listeners;
 
@@ -8,21 +8,19 @@ import meteordevelopment.orbit.listeners.IListener;
 
 public class ConsumerListener<T>
 implements IListener {
-    private final /* synthetic */ Consumer<T> executor;
-    private final /* synthetic */ Class<?> target;
-    private final /* synthetic */ int priority;
-
-    public ConsumerListener(Class<?> lllIllllIIIIlII, int lllIllllIIIIIll, Consumer<T> lllIllllIIIIIlI) {
-        ConsumerListener lllIllllIIIIlIl;
-        lllIllllIIIIlIl.target = lllIllllIIIIlII;
-        lllIllllIIIIlIl.priority = lllIllllIIIIIll;
-        lllIllllIIIIlIl.executor = lllIllllIIIIIlI;
-    }
+    private final int priority;
+    private final Consumer<T> executor;
+    private final Class<?> target;
 
     @Override
     public Class<?> getTarget() {
-        ConsumerListener lllIlllIlllIIIl;
-        return lllIlllIlllIIIl.target;
+        return this.target;
+    }
+
+    public ConsumerListener(Class<?> clazz, int n, Consumer<T> consumer) {
+        this.target = clazz;
+        this.priority = n;
+        this.executor = consumer;
     }
 
     @Override
@@ -30,21 +28,18 @@ implements IListener {
         return false;
     }
 
-    public ConsumerListener(Class<?> lllIlllIlllllIl, Consumer<T> lllIlllIlllllII) {
-        lllIlllIllllllI(lllIlllIlllllIl, 0, lllIlllIlllllII);
-        ConsumerListener<T> lllIlllIllllllI;
-    }
-
     @Override
-    public void call(Object lllIlllIlllIIll) {
-        ConsumerListener lllIlllIlllIlII;
-        lllIlllIlllIlII.executor.accept(lllIlllIlllIIll);
+    public void call(Object object) {
+        this.executor.accept(object);
     }
 
     @Override
     public int getPriority() {
-        ConsumerListener lllIlllIllIllIl;
-        return lllIlllIllIllIl.priority;
+        return this.priority;
+    }
+
+    public ConsumerListener(Class<?> clazz, Consumer<T> consumer) {
+        this(clazz, 0, consumer);
     }
 }
 

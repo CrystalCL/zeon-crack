@@ -1,8 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
- * 
- * Could not load the following classes:
- *  javax.annotation.Nonnull
+ * Decompiled with CFR 0.151.
  */
 package com.g00fy2.versioncompare;
 
@@ -10,83 +7,117 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 final class VersionComparator {
-    private static final /* synthetic */ String SNAPSHOT_STRING;
-    static final /* synthetic */ int MINOR;
-    private static final /* synthetic */ String ALPHA_STRING;
-    private static final /* synthetic */ int UNKNOWN;
-    private static final /* synthetic */ String RC_STRING;
-    private static final /* synthetic */ int BETA;
-    private static final /* synthetic */ String BETA_STRING;
-    private static final /* synthetic */ int ALPHA;
-    private static final /* synthetic */ int SNAPSHOT;
-    private static final /* synthetic */ int RC;
-    private static final /* synthetic */ String PRE_STRING;
-    static final /* synthetic */ int PATCH;
-    private static final /* synthetic */ int PRE_ALPHA;
-    static final /* synthetic */ int MAJOR;
+    private static final int SNAPSHOT;
+    private static final int UNKNOWN;
+    private static final String BETA_STRING;
+    private static final int PRE_ALPHA;
+    static final int PATCH;
+    private static final String ALPHA_STRING;
+    private static final int BETA;
+    private static final int RC;
+    static final int MINOR;
+    private static final String RC_STRING;
+    private static final int ALPHA;
+    static final int MAJOR;
+    private static final String PRE_STRING;
+    private static final String SNAPSHOT_STRING;
 
-    static boolean startsNumeric(@Nonnull String llllllllllllllllIlllIIllIlIIllIl) {
-        return (llllllllllllllllIlllIIllIlIIllIl = llllllllllllllllIlllIIllIlIIllIl.trim()).length() > 0 && Character.isDigit(llllllllllllllllIlllIIllIlIIllIl.charAt(0));
-    }
-
-    static boolean isNumeric(@Nonnull CharSequence llllllllllllllllIlllIIllIlIIIlII) {
-        int llllllllllllllllIlllIIllIlIIIIll = llllllllllllllllIlllIIllIlIIIlII.length();
-        if (llllllllllllllllIlllIIllIlIIIIll > 0) {
-            for (int llllllllllllllllIlllIIllIlIIIlIl = 0; llllllllllllllllIlllIIllIlIIIlIl < llllllllllllllllIlllIIllIlIIIIll; ++llllllllllllllllIlllIIllIlIIIlIl) {
-                if (Character.isDigit(llllllllllllllllIlllIIllIlIIIlII.charAt(llllllllllllllllIlllIIllIlIIIlIl))) continue;
-                return false;
-            }
-            return true;
+    static int safeParseInt(@Nonnull String string) {
+        if (string.length() > 9) {
+            string = string.substring(0, 9);
         }
-        return false;
+        return Integer.parseInt(string);
     }
 
-    private static boolean containsNumeric(@Nonnull CharSequence llllllllllllllllIlllIIllIIlllIIl) {
-        int llllllllllllllllIlllIIllIIlllIlI = llllllllllllllllIlllIIllIIlllIIl.length();
-        if (llllllllllllllllIlllIIllIIlllIlI > 0) {
-            for (int llllllllllllllllIlllIIllIIllllII = 0; llllllllllllllllIlllIIllIIllllII < llllllllllllllllIlllIIllIIlllIlI; ++llllllllllllllllIlllIIllIIllllII) {
-                if (!Character.isDigit(llllllllllllllllIlllIIllIIlllIIl.charAt(llllllllllllllllIlllIIllIIllllII))) continue;
-                return true;
-            }
+    static boolean startsNumeric(@Nonnull String string) {
+        return (string = string.trim()).length() > 0 && Character.isDigit(string.charAt(0));
+    }
+
+    private static int indexOfQualifier(@Nonnull String string, int n) {
+        if (n == 4) {
+            return string.indexOf("rc") + "rc".length();
         }
-        return false;
-    }
-
-    static int preReleaseVersion(@Nonnull String llllllllllllllllIlllIIllIlIllIll, int llllllllllllllllIlllIIllIlIlllIl) {
-        int llllllllllllllllIlllIIllIlIlllll;
-        int llllllllllllllllIlllIIllIlIlllII = VersionComparator.indexOfQualifier(llllllllllllllllIlllIIllIlIllIll, llllllllllllllllIlllIIllIlIlllIl);
-        if (llllllllllllllllIlllIIllIlIlllII < llllllllllllllllIlllIIllIlIllIll.length() && VersionComparator.containsNumeric(llllllllllllllllIlllIIllIlIllIll.substring(llllllllllllllllIlllIIllIlIlllII, llllllllllllllllIlllIIllIlIlllll = Math.min(llllllllllllllllIlllIIllIlIlllII + 2, llllllllllllllllIlllIIllIlIllIll.length())))) {
-            StringBuilder llllllllllllllllIlllIIllIllIIIII = new StringBuilder();
-            for (int llllllllllllllllIlllIIllIllIIIIl = llllllllllllllllIlllIIllIlIlllII; llllllllllllllllIlllIIllIllIIIIl < llllllllllllllllIlllIIllIlIllIll.length(); ++llllllllllllllllIlllIIllIllIIIIl) {
-                char llllllllllllllllIlllIIllIllIIIlI = llllllllllllllllIlllIIllIlIllIll.charAt(llllllllllllllllIlllIIllIllIIIIl);
-                if (Character.isDigit(llllllllllllllllIlllIIllIllIIIlI)) {
-                    llllllllllllllllIlllIIllIllIIIII.append(llllllllllllllllIlllIIllIllIIIlI);
-                    continue;
-                }
-                if (llllllllllllllllIlllIIllIllIIIIl != llllllllllllllllIlllIIllIlIlllII) break;
-            }
-            return VersionComparator.safeParseInt(String.valueOf(llllllllllllllllIlllIIllIllIIIII));
+        if (n == 3) {
+            return string.indexOf("beta") + "beta".length();
+        }
+        if (n == 2 || n == 1) {
+            return string.indexOf("alpha") + "alpha".length();
         }
         return 0;
     }
 
-    static int compareSuffix(@Nonnull String llllllllllllllllIlllIIllIlllIlII, @Nonnull String llllllllllllllllIlllIIllIlllIIll) {
-        if (llllllllllllllllIlllIIllIlllIlII.length() > 0 || llllllllllllllllIlllIIllIlllIIll.length() > 0) {
-            int llllllllllllllllIlllIIllIlllIlIl;
-            int llllllllllllllllIlllIIllIlllIllI = VersionComparator.qualifierToNumber(llllllllllllllllIlllIIllIlllIlII);
-            if (llllllllllllllllIlllIIllIlllIllI > (llllllllllllllllIlllIIllIlllIlIl = VersionComparator.qualifierToNumber(llllllllllllllllIlllIIllIlllIIll))) {
-                return 1;
+    static {
+        PRE_STRING = "pre";
+        ALPHA = 2;
+        UNKNOWN = 5;
+        BETA = 3;
+        BETA_STRING = "beta";
+        RC = 4;
+        SNAPSHOT_STRING = "snapshot";
+        ALPHA_STRING = "alpha";
+        PATCH = 2;
+        SNAPSHOT = 0;
+        MAJOR = 0;
+        RC_STRING = "rc";
+        PRE_ALPHA = 1;
+        MINOR = 1;
+    }
+
+    static int qualifierToNumber(@Nonnull String string) {
+        if (string.length() > 0) {
+            if ((string = string.toLowerCase()).contains("rc")) {
+                return 4;
             }
-            if (llllllllllllllllIlllIIllIlllIllI < llllllllllllllllIlllIIllIlllIlIl) {
-                return -1;
+            if (string.contains("beta")) {
+                return 3;
             }
-            if (llllllllllllllllIlllIIllIlllIllI != 5 && llllllllllllllllIlllIIllIlllIllI != 0) {
-                int llllllllllllllllIlllIIllIlllIlll;
-                int llllllllllllllllIlllIIllIllllIII = VersionComparator.preReleaseVersion(llllllllllllllllIlllIIllIlllIlII, llllllllllllllllIlllIIllIlllIllI);
-                if (llllllllllllllllIlllIIllIllllIII > (llllllllllllllllIlllIIllIlllIlll = VersionComparator.preReleaseVersion(llllllllllllllllIlllIIllIlllIIll, llllllllllllllllIlllIIllIlllIlIl))) {
+            if (string.contains("alpha")) {
+                if (string.substring(0, string.indexOf("alpha")).contains("pre")) {
                     return 1;
                 }
-                if (llllllllllllllllIlllIIllIllllIII < llllllllllllllllIlllIIllIlllIlll) {
+                return 2;
+            }
+            if (string.contains("snapshot")) {
+                return 0;
+            }
+        }
+        return 5;
+    }
+
+    VersionComparator() {
+    }
+
+    static int compareSubversionNumbers(@Nonnull List<Integer> list, @Nonnull List<Integer> list2) {
+        int n = list.size();
+        int n2 = list2.size();
+        int n3 = Math.max(n, n2);
+        for (int i = 0; i < n3; ++i) {
+            if ((i < n ? list.get(i) : 0) > (i < n2 ? list2.get(i) : 0)) {
+                return 1;
+            }
+            if ((i < n ? list.get(i) : 0) >= (i < n2 ? list2.get(i) : 0)) continue;
+            return -1;
+        }
+        return 0;
+    }
+
+    static int compareSuffix(@Nonnull String string, @Nonnull String string2) {
+        if (string.length() > 0 || string2.length() > 0) {
+            int n;
+            int n2 = VersionComparator.qualifierToNumber(string);
+            if (n2 > (n = VersionComparator.qualifierToNumber(string2))) {
+                return 1;
+            }
+            if (n2 < n) {
+                return -1;
+            }
+            if (n2 != 5 && n2 != 0) {
+                int n3;
+                int n4 = VersionComparator.preReleaseVersion(string, n2);
+                if (n4 > (n3 = VersionComparator.preReleaseVersion(string2, n))) {
+                    return 1;
+                }
+                if (n4 < n3) {
                     return -1;
                 }
             }
@@ -94,80 +125,47 @@ final class VersionComparator {
         return 0;
     }
 
-    private static int indexOfQualifier(@Nonnull String llllllllllllllllIlllIIllIlIlIIlI, int llllllllllllllllIlllIIllIlIIllll) {
-        if (llllllllllllllllIlllIIllIlIIllll == 4) {
-            return llllllllllllllllIlllIIllIlIlIIlI.indexOf("rc") + "rc".length();
-        }
-        if (llllllllllllllllIlllIIllIlIIllll == 3) {
-            return llllllllllllllllIlllIIllIlIlIIlI.indexOf("beta") + "beta".length();
-        }
-        if (llllllllllllllllIlllIIllIlIIllll == 2 || llllllllllllllllIlllIIllIlIIllll == 1) {
-            return llllllllllllllllIlllIIllIlIlIIlI.indexOf("alpha") + "alpha".length();
-        }
-        return 0;
-    }
-
-    VersionComparator() {
-        VersionComparator llllllllllllllllIlllIIlllIIlIIIl;
-    }
-
-    static int safeParseInt(@Nonnull String llllllllllllllllIlllIIllIlIIlIIl) {
-        if (llllllllllllllllIlllIIllIlIIlIIl.length() > 9) {
-            llllllllllllllllIlllIIllIlIIlIIl = llllllllllllllllIlllIIllIlIIlIIl.substring(0, 9);
-        }
-        return Integer.parseInt(llllllllllllllllIlllIIllIlIIlIIl);
-    }
-
-    static int compareSubversionNumbers(@Nonnull List<Integer> llllllllllllllllIlllIIlllIIIlIIl, @Nonnull List<Integer> llllllllllllllllIlllIIlllIIIlIII) {
-        int llllllllllllllllIlllIIlllIIIIlll = llllllllllllllllIlllIIlllIIIlIIl.size();
-        int llllllllllllllllIlllIIlllIIIIllI = llllllllllllllllIlllIIlllIIIlIII.size();
-        int llllllllllllllllIlllIIlllIIIIlIl = Math.max(llllllllllllllllIlllIIlllIIIIlll, llllllllllllllllIlllIIlllIIIIllI);
-        for (int llllllllllllllllIlllIIlllIIIlIlI = 0; llllllllllllllllIlllIIlllIIIlIlI < llllllllllllllllIlllIIlllIIIIlIl; ++llllllllllllllllIlllIIlllIIIlIlI) {
-            if ((llllllllllllllllIlllIIlllIIIlIlI < llllllllllllllllIlllIIlllIIIIlll ? llllllllllllllllIlllIIlllIIIlIIl.get(llllllllllllllllIlllIIlllIIIlIlI) : 0) > (llllllllllllllllIlllIIlllIIIlIlI < llllllllllllllllIlllIIlllIIIIllI ? llllllllllllllllIlllIIlllIIIlIII.get(llllllllllllllllIlllIIlllIIIlIlI) : 0)) {
-                return 1;
+    private static boolean containsNumeric(@Nonnull CharSequence charSequence) {
+        int n = charSequence.length();
+        if (n > 0) {
+            for (int i = 0; i < n; ++i) {
+                if (!Character.isDigit(charSequence.charAt(i))) continue;
+                return true;
             }
-            if ((llllllllllllllllIlllIIlllIIIlIlI < llllllllllllllllIlllIIlllIIIIlll ? llllllllllllllllIlllIIlllIIIlIIl.get(llllllllllllllllIlllIIlllIIIlIlI) : 0) >= (llllllllllllllllIlllIIlllIIIlIlI < llllllllllllllllIlllIIlllIIIIllI ? llllllllllllllllIlllIIlllIIIlIII.get(llllllllllllllllIlllIIlllIIIlIlI) : 0)) continue;
-            return -1;
         }
-        return 0;
+        return false;
     }
 
-    static int qualifierToNumber(@Nonnull String llllllllllllllllIlllIIllIllIlIll) {
-        if (llllllllllllllllIlllIIllIllIlIll.length() > 0) {
-            if ((llllllllllllllllIlllIIllIllIlIll = llllllllllllllllIlllIIllIllIlIll.toLowerCase()).contains("rc")) {
-                return 4;
-            }
-            if (llllllllllllllllIlllIIllIllIlIll.contains("beta")) {
-                return 3;
-            }
-            if (llllllllllllllllIlllIIllIllIlIll.contains("alpha")) {
-                if (llllllllllllllllIlllIIllIllIlIll.substring(0, llllllllllllllllIlllIIllIllIlIll.indexOf("alpha")).contains("pre")) {
-                    return 1;
+    static int preReleaseVersion(@Nonnull String string, int n) {
+        int n2;
+        int n3 = VersionComparator.indexOfQualifier(string, n);
+        if (n3 < string.length() && VersionComparator.containsNumeric(string.substring(n3, n2 = Math.min(n3 + 2, string.length())))) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = n3; i < string.length(); ++i) {
+                char c = string.charAt(i);
+                if (Character.isDigit(c)) {
+                    stringBuilder.append(c);
+                    continue;
                 }
-                return 2;
-            }
-            if (llllllllllllllllIlllIIllIllIlIll.contains("snapshot")) {
+                if (i != n3) break;
+                if (1 <= 2) continue;
                 return 0;
             }
+            return VersionComparator.safeParseInt(String.valueOf(stringBuilder));
         }
-        return 5;
+        return 0;
     }
 
-    static {
-        UNKNOWN = 5;
-        MAJOR = 0;
-        BETA = 3;
-        SNAPSHOT_STRING = "snapshot";
-        ALPHA_STRING = "alpha";
-        ALPHA = 2;
-        PRE_STRING = "pre";
-        MINOR = 1;
-        RC = 4;
-        SNAPSHOT = 0;
-        RC_STRING = "rc";
-        PATCH = 2;
-        PRE_ALPHA = 1;
-        BETA_STRING = "beta";
+    static boolean isNumeric(@Nonnull CharSequence charSequence) {
+        int n = charSequence.length();
+        if (n > 0) {
+            for (int i = 0; i < n; ++i) {
+                if (Character.isDigit(charSequence.charAt(i))) continue;
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }
 

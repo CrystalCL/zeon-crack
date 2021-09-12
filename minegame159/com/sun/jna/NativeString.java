@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -10,113 +10,98 @@ import com.sun.jna.WString;
 import java.nio.CharBuffer;
 
 class NativeString
-implements Comparable,
-CharSequence {
-    static final /* synthetic */ String WIDE_STRING;
-    private /* synthetic */ String encoding;
-    private /* synthetic */ Pointer pointer;
+implements CharSequence,
+Comparable {
+    static final String WIDE_STRING = "--WIDE-STRING--";
+    private String encoding;
+    private Pointer pointer;
 
-    @Override
-    public CharSequence subSequence(int llllllllllllllllllIlIllIIIllllIl, int llllllllllllllllllIlIllIIIlllIIl) {
-        NativeString llllllllllllllllllIlIllIIIlllllI;
-        return CharBuffer.wrap(llllllllllllllllllIlIllIIIlllllI.toString()).subSequence(llllllllllllllllllIlIllIIIllllIl, llllllllllllllllllIlIllIIIlllIIl);
-    }
-
-    public int hashCode() {
-        NativeString llllllllllllllllllIlIllIIlIlllIl;
-        return llllllllllllllllllIlIllIIlIlllIl.toString().hashCode();
-    }
-
-    public int compareTo(Object llllllllllllllllllIlIllIIIllIIll) {
-        NativeString llllllllllllllllllIlIllIIIllIllI;
-        if (llllllllllllllllllIlIllIIIllIIll == null) {
-            return 1;
-        }
-        return llllllllllllllllllIlIllIIIllIllI.toString().compareTo(llllllllllllllllllIlIllIIIllIIll.toString());
-    }
-
-    public boolean equals(Object llllllllllllllllllIlIllIIlIlIlll) {
-        if (llllllllllllllllllIlIllIIlIlIlll instanceof CharSequence) {
-            NativeString llllllllllllllllllIlIllIIlIllIII;
-            return llllllllllllllllllIlIllIIlIllIII.compareTo(llllllllllllllllllIlIllIIlIlIlll) == 0;
+    public boolean equals(Object object) {
+        if (object instanceof CharSequence) {
+            return this.compareTo(object) == 0;
         }
         return false;
     }
 
     @Override
-    public char charAt(int llllllllllllllllllIlIllIIlIIIlIl) {
-        NativeString llllllllllllllllllIlIllIIlIIIllI;
-        return llllllllllllllllllIlIllIIlIIIllI.toString().charAt(llllllllllllllllllIlIllIIlIIIlIl);
+    public char charAt(int n) {
+        return this.toString().charAt(n);
     }
 
-    public NativeString(String llllllllllllllllllIlIllIIlllIlll, boolean llllllllllllllllllIlIllIIlllIIll) {
-        llllllllllllllllllIlIllIIlllIlIl(llllllllllllllllllIlIllIIlllIlll, llllllllllllllllllIlIllIIlllIIll ? "--WIDE-STRING--" : Native.getDefaultStringEncoding());
-        NativeString llllllllllllllllllIlIllIIlllIlIl;
-    }
-
-    public NativeString(WString llllllllllllllllllIlIllIIllIllll) {
-        llllllllllllllllllIlIllIIllIlllI(llllllllllllllllllIlIllIIllIllll.toString(), "--WIDE-STRING--");
-        NativeString llllllllllllllllllIlIllIIllIlllI;
-    }
-
-    public Pointer getPointer() {
-        NativeString llllllllllllllllllIlIllIIlIIlIll;
-        return llllllllllllllllllIlIllIIlIIlIll.pointer;
+    public NativeString(WString wString) {
+        this(wString.toString(), "--WIDE-STRING--");
     }
 
     @Override
     public int length() {
-        NativeString llllllllllllllllllIlIllIIlIIIIll;
-        return llllllllllllllllllIlIllIIlIIIIll.toString().length();
+        return this.toString().length();
     }
 
-    public NativeString(String llllllllllllllllllIlIllIIllIIlIl, String llllllllllllllllllIlIllIIllIIlII) {
-        NativeString llllllllllllllllllIlIllIIllIIIll;
-        if (llllllllllllllllllIlIllIIllIIlIl == null) {
+    public NativeString(String string, String string2) {
+        if (string == null) {
             throw new NullPointerException("String must not be null");
         }
-        llllllllllllllllllIlIllIIllIIIll.encoding = llllllllllllllllllIlIllIIllIIlII;
-        if ("--WIDE-STRING--".equals(llllllllllllllllllIlIllIIllIIIll.encoding)) {
-            int llllllllllllllllllIlIllIIllIlIII = (llllllllllllllllllIlIllIIllIIlIl.length() + 1) * Native.WCHAR_SIZE;
-            llllllllllllllllllIlIllIIllIIIll.pointer = llllllllllllllllllIlIllIIllIIIll.new StringMemory(llllllllllllllllllIlIllIIllIlIII);
-            llllllllllllllllllIlIllIIllIIIll.pointer.setWideString(0L, llllllllllllllllllIlIllIIllIIlIl);
+        this.encoding = string2;
+        if ("--WIDE-STRING--".equals(this.encoding)) {
+            int n = (string.length() + 1) * Native.WCHAR_SIZE;
+            this.pointer = new StringMemory(this, n);
+            this.pointer.setWideString(0L, string);
         } else {
-            byte[] llllllllllllllllllIlIllIIllIIlll = Native.getBytes(llllllllllllllllllIlIllIIllIIlIl, llllllllllllllllllIlIllIIllIIlII);
-            llllllllllllllllllIlIllIIllIIIll.pointer = llllllllllllllllllIlIllIIllIIIll.new StringMemory(llllllllllllllllllIlIllIIllIIlll.length + 1);
-            llllllllllllllllllIlIllIIllIIIll.pointer.write(0L, llllllllllllllllllIlIllIIllIIlll, 0, llllllllllllllllllIlIllIIllIIlll.length);
-            llllllllllllllllllIlIllIIllIIIll.pointer.setByte(llllllllllllllllllIlIllIIllIIlll.length, (byte)0);
+            byte[] byArray = Native.getBytes(string, string2);
+            this.pointer = new StringMemory(this, byArray.length + 1);
+            this.pointer.write(0L, byArray, 0, byArray.length);
+            this.pointer.setByte(byArray.length, (byte)0);
         }
+    }
+
+    public Pointer getPointer() {
+        return this.pointer;
+    }
+
+    @Override
+    public CharSequence subSequence(int n, int n2) {
+        return CharBuffer.wrap(this.toString()).subSequence(n, n2);
     }
 
     @Override
     public String toString() {
-        NativeString llllllllllllllllllIlIllIIlIlIIll;
-        boolean llllllllllllllllllIlIllIIlIlIIlI = "--WIDE-STRING--".equals(llllllllllllllllllIlIllIIlIlIIll.encoding);
-        String llllllllllllllllllIlIllIIlIlIIIl = llllllllllllllllllIlIllIIlIlIIlI ? "const wchar_t*" : "const char*";
-        llllllllllllllllllIlIllIIlIlIIIl = String.valueOf(new StringBuilder().append(llllllllllllllllllIlIllIIlIlIIIl).append("(").append(llllllllllllllllllIlIllIIlIlIIlI ? llllllllllllllllllIlIllIIlIlIIll.pointer.getWideString(0L) : llllllllllllllllllIlIllIIlIlIIll.pointer.getString(0L, llllllllllllllllllIlIllIIlIlIIll.encoding)).append(")"));
-        return llllllllllllllllllIlIllIIlIlIIIl;
+        boolean bl = "--WIDE-STRING--".equals(this.encoding);
+        String string = bl ? "const wchar_t*" : "const char*";
+        string = String.valueOf(new StringBuilder().append(string).append("(").append(bl ? this.pointer.getWideString(0L) : this.pointer.getString(0L, this.encoding)).append(")"));
+        return string;
     }
 
-    static {
-        WIDE_STRING = "--WIDE-STRING--";
+    public NativeString(String string) {
+        this(string, Native.getDefaultStringEncoding());
     }
 
-    public NativeString(String llllllllllllllllllIlIllIIllllllI) {
-        llllllllllllllllllIlIllIIlllllIl(llllllllllllllllllIlIllIIllllllI, Native.getDefaultStringEncoding());
-        NativeString llllllllllllllllllIlIllIIlllllIl;
+    public NativeString(String string, boolean bl) {
+        this(string, bl ? "--WIDE-STRING--" : Native.getDefaultStringEncoding());
+    }
+
+    public int compareTo(Object object) {
+        if (object == null) {
+            return 1;
+        }
+        return this.toString().compareTo(object.toString());
+    }
+
+    public int hashCode() {
+        return this.toString().hashCode();
     }
 
     private class StringMemory
     extends Memory {
-        public StringMemory(long lIIIllIllllIIII) {
-            StringMemory lIIIllIllllIlII;
-            super(lIIIllIllllIIII);
+        final NativeString this$0;
+
+        public StringMemory(NativeString nativeString, long l) {
+            this.this$0 = nativeString;
+            super(l);
         }
 
         @Override
         public String toString() {
-            StringMemory lIIIllIlllIlllI;
-            return lIIIllIlllIlllI.NativeString.this.toString();
+            return this.this$0.toString();
         }
     }
 }

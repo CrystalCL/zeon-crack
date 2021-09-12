@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package club.minnced.discord.rpc;
 
@@ -11,48 +11,40 @@ import java.util.Objects;
 
 public class DiscordUser
 extends Structure {
-    private static final /* synthetic */ List<String> FIELD_ORDER;
-    public /* synthetic */ String userId;
-    public /* synthetic */ String username;
-    public /* synthetic */ String avatar;
-    public /* synthetic */ String discriminator;
-
-    public DiscordUser(String lllllllllllllllllIIlIlIllIllIIll) {
-        DiscordUser lllllllllllllllllIIlIlIllIllIllI;
-        lllllllllllllllllIIlIlIllIllIllI.setStringEncoding(lllllllllllllllllIIlIlIllIllIIll);
-    }
-
-    static {
-        FIELD_ORDER = Collections.unmodifiableList(Arrays.asList("userId", "username", "discriminator", "avatar"));
-    }
-
-    public DiscordUser() {
-        lllllllllllllllllIIlIlIllIllIIII("UTF-8");
-        DiscordUser lllllllllllllllllIIlIlIllIllIIII;
-    }
-
-    @Override
-    public int hashCode() {
-        DiscordUser lllllllllllllllllIIlIlIllIlIIlIl;
-        return Objects.hash(lllllllllllllllllIIlIlIllIlIIlIl.userId, lllllllllllllllllIIlIlIllIlIIlIl.username, lllllllllllllllllIIlIlIllIlIIlIl.discriminator, lllllllllllllllllIIlIlIllIlIIlIl.avatar);
-    }
+    public String username;
+    public String userId;
+    public String avatar;
+    public String discriminator;
+    private static final List<String> FIELD_ORDER = Collections.unmodifiableList(Arrays.asList("userId", "username", "discriminator", "avatar"));
 
     @Override
     protected List<String> getFieldOrder() {
         return FIELD_ORDER;
     }
 
+    public DiscordUser() {
+        this("UTF-8");
+    }
+
     @Override
-    public boolean equals(Object lllllllllllllllllIIlIlIllIlIlIll) {
-        DiscordUser lllllllllllllllllIIlIlIllIlIlIIl;
-        if (lllllllllllllllllIIlIlIllIlIlIIl == lllllllllllllllllIIlIlIllIlIlIll) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
-        if (!(lllllllllllllllllIIlIlIllIlIlIll instanceof DiscordUser)) {
+        if (!(object instanceof DiscordUser)) {
             return false;
         }
-        DiscordUser lllllllllllllllllIIlIlIllIlIlIlI = (DiscordUser)lllllllllllllllllIIlIlIllIlIlIll;
-        return Objects.equals(lllllllllllllllllIIlIlIllIlIlIIl.userId, lllllllllllllllllIIlIlIllIlIlIlI.userId) && Objects.equals(lllllllllllllllllIIlIlIllIlIlIIl.username, lllllllllllllllllIIlIlIllIlIlIlI.username) && Objects.equals(lllllllllllllllllIIlIlIllIlIlIIl.discriminator, lllllllllllllllllIIlIlIllIlIlIlI.discriminator) && Objects.equals(lllllllllllllllllIIlIlIllIlIlIIl.avatar, lllllllllllllllllIIlIlIllIlIlIlI.avatar);
+        DiscordUser discordUser = (DiscordUser)object;
+        return Objects.equals(this.userId, discordUser.userId) && Objects.equals(this.username, discordUser.username) && Objects.equals(this.discriminator, discordUser.discriminator) && Objects.equals(this.avatar, discordUser.avatar);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.userId, this.username, this.discriminator, this.avatar);
+    }
+
+    public DiscordUser(String string) {
+        this.setStringEncoding(string);
     }
 }
 

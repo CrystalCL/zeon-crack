@@ -1,25 +1,21 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package meteordevelopment.orbit;
 
 public class EventPriority {
-    public static final /* synthetic */ int MEDIUM;
-    public static final /* synthetic */ int HIGHEST;
-    public static final /* synthetic */ int LOWEST;
-    public static final /* synthetic */ int LOW;
-    public static final /* synthetic */ int HIGH;
+    public static final int LOW;
+    public static final int HIGH;
+    public static final int MEDIUM;
+    public static final int LOWEST;
+    public static final int HIGHEST;
 
     static {
-        LOW = -100;
-        HIGHEST = 200;
-        MEDIUM = 0;
-        LOWEST = -200;
         HIGH = 100;
-    }
-
-    public EventPriority() {
-        EventPriority lIlIIIIIIllIIIl;
+        MEDIUM = 0;
+        HIGHEST = 200;
+        LOW = -100;
+        LOWEST = -200;
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -7,25 +7,21 @@ import com.sun.jna.ptr.ByReference;
 
 public class ByteByReference
 extends ByReference {
+    public ByteByReference(byte by) {
+        super(1);
+        this.setValue(by);
+    }
+
     public byte getValue() {
-        ByteByReference lllllllllllllllllIlIllllIlIlIIlI;
-        return lllllllllllllllllIlIllllIlIlIIlI.getPointer().getByte(0L);
+        return this.getPointer().getByte(0L);
+    }
+
+    public void setValue(byte by) {
+        this.getPointer().setByte(0L, by);
     }
 
     public ByteByReference() {
-        lllllllllllllllllIlIllllIllIIIII(0);
-        ByteByReference lllllllllllllllllIlIllllIllIIIII;
-    }
-
-    public void setValue(byte lllllllllllllllllIlIllllIlIlIlII) {
-        ByteByReference lllllllllllllllllIlIllllIlIlIlIl;
-        lllllllllllllllllIlIllllIlIlIlIl.getPointer().setByte(0L, lllllllllllllllllIlIllllIlIlIlII);
-    }
-
-    public ByteByReference(byte lllllllllllllllllIlIllllIlIllIlI) {
-        super(1);
-        ByteByReference lllllllllllllllllIlIllllIlIllIll;
-        lllllllllllllllllIlIllllIlIllIll.setValue(lllllllllllllllllIlIllllIlIllIlI);
+        this(0);
     }
 }
 

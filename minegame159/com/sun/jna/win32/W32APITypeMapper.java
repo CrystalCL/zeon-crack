@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.win32;
 
@@ -13,49 +13,48 @@ import com.sun.jna.WString;
 
 public class W32APITypeMapper
 extends DefaultTypeMapper {
-    public static final /* synthetic */ TypeMapper ASCII;
-    public static final /* synthetic */ TypeMapper DEFAULT;
-    public static final /* synthetic */ TypeMapper UNICODE;
+    public static final TypeMapper UNICODE = new W32APITypeMapper(true);
+    public static final TypeMapper DEFAULT;
+    public static final TypeMapper ASCII;
 
-    protected W32APITypeMapper(boolean lllIIllllIllllI) {
-        W32APITypeMapper lllIIlllllIIIlI;
-        if (lllIIllllIllllI) {
-            TypeConverter lllIIlllllIIIll = new TypeConverter(){
-                {
-                    1 lllllllllllllllllIlIlIIlIIllIlII;
-                }
-
-                @Override
-                public Object toNative(Object lllllllllllllllllIlIlIIlIIlIlllI, ToNativeContext lllllllllllllllllIlIlIIlIIlIllll) {
-                    if (lllllllllllllllllIlIlIIlIIlIlllI == null) {
-                        return null;
-                    }
-                    if (lllllllllllllllllIlIlIIlIIlIlllI instanceof String[]) {
-                        return new StringArray((String[])lllllllllllllllllIlIlIIlIIlIlllI, true);
-                    }
-                    return new WString(lllllllllllllllllIlIlIIlIIlIlllI.toString());
-                }
-
-                @Override
-                public Object fromNative(Object lllllllllllllllllIlIlIIlIIlIlIIl, FromNativeContext lllllllllllllllllIlIlIIlIIlIlIlI) {
-                    if (lllllllllllllllllIlIlIIlIIlIlIIl == null) {
-                        return null;
-                    }
-                    return lllllllllllllllllIlIlIIlIIlIlIIl.toString();
-                }
+    protected W32APITypeMapper(boolean bl) {
+        TypeConverter typeConverter;
+        if (bl) {
+            typeConverter = new TypeConverter(this){
+                final W32APITypeMapper this$0;
 
                 @Override
                 public Class<?> nativeType() {
                     return WString.class;
                 }
+                {
+                    this.this$0 = w32APITypeMapper;
+                }
+
+                @Override
+                public Object toNative(Object object, ToNativeContext toNativeContext) {
+                    if (object == null) {
+                        return null;
+                    }
+                    if (object instanceof String[]) {
+                        return new StringArray((String[])object, true);
+                    }
+                    return new WString(object.toString());
+                }
+
+                @Override
+                public Object fromNative(Object object, FromNativeContext fromNativeContext) {
+                    if (object == null) {
+                        return null;
+                    }
+                    return object.toString();
+                }
             };
-            lllIIlllllIIIlI.addTypeConverter(String.class, lllIIlllllIIIll);
-            lllIIlllllIIIlI.addToNativeConverter(String[].class, lllIIlllllIIIll);
+            this.addTypeConverter(String.class, typeConverter);
+            this.addToNativeConverter(String[].class, typeConverter);
         }
-        TypeConverter lllIIlllllIIIII = new TypeConverter(){
-            {
-                2 lIIllIIlIIlIlIl;
-            }
+        typeConverter = new TypeConverter(this){
+            final W32APITypeMapper this$0;
 
             @Override
             public Class<?> nativeType() {
@@ -63,20 +62,22 @@ extends DefaultTypeMapper {
             }
 
             @Override
-            public Object fromNative(Object lIIllIIlIIIlIlI, FromNativeContext lIIllIIlIIIlIIl) {
-                return (Integer)lIIllIIlIIIlIlI != 0 ? Boolean.TRUE : Boolean.FALSE;
+            public Object toNative(Object object, ToNativeContext toNativeContext) {
+                return Boolean.TRUE.equals(object) ? 1 : 0;
             }
 
             @Override
-            public Object toNative(Object lIIllIIlIIIllIl, ToNativeContext lIIllIIlIIIlllI) {
-                return Boolean.TRUE.equals(lIIllIIlIIIllIl) ? 1 : 0;
+            public Object fromNative(Object object, FromNativeContext fromNativeContext) {
+                return (Integer)object != 0 ? Boolean.TRUE : Boolean.FALSE;
+            }
+            {
+                this.this$0 = w32APITypeMapper;
             }
         };
-        lllIIlllllIIIlI.addTypeConverter(Boolean.class, lllIIlllllIIIII);
+        this.addTypeConverter(Boolean.class, typeConverter);
     }
 
     static {
-        UNICODE = new W32APITypeMapper(true);
         ASCII = new W32APITypeMapper(false);
         DEFAULT = Boolean.getBoolean("w32.ascii") ? ASCII : UNICODE;
     }

@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -13,119 +13,111 @@ import java.util.List;
 
 public class DefaultTypeMapper
 implements TypeMapper {
-    private /* synthetic */ List<Entry> toNativeConverters;
-    private /* synthetic */ List<Entry> fromNativeConverters;
+    private List<Entry> fromNativeConverters;
+    private List<Entry> toNativeConverters = new ArrayList<Entry>();
 
-    private Class<?> getAltClass(Class<?> lllIIIlIIlllIlI) {
-        if (lllIIIlIIlllIlI == Boolean.class) {
+    public void addFromNativeConverter(Class<?> clazz, FromNativeConverter fromNativeConverter) {
+        this.fromNativeConverters.add(new Entry(clazz, fromNativeConverter));
+        Class<?> clazz2 = this.getAltClass(clazz);
+        if (clazz2 != null) {
+            this.fromNativeConverters.add(new Entry(clazz2, fromNativeConverter));
+        }
+    }
+
+    @Override
+    public FromNativeConverter getFromNativeConverter(Class<?> clazz) {
+        return (FromNativeConverter)this.lookupConverter(clazz, this.fromNativeConverters);
+    }
+
+    private Class<?> getAltClass(Class<?> clazz) {
+        if (clazz == Boolean.class) {
             return Boolean.TYPE;
         }
-        if (lllIIIlIIlllIlI == Boolean.TYPE) {
+        if (clazz == Boolean.TYPE) {
             return Boolean.class;
         }
-        if (lllIIIlIIlllIlI == Byte.class) {
+        if (clazz == Byte.class) {
             return Byte.TYPE;
         }
-        if (lllIIIlIIlllIlI == Byte.TYPE) {
+        if (clazz == Byte.TYPE) {
             return Byte.class;
         }
-        if (lllIIIlIIlllIlI == Character.class) {
+        if (clazz == Character.class) {
             return Character.TYPE;
         }
-        if (lllIIIlIIlllIlI == Character.TYPE) {
+        if (clazz == Character.TYPE) {
             return Character.class;
         }
-        if (lllIIIlIIlllIlI == Short.class) {
+        if (clazz == Short.class) {
             return Short.TYPE;
         }
-        if (lllIIIlIIlllIlI == Short.TYPE) {
+        if (clazz == Short.TYPE) {
             return Short.class;
         }
-        if (lllIIIlIIlllIlI == Integer.class) {
+        if (clazz == Integer.class) {
             return Integer.TYPE;
         }
-        if (lllIIIlIIlllIlI == Integer.TYPE) {
+        if (clazz == Integer.TYPE) {
             return Integer.class;
         }
-        if (lllIIIlIIlllIlI == Long.class) {
+        if (clazz == Long.class) {
             return Long.TYPE;
         }
-        if (lllIIIlIIlllIlI == Long.TYPE) {
+        if (clazz == Long.TYPE) {
             return Long.class;
         }
-        if (lllIIIlIIlllIlI == Float.class) {
+        if (clazz == Float.class) {
             return Float.TYPE;
         }
-        if (lllIIIlIIlllIlI == Float.TYPE) {
+        if (clazz == Float.TYPE) {
             return Float.class;
         }
-        if (lllIIIlIIlllIlI == Double.class) {
+        if (clazz == Double.class) {
             return Double.TYPE;
         }
-        if (lllIIIlIIlllIlI == Double.TYPE) {
+        if (clazz == Double.TYPE) {
             return Double.class;
         }
         return null;
     }
 
-    public void addFromNativeConverter(Class<?> lllIIIlIIlIIIll, FromNativeConverter lllIIIlIIlIIllI) {
-        DefaultTypeMapper lllIIIlIIlIIlII;
-        lllIIIlIIlIIlII.fromNativeConverters.add(new Entry(lllIIIlIIlIIIll, lllIIIlIIlIIllI));
-        Class<?> lllIIIlIIlIIlIl = lllIIIlIIlIIlII.getAltClass(lllIIIlIIlIIIll);
-        if (lllIIIlIIlIIlIl != null) {
-            lllIIIlIIlIIlII.fromNativeConverters.add(new Entry(lllIIIlIIlIIlIl, lllIIIlIIlIIllI));
-        }
+    public DefaultTypeMapper() {
+        this.fromNativeConverters = new ArrayList<Entry>();
     }
 
-    @Override
-    public FromNativeConverter getFromNativeConverter(Class<?> lllIIIlIIIIlIII) {
-        DefaultTypeMapper lllIIIlIIIIIlll;
-        return (FromNativeConverter)lllIIIlIIIIIlll.lookupConverter(lllIIIlIIIIlIII, lllIIIlIIIIIlll.fromNativeConverters);
-    }
-
-    public void addToNativeConverter(Class<?> lllIIIlIIlIllll, ToNativeConverter lllIIIlIIllIIlI) {
-        DefaultTypeMapper lllIIIlIIllIlII;
-        lllIIIlIIllIlII.toNativeConverters.add(new Entry(lllIIIlIIlIllll, lllIIIlIIllIIlI));
-        Class<?> lllIIIlIIllIIIl = lllIIIlIIllIlII.getAltClass(lllIIIlIIlIllll);
-        if (lllIIIlIIllIIIl != null) {
-            lllIIIlIIllIlII.toNativeConverters.add(new Entry(lllIIIlIIllIIIl, lllIIIlIIllIIlI));
-        }
-    }
-
-    @Override
-    public ToNativeConverter getToNativeConverter(Class<?> lllIIIlIIIIIIII) {
-        DefaultTypeMapper lllIIIlIIIIIIll;
-        return (ToNativeConverter)lllIIIlIIIIIIll.lookupConverter(lllIIIlIIIIIIII, lllIIIlIIIIIIll.toNativeConverters);
-    }
-
-    public void addTypeConverter(Class<?> lllIIIlIIIllIIl, TypeConverter lllIIIlIIIllIll) {
-        DefaultTypeMapper lllIIIlIIIlllIl;
-        lllIIIlIIIlllIl.addFromNativeConverter(lllIIIlIIIllIIl, lllIIIlIIIllIll);
-        lllIIIlIIIlllIl.addToNativeConverter(lllIIIlIIIllIIl, lllIIIlIIIllIll);
-    }
-
-    private Object lookupConverter(Class<?> lllIIIlIIIIllll, Collection<? extends Entry> lllIIIlIIIlIIII) {
-        for (Entry entry : lllIIIlIIIlIIII) {
-            if (!entry.type.isAssignableFrom(lllIIIlIIIIllll)) continue;
+    private Object lookupConverter(Class<?> clazz, Collection<? extends Entry> collection) {
+        for (Entry entry : collection) {
+            if (!entry.type.isAssignableFrom(clazz)) continue;
             return entry.converter;
         }
         return null;
     }
 
-    public DefaultTypeMapper() {
-        DefaultTypeMapper lllIIIlIIllllIl;
-        lllIIIlIIllllIl.toNativeConverters = new ArrayList<Entry>();
-        lllIIIlIIllllIl.fromNativeConverters = new ArrayList<Entry>();
+    public void addTypeConverter(Class<?> clazz, TypeConverter typeConverter) {
+        this.addFromNativeConverter(clazz, typeConverter);
+        this.addToNativeConverter(clazz, typeConverter);
+    }
+
+    public void addToNativeConverter(Class<?> clazz, ToNativeConverter toNativeConverter) {
+        this.toNativeConverters.add(new Entry(clazz, toNativeConverter));
+        Class<?> clazz2 = this.getAltClass(clazz);
+        if (clazz2 != null) {
+            this.toNativeConverters.add(new Entry(clazz2, toNativeConverter));
+        }
+    }
+
+    @Override
+    public ToNativeConverter getToNativeConverter(Class<?> clazz) {
+        return (ToNativeConverter)this.lookupConverter(clazz, this.toNativeConverters);
     }
 
     private static class Entry {
-        public /* synthetic */ Class<?> type;
-        public /* synthetic */ Object converter;
+        public Object converter;
+        public Class<?> type;
 
-        public Entry(Class<?> llIlIllIIIIIIII, Object llIlIlIllllllll) {
-            Entry llIlIlIlllllllI;
-            llIlIlIlllllllI.type = llIlIllIIIIIIII;
-            llIlIlIlllllllI.converter = llIlIlIllllllll;
+        public Entry(Class<?> clazz, Object object) {
+            this.type = clazz;
+            this.converter = object;
         }
     }
 }

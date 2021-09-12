@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -8,26 +8,19 @@ import com.sun.jna.Native;
 
 public class NativeLong
 extends IntegerType {
-    private static final /* synthetic */ long serialVersionUID = 1L;
-    public static final /* synthetic */ int SIZE;
+    public static final int SIZE = Native.LONG_SIZE;
+    private static final long serialVersionUID = 1L;
 
     public NativeLong() {
-        llllllllllllllllIllllIllllIIIlII(0L);
-        NativeLong llllllllllllllllIllllIllllIIIlII;
+        this(0L);
     }
 
-    public NativeLong(long llllllllllllllllIllllIlllIllllll) {
-        llllllllllllllllIllllIllllIIIIII(llllllllllllllllIllllIlllIllllll, false);
-        NativeLong llllllllllllllllIllllIllllIIIIII;
+    public NativeLong(long l, boolean bl) {
+        super(SIZE, l, bl);
     }
 
-    public NativeLong(long llllllllllllllllIllllIlllIlllIII, boolean llllllllllllllllIllllIlllIllIlII) {
-        super(SIZE, llllllllllllllllIllllIlllIlllIII, llllllllllllllllIllllIlllIllIlII);
-        NativeLong llllllllllllllllIllllIlllIllIllI;
-    }
-
-    static {
-        SIZE = Native.LONG_SIZE;
+    public NativeLong(long l) {
+        this(l, false);
     }
 }
 

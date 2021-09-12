@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -8,31 +8,27 @@ import java.lang.reflect.Method;
 
 public class CallbackParameterContext
 extends FromNativeContext {
-    private /* synthetic */ Object[] args;
-    private /* synthetic */ Method method;
-    private /* synthetic */ int index;
-
-    public Method getMethod() {
-        CallbackParameterContext lIllIIlllIlIll;
-        return lIllIIlllIlIll.method;
-    }
+    private int index;
+    private Method method;
+    private Object[] args;
 
     public Object[] getArguments() {
-        CallbackParameterContext lIllIIlllIlIII;
-        return lIllIIlllIlIII.args;
+        return this.args;
     }
 
     public int getIndex() {
-        CallbackParameterContext lIllIIlllIIlIl;
-        return lIllIIlllIIlIl.index;
+        return this.index;
     }
 
-    CallbackParameterContext(Class<?> lIllIIllllIllI, Method lIllIIllllIlIl, Object[] lIllIIllllIlII, int lIllIIllllIIll) {
-        super(lIllIIllllIllI);
-        CallbackParameterContext lIllIIllllIIlI;
-        lIllIIllllIIlI.method = lIllIIllllIlIl;
-        lIllIIllllIIlI.args = lIllIIllllIlII;
-        lIllIIllllIIlI.index = lIllIIllllIIll;
+    public Method getMethod() {
+        return this.method;
+    }
+
+    CallbackParameterContext(Class<?> clazz, Method method, Object[] objectArray, int n) {
+        super(clazz);
+        this.method = method;
+        this.args = objectArray;
+        this.index = n;
     }
 }
 

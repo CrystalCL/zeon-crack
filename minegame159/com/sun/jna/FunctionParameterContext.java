@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -8,30 +8,26 @@ import com.sun.jna.ToNativeContext;
 
 public class FunctionParameterContext
 extends ToNativeContext {
-    private /* synthetic */ Function function;
-    private /* synthetic */ int index;
-    private /* synthetic */ Object[] args;
+    private Function function;
+    private Object[] args;
+    private int index;
 
     public Object[] getParameters() {
-        FunctionParameterContext lIllIIIIIIlIlI;
-        return lIllIIIIIIlIlI.args;
-    }
-
-    FunctionParameterContext(Function lIllIIIIIlIIlI, Object[] lIllIIIIIlIIIl, int lIllIIIIIlIIII) {
-        FunctionParameterContext lIllIIIIIlIIll;
-        lIllIIIIIlIIll.function = lIllIIIIIlIIlI;
-        lIllIIIIIlIIll.args = lIllIIIIIlIIIl;
-        lIllIIIIIlIIll.index = lIllIIIIIlIIII;
+        return this.args;
     }
 
     public int getParameterIndex() {
-        FunctionParameterContext lIllIIIIIIlIII;
-        return lIllIIIIIIlIII.index;
+        return this.index;
     }
 
     public Function getFunction() {
-        FunctionParameterContext lIllIIIIIIllIl;
-        return lIllIIIIIIllIl.function;
+        return this.function;
+    }
+
+    FunctionParameterContext(Function function, Object[] objectArray, int n) {
+        this.function = function;
+        this.args = objectArray;
+        this.index = n;
     }
 }
 

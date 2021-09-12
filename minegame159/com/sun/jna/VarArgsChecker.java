@@ -1,66 +1,80 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
 import java.lang.reflect.Method;
 
 abstract class VarArgsChecker {
-    abstract int fixedArgs(Method var1);
-
-    private VarArgsChecker() {
-        VarArgsChecker llIIIIIlIIIIlI;
-    }
-
     abstract boolean isVarArgs(Method var1);
 
+    abstract int fixedArgs(Method var1);
+
     static VarArgsChecker create() {
-        try {
-            Method llIIIIIIllllll = Method.class.getMethod("isVarArgs", new Class[0]);
-            if (llIIIIIIllllll != null) {
-                return new RealVarArgsChecker();
+        block5: {
+            try {
+                Method method = Method.class.getMethod("isVarArgs", new Class[0]);
+                if (method == null) break block5;
+                return new RealVarArgsChecker(null);
             }
-            return new NoVarArgsChecker();
+            catch (NoSuchMethodException | SecurityException exception) {
+                return new NoVarArgsChecker(null);
+            }
         }
-        catch (NoSuchMethodException llIIIIIIlllllI) {
-            return new NoVarArgsChecker();
+        try {
+            return new NoVarArgsChecker(null);
         }
-        catch (SecurityException llIIIIIIllllIl) {
-            return new NoVarArgsChecker();
+        catch (SecurityException securityException) {
+            return new NoVarArgsChecker(null);
         }
+    }
+
+    VarArgsChecker(1 var1_1) {
+        this();
+    }
+
+    private VarArgsChecker() {
     }
 
     private static final class RealVarArgsChecker
     extends VarArgsChecker {
         @Override
-        boolean isVarArgs(Method llllllllllllllllIlllIlllIIllIIII) {
-            return llllllllllllllllIlllIlllIIllIIII.isVarArgs();
-        }
-
-        @Override
-        int fixedArgs(Method llllllllllllllllIlllIlllIIlIlIll) {
-            return llllllllllllllllIlllIlllIIlIlIll.isVarArgs() ? llllllllllllllllIlllIlllIIlIlIll.getParameterTypes().length - 1 : 0;
+        int fixedArgs(Method method) {
+            return method.isVarArgs() ? method.getParameterTypes().length - 1 : 0;
         }
 
         private RealVarArgsChecker() {
-            RealVarArgsChecker llllllllllllllllIlllIlllIIllIIll;
+            super(null);
+        }
+
+        @Override
+        boolean isVarArgs(Method method) {
+            return method.isVarArgs();
+        }
+
+        RealVarArgsChecker(1 var1_1) {
+            this();
         }
     }
 
     private static final class NoVarArgsChecker
     extends VarArgsChecker {
-        @Override
-        int fixedArgs(Method llllllllllllllllllllIllIIlIIlIII) {
-            return 0;
+        NoVarArgsChecker(1 var1_1) {
+            this();
         }
 
         private NoVarArgsChecker() {
-            NoVarArgsChecker llllllllllllllllllllIllIIlIIllIl;
+            super(null);
         }
 
         @Override
-        boolean isVarArgs(Method llllllllllllllllllllIllIIlIIlIlI) {
+        boolean isVarArgs(Method method) {
             return false;
+        }
+
+        @Override
+        int fixedArgs(Method method) {
+            return 0;
         }
     }
 }

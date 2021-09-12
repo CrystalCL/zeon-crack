@@ -1,0 +1,40 @@
+/*
+ * Decompiled with CFR 0.151.
+ */
+package minegame159.meteorclient.utils.files;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class StreamUtils {
+    public static void copy(File file, File file2) {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            FileOutputStream fileOutputStream = new FileOutputStream(file2);
+            StreamUtils.copy(fileInputStream, fileOutputStream);
+            ((InputStream)fileInputStream).close();
+            ((OutputStream)fileOutputStream).close();
+        }
+        catch (IOException iOException) {
+            iOException.printStackTrace();
+        }
+    }
+
+    public static void copy(InputStream inputStream, OutputStream outputStream) {
+        byte[] byArray = new byte[512];
+        try {
+            int n;
+            while ((n = inputStream.read(byArray)) != -1) {
+                outputStream.write(byArray, 0, n);
+            }
+        }
+        catch (IOException iOException) {
+            iOException.printStackTrace();
+        }
+    }
+}
+

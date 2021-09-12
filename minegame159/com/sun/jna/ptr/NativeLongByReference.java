@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -8,25 +8,21 @@ import com.sun.jna.ptr.ByReference;
 
 public class NativeLongByReference
 extends ByReference {
-    public void setValue(NativeLong lIIlllIllIlIIll) {
-        NativeLongByReference lIIlllIllIlIIlI;
-        lIIlllIllIlIIlI.getPointer().setNativeLong(0L, lIIlllIllIlIIll);
-    }
-
-    public NativeLong getValue() {
-        NativeLongByReference lIIlllIllIIlllI;
-        return lIIlllIllIIlllI.getPointer().getNativeLong(0L);
+    public void setValue(NativeLong nativeLong) {
+        this.getPointer().setNativeLong(0L, nativeLong);
     }
 
     public NativeLongByReference() {
-        lIIlllIllIlllIl(new NativeLong(0L));
-        NativeLongByReference lIIlllIllIlllIl;
+        this(new NativeLong(0L));
     }
 
-    public NativeLongByReference(NativeLong lIIlllIllIlIlll) {
+    public NativeLongByReference(NativeLong nativeLong) {
         super(NativeLong.SIZE);
-        NativeLongByReference lIIlllIllIllIlI;
-        lIIlllIllIllIlI.setValue(lIIlllIllIlIlll);
+        this.setValue(nativeLong);
+    }
+
+    public NativeLong getValue() {
+        return this.getPointer().getNativeLong(0L);
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.win32;
 
@@ -10,19 +10,14 @@ import com.sun.jna.win32.StdCall;
 import com.sun.jna.win32.StdCallFunctionMapper;
 
 public interface StdCallLibrary
-extends Library,
-StdCall {
-    public static final /* synthetic */ FunctionMapper FUNCTION_MAPPER;
-    public static final /* synthetic */ int STDCALL_CONVENTION;
-
-    static {
-        STDCALL_CONVENTION = 63;
-        FUNCTION_MAPPER = new StdCallFunctionMapper();
-    }
+extends StdCall,
+Library {
+    public static final int STDCALL_CONVENTION = 63;
+    public static final FunctionMapper FUNCTION_MAPPER = new StdCallFunctionMapper();
 
     public static interface StdCallCallback
-    extends StdCall,
-    Callback {
+    extends Callback,
+    StdCall {
     }
 }
 

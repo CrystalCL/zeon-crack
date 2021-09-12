@@ -1,62 +1,53 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
 import com.sun.jna.Callback;
 
 public class CallbackThreadInitializer {
-    private /* synthetic */ ThreadGroup group;
-    private /* synthetic */ boolean detach;
-    private /* synthetic */ String name;
-    private /* synthetic */ boolean daemon;
+    private ThreadGroup group;
+    private boolean detach;
+    private String name;
+    private boolean daemon;
 
-    public CallbackThreadInitializer(boolean llllllllllllllllllIlllIllllIlllI, boolean llllllllllllllllllIlllIlllllIIIl, String llllllllllllllllllIlllIllllIllII) {
-        llllllllllllllllllIlllIlllllIIll(llllllllllllllllllIlllIllllIlllI, llllllllllllllllllIlllIlllllIIIl, llllllllllllllllllIlllIllllIllII, null);
-        CallbackThreadInitializer llllllllllllllllllIlllIlllllIIll;
+    public CallbackThreadInitializer(boolean bl) {
+        this(bl, false);
     }
 
-    public String getName(Callback llllllllllllllllllIlllIlllIllIlI) {
-        CallbackThreadInitializer llllllllllllllllllIlllIlllIllIIl;
-        return llllllllllllllllllIlllIlllIllIIl.name;
+    public CallbackThreadInitializer(boolean bl, boolean bl2) {
+        this(bl, bl2, null);
     }
 
-    public ThreadGroup getThreadGroup(Callback llllllllllllllllllIlllIlllIlIllI) {
-        CallbackThreadInitializer llllllllllllllllllIlllIlllIlIlIl;
-        return llllllllllllllllllIlllIlllIlIlIl.group;
+    public boolean detach(Callback callback) {
+        return this.detach;
     }
 
     public CallbackThreadInitializer() {
-        llllllllllllllllllIllllIIIIIlIII(true);
-        CallbackThreadInitializer llllllllllllllllllIllllIIIIIlIII;
+        this(true);
     }
 
-    public CallbackThreadInitializer(boolean llllllllllllllllllIllllIIIIIIIll) {
-        llllllllllllllllllIllllIIIIIIlII(llllllllllllllllllIllllIIIIIIIll, false);
-        CallbackThreadInitializer llllllllllllllllllIllllIIIIIIlII;
+    public CallbackThreadInitializer(boolean bl, boolean bl2, String string) {
+        this(bl, bl2, string, null);
     }
 
-    public CallbackThreadInitializer(boolean llllllllllllllllllIlllIllllllIIl, boolean llllllllllllllllllIlllIllllllIII) {
-        llllllllllllllllllIlllIllllllIlI(llllllllllllllllllIlllIllllllIIl, llllllllllllllllllIlllIllllllIII, null);
-        CallbackThreadInitializer llllllllllllllllllIlllIllllllIlI;
+    public CallbackThreadInitializer(boolean bl, boolean bl2, String string, ThreadGroup threadGroup) {
+        this.daemon = bl;
+        this.detach = bl2;
+        this.name = string;
+        this.group = threadGroup;
     }
 
-    public boolean isDaemon(Callback llllllllllllllllllIlllIlllIlIIlI) {
-        CallbackThreadInitializer llllllllllllllllllIlllIlllIlIIll;
-        return llllllllllllllllllIlllIlllIlIIll.daemon;
+    public String getName(Callback callback) {
+        return this.name;
     }
 
-    public CallbackThreadInitializer(boolean llllllllllllllllllIlllIllllIIlIl, boolean llllllllllllllllllIlllIlllIlllll, String llllllllllllllllllIlllIllllIIIll, ThreadGroup llllllllllllllllllIlllIllllIIIlI) {
-        CallbackThreadInitializer llllllllllllllllllIlllIllllIIllI;
-        llllllllllllllllllIlllIllllIIllI.daemon = llllllllllllllllllIlllIllllIIlIl;
-        llllllllllllllllllIlllIllllIIllI.detach = llllllllllllllllllIlllIlllIlllll;
-        llllllllllllllllllIlllIllllIIllI.name = llllllllllllllllllIlllIllllIIIll;
-        llllllllllllllllllIlllIllllIIllI.group = llllllllllllllllllIlllIllllIIIlI;
+    public boolean isDaemon(Callback callback) {
+        return this.daemon;
     }
 
-    public boolean detach(Callback llllllllllllllllllIlllIlllIIlllI) {
-        CallbackThreadInitializer llllllllllllllllllIlllIlllIIllll;
-        return llllllllllllllllllIlllIlllIIllll.detach;
+    public ThreadGroup getThreadGroup(Callback callback) {
+        return this.group;
     }
 }
 
