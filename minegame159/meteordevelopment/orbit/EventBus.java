@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package meteordevelopment.orbit;
 
@@ -17,168 +17,162 @@ import meteordevelopment.orbit.listeners.LambdaListener;
 
 public class EventBus
 implements IEventBus {
-    private final /* synthetic */ Map<Class<?>, List<IListener>> staticListenerCache;
-    private final /* synthetic */ Map<Object, List<IListener>> listenerCache;
-    private final /* synthetic */ Map<Class<?>, List<IListener>> listenerMap;
+    private final Map<Object, List<IListener>> listenerCache = new ConcurrentHashMap<Object, List<IListener>>();
+    private final Map<Class<?>, List<IListener>> listenerMap;
+    private final Map<Class<?>, List<IListener>> staticListenerCache = new ConcurrentHashMap();
 
-    @Override
-    public void subscribe(Class<?> lllllllllllllllllIlllIlIIlIllIlI) {
-        EventBus lllllllllllllllllIlllIlIIlIllIll;
-        lllllllllllllllllIlllIlIIlIllIll.subscribe(lllllllllllllllllIlllIlIIlIllIll.getListeners(lllllllllllllllllIlllIlIIlIllIlI, null), true);
+    private static List lambda$subscribe$0(Class clazz) {
+        return new CopyOnWriteArrayList();
     }
 
-    private void unsubscribe(IListener lllllllllllllllllIlllIlIIIIIlIll, boolean lllllllllllllllllIlllIlIIIIIIllI) {
-        EventBus lllllllllllllllllIlllIlIIIIIlIII;
-        List<IListener> lllllllllllllllllIlllIlIIIIIlIIl = lllllllllllllllllIlllIlIIIIIlIII.listenerMap.get(lllllllllllllllllIlllIlIIIIIlIll.getTarget());
-        if (lllllllllllllllllIlllIlIIIIIlIIl != null) {
-            if (lllllllllllllllllIlllIlIIIIIIllI) {
-                if (lllllllllllllllllIlllIlIIIIIlIll.isStatic()) {
-                    lllllllllllllllllIlllIlIIIIIlIIl.remove(lllllllllllllllllIlllIlIIIIIlIll);
+    @Override
+    public <T> T post(T t) {
+        List<IListener> list = this.listenerMap.get(t.getClass());
+        if (list != null) {
+            for (IListener iListener : list) {
+                iListener.call(t);
+            }
+        }
+        return t;
+    }
+
+    private List lambda$getListeners$2(Class clazz, Object object, Object object2) {
+        CopyOnWriteArrayList<IListener> copyOnWriteArrayList = new CopyOnWriteArrayList<IListener>();
+        this.getListeners(copyOnWriteArrayList, clazz, object);
+        return copyOnWriteArrayList;
+    }
+
+    @Override
+    public void unsubscribe(Object object) {
+        this.unsubscribe(this.getListeners(object.getClass(), object), false);
+    }
+
+    private void unsubscribe(IListener iListener, boolean bl) {
+        List<IListener> list = this.listenerMap.get(iListener.getTarget());
+        if (list != null) {
+            if (bl) {
+                if (iListener.isStatic()) {
+                    list.remove(iListener);
                 }
             } else {
-                lllllllllllllllllIlllIlIIIIIlIIl.remove(lllllllllllllllllIlllIlIIIIIlIll);
+                list.remove(iListener);
             }
         }
-    }
-
-    private void unsubscribe(List<IListener> lllllllllllllllllIlllIlIIIIlIlll, boolean lllllllllllllllllIlllIlIIIIlIIll) {
-        for (IListener lllllllllllllllllIlllIlIIIIllIIl : lllllllllllllllllIlllIlIIIIlIlll) {
-            EventBus lllllllllllllllllIlllIlIIIIlIlIl;
-            lllllllllllllllllIlllIlIIIIlIlIl.unsubscribe(lllllllllllllllllIlllIlIIIIllIIl, lllllllllllllllllIlllIlIIIIlIIll);
-        }
-    }
-
-    @Override
-    public void subscribe(Object lllllllllllllllllIlllIlIIllIIIII) {
-        EventBus lllllllllllllllllIlllIlIIlIlllll;
-        lllllllllllllllllIlllIlIIlIlllll.subscribe(lllllllllllllllllIlllIlIIlIlllll.getListeners(lllllllllllllllllIlllIlIIllIIIII.getClass(), lllllllllllllllllIlllIlIIllIIIII), false);
-    }
-
-    private void insert(List<IListener> lllllllllllllllllIlllIlIIIllIllI, IListener lllllllllllllllllIlllIlIIIllIIlI) {
-        int lllllllllllllllllIlllIlIIIllIlII;
-        for (lllllllllllllllllIlllIlIIIllIlII = 0; lllllllllllllllllIlllIlIIIllIlII < lllllllllllllllllIlllIlIIIllIllI.size() && lllllllllllllllllIlllIlIIIllIIlI.getPriority() <= lllllllllllllllllIlllIlIIIllIllI.get(lllllllllllllllllIlllIlIIIllIlII).getPriority(); ++lllllllllllllllllIlllIlIIIllIlII) {
-        }
-        lllllllllllllllllIlllIlIIIllIllI.add(lllllllllllllllllIlllIlIIIllIlII, lllllllllllllllllIlllIlIIIllIIlI);
-    }
-
-    @Override
-    public <T> T post(T lllllllllllllllllIlllIlIIllllIII) {
-        EventBus lllllllllllllllllIlllIlIIlllIllI;
-        List<IListener> lllllllllllllllllIlllIlIIlllIlll = lllllllllllllllllIlllIlIIlllIllI.listenerMap.get(lllllllllllllllllIlllIlIIllllIII.getClass());
-        if (lllllllllllllllllIlllIlIIlllIlll != null) {
-            for (IListener lllllllllllllllllIlllIlIIllllIlI : lllllllllllllllllIlllIlIIlllIlll) {
-                lllllllllllllllllIlllIlIIllllIlI.call(lllllllllllllllllIlllIlIIllllIII);
-            }
-        }
-        return lllllllllllllllllIlllIlIIllllIII;
-    }
-
-    @Override
-    public void unsubscribe(IListener lllllllllllllllllIlllIlIIIIlllll) {
-        EventBus lllllllllllllllllIlllIlIIIlIIIII;
-        lllllllllllllllllIlllIlIIIlIIIII.unsubscribe(lllllllllllllllllIlllIlIIIIlllll, false);
-    }
-
-    private void subscribe(List<IListener> lllllllllllllllllIlllIlIIlIIIlll, boolean lllllllllllllllllIlllIlIIlIIIllI) {
-        for (IListener lllllllllllllllllIlllIlIIlIIllII : lllllllllllllllllIlllIlIIlIIIlll) {
-            EventBus lllllllllllllllllIlllIlIIlIIlIll;
-            lllllllllllllllllIlllIlIIlIIlIll.subscribe(lllllllllllllllllIlllIlIIlIIllII, lllllllllllllllllIlllIlIIlIIIllI);
-        }
-    }
-
-    @Override
-    public void unsubscribe(Class<?> lllllllllllllllllIlllIlIIIlIIlIl) {
-        EventBus lllllllllllllllllIlllIlIIIlIlIII;
-        lllllllllllllllllIlllIlIIIlIlIII.unsubscribe(lllllllllllllllllIlllIlIIIlIlIII.getListeners(lllllllllllllllllIlllIlIIIlIIlIl, null), true);
-    }
-
-    private List<IListener> getListeners(Class<?> lllllllllllllllllIlllIIlllllIlll, Object lllllllllllllllllIlllIIllllllIll) {
-        EventBus lllllllllllllllllIlllIIllllllIII;
-        Function<Object, List> lllllllllllllllllIlllIIllllllIlI = lllllllllllllllllIlllIIlllIIlIII -> {
-            EventBus lllllllllllllllllIlllIIlllIIlIll;
-            CopyOnWriteArrayList<IListener> lllllllllllllllllIlllIIlllIIIlll = new CopyOnWriteArrayList<IListener>();
-            lllllllllllllllllIlllIIlllIIlIll.getListeners(lllllllllllllllllIlllIIlllIIIlll, lllllllllllllllllIlllIIlllllIlll, lllllllllllllllllIlllIIllllllIll);
-            return lllllllllllllllllIlllIIlllIIIlll;
-        };
-        if (lllllllllllllllllIlllIIllllllIll == null) {
-            return lllllllllllllllllIlllIIllllllIII.staticListenerCache.computeIfAbsent(lllllllllllllllllIlllIIlllllIlll, lllllllllllllllllIlllIIllllllIlI);
-        }
-        for (Object lllllllllllllllllIlllIIllllllllI : lllllllllllllllllIlllIIllllllIII.listenerCache.keySet()) {
-            if (lllllllllllllllllIlllIIllllllllI != lllllllllllllllllIlllIIllllllIll) continue;
-            return lllllllllllllllllIlllIIllllllIII.listenerCache.get(lllllllllllllllllIlllIIllllllIll);
-        }
-        List lllllllllllllllllIlllIIllllllIIl = lllllllllllllllllIlllIIllllllIlI.apply(lllllllllllllllllIlllIIllllllIll);
-        lllllllllllllllllIlllIIllllllIII.listenerCache.put(lllllllllllllllllIlllIIllllllIll, lllllllllllllllllIlllIIllllllIIl);
-        return lllllllllllllllllIlllIIllllllIIl;
-    }
-
-    @Override
-    public void unsubscribe(Object lllllllllllllllllIlllIlIIIlIlIll) {
-        EventBus lllllllllllllllllIlllIlIIIlIllII;
-        lllllllllllllllllIlllIlIIIlIllII.unsubscribe(lllllllllllllllllIlllIlIIIlIllII.getListeners(lllllllllllllllllIlllIlIIIlIlIll.getClass(), lllllllllllllllllIlllIlIIIlIlIll), false);
-    }
-
-    private boolean isValid(Method lllllllllllllllllIlllIIlllIlIIll) {
-        if (!lllllllllllllllllIlllIIlllIlIIll.isAnnotationPresent(EventHandler.class)) {
-            return false;
-        }
-        if (lllllllllllllllllIlllIIlllIlIIll.getReturnType() != Void.TYPE) {
-            return false;
-        }
-        if (lllllllllllllllllIlllIIlllIlIIll.getParameterCount() != 1) {
-            return false;
-        }
-        return !lllllllllllllllllIlllIIlllIlIIll.getParameters()[0].getType().isPrimitive();
-    }
-
-    @Override
-    public <T extends ICancellable> T post(T lllllllllllllllllIlllIlIIllIIlll) {
-        EventBus lllllllllllllllllIlllIlIIllIlIll;
-        List<IListener> lllllllllllllllllIlllIlIIllIlIIl = lllllllllllllllllIlllIlIIllIlIll.listenerMap.get(lllllllllllllllllIlllIlIIllIIlll.getClass());
-        if (lllllllllllllllllIlllIlIIllIlIIl != null) {
-            lllllllllllllllllIlllIlIIllIIlll.setCancelled(false);
-            for (IListener lllllllllllllllllIlllIlIIllIllII : lllllllllllllllllIlllIlIIllIlIIl) {
-                lllllllllllllllllIlllIlIIllIllII.call(lllllllllllllllllIlllIlIIllIIlll);
-                if (!lllllllllllllllllIlllIlIIllIIlll.isCancelled()) continue;
-                break;
-            }
-        }
-        return lllllllllllllllllIlllIlIIllIIlll;
     }
 
     public EventBus() {
-        EventBus lllllllllllllllllIlllIlIlIIIIIIl;
-        lllllllllllllllllIlllIlIlIIIIIIl.listenerCache = new ConcurrentHashMap<Object, List<IListener>>();
-        lllllllllllllllllIlllIlIlIIIIIIl.staticListenerCache = new ConcurrentHashMap();
-        lllllllllllllllllIlllIlIlIIIIIIl.listenerMap = new ConcurrentHashMap();
+        this.listenerMap = new ConcurrentHashMap();
+    }
+
+    private static List lambda$subscribe$1(Class clazz) {
+        return new CopyOnWriteArrayList();
+    }
+
+    private void getListeners(List<IListener> list, Class<?> clazz, Object object) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (!this.isValid(method)) continue;
+            list.add(new LambdaListener(clazz, object, method));
+            if (null == null) continue;
+            return;
+        }
+        if (clazz.getSuperclass() != null) {
+            this.getListeners(list, clazz.getSuperclass(), object);
+        }
+    }
+
+    private boolean isValid(Method method) {
+        if (!method.isAnnotationPresent(EventHandler.class)) {
+            return false;
+        }
+        if (method.getReturnType() != Void.TYPE) {
+            return false;
+        }
+        if (method.getParameterCount() != 1) {
+            return false;
+        }
+        return !method.getParameters()[0].getType().isPrimitive();
     }
 
     @Override
-    public void subscribe(IListener lllllllllllllllllIlllIlIIlIlIlII) {
-        EventBus lllllllllllllllllIlllIlIIlIlIlIl;
-        lllllllllllllllllIlllIlIIlIlIlIl.subscribe(lllllllllllllllllIlllIlIIlIlIlII, false);
+    public void unsubscribe(Class<?> clazz) {
+        this.unsubscribe(this.getListeners(clazz, null), true);
     }
 
-    private void subscribe(IListener lllllllllllllllllIlllIlIIIllllll, boolean lllllllllllllllllIlllIlIIIlllllI) {
-        EventBus lllllllllllllllllIlllIlIIlIIIIII;
-        if (lllllllllllllllllIlllIlIIIlllllI) {
-            if (lllllllllllllllllIlllIlIIIllllll.isStatic()) {
-                lllllllllllllllllIlllIlIIlIIIIII.insert(lllllllllllllllllIlllIlIIlIIIIII.listenerMap.computeIfAbsent(lllllllllllllllllIlllIlIIIllllll.getTarget(), lllllllllllllllllIlllIIllIlllllI -> new CopyOnWriteArrayList()), lllllllllllllllllIlllIlIIIllllll);
+    private void subscribe(List<IListener> list, boolean bl) {
+        for (IListener iListener : list) {
+            this.subscribe(iListener, bl);
+        }
+    }
+
+    private void subscribe(IListener iListener, boolean bl) {
+        if (bl) {
+            if (iListener.isStatic()) {
+                this.insert(this.listenerMap.computeIfAbsent(iListener.getTarget(), EventBus::lambda$subscribe$0), iListener);
             }
         } else {
-            lllllllllllllllllIlllIlIIlIIIIII.insert(lllllllllllllllllIlllIlIIlIIIIII.listenerMap.computeIfAbsent(lllllllllllllllllIlllIlIIIllllll.getTarget(), lllllllllllllllllIlllIIlllIIIIIl -> new CopyOnWriteArrayList()), lllllllllllllllllIlllIlIIIllllll);
+            this.insert(this.listenerMap.computeIfAbsent(iListener.getTarget(), EventBus::lambda$subscribe$1), iListener);
         }
     }
 
-    private void getListeners(List<IListener> lllllllllllllllllIlllIIllllIlIII, Class<?> lllllllllllllllllIlllIIllllIIlll, Object lllllllllllllllllIlllIIllllIIllI) {
-        EventBus lllllllllllllllllIlllIIllllIIlIl;
-        for (Method lllllllllllllllllIlllIIllllIlIlI : lllllllllllllllllIlllIIllllIIlll.getDeclaredMethods()) {
-            if (!lllllllllllllllllIlllIIllllIIlIl.isValid(lllllllllllllllllIlllIIllllIlIlI)) continue;
-            lllllllllllllllllIlllIIllllIlIII.add(new LambdaListener(lllllllllllllllllIlllIIllllIIlll, lllllllllllllllllIlllIIllllIIllI, lllllllllllllllllIlllIIllllIlIlI));
+    @Override
+    public void unsubscribe(IListener iListener) {
+        this.unsubscribe(iListener, false);
+    }
+
+    @Override
+    public void subscribe(Object object) {
+        this.subscribe(this.getListeners(object.getClass(), object), false);
+    }
+
+    @Override
+    public void subscribe(IListener iListener) {
+        this.subscribe(iListener, false);
+    }
+
+    @Override
+    public <T extends ICancellable> T post(T t) {
+        List<IListener> list = this.listenerMap.get(t.getClass());
+        if (list != null) {
+            t.setCancelled(false);
+            for (IListener iListener : list) {
+                iListener.call(t);
+                if (!t.isCancelled()) continue;
+                break;
+            }
         }
-        if (lllllllllllllllllIlllIIllllIIlll.getSuperclass() != null) {
-            lllllllllllllllllIlllIIllllIIlIl.getListeners(lllllllllllllllllIlllIIllllIlIII, lllllllllllllllllIlllIIllllIIlll.getSuperclass(), lllllllllllllllllIlllIIllllIIllI);
+        return t;
+    }
+
+    private List<IListener> getListeners(Class<?> clazz, Object object) {
+        Function<Object, List> function = arg_0 -> this.lambda$getListeners$2(clazz, object, arg_0);
+        if (object == null) {
+            return this.staticListenerCache.computeIfAbsent(clazz, function);
         }
+        for (Object object2 : this.listenerCache.keySet()) {
+            if (object2 != object) continue;
+            return this.listenerCache.get(object);
+        }
+        List list = function.apply(object);
+        this.listenerCache.put(object, list);
+        return list;
+    }
+
+    @Override
+    public void subscribe(Class<?> clazz) {
+        this.subscribe(this.getListeners(clazz, null), true);
+    }
+
+    private void unsubscribe(List<IListener> list, boolean bl) {
+        for (IListener iListener : list) {
+            this.unsubscribe(iListener, bl);
+        }
+    }
+
+    private void insert(List<IListener> list, IListener iListener) {
+        int n;
+        for (n = 0; n < list.size() && iListener.getPriority() <= list.get(n).getPriority(); ++n) {
+        }
+        list.add(n, iListener);
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -16,53 +16,130 @@ import java.util.WeakHashMap;
 
 public class Memory
 extends Pointer {
-    protected /* synthetic */ long size;
-    private static final /* synthetic */ Map<Memory, Reference<Memory>> allocatedMemory;
-    private static final /* synthetic */ WeakMemoryHolder buffers;
+    private static final WeakMemoryHolder buffers;
+    protected long size;
+    private static final Map<Memory, Reference<Memory>> allocatedMemory;
+
+    protected void boundsCheck(long l, long l2) {
+        if (l < 0L) {
+            throw new IndexOutOfBoundsException(String.valueOf(new StringBuilder().append("Invalid offset: ").append(l)));
+        }
+        if (l + l2 > this.size) {
+            String string = String.valueOf(new StringBuilder().append("Bounds exceeds available space : size=").append(this.size).append(", offset=").append(l + l2));
+            throw new IndexOutOfBoundsException(string);
+        }
+    }
 
     @Override
-    public void read(long llllllllllllllllIlllllIllIIIlIll, byte[] llllllllllllllllIlllllIllIIIlIlI, int llllllllllllllllIlllllIllIIIlIIl, int llllllllllllllllIlllllIllIIIlIII) {
-        Memory llllllllllllllllIlllllIllIIIIlll;
-        llllllllllllllllIlllllIllIIIIlll.boundsCheck(llllllllllllllllIlllllIllIIIlIll, (long)llllllllllllllllIlllllIllIIIlIII * 1L);
-        super.read(llllllllllllllllIlllllIllIIIlIll, llllllllllllllllIlllllIllIIIlIlI, llllllllllllllllIlllllIllIIIlIIl, llllllllllllllllIlllllIllIIIlIII);
+    public void setChar(long l, char c) {
+        this.boundsCheck(l, Native.WCHAR_SIZE);
+        super.setChar(l, c);
     }
 
-    protected void finalize() {
-        Memory llllllllllllllllIlllllIllIlIllII;
-        llllllllllllllllIlllllIllIlIllII.dispose();
+    @Override
+    public void read(long l, byte[] byArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 1L);
+        super.read(l, byArray, n, n2);
     }
 
-    public Memory align(int llllllllllllllllIlllllIllIllIIll) {
-        if (llllllllllllllllIlllllIllIllIIll <= 0) {
-            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("Byte boundary must be positive: ").append(llllllllllllllllIlllllIllIllIIll)));
+    public boolean valid() {
+        return this.peer != 0L;
+    }
+
+    @Override
+    public void setByte(long l, byte by) {
+        this.boundsCheck(l, 1L);
+        super.setByte(l, by);
+    }
+
+    @Override
+    public void write(long l, char[] cArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 2L);
+        super.write(l, cArray, n, n2);
+    }
+
+    @Override
+    public Pointer share(long l, long l2) {
+        this.boundsCheck(l, l2);
+        return new SharedMemory(this, l, l2);
+    }
+
+    public Memory align(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("Byte boundary must be positive: ").append(n)));
         }
-        for (int llllllllllllllllIlllllIllIllIlll = 0; llllllllllllllllIlllllIllIllIlll < 32; ++llllllllllllllllIlllllIllIllIlll) {
-            Memory llllllllllllllllIlllllIllIllIlII;
-            if (llllllllllllllllIlllllIllIllIIll != 1 << llllllllllllllllIlllllIllIllIlll) continue;
-            long llllllllllllllllIlllllIllIlllIII = (long)llllllllllllllllIlllllIllIllIIll - 1L ^ 0xFFFFFFFFFFFFFFFFL;
-            if ((llllllllllllllllIlllllIllIllIlII.peer & llllllllllllllllIlllllIllIlllIII) != llllllllllllllllIlllllIllIllIlII.peer) {
-                long llllllllllllllllIlllllIllIlllIlI = llllllllllllllllIlllllIllIllIlII.peer + (long)llllllllllllllllIlllllIllIllIIll - 1L & llllllllllllllllIlllllIllIlllIII;
-                long llllllllllllllllIlllllIllIlllIIl = llllllllllllllllIlllllIllIllIlII.peer + llllllllllllllllIlllllIllIllIlII.size - llllllllllllllllIlllllIllIlllIlI;
-                if (llllllllllllllllIlllllIllIlllIIl <= 0L) {
+        for (int i = 0; i < 32; ++i) {
+            if (n != 1 << i) continue;
+            long l = (long)n - 1L ^ 0xFFFFFFFFFFFFFFFFL;
+            if ((this.peer & l) != this.peer) {
+                long l2 = this.peer + (long)n - 1L & l;
+                long l3 = this.peer + this.size - l2;
+                if (l3 <= 0L) {
                     throw new IllegalArgumentException("Insufficient memory to align to the requested boundary");
                 }
-                return (Memory)llllllllllllllllIlllllIllIllIlII.share(llllllllllllllllIlllllIllIlllIlI - llllllllllllllllIlllllIllIllIlII.peer, llllllllllllllllIlllllIllIlllIIl);
+                return (Memory)this.share(l2 - this.peer, l3);
             }
-            return llllllllllllllllIlllllIllIllIlII;
+            return this;
         }
         throw new IllegalArgumentException("Byte boundary must be a power of two");
     }
 
-    public void clear() {
-        Memory llllllllllllllllIlllllIllIlIIlIl;
-        llllllllllllllllIlllllIllIlIIlIl.clear(llllllllllllllllIlllllIllIlIIlIl.size);
+    @Override
+    public Pointer getPointer(long l) {
+        this.boundsCheck(l, Pointer.SIZE);
+        return super.getPointer(l);
+    }
+
+    public String dump() {
+        return this.dump(0L, (int)this.size());
     }
 
     @Override
-    public void read(long llllllllllllllllIlllllIlIIllIIIl, double[] llllllllllllllllIlllllIlIIllIIII, int llllllllllllllllIlllllIlIIlIlIlI, int llllllllllllllllIlllllIlIIlIlllI) {
-        Memory llllllllllllllllIlllllIlIIlIllIl;
-        llllllllllllllllIlllllIlIIlIllIl.boundsCheck(llllllllllllllllIlllllIlIIllIIIl, (long)llllllllllllllllIlllllIlIIlIlllI * 8L);
-        super.read(llllllllllllllllIlllllIlIIllIIIl, llllllllllllllllIlllllIlIIllIIII, llllllllllllllllIlllllIlIIlIlIlI, llllllllllllllllIlllllIlIIlIlllI);
+    public String getWideString(long l) {
+        this.boundsCheck(l, 0L);
+        return super.getWideString(l);
+    }
+
+    @Override
+    public void setLong(long l, long l2) {
+        this.boundsCheck(l, 8L);
+        super.setLong(l, l2);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(new StringBuilder().append("allocated@0x").append(Long.toHexString(this.peer)).append(" (").append(this.size).append(" bytes)"));
+    }
+
+    @Override
+    public long getLong(long l) {
+        this.boundsCheck(l, 8L);
+        return super.getLong(l);
+    }
+
+    protected static long malloc(long l) {
+        return Native.malloc(l);
+    }
+
+    protected Memory() {
+    }
+
+    @Override
+    public void setFloat(long l, float f) {
+        this.boundsCheck(l, 4L);
+        super.setFloat(l, f);
+    }
+
+    @Override
+    public void read(long l, float[] fArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 4L);
+        super.read(l, fArray, n, n2);
+    }
+
+    @Override
+    public void write(long l, long[] lArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 8L);
+        super.write(l, lArray, n, n2);
     }
 
     static {
@@ -70,83 +147,202 @@ extends Pointer {
         buffers = new WeakMemoryHolder();
     }
 
-    protected void boundsCheck(long llllllllllllllllIlllllIllIIlIlll, long llllllllllllllllIlllllIllIIlIllI) {
-        Memory llllllllllllllllIlllllIllIIlIlIl;
-        if (llllllllllllllllIlllllIllIIlIlll < 0L) {
-            throw new IndexOutOfBoundsException(String.valueOf(new StringBuilder().append("Invalid offset: ").append(llllllllllllllllIlllllIllIIlIlll)));
-        }
-        if (llllllllllllllllIlllllIllIIlIlll + llllllllllllllllIlllllIllIIlIllI > llllllllllllllllIlllllIllIIlIlIl.size) {
-            String llllllllllllllllIlllllIllIIllIIl = String.valueOf(new StringBuilder().append("Bounds exceeds available space : size=").append(llllllllllllllllIlllllIllIIlIlIl.size).append(", offset=").append(llllllllllllllllIlllllIllIIlIlll + llllllllllllllllIlllllIllIIlIllI));
-            throw new IndexOutOfBoundsException(llllllllllllllllIlllllIllIIllIIl);
+    @Override
+    public void setDouble(long l, double d) {
+        this.boundsCheck(l, 8L);
+        super.setDouble(l, d);
+    }
+
+    @Override
+    public String getString(long l, String string) {
+        this.boundsCheck(l, 0L);
+        return super.getString(l, string);
+    }
+
+    @Override
+    public void read(long l, int[] nArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 4L);
+        super.read(l, nArray, n, n2);
+    }
+
+    @Override
+    public void write(long l, int[] nArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 4L);
+        super.write(l, nArray, n, n2);
+    }
+
+    @Override
+    public void write(long l, float[] fArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 4L);
+        super.write(l, fArray, n, n2);
+    }
+
+    @Override
+    public void read(long l, long[] lArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 8L);
+        super.read(l, lArray, n, n2);
+    }
+
+    public static void disposeAll() {
+        LinkedList<Memory> linkedList = new LinkedList<Memory>(allocatedMemory.keySet());
+        for (Memory memory : linkedList) {
+            memory.dispose();
         }
     }
 
     @Override
-    public void setDouble(long llllllllllllllllIlllllIIIIllIlll, double llllllllllllllllIlllllIIIIllIllI) {
-        Memory llllllllllllllllIlllllIIIIlllIll;
-        llllllllllllllllIlllllIIIIlllIll.boundsCheck(llllllllllllllllIlllllIIIIllIlll, 8L);
-        super.setDouble(llllllllllllllllIlllllIIIIllIlll, llllllllllllllllIlllllIIIIllIllI);
+    public void setWideString(long l, String string) {
+        this.boundsCheck(l, ((long)string.length() + 1L) * (long)Native.WCHAR_SIZE);
+        super.setWideString(l, string);
     }
 
     @Override
-    public String getString(long llllllllllllllllIlllllIIIlllllII, String llllllllllllllllIlllllIIIllllIll) {
-        Memory llllllllllllllllIlllllIIlIIIIIII;
-        llllllllllllllllIlllllIIlIIIIIII.boundsCheck(llllllllllllllllIlllllIIIlllllII, 0L);
-        return super.getString(llllllllllllllllIlllllIIIlllllII, llllllllllllllllIlllllIIIllllIll);
+    public double getDouble(long l) {
+        this.boundsCheck(l, 8L);
+        return super.getDouble(l);
     }
 
-    public Memory(long llllllllllllllllIlllllIlllIlIlIl) {
-        Memory llllllllllllllllIlllllIlllIlIlII;
-        llllllllllllllllIlllllIlllIlIlII.size = llllllllllllllllIlllllIlllIlIlIl;
-        if (llllllllllllllllIlllllIlllIlIlIl <= 0L) {
+    public long size() {
+        return this.size;
+    }
+
+    public void clear() {
+        this.clear(this.size);
+    }
+
+    public Memory(long l) {
+        this.size = l;
+        if (l <= 0L) {
             throw new IllegalArgumentException("Allocation size must be greater than zero");
         }
-        llllllllllllllllIlllllIlllIlIlII.peer = Memory.malloc(llllllllllllllllIlllllIlllIlIlIl);
-        if (llllllllllllllllIlllllIlllIlIlII.peer == 0L) {
-            throw new OutOfMemoryError(String.valueOf(new StringBuilder().append("Cannot allocate ").append(llllllllllllllllIlllllIlllIlIlIl).append(" bytes")));
+        this.peer = Memory.malloc(l);
+        if (this.peer == 0L) {
+            throw new OutOfMemoryError(String.valueOf(new StringBuilder().append("Cannot allocate ").append(l).append(" bytes")));
         }
-        allocatedMemory.put(llllllllllllllllIlllllIlllIlIlII, new WeakReference<Memory>(llllllllllllllllIlllllIlllIlIlII));
+        allocatedMemory.put(this, new WeakReference<Memory>(this));
     }
 
     @Override
-    public ByteBuffer getByteBuffer(long llllllllllllllllIlllllIIlIIIIllI, long llllllllllllllllIlllllIIlIIIlIIl) {
-        Memory llllllllllllllllIlllllIIlIIIlIll;
-        llllllllllllllllIlllllIIlIIIlIll.boundsCheck(llllllllllllllllIlllllIIlIIIIllI, llllllllllllllllIlllllIIlIIIlIIl);
-        ByteBuffer llllllllllllllllIlllllIIlIIIlIII = super.getByteBuffer(llllllllllllllllIlllllIIlIIIIllI, llllllllllllllllIlllllIIlIIIlIIl);
-        buffers.put(llllllllllllllllIlllllIIlIIIlIII, llllllllllllllllIlllllIIlIIIlIll);
-        return llllllllllllllllIlllllIIlIIIlIII;
+    public char getChar(long l) {
+        this.boundsCheck(l, 1L);
+        return super.getChar(l);
     }
 
     @Override
-    public String toString() {
-        Memory llllllllllllllllIlllllIIIIIlIllI;
-        return String.valueOf(new StringBuilder().append("allocated@0x").append(Long.toHexString(llllllllllllllllIlllllIIIIIlIllI.peer)).append(" (").append(llllllllllllllllIlllllIIIIIlIllI.size).append(" bytes)"));
+    public Pointer share(long l) {
+        return this.share(l, this.size() - l);
     }
 
     @Override
-    public void write(long llllllllllllllllIlllllIlIIIIIlII, char[] llllllllllllllllIlllllIlIIIIIIll, int llllllllllllllllIlllllIlIIIIIIlI, int llllllllllllllllIlllllIlIIIIIIIl) {
-        Memory llllllllllllllllIlllllIlIIIIIIII;
-        llllllllllllllllIlllllIlIIIIIIII.boundsCheck(llllllllllllllllIlllllIlIIIIIlII, (long)llllllllllllllllIlllllIlIIIIIIIl * 2L);
-        super.write(llllllllllllllllIlllllIlIIIIIlII, llllllllllllllllIlllllIlIIIIIIll, llllllllllllllllIlllllIlIIIIIIlI, llllllllllllllllIlllllIlIIIIIIIl);
+    public void read(long l, double[] dArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 8L);
+        super.read(l, dArray, n, n2);
+    }
+
+    protected void finalize() {
+        this.dispose();
     }
 
     @Override
-    public short getShort(long llllllllllllllllIlllllIIlIlIlllI) {
-        Memory llllllllllllllllIlllllIIlIllIIIl;
-        llllllllllllllllIlllllIIlIllIIIl.boundsCheck(llllllllllllllllIlllllIIlIlIlllI, 2L);
-        return super.getShort(llllllllllllllllIlllllIIlIlIlllI);
+    public void setString(long l, String string, String string2) {
+        this.boundsCheck(l, (long)Native.getBytes(string, string2).length + 1L);
+        super.setString(l, string, string2);
+    }
+
+    protected synchronized void dispose() {
+        try {
+            Memory.free(this.peer);
+            return;
+        }
+        finally {
+            allocatedMemory.remove(this);
+            this.peer = 0L;
+        }
     }
 
     @Override
-    public void setShort(long llllllllllllllllIlllllIIIlIllIll, short llllllllllllllllIlllllIIIlIllIlI) {
-        Memory llllllllllllllllIlllllIIIlIlllII;
-        llllllllllllllllIlllllIIIlIlllII.boundsCheck(llllllllllllllllIlllllIIIlIllIll, 2L);
-        super.setShort(llllllllllllllllIlllllIIIlIllIll, llllllllllllllllIlllllIIIlIllIlI);
+    public void write(long l, byte[] byArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 1L);
+        super.write(l, byArray, n, n2);
     }
 
-    protected static void free(long llllllllllllllllIlllllIIIIIlIIll) {
-        if (llllllllllllllllIlllllIIIIIlIIll != 0L) {
-            Native.free(llllllllllllllllIlllllIIIIIlIIll);
+    @Override
+    public void setInt(long l, int n) {
+        this.boundsCheck(l, 4L);
+        super.setInt(l, n);
+    }
+
+    @Override
+    public void setShort(long l, short s) {
+        this.boundsCheck(l, 2L);
+        super.setShort(l, s);
+    }
+
+    @Override
+    public void read(long l, short[] sArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 2L);
+        super.read(l, sArray, n, n2);
+    }
+
+    @Override
+    public int getInt(long l) {
+        this.boundsCheck(l, 4L);
+        return super.getInt(l);
+    }
+
+    @Override
+    public short getShort(long l) {
+        this.boundsCheck(l, 2L);
+        return super.getShort(l);
+    }
+
+    @Override
+    public void write(long l, double[] dArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 8L);
+        super.write(l, dArray, n, n2);
+    }
+
+    @Override
+    public void read(long l, char[] cArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 2L);
+        super.read(l, cArray, n, n2);
+    }
+
+    @Override
+    public ByteBuffer getByteBuffer(long l, long l2) {
+        this.boundsCheck(l, l2);
+        ByteBuffer byteBuffer = super.getByteBuffer(l, l2);
+        buffers.put(byteBuffer, this);
+        return byteBuffer;
+    }
+
+    @Override
+    public float getFloat(long l) {
+        this.boundsCheck(l, 4L);
+        return super.getFloat(l);
+    }
+
+    @Override
+    public void setPointer(long l, Pointer pointer) {
+        this.boundsCheck(l, Pointer.SIZE);
+        super.setPointer(l, pointer);
+    }
+
+    @Override
+    public byte getByte(long l) {
+        this.boundsCheck(l, 1L);
+        return super.getByte(l);
+    }
+
+    @Override
+    public void write(long l, short[] sArray, int n, int n2) {
+        this.boundsCheck(l, (long)n2 * 2L);
+        super.write(l, sArray, n, n2);
+    }
+
+    protected static void free(long l) {
+        if (l != 0L) {
+            Native.free(l);
         }
     }
 
@@ -154,272 +350,29 @@ extends Pointer {
         buffers.clean();
     }
 
-    @Override
-    public void setPointer(long llllllllllllllllIlllllIIIIllIIIl, Pointer llllllllllllllllIlllllIIIIllIIII) {
-        Memory llllllllllllllllIlllllIIIIlIllll;
-        llllllllllllllllIlllllIIIIlIllll.boundsCheck(llllllllllllllllIlllllIIIIllIIIl, Pointer.SIZE);
-        super.setPointer(llllllllllllllllIlllllIIIIllIIIl, llllllllllllllllIlllllIIIIllIIII);
-    }
-
-    @Override
-    public void write(long llllllllllllllllIlllllIIllIIIIll, double[] llllllllllllllllIlllllIIllIIIIlI, int llllllllllllllllIlllllIIllIIIllI, int llllllllllllllllIlllllIIllIIIIII) {
-        Memory llllllllllllllllIlllllIIllIIlIIl;
-        llllllllllllllllIlllllIIllIIlIIl.boundsCheck(llllllllllllllllIlllllIIllIIIIll, (long)llllllllllllllllIlllllIIllIIIIII * 8L);
-        super.write(llllllllllllllllIlllllIIllIIIIll, llllllllllllllllIlllllIIllIIIIlI, llllllllllllllllIlllllIIllIIIllI, llllllllllllllllIlllllIIllIIIIII);
-    }
-
-    @Override
-    public void read(long llllllllllllllllIlllllIlIlIllIIl, int[] llllllllllllllllIlllllIlIlIlllIl, int llllllllllllllllIlllllIlIlIlllII, int llllllllllllllllIlllllIlIlIlIllI) {
-        Memory llllllllllllllllIlllllIlIlIlllll;
-        llllllllllllllllIlllllIlIlIlllll.boundsCheck(llllllllllllllllIlllllIlIlIllIIl, (long)llllllllllllllllIlllllIlIlIlIllI * 4L);
-        super.read(llllllllllllllllIlllllIlIlIllIIl, llllllllllllllllIlllllIlIlIlllIl, llllllllllllllllIlllllIlIlIlllII, llllllllllllllllIlllllIlIlIlIllI);
-    }
-
-    public boolean valid() {
-        Memory llllllllllllllllIlllllIllIlIIIlI;
-        return llllllllllllllllIlllllIllIlIIIlI.peer != 0L;
-    }
-
-    public String dump() {
-        Memory llllllllllllllllIlllllIIIIIIllII;
-        return llllllllllllllllIlllllIIIIIIllII.dump(0L, (int)llllllllllllllllIlllllIIIIIIllII.size());
-    }
-
-    protected static long malloc(long llllllllllllllllIlllllIIIIIIllll) {
-        return Native.malloc(llllllllllllllllIlllllIIIIIIllll);
-    }
-
-    @Override
-    public long getLong(long llllllllllllllllIlllllIIlIlIIlII) {
-        Memory llllllllllllllllIlllllIIlIlIIlIl;
-        llllllllllllllllIlllllIIlIlIIlIl.boundsCheck(llllllllllllllllIlllllIIlIlIIlII, 8L);
-        return super.getLong(llllllllllllllllIlllllIIlIlIIlII);
-    }
-
-    @Override
-    public void read(long llllllllllllllllIlllllIlIlIIllll, long[] llllllllllllllllIlllllIlIlIIlIIl, int llllllllllllllllIlllllIlIlIIlIII, int llllllllllllllllIlllllIlIlIIIlll) {
-        Memory llllllllllllllllIlllllIlIlIIlIll;
-        llllllllllllllllIlllllIlIlIIlIll.boundsCheck(llllllllllllllllIlllllIlIlIIllll, (long)llllllllllllllllIlllllIlIlIIIlll * 8L);
-        super.read(llllllllllllllllIlllllIlIlIIllll, llllllllllllllllIlllllIlIlIIlIIl, llllllllllllllllIlllllIlIlIIlIII, llllllllllllllllIlllllIlIlIIIlll);
-    }
-
-    @Override
-    public void read(long llllllllllllllllIlllllIlIlllllII, short[] llllllllllllllllIlllllIlIlllIllI, int llllllllllllllllIlllllIlIllllIlI, int llllllllllllllllIlllllIlIllllIIl) {
-        Memory llllllllllllllllIlllllIlIlllllIl;
-        llllllllllllllllIlllllIlIlllllIl.boundsCheck(llllllllllllllllIlllllIlIlllllII, (long)llllllllllllllllIlllllIlIllllIIl * 2L);
-        super.read(llllllllllllllllIlllllIlIlllllII, llllllllllllllllIlllllIlIlllIllI, llllllllllllllllIlllllIlIllllIlI, llllllllllllllllIlllllIlIllllIIl);
-    }
-
-    @Override
-    public char getChar(long llllllllllllllllIlllllIIlIllIlII) {
-        Memory llllllllllllllllIlllllIIlIllIlIl;
-        llllllllllllllllIlllllIIlIllIlIl.boundsCheck(llllllllllllllllIlllllIIlIllIlII, 1L);
-        return super.getChar(llllllllllllllllIlllllIIlIllIlII);
-    }
-
-    @Override
-    public void write(long llllllllllllllllIlllllIIllIlIlll, float[] llllllllllllllllIlllllIIllIlIllI, int llllllllllllllllIlllllIIllIlIlIl, int llllllllllllllllIlllllIIllIlIlII) {
-        Memory llllllllllllllllIlllllIIllIlIIll;
-        llllllllllllllllIlllllIIllIlIIll.boundsCheck(llllllllllllllllIlllllIIllIlIlll, (long)llllllllllllllllIlllllIIllIlIlII * 4L);
-        super.write(llllllllllllllllIlllllIIllIlIlll, llllllllllllllllIlllllIIllIlIllI, llllllllllllllllIlllllIIllIlIlIl, llllllllllllllllIlllllIIllIlIlII);
-    }
-
-    @Override
-    public float getFloat(long llllllllllllllllIlllllIIlIIlllII) {
-        Memory llllllllllllllllIlllllIIlIIlllIl;
-        llllllllllllllllIlllllIIlIIlllIl.boundsCheck(llllllllllllllllIlllllIIlIIlllII, 4L);
-        return super.getFloat(llllllllllllllllIlllllIIlIIlllII);
-    }
-
-    @Override
-    public byte getByte(long llllllllllllllllIlllllIIlIllllII) {
-        Memory llllllllllllllllIlllllIIlIlllIll;
-        llllllllllllllllIlllllIIlIlllIll.boundsCheck(llllllllllllllllIlllllIIlIllllII, 1L);
-        return super.getByte(llllllllllllllllIlllllIIlIllllII);
-    }
-
-    @Override
-    public Pointer share(long llllllllllllllllIlllllIlllIIllII) {
-        Memory llllllllllllllllIlllllIlllIIlIll;
-        return llllllllllllllllIlllllIlllIIlIll.share(llllllllllllllllIlllllIlllIIllII, llllllllllllllllIlllllIlllIIlIll.size() - llllllllllllllllIlllllIlllIIllII);
-    }
-
-    @Override
-    public void setChar(long llllllllllllllllIlllllIIIllIIlII, char llllllllllllllllIlllllIIIllIIllI) {
-        Memory llllllllllllllllIlllllIIIllIIlIl;
-        llllllllllllllllIlllllIIIllIIlIl.boundsCheck(llllllllllllllllIlllllIIIllIIlII, Native.WCHAR_SIZE);
-        super.setChar(llllllllllllllllIlllllIIIllIIlII, llllllllllllllllIlllllIIIllIIllI);
-    }
-
-    public static void disposeAll() {
-        LinkedList<Memory> llllllllllllllllIlllllIlllIlllII = new LinkedList<Memory>(allocatedMemory.keySet());
-        for (Memory llllllllllllllllIlllllIlllIlllIl : llllllllllllllllIlllllIlllIlllII) {
-            llllllllllllllllIlllllIlllIlllIl.dispose();
-        }
-    }
-
-    @Override
-    public Pointer getPointer(long llllllllllllllllIlllllIIlIIlIIlI) {
-        Memory llllllllllllllllIlllllIIlIIlIIIl;
-        llllllllllllllllIlllllIIlIIlIIIl.boundsCheck(llllllllllllllllIlllllIIlIIlIIlI, Pointer.SIZE);
-        return super.getPointer(llllllllllllllllIlllllIIlIIlIIlI);
-    }
-
-    @Override
-    public void read(long llllllllllllllllIlllllIlIllIllIl, char[] llllllllllllllllIlllllIlIllIIlll, int llllllllllllllllIlllllIlIllIlIll, int llllllllllllllllIlllllIlIllIlIlI) {
-        Memory llllllllllllllllIlllllIlIllIlIIl;
-        llllllllllllllllIlllllIlIllIlIIl.boundsCheck(llllllllllllllllIlllllIlIllIllIl, (long)llllllllllllllllIlllllIlIllIlIlI * 2L);
-        super.read(llllllllllllllllIlllllIlIllIllIl, llllllllllllllllIlllllIlIllIIlll, llllllllllllllllIlllllIlIllIlIll, llllllllllllllllIlllllIlIllIlIlI);
-    }
-
-    @Override
-    public void write(long llllllllllllllllIlllllIlIIIIlllI, short[] llllllllllllllllIlllllIlIIIlIIlI, int llllllllllllllllIlllllIlIIIIllII, int llllllllllllllllIlllllIlIIIIlIll) {
-        Memory llllllllllllllllIlllllIlIIIlIlII;
-        llllllllllllllllIlllllIlIIIlIlII.boundsCheck(llllllllllllllllIlllllIlIIIIlllI, (long)llllllllllllllllIlllllIlIIIIlIll * 2L);
-        super.write(llllllllllllllllIlllllIlIIIIlllI, llllllllllllllllIlllllIlIIIlIIlI, llllllllllllllllIlllllIlIIIIllII, llllllllllllllllIlllllIlIIIIlIll);
-    }
-
-    @Override
-    public void setWideString(long llllllllllllllllIlllllIIIIIllIIl, String llllllllllllllllIlllllIIIIIllIII) {
-        Memory llllllllllllllllIlllllIIIIIlllIl;
-        llllllllllllllllIlllllIIIIIlllIl.boundsCheck(llllllllllllllllIlllllIIIIIllIIl, ((long)llllllllllllllllIlllllIIIIIllIII.length() + 1L) * (long)Native.WCHAR_SIZE);
-        super.setWideString(llllllllllllllllIlllllIIIIIllIIl, llllllllllllllllIlllllIIIIIllIII);
-    }
-
-    @Override
-    public void setByte(long llllllllllllllllIlllllIIIlllIIII, byte llllllllllllllllIlllllIIIllIllll) {
-        Memory llllllllllllllllIlllllIIIllIlllI;
-        llllllllllllllllIlllllIIIllIlllI.boundsCheck(llllllllllllllllIlllllIIIlllIIII, 1L);
-        super.setByte(llllllllllllllllIlllllIIIlllIIII, llllllllllllllllIlllllIIIllIllll);
-    }
-
-    @Override
-    public double getDouble(long llllllllllllllllIlllllIIlIIlIllI) {
-        Memory llllllllllllllllIlllllIIlIIlIlll;
-        llllllllllllllllIlllllIIlIIlIlll.boundsCheck(llllllllllllllllIlllllIIlIIlIllI, 8L);
-        return super.getDouble(llllllllllllllllIlllllIIlIIlIllI);
-    }
-
-    protected synchronized void dispose() {
-        Memory llllllllllllllllIlllllIllIlIlIII;
-        try {
-            Memory.free(llllllllllllllllIlllllIllIlIlIII.peer);
-        }
-        finally {
-            allocatedMemory.remove(llllllllllllllllIlllllIllIlIlIII);
-            llllllllllllllllIlllllIllIlIlIII.peer = 0L;
-        }
-    }
-
-    @Override
-    public void setString(long llllllllllllllllIlllllIIIIlIIlll, String llllllllllllllllIlllllIIIIlIIllI, String llllllllllllllllIlllllIIIIlIIlIl) {
-        Memory llllllllllllllllIlllllIIIIlIIlII;
-        llllllllllllllllIlllllIIIIlIIlII.boundsCheck(llllllllllllllllIlllllIIIIlIIlll, (long)Native.getBytes(llllllllllllllllIlllllIIIIlIIllI, llllllllllllllllIlllllIIIIlIIlIl).length + 1L);
-        super.setString(llllllllllllllllIlllllIIIIlIIlll, llllllllllllllllIlllllIIIIlIIllI, llllllllllllllllIlllllIIIIlIIlIl);
-    }
-
-    @Override
-    public void write(long llllllllllllllllIlllllIlIIIlllIl, byte[] llllllllllllllllIlllllIlIIIlllII, int llllllllllllllllIlllllIlIIIllIll, int llllllllllllllllIlllllIlIIIllIlI) {
-        Memory llllllllllllllllIlllllIlIIIllllI;
-        llllllllllllllllIlllllIlIIIllllI.boundsCheck(llllllllllllllllIlllllIlIIIlllIl, (long)llllllllllllllllIlllllIlIIIllIlI * 1L);
-        super.write(llllllllllllllllIlllllIlIIIlllIl, llllllllllllllllIlllllIlIIIlllII, llllllllllllllllIlllllIlIIIllIll, llllllllllllllllIlllllIlIIIllIlI);
-    }
-
-    @Override
-    public void setFloat(long llllllllllllllllIlllllIIIlIIIIll, float llllllllllllllllIlllllIIIlIIIIlI) {
-        Memory llllllllllllllllIlllllIIIlIIIIIl;
-        llllllllllllllllIlllllIIIlIIIIIl.boundsCheck(llllllllllllllllIlllllIIIlIIIIll, 4L);
-        super.setFloat(llllllllllllllllIlllllIIIlIIIIll, llllllllllllllllIlllllIIIlIIIIlI);
-    }
-
-    @Override
-    public void read(long llllllllllllllllIlllllIlIlIIIIII, float[] llllllllllllllllIlllllIlIIllllll, int llllllllllllllllIlllllIlIIlllIIl, int llllllllllllllllIlllllIlIIllllIl) {
-        Memory llllllllllllllllIlllllIlIIllllII;
-        llllllllllllllllIlllllIlIIllllII.boundsCheck(llllllllllllllllIlllllIlIlIIIIII, (long)llllllllllllllllIlllllIlIIllllIl * 4L);
-        super.read(llllllllllllllllIlllllIlIlIIIIII, llllllllllllllllIlllllIlIIllllll, llllllllllllllllIlllllIlIIlllIIl, llllllllllllllllIlllllIlIIllllIl);
-    }
-
-    @Override
-    public void setLong(long llllllllllllllllIlllllIIIlIIlIIl, long llllllllllllllllIlllllIIIlIIlIII) {
-        Memory llllllllllllllllIlllllIIIlIIllIl;
-        llllllllllllllllIlllllIIIlIIllIl.boundsCheck(llllllllllllllllIlllllIIIlIIlIIl, 8L);
-        super.setLong(llllllllllllllllIlllllIIIlIIlIIl, llllllllllllllllIlllllIIIlIIlIII);
-    }
-
-    protected Memory() {
-        Memory llllllllllllllllIlllllIlllIlIIIl;
-    }
-
-    @Override
-    public void write(long llllllllllllllllIlllllIIllllIlIl, int[] llllllllllllllllIlllllIIllllIlII, int llllllllllllllllIlllllIIlllIlllI, int llllllllllllllllIlllllIIllllIIlI) {
-        Memory llllllllllllllllIlllllIIllllIllI;
-        llllllllllllllllIlllllIIllllIllI.boundsCheck(llllllllllllllllIlllllIIllllIlIl, (long)llllllllllllllllIlllllIIllllIIlI * 4L);
-        super.write(llllllllllllllllIlllllIIllllIlIl, llllllllllllllllIlllllIIllllIlII, llllllllllllllllIlllllIIlllIlllI, llllllllllllllllIlllllIIllllIIlI);
-    }
-
-    @Override
-    public void write(long llllllllllllllllIlllllIIlllIIIIl, long[] llllllllllllllllIlllllIIlllIIIII, int llllllllllllllllIlllllIIlllIIlII, int llllllllllllllllIlllllIIlllIIIll) {
-        Memory llllllllllllllllIlllllIIlllIIIlI;
-        llllllllllllllllIlllllIIlllIIIlI.boundsCheck(llllllllllllllllIlllllIIlllIIIIl, (long)llllllllllllllllIlllllIIlllIIIll * 8L);
-        super.write(llllllllllllllllIlllllIIlllIIIIl, llllllllllllllllIlllllIIlllIIIII, llllllllllllllllIlllllIIlllIIlII, llllllllllllllllIlllllIIlllIIIll);
-    }
-
-    @Override
-    public Pointer share(long llllllllllllllllIlllllIlllIIIlIl, long llllllllllllllllIlllllIlllIIIIIl) {
-        Memory llllllllllllllllIlllllIlllIIIllI;
-        llllllllllllllllIlllllIlllIIIllI.boundsCheck(llllllllllllllllIlllllIlllIIIlIl, llllllllllllllllIlllllIlllIIIIIl);
-        return llllllllllllllllIlllllIlllIIIllI.new SharedMemory(llllllllllllllllIlllllIlllIIIlIl, llllllllllllllllIlllllIlllIIIIIl);
-    }
-
-    @Override
-    public String getWideString(long llllllllllllllllIlllllIIIlllIlIl) {
-        Memory llllllllllllllllIlllllIIIllllIII;
-        llllllllllllllllIlllllIIIllllIII.boundsCheck(llllllllllllllllIlllllIIIlllIlIl, 0L);
-        return super.getWideString(llllllllllllllllIlllllIIIlllIlIl);
-    }
-
-    @Override
-    public int getInt(long llllllllllllllllIlllllIIlIlIlIII) {
-        Memory llllllllllllllllIlllllIIlIlIlIll;
-        llllllllllllllllIlllllIIlIlIlIll.boundsCheck(llllllllllllllllIlllllIIlIlIlIII, 4L);
-        return super.getInt(llllllllllllllllIlllllIIlIlIlIII);
-    }
-
-    public long size() {
-        Memory llllllllllllllllIlllllIllIIllllI;
-        return llllllllllllllllIlllllIllIIllllI.size;
-    }
-
-    @Override
-    public void setInt(long llllllllllllllllIlllllIIIlIlIlIl, int llllllllllllllllIlllllIIIlIlIIIl) {
-        Memory llllllllllllllllIlllllIIIlIlIIll;
-        llllllllllllllllIlllllIIIlIlIIll.boundsCheck(llllllllllllllllIlllllIIIlIlIlIl, 4L);
-        super.setInt(llllllllllllllllIlllllIIIlIlIlIl, llllllllllllllllIlllllIIIlIlIIIl);
-    }
-
     private class SharedMemory
     extends Memory {
-        @Override
-        protected void dispose() {
-            lllllllIIlIIlIl.peer = 0L;
-        }
+        final Memory this$0;
 
         @Override
         public String toString() {
-            SharedMemory lllllllIIIllIII;
-            return String.valueOf(new StringBuilder().append(super.toString()).append(" (shared from ").append(lllllllIIIllIII.Memory.this.toString()).append(")"));
+            return String.valueOf(new StringBuilder().append(super.toString()).append(" (shared from ").append(this.this$0.toString()).append(")"));
         }
 
         @Override
-        protected void boundsCheck(long lllllllIIIlllII, long lllllllIIIllIll) {
-            SharedMemory lllllllIIIlllIl;
-            lllllllIIIlllIl.Memory.this.boundsCheck(lllllllIIIlllIl.peer - lllllllIIIlllIl.Memory.this.peer + lllllllIIIlllII, lllllllIIIllIll);
+        protected void boundsCheck(long l, long l2) {
+            this.this$0.boundsCheck(this.peer - this.this$0.peer + l, l2);
         }
 
-        public SharedMemory(long lllllllIIlIllII, long lllllllIIlIIlll) {
-            SharedMemory lllllllIIlIllIl;
-            lllllllIIlIllIl.size = lllllllIIlIIlll;
-            lllllllIIlIllIl.peer = lllllllIIlIllIl.Memory.this.peer + lllllllIIlIllII;
+        public SharedMemory(Memory memory, long l, long l2) {
+            this.this$0 = memory;
+            this.size = l2;
+            this.peer = memory.peer + l;
+        }
+
+        @Override
+        protected void dispose() {
+            this.peer = 0L;
         }
     }
 }

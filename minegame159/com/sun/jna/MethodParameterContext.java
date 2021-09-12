@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -9,17 +9,15 @@ import java.lang.reflect.Method;
 
 public class MethodParameterContext
 extends FunctionParameterContext {
-    private /* synthetic */ Method method;
+    private Method method;
 
-    public Method getMethod() {
-        MethodParameterContext llllllllllllllllllIlIlIIlIIIIIIl;
-        return llllllllllllllllllIlIlIIlIIIIIIl.method;
+    MethodParameterContext(Function function, Object[] objectArray, int n, Method method) {
+        super(function, objectArray, n);
+        this.method = method;
     }
 
-    MethodParameterContext(Function llllllllllllllllllIlIlIIlIIIIllI, Object[] llllllllllllllllllIlIlIIlIIIIlIl, int llllllllllllllllllIlIlIIlIIIlIIl, Method llllllllllllllllllIlIlIIlIIIIIll) {
-        super(llllllllllllllllllIlIlIIlIIIIllI, llllllllllllllllllIlIlIIlIIIIlIl, llllllllllllllllllIlIlIIlIIIlIIl);
-        MethodParameterContext llllllllllllllllllIlIlIIlIIIllII;
-        llllllllllllllllllIlIlIIlIIIllII.method = llllllllllllllllllIlIlIIlIIIIIll;
+    public Method getMethod() {
+        return this.method;
     }
 }
 

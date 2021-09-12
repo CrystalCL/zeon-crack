@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -8,16 +8,14 @@ import java.lang.reflect.Method;
 
 public class CallbackResultContext
 extends ToNativeContext {
-    private /* synthetic */ Method method;
+    private Method method;
 
-    CallbackResultContext(Method lIllllllllIIlII) {
-        CallbackResultContext lIllllllllIIIll;
-        lIllllllllIIIll.method = lIllllllllIIlII;
+    CallbackResultContext(Method method) {
+        this.method = method;
     }
 
     public Method getMethod() {
-        CallbackResultContext lIlllllllIlllll;
-        return lIlllllllIlllll.method;
+        return this.method;
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -15,78 +15,67 @@ import java.util.WeakHashMap;
 
 public class NativeMappedConverter
 implements TypeConverter {
-    private final /* synthetic */ NativeMapped instance;
-    private final /* synthetic */ Class<?> nativeType;
-    private final /* synthetic */ Class<?> type;
-    private static final /* synthetic */ Map<Class<?>, Reference<NativeMappedConverter>> converters;
+    private final NativeMapped instance;
+    private final Class<?> nativeType;
+    private static final Map<Class<?>, Reference<NativeMappedConverter>> converters = new WeakHashMap();
+    private final Class<?> type;
 
-    public NativeMappedConverter(Class<?> lllllllllllllllllIIlIIlIlIIlIlll) {
-        NativeMappedConverter lllllllllllllllllIIlIIlIlIIlIllI;
-        if (!NativeMapped.class.isAssignableFrom(lllllllllllllllllIIlIIlIlIIlIlll)) {
-            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("Type must derive from ").append(NativeMapped.class)));
+    public NativeMapped defaultValue() {
+        try {
+            return (NativeMapped)this.type.newInstance();
         }
-        lllllllllllllllllIIlIIlIlIIlIllI.type = lllllllllllllllllIIlIIlIlIIlIlll;
-        lllllllllllllllllIIlIIlIlIIlIllI.instance = lllllllllllllllllIIlIIlIlIIlIllI.defaultValue();
-        lllllllllllllllllIIlIIlIlIIlIllI.nativeType = lllllllllllllllllIIlIIlIlIIlIllI.instance.nativeType();
-    }
-
-    static {
-        converters = new WeakHashMap();
-    }
-
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    public static NativeMappedConverter getInstance(Class<?> lllllllllllllllllIIlIIlIlIIlllll) {
-        Map<Class<?>, Reference<NativeMappedConverter>> lllllllllllllllllIIlIIlIlIIllllI = converters;
-        synchronized (lllllllllllllllllIIlIIlIlIIllllI) {
-            NativeMappedConverter lllllllllllllllllIIlIIlIlIlIIIIl;
-            Reference<NativeMappedConverter> lllllllllllllllllIIlIIlIlIlIIIlI = converters.get(lllllllllllllllllIIlIIlIlIIlllll);
-            NativeMappedConverter nativeMappedConverter = lllllllllllllllllIIlIIlIlIlIIIIl = lllllllllllllllllIIlIIlIlIlIIIlI != null ? lllllllllllllllllIIlIIlIlIlIIIlI.get() : null;
-            if (lllllllllllllllllIIlIIlIlIlIIIIl == null) {
-                lllllllllllllllllIIlIIlIlIlIIIIl = new NativeMappedConverter(lllllllllllllllllIIlIIlIlIIlllll);
-                converters.put(lllllllllllllllllIIlIIlIlIIlllll, new SoftReference<NativeMappedConverter>(lllllllllllllllllIIlIIlIlIlIIIIl));
-            }
-            return lllllllllllllllllIIlIIlIlIlIIIIl;
+        catch (IllegalAccessException | InstantiationException reflectiveOperationException) {
+            String string = String.valueOf(new StringBuilder().append("Can't create an instance of ").append(this.type).append(", requires a no-arg constructor: ").append(reflectiveOperationException));
+            throw new IllegalArgumentException(string);
         }
     }
 
     @Override
-    public Object fromNative(Object lllllllllllllllllIIlIIlIlIIIIIlI, FromNativeContext lllllllllllllllllIIlIIlIlIIIIlII) {
-        NativeMappedConverter lllllllllllllllllIIlIIlIlIIIIllI;
-        return lllllllllllllllllIIlIIlIlIIIIllI.instance.fromNative(lllllllllllllllllIIlIIlIlIIIIIlI, lllllllllllllllllIIlIIlIlIIIIlII);
+    public Object fromNative(Object object, FromNativeContext fromNativeContext) {
+        return this.instance.fromNative(object, fromNativeContext);
     }
 
     @Override
-    public Object toNative(Object lllllllllllllllllIIlIIlIIllllIlI, ToNativeContext lllllllllllllllllIIlIIlIIllllIIl) {
-        if (lllllllllllllllllIIlIIlIIllllIlI == null) {
-            NativeMappedConverter lllllllllllllllllIIlIIlIIllllIll;
-            if (Pointer.class.isAssignableFrom(lllllllllllllllllIIlIIlIIllllIll.nativeType)) {
+    public Object toNative(Object object, ToNativeContext toNativeContext) {
+        if (object == null) {
+            if (Pointer.class.isAssignableFrom(this.nativeType)) {
                 return null;
             }
-            lllllllllllllllllIIlIIlIIllllIlI = lllllllllllllllllIIlIIlIIllllIll.defaultValue();
+            object = this.defaultValue();
         }
-        return ((NativeMapped)lllllllllllllllllIIlIIlIIllllIlI).toNative();
+        return ((NativeMapped)object).toNative();
     }
 
     @Override
     public Class<?> nativeType() {
-        NativeMappedConverter lllllllllllllllllIIlIIlIIlllllll;
-        return lllllllllllllllllIIlIIlIIlllllll.nativeType;
+        return this.nativeType;
     }
 
-    public NativeMapped defaultValue() {
-        NativeMappedConverter lllllllllllllllllIIlIIlIlIIIllIl;
-        try {
-            return (NativeMapped)lllllllllllllllllIIlIIlIlIIIllIl.type.newInstance();
+    public NativeMappedConverter(Class<?> clazz) {
+        if (!NativeMapped.class.isAssignableFrom(clazz)) {
+            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("Type must derive from ").append(NativeMapped.class)));
         }
-        catch (InstantiationException lllllllllllllllllIIlIIlIlIIlIIII) {
-            String lllllllllllllllllIIlIIlIlIIlIIIl = String.valueOf(new StringBuilder().append("Can't create an instance of ").append(lllllllllllllllllIIlIIlIlIIIllIl.type).append(", requires a no-arg constructor: ").append(lllllllllllllllllIIlIIlIlIIlIIII));
-            throw new IllegalArgumentException(lllllllllllllllllIIlIIlIlIIlIIIl);
-        }
-        catch (IllegalAccessException lllllllllllllllllIIlIIlIlIIIlllI) {
-            String lllllllllllllllllIIlIIlIlIIIllll = String.valueOf(new StringBuilder().append("Not allowed to create an instance of ").append(lllllllllllllllllIIlIIlIlIIIllIl.type).append(", requires a public, no-arg constructor: ").append(lllllllllllllllllIIlIIlIlIIIlllI));
-            throw new IllegalArgumentException(lllllllllllllllllIIlIIlIlIIIllll);
+        this.type = clazz;
+        this.instance = this.defaultValue();
+        this.nativeType = this.instance.nativeType();
+    }
+
+    /*
+     * Enabled aggressive block sorting
+     * Enabled unnecessary exception pruning
+     * Enabled aggressive exception aggregation
+     */
+    public static NativeMappedConverter getInstance(Class<?> clazz) {
+        Map<Class<?>, Reference<NativeMappedConverter>> map = converters;
+        synchronized (map) {
+            NativeMappedConverter nativeMappedConverter;
+            Reference<NativeMappedConverter> reference = converters.get(clazz);
+            NativeMappedConverter nativeMappedConverter2 = nativeMappedConverter = reference != null ? reference.get() : null;
+            if (nativeMappedConverter == null) {
+                nativeMappedConverter = new NativeMappedConverter(clazz);
+                converters.put(clazz, new SoftReference<NativeMappedConverter>(nativeMappedConverter));
+            }
+            return nativeMappedConverter;
         }
     }
 }

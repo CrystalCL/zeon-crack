@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package club.minnced.discord.rpc;
 
@@ -13,33 +13,17 @@ import java.util.Objects;
 
 public class DiscordEventHandlers
 extends Structure {
-    private static final /* synthetic */ List<String> FIELD_ORDER;
-    public /* synthetic */ OnJoinRequest joinRequest;
-    public /* synthetic */ OnReady ready;
-    public /* synthetic */ OnStatus errored;
-    public /* synthetic */ OnGameUpdate joinGame;
-    public /* synthetic */ OnGameUpdate spectateGame;
-    public /* synthetic */ OnStatus disconnected;
-
-    public DiscordEventHandlers() {
-        DiscordEventHandlers lllllllllllllllllIIllllIlIlIlIll;
-    }
-
-    static {
-        FIELD_ORDER = Collections.unmodifiableList(Arrays.asList("ready", "disconnected", "errored", "joinGame", "spectateGame", "joinRequest"));
-    }
+    public OnGameUpdate joinGame;
+    public OnStatus errored;
+    public OnStatus disconnected;
+    public OnReady ready;
+    public OnJoinRequest joinRequest;
+    private static final List<String> FIELD_ORDER = Collections.unmodifiableList(Arrays.asList("ready", "disconnected", "errored", "joinGame", "spectateGame", "joinRequest"));
+    public OnGameUpdate spectateGame;
 
     @Override
-    public boolean equals(Object lllllllllllllllllIIllllIlIlIIIll) {
-        DiscordEventHandlers lllllllllllllllllIIllllIlIlIIlll;
-        if (lllllllllllllllllIIllllIlIlIIlll == lllllllllllllllllIIllllIlIlIIIll) {
-            return true;
-        }
-        if (!(lllllllllllllllllIIllllIlIlIIIll instanceof DiscordEventHandlers)) {
-            return false;
-        }
-        DiscordEventHandlers lllllllllllllllllIIllllIlIlIIlIl = (DiscordEventHandlers)lllllllllllllllllIIllllIlIlIIIll;
-        return Objects.equals(lllllllllllllllllIIllllIlIlIIlll.ready, lllllllllllllllllIIllllIlIlIIlIl.ready) && Objects.equals(lllllllllllllllllIIllllIlIlIIlll.disconnected, lllllllllllllllllIIllllIlIlIIlIl.disconnected) && Objects.equals(lllllllllllllllllIIllllIlIlIIlll.errored, lllllllllllllllllIIllllIlIlIIlIl.errored) && Objects.equals(lllllllllllllllllIIllllIlIlIIlll.joinGame, lllllllllllllllllIIllllIlIlIIlIl.joinGame) && Objects.equals(lllllllllllllllllIIllllIlIlIIlll.spectateGame, lllllllllllllllllIIllllIlIlIIlIl.spectateGame) && Objects.equals(lllllllllllllllllIIllllIlIlIIlll.joinRequest, lllllllllllllllllIIllllIlIlIIlIl.joinRequest);
+    public int hashCode() {
+        return Objects.hash(this.ready, this.disconnected, this.errored, this.joinGame, this.spectateGame, this.joinRequest);
     }
 
     @Override
@@ -48,14 +32,15 @@ extends Structure {
     }
 
     @Override
-    public int hashCode() {
-        DiscordEventHandlers lllllllllllllllllIIllllIlIIlllll;
-        return Objects.hash(lllllllllllllllllIIllllIlIIlllll.ready, lllllllllllllllllIIllllIlIIlllll.disconnected, lllllllllllllllllIIllllIlIIlllll.errored, lllllllllllllllllIIllllIlIIlllll.joinGame, lllllllllllllllllIIllllIlIIlllll.spectateGame, lllllllllllllllllIIllllIlIIlllll.joinRequest);
-    }
-
-    public static interface OnStatus
-    extends Callback {
-        public void accept(int var1, String var2);
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof DiscordEventHandlers)) {
+            return false;
+        }
+        DiscordEventHandlers discordEventHandlers = (DiscordEventHandlers)object;
+        return Objects.equals(this.ready, discordEventHandlers.ready) && Objects.equals(this.disconnected, discordEventHandlers.disconnected) && Objects.equals(this.errored, discordEventHandlers.errored) && Objects.equals(this.joinGame, discordEventHandlers.joinGame) && Objects.equals(this.spectateGame, discordEventHandlers.spectateGame) && Objects.equals(this.joinRequest, discordEventHandlers.joinRequest);
     }
 
     public static interface OnReady
@@ -71,6 +56,11 @@ extends Structure {
     public static interface OnGameUpdate
     extends Callback {
         public void accept(String var1);
+    }
+
+    public static interface OnStatus
+    extends Callback {
+        public void accept(int var1, String var2);
     }
 }
 

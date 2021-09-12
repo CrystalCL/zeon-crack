@@ -1,58 +1,50 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
 public final class WString
-implements Comparable,
-CharSequence {
-    private /* synthetic */ String string;
+implements CharSequence,
+Comparable {
+    private String string;
 
     @Override
-    public int length() {
-        WString llIlllIIllllll;
-        return llIlllIIllllll.toString().length();
-    }
-
-    @Override
-    public CharSequence subSequence(int llIlllIIllIIIl, int llIlllIIllIIll) {
-        WString llIlllIIllIIlI;
-        return llIlllIIllIIlI.toString().subSequence(llIlllIIllIIIl, llIlllIIllIIll);
+    public CharSequence subSequence(int n, int n2) {
+        return this.toString().subSequence(n, n2);
     }
 
     @Override
     public String toString() {
-        WString llIlllIlIlIIlI;
-        return llIlllIlIlIIlI.string;
+        return this.string;
     }
 
     public int hashCode() {
-        WString llIlllIlIIlIIl;
-        return llIlllIlIIlIIl.toString().hashCode();
+        return this.toString().hashCode();
     }
 
-    public WString(String llIlllIlIlIllI) {
-        WString llIlllIlIlIlIl;
-        if (llIlllIlIlIllI == null) {
-            throw new NullPointerException("String initializer must be non-null");
-        }
-        llIlllIlIlIlIl.string = llIlllIlIlIllI;
+    public boolean equals(Object object) {
+        return object instanceof WString && this.toString().equals(object.toString());
     }
 
     @Override
-    public char charAt(int llIlllIIlllIIl) {
-        WString llIlllIIllllII;
-        return llIlllIIllllII.toString().charAt(llIlllIIlllIIl);
+    public int length() {
+        return this.toString().length();
     }
 
-    public int compareTo(Object llIlllIlIIIlII) {
-        WString llIlllIlIIIIll;
-        return llIlllIlIIIIll.toString().compareTo(llIlllIlIIIlII.toString());
+    public WString(String string) {
+        if (string == null) {
+            throw new NullPointerException("String initializer must be non-null");
+        }
+        this.string = string;
     }
 
-    public boolean equals(Object llIlllIlIIlIll) {
-        WString llIlllIlIIlllI;
-        return llIlllIlIIlIll instanceof WString && llIlllIlIIlllI.toString().equals(llIlllIlIIlIll.toString());
+    @Override
+    public char charAt(int n) {
+        return this.toString().charAt(n);
+    }
+
+    public int compareTo(Object object) {
+        return this.toString().compareTo(object.toString());
     }
 }
 

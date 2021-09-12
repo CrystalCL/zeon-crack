@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -7,25 +7,21 @@ import com.sun.jna.ptr.ByReference;
 
 public class ShortByReference
 extends ByReference {
-    public ShortByReference(short lIllIIlIIlllllI) {
-        super(2);
-        ShortByReference lIllIIlIIllllIl;
-        lIllIIlIIllllIl.setValue(lIllIIlIIlllllI);
-    }
-
-    public ShortByReference() {
-        lIllIIlIlIIIIll(0);
-        ShortByReference lIllIIlIlIIIIll;
+    public void setValue(short s) {
+        this.getPointer().setShort(0L, s);
     }
 
     public short getValue() {
-        ShortByReference lIllIIlIIllIlII;
-        return lIllIIlIIllIlII.getPointer().getShort(0L);
+        return this.getPointer().getShort(0L);
     }
 
-    public void setValue(short lIllIIlIIllIllI) {
-        ShortByReference lIllIIlIIlllIIl;
-        lIllIIlIIlllIIl.getPointer().setShort(0L, lIllIIlIIllIllI);
+    public ShortByReference() {
+        this(0);
+    }
+
+    public ShortByReference(short s) {
+        super(2);
+        this.setValue(s);
     }
 }
 

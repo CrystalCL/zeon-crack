@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -9,17 +9,15 @@ import java.lang.reflect.Method;
 
 public class MethodResultContext
 extends FunctionResultContext {
-    private final /* synthetic */ Method method;
+    private final Method method;
 
-    public Method getMethod() {
-        MethodResultContext lIlIIlllIlIIll;
-        return lIlIIlllIlIIll.method;
+    MethodResultContext(Class<?> clazz, Function function, Object[] objectArray, Method method) {
+        super(clazz, function, objectArray);
+        this.method = method;
     }
 
-    MethodResultContext(Class<?> lIlIIlllIllIIl, Function lIlIIlllIllIII, Object[] lIlIIlllIlllII, Method lIlIIlllIllIll) {
-        super(lIlIIlllIllIIl, lIlIIlllIllIII, lIlIIlllIlllII);
-        MethodResultContext lIlIIlllIllIlI;
-        lIlIIlllIllIlI.method = lIlIIlllIllIll;
+    public Method getMethod() {
+        return this.method;
     }
 }
 

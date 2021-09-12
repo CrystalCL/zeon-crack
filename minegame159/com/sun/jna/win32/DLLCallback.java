@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.win32;
 
@@ -7,10 +7,6 @@ import com.sun.jna.Callback;
 
 public interface DLLCallback
 extends Callback {
-    public static final /* synthetic */ int DLL_FPTRS;
-
-    static {
-        DLL_FPTRS = 16;
-    }
+    public static final int DLL_FPTRS = 16;
 }
 

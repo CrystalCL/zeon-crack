@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -10,29 +10,21 @@ import java.lang.ref.WeakReference;
 import java.util.IdentityHashMap;
 
 public class WeakMemoryHolder {
-    /* synthetic */ IdentityHashMap<Reference<Object>, Memory> backingMap;
-    /* synthetic */ ReferenceQueue<Object> referenceQueue;
-
-    public WeakMemoryHolder() {
-        WeakMemoryHolder lllIlIIIlIIlIll;
-        lllIlIIIlIIlIll.referenceQueue = new ReferenceQueue();
-        lllIlIIIlIIlIll.backingMap = new IdentityHashMap();
-    }
-
-    public synchronized void put(Object lllIlIIIlIIIIIl, Memory lllIlIIIlIIIlII) {
-        WeakMemoryHolder lllIlIIIlIIIllI;
-        lllIlIIIlIIIllI.clean();
-        WeakReference<Object> lllIlIIIlIIIIll = new WeakReference<Object>(lllIlIIIlIIIIIl, lllIlIIIlIIIllI.referenceQueue);
-        lllIlIIIlIIIllI.backingMap.put(lllIlIIIlIIIIll, lllIlIIIlIIIlII);
-    }
+    ReferenceQueue<Object> referenceQueue = new ReferenceQueue();
+    IdentityHashMap<Reference<Object>, Memory> backingMap = new IdentityHashMap();
 
     public synchronized void clean() {
-        WeakMemoryHolder lllIlIIIIlllIlI;
-        Reference<Object> lllIlIIIIllllII = lllIlIIIIlllIlI.referenceQueue.poll();
-        while (lllIlIIIIllllII != null) {
-            lllIlIIIIlllIlI.backingMap.remove(lllIlIIIIllllII);
-            lllIlIIIIllllII = lllIlIIIIlllIlI.referenceQueue.poll();
+        Reference<Object> reference = this.referenceQueue.poll();
+        while (reference != null) {
+            this.backingMap.remove(reference);
+            reference = this.referenceQueue.poll();
         }
+    }
+
+    public synchronized void put(Object object, Memory memory) {
+        this.clean();
+        WeakReference<Object> weakReference = new WeakReference<Object>(object, this.referenceQueue);
+        this.backingMap.put(weakReference, memory);
     }
 }
 

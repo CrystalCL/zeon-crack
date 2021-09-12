@@ -1,15 +1,15 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package meteordevelopment.orbit.listeners;
 
 public interface IListener {
-    public void call(Object var1);
+    public boolean isStatic();
 
     public int getPriority();
 
     public Class<?> getTarget();
 
-    public boolean isStatic();
+    public void call(Object var1);
 }
 

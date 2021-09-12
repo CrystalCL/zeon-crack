@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package meteordevelopment.orbit.listeners;
 
@@ -16,72 +16,67 @@ import meteordevelopment.orbit.listeners.IListener;
 
 public class LambdaListener
 implements IListener {
-    private /* synthetic */ Consumer<Object> executor;
-    private static /* synthetic */ Constructor<MethodHandles.Lookup> lookupConstructor;
-    private final /* synthetic */ int priority;
-    private final /* synthetic */ Class<?> target;
-    private final /* synthetic */ boolean isStatic;
-
-    public LambdaListener(Class<?> llIlIlllllllIII, Object llIlIlllllllIll, Method llIlIllllllIllI) {
-        LambdaListener llIlIllllllllIl;
-        llIlIllllllllIl.target = llIlIllllllIllI.getParameters()[0].getType();
-        llIlIllllllllIl.isStatic = Modifier.isStatic(llIlIllllllIllI.getModifiers());
-        llIlIllllllllIl.priority = llIlIllllllIllI.getAnnotation(EventHandler.class).priority();
-        try {
-            MethodType llIllIIIIIIIIII;
-            MethodHandle llIllIIIIIIIIIl;
-            String llIllIIIIIIIlIl = llIlIllllllIllI.getName();
-            boolean llIllIIIIIIIlII = lookupConstructor.isAccessible();
-            lookupConstructor.setAccessible(true);
-            MethodHandles.Lookup llIllIIIIIIIIll = lookupConstructor.newInstance(llIlIlllllllIII);
-            lookupConstructor.setAccessible(llIllIIIIIIIlII);
-            MethodType llIllIIIIIIIIlI = MethodType.methodType(Void.TYPE, llIlIllllllIllI.getParameters()[0].getType());
-            if (llIlIllllllllIl.isStatic) {
-                MethodHandle llIllIIIIIIIlll = llIllIIIIIIIIll.findStatic(llIlIlllllllIII, llIllIIIIIIIlIl, llIllIIIIIIIIlI);
-                MethodType llIllIIIIIIIllI = MethodType.methodType(Consumer.class);
-            } else {
-                llIllIIIIIIIIIl = llIllIIIIIIIIll.findVirtual(llIlIlllllllIII, llIllIIIIIIIlIl, llIllIIIIIIIIlI);
-                llIllIIIIIIIIII = MethodType.methodType(Consumer.class, llIlIlllllllIII);
-            }
-            MethodHandle llIlIllllllllll = LambdaMetafactory.metafactory(llIllIIIIIIIIll, "accept", llIllIIIIIIIIII, MethodType.methodType(Void.TYPE, Object.class), llIllIIIIIIIIIl, llIllIIIIIIIIlI).getTarget();
-            llIlIllllllllIl.executor = llIlIllllllllIl.isStatic ? llIlIllllllllll.invoke() : llIlIllllllllll.invoke(llIlIlllllllIll);
-        }
-        catch (Throwable llIlIlllllllllI) {
-            llIlIlllllllllI.printStackTrace();
-        }
-    }
+    private static Constructor<MethodHandles.Lookup> lookupConstructor;
+    private final Class<?> target;
+    private final boolean isStatic;
+    private final int priority;
+    private Consumer<Object> executor;
 
     @Override
     public boolean isStatic() {
-        LambdaListener llIlIlllllIIIIl;
-        return llIlIlllllIIIIl.isStatic;
-    }
-
-    @Override
-    public void call(Object llIlIlllllIlIIl) {
-        LambdaListener llIlIlllllIlIlI;
-        llIlIlllllIlIlI.executor.accept(llIlIlllllIlIIl);
-    }
-
-    @Override
-    public int getPriority() {
-        LambdaListener llIlIlllllIIIll;
-        return llIlIlllllIIIll.priority;
+        return this.isStatic;
     }
 
     static {
         try {
             lookupConstructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
         }
-        catch (NoSuchMethodException llIlIllllIllllI) {
-            llIlIllllIllllI.printStackTrace();
+        catch (NoSuchMethodException noSuchMethodException) {
+            noSuchMethodException.printStackTrace();
+        }
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public void call(Object object) {
+        this.executor.accept(object);
+    }
+
+    public LambdaListener(Class<?> clazz, Object object, Method method) {
+        this.target = method.getParameters()[0].getType();
+        this.isStatic = Modifier.isStatic(method.getModifiers());
+        this.priority = method.getAnnotation(EventHandler.class).priority();
+        try {
+            MethodType methodType;
+            MethodHandle methodHandle;
+            String string = method.getName();
+            boolean bl = lookupConstructor.isAccessible();
+            lookupConstructor.setAccessible(true);
+            MethodHandles.Lookup lookup = lookupConstructor.newInstance(clazz);
+            lookupConstructor.setAccessible(bl);
+            MethodType methodType2 = MethodType.methodType(Void.TYPE, method.getParameters()[0].getType());
+            if (this.isStatic) {
+                methodHandle = lookup.findStatic(clazz, string, methodType2);
+                methodType = MethodType.methodType(Consumer.class);
+            } else {
+                methodHandle = lookup.findVirtual(clazz, string, methodType2);
+                methodType = MethodType.methodType(Consumer.class, clazz);
+            }
+            MethodHandle methodHandle2 = LambdaMetafactory.metafactory(lookup, "accept", methodType, MethodType.methodType(Void.TYPE, Object.class), methodHandle, methodType2).getTarget();
+            this.executor = this.isStatic ? methodHandle2.invoke() : methodHandle2.invoke(object);
+        }
+        catch (Throwable throwable) {
+            throwable.printStackTrace();
         }
     }
 
     @Override
     public Class<?> getTarget() {
-        LambdaListener llIlIlllllIIllI;
-        return llIlIlllllIIllI.target;
+        return this.target;
     }
 }
 

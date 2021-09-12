@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -9,23 +9,20 @@ import java.lang.reflect.Field;
 
 public class StructureWriteContext
 extends ToNativeContext {
-    private /* synthetic */ Structure struct;
-    private /* synthetic */ Field field;
+    private Structure struct;
+    private Field field;
+
+    StructureWriteContext(Structure structure, Field field) {
+        this.struct = structure;
+        this.field = field;
+    }
 
     public Field getField() {
-        StructureWriteContext llllllllllllllllIllIIIlIIIlIlllI;
-        return llllllllllllllllIllIIIlIIIlIlllI.field;
+        return this.field;
     }
 
     public Structure getStructure() {
-        StructureWriteContext llllllllllllllllIllIIIlIIIllIIIl;
-        return llllllllllllllllIllIIIlIIIllIIIl.struct;
-    }
-
-    StructureWriteContext(Structure llllllllllllllllIllIIIlIIIllIlII, Field llllllllllllllllIllIIIlIIIllIIll) {
-        StructureWriteContext llllllllllllllllIllIIIlIIIlllIII;
-        llllllllllllllllIllIIIlIIIlllIII.struct = llllllllllllllllIllIIIlIIIllIlII;
-        llllllllllllllllIllIIIlIIIlllIII.field = llllllllllllllllIllIIIlIIIllIIll;
+        return this.struct;
     }
 }
 

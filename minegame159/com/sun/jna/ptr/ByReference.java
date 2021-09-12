@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -8,9 +8,8 @@ import com.sun.jna.PointerType;
 
 public abstract class ByReference
 extends PointerType {
-    protected ByReference(int lllllllllllllllllllIIlIllIIllIIl) {
-        ByReference lllllllllllllllllllIIlIllIIlllII;
-        lllllllllllllllllllIIlIllIIlllII.setPointer(new Memory(lllllllllllllllllllIIlIllIIllIIl));
+    protected ByReference(int n) {
+        this.setPointer(new Memory(n));
     }
 }
 

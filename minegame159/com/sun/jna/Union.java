@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -13,142 +13,125 @@ import java.util.List;
 
 public abstract class Union
 extends Structure {
-    private /* synthetic */ Structure.StructField activeField;
+    private Structure.StructField activeField;
 
-    protected Union(Pointer llllllllllllllllllIllllIllIlIIIl, int llllllllllllllllllIllllIllIlIlII, TypeMapper llllllllllllllllllIllllIllIlIIll) {
-        super(llllllllllllllllllIllllIllIlIIIl, llllllllllllllllllIllllIllIlIlII, llllllllllllllllllIllllIllIlIIll);
-        Union llllllllllllllllllIllllIllIlIllI;
+    public void setType(String string) {
+        this.ensureAllocated();
+        Structure.StructField structField = this.fields().get(string);
+        if (structField == null) {
+            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field named ").append(string).append(" in ").append(this)));
+        }
+        this.activeField = structField;
+    }
+
+    protected Union(Pointer pointer) {
+        super(pointer);
+    }
+
+    protected Union(Pointer pointer, int n) {
+        super(pointer, n);
+    }
+
+    @Override
+    protected int getNativeAlignment(Class<?> clazz, Object object, boolean bl) {
+        return super.getNativeAlignment(clazz, object, true);
+    }
+
+    private Structure.StructField findField(Class<?> clazz) {
+        this.ensureAllocated();
+        for (Structure.StructField structField : this.fields().values()) {
+            if (!structField.type.isAssignableFrom(clazz)) continue;
+            return structField;
+        }
+        return null;
+    }
+
+    protected Union(Pointer pointer, int n, TypeMapper typeMapper) {
+        super(pointer, n, typeMapper);
+    }
+
+    @Override
+    public void writeField(String string, Object object) {
+        this.ensureAllocated();
+        this.setType(string);
+        super.writeField(string, object);
+    }
+
+    protected Union() {
+    }
+
+    @Override
+    public void writeField(String string) {
+        this.ensureAllocated();
+        this.setType(string);
+        super.writeField(string);
+    }
+
+    public Object getTypedValue(Class<?> clazz) {
+        this.ensureAllocated();
+        for (Structure.StructField structField : this.fields().values()) {
+            if (structField.type != clazz) continue;
+            this.activeField = structField;
+            this.read();
+            return this.getFieldValue(this.activeField.field);
+        }
+        throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field of type ").append(clazz).append(" in ").append(this)));
     }
 
     @Override
     protected List<String> getFieldOrder() {
-        Union llllllllllllllllllIllllIllIIIlIl;
-        List<Field> llllllllllllllllllIllllIllIIIlll = llllllllllllllllllIllllIllIIIlIl.getFieldList();
-        ArrayList<String> llllllllllllllllllIllllIllIIIllI = new ArrayList<String>(llllllllllllllllllIllllIllIIIlll.size());
-        for (Field llllllllllllllllllIllllIllIIlIIl : llllllllllllllllllIllllIllIIIlll) {
-            llllllllllllllllllIllllIllIIIllI.add(llllllllllllllllllIllllIllIIlIIl.getName());
+        List<Field> list = this.getFieldList();
+        ArrayList<String> arrayList = new ArrayList<String>(list.size());
+        for (Field field : list) {
+            arrayList.add(field.getName());
         }
-        return llllllllllllllllllIllllIllIIIllI;
-    }
-
-    public Object setTypedValue(Object llllllllllllllllllIllllIlIIIlIII) {
-        Union llllllllllllllllllIllllIlIIIIllI;
-        Structure.StructField llllllllllllllllllIllllIlIIIIlll = llllllllllllllllllIllllIlIIIIllI.findField(llllllllllllllllllIllllIlIIIlIII.getClass());
-        if (llllllllllllllllllIllllIlIIIIlll != null) {
-            llllllllllllllllllIllllIlIIIIllI.activeField = llllllllllllllllllIllllIlIIIIlll;
-            llllllllllllllllllIllllIlIIIIllI.setFieldValue(llllllllllllllllllIllllIlIIIIlll.field, llllllllllllllllllIllllIlIIIlIII);
-            return llllllllllllllllllIllllIlIIIIllI;
-        }
-        throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field of type ").append(llllllllllllllllllIllllIlIIIlIII.getClass()).append(" in ").append(llllllllllllllllllIllllIlIIIIllI)));
-    }
-
-    private Structure.StructField findField(Class<?> llllllllllllllllllIllllIIllllIll) {
-        Union llllllllllllllllllIllllIIllllllI;
-        llllllllllllllllllIllllIIllllllI.ensureAllocated();
-        for (Structure.StructField llllllllllllllllllIllllIIlllllll : llllllllllllllllllIllllIIllllllI.fields().values()) {
-            if (!llllllllllllllllllIllllIIlllllll.type.isAssignableFrom(llllllllllllllllllIllllIIllllIll)) continue;
-            return llllllllllllllllllIllllIIlllllll;
-        }
-        return null;
-    }
-
-    public Object getTypedValue(Class<?> llllllllllllllllllIllllIlIIIllll) {
-        Union llllllllllllllllllIllllIlIIlIIII;
-        llllllllllllllllllIllllIlIIlIIII.ensureAllocated();
-        for (Structure.StructField llllllllllllllllllIllllIlIIlIIll : llllllllllllllllllIllllIlIIlIIII.fields().values()) {
-            if (llllllllllllllllllIllllIlIIlIIll.type != llllllllllllllllllIllllIlIIIllll) continue;
-            llllllllllllllllllIllllIlIIlIIII.activeField = llllllllllllllllllIllllIlIIlIIll;
-            llllllllllllllllllIllllIlIIlIIII.read();
-            return llllllllllllllllllIllllIlIIlIIII.getFieldValue(llllllllllllllllllIllllIlIIlIIII.activeField.field);
-        }
-        throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field of type ").append(llllllllllllllllllIllllIlIIIllll).append(" in ").append(llllllllllllllllllIllllIlIIlIIII)));
+        return arrayList;
     }
 
     @Override
-    public void writeField(String llllllllllllllllllIllllIlIlIIIll) {
-        Union llllllllllllllllllIllllIlIlIIlII;
-        llllllllllllllllllIllllIlIlIIlII.ensureAllocated();
-        llllllllllllllllllIllllIlIlIIlII.setType(llllllllllllllllllIllllIlIlIIIll);
-        super.writeField(llllllllllllllllllIllllIlIlIIIll);
+    protected void writeField(Structure.StructField structField) {
+        if (structField == this.activeField) {
+            super.writeField(structField);
+        }
     }
 
-    protected Union(TypeMapper llllllllllllllllllIllllIllIlllIl) {
-        super(llllllllllllllllllIllllIllIlllIl);
-        Union llllllllllllllllllIllllIllIllllI;
-    }
-
-    public void setType(Class<?> llllllllllllllllllIllllIlIlllIII) {
-        Union llllllllllllllllllIllllIlIlllIIl;
-        llllllllllllllllllIllllIlIlllIIl.ensureAllocated();
-        for (Structure.StructField llllllllllllllllllIllllIlIllllII : llllllllllllllllllIllllIlIlllIIl.fields().values()) {
-            if (llllllllllllllllllIllllIlIllllII.type != llllllllllllllllllIllllIlIlllIII) continue;
-            llllllllllllllllllIllllIlIlllIIl.activeField = llllllllllllllllllIllllIlIllllII;
+    public void setType(Class<?> clazz) {
+        this.ensureAllocated();
+        for (Structure.StructField structField : this.fields().values()) {
+            if (structField.type != clazz) continue;
+            this.activeField = structField;
             return;
         }
-        throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field of type ").append(llllllllllllllllllIllllIlIlllIII).append(" in ").append(llllllllllllllllllIllllIlIlllIIl)));
-    }
-
-    protected Union() {
-        Union llllllllllllllllllIllllIllllIIII;
-    }
-
-    protected Union(Pointer llllllllllllllllllIllllIlllIIIlI, int llllllllllllllllllIllllIlllIIIIl) {
-        super(llllllllllllllllllIllllIlllIIIlI, llllllllllllllllllIllllIlllIIIIl);
-        Union llllllllllllllllllIllllIlllIIIll;
+        throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field of type ").append(clazz).append(" in ").append(this)));
     }
 
     @Override
-    protected Object readField(Structure.StructField llllllllllllllllllIllllIIllIlIlI) {
-        Union llllllllllllllllllIllllIIllIllIl;
-        if (llllllllllllllllllIllllIIllIlIlI == llllllllllllllllllIllllIIllIllIl.activeField || !Structure.class.isAssignableFrom(llllllllllllllllllIllllIIllIlIlI.type) && !String.class.isAssignableFrom(llllllllllllllllllIllllIIllIlIlI.type) && !WString.class.isAssignableFrom(llllllllllllllllllIllllIIllIlIlI.type)) {
-            return super.readField(llllllllllllllllllIllllIIllIlIlI);
+    protected Object readField(Structure.StructField structField) {
+        if (structField == this.activeField || !Structure.class.isAssignableFrom(structField.type) && !String.class.isAssignableFrom(structField.type) && !WString.class.isAssignableFrom(structField.type)) {
+            return super.readField(structField);
         }
         return null;
     }
 
-    @Override
-    public void writeField(String llllllllllllllllllIllllIlIIlllII, Object llllllllllllllllllIllllIlIIllIII) {
-        Union llllllllllllllllllIllllIlIIllIlI;
-        llllllllllllllllllIllllIlIIllIlI.ensureAllocated();
-        llllllllllllllllllIllllIlIIllIlI.setType(llllllllllllllllllIllllIlIIlllII);
-        super.writeField(llllllllllllllllllIllllIlIIlllII, llllllllllllllllllIllllIlIIllIII);
+    protected Union(TypeMapper typeMapper) {
+        super(typeMapper);
     }
 
-    @Override
-    protected int getNativeAlignment(Class<?> llllllllllllllllllIllllIIlIlllII, Object llllllllllllllllllIllllIIlIllIll, boolean llllllllllllllllllIllllIIlIlllll) {
-        Union llllllllllllllllllIllllIIllIIIll;
-        return super.getNativeAlignment(llllllllllllllllllIllllIIlIlllII, llllllllllllllllllIllllIIlIllIll, true);
-    }
-
-    protected Union(Pointer llllllllllllllllllIllllIlllIlIlI) {
-        super(llllllllllllllllllIllllIlllIlIlI);
-        Union llllllllllllllllllIllllIlllIlIll;
-    }
-
-    public void setType(String llllllllllllllllllIllllIlIlIlllI) {
-        Union llllllllllllllllllIllllIlIlIllll;
-        llllllllllllllllllIllllIlIlIllll.ensureAllocated();
-        Structure.StructField llllllllllllllllllIllllIlIllIIII = llllllllllllllllllIllllIlIlIllll.fields().get(llllllllllllllllllIllllIlIlIlllI);
-        if (llllllllllllllllllIllllIlIllIIII == null) {
-            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field named ").append(llllllllllllllllllIllllIlIlIlllI).append(" in ").append(llllllllllllllllllIllllIlIlIllll)));
+    public Object setTypedValue(Object object) {
+        Structure.StructField structField = this.findField(object.getClass());
+        if (structField != null) {
+            this.activeField = structField;
+            this.setFieldValue(structField.field, object);
+            return this;
         }
-        llllllllllllllllllIllllIlIlIllll.activeField = llllllllllllllllllIllllIlIllIIII;
+        throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("No field of type ").append(object.getClass()).append(" in ").append(this)));
     }
 
     @Override
-    protected void writeField(Structure.StructField llllllllllllllllllIllllIIlllIlIl) {
-        Union llllllllllllllllllIllllIIlllIllI;
-        if (llllllllllllllllllIllllIIlllIlIl == llllllllllllllllllIllllIIlllIllI.activeField) {
-            super.writeField(llllllllllllllllllIllllIIlllIlIl);
-        }
-    }
-
-    @Override
-    public Object readField(String llllllllllllllllllIllllIlIlIIlll) {
-        Union llllllllllllllllllIllllIlIlIlIlI;
-        llllllllllllllllllIllllIlIlIlIlI.ensureAllocated();
-        llllllllllllllllllIllllIlIlIlIlI.setType(llllllllllllllllllIllllIlIlIIlll);
-        return super.readField(llllllllllllllllllIllllIlIlIIlll);
+    public Object readField(String string) {
+        this.ensureAllocated();
+        this.setType(string);
+        return super.readField(string);
     }
 }
 

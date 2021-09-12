@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -8,24 +8,21 @@ import com.sun.jna.Function;
 
 public class FunctionResultContext
 extends FromNativeContext {
-    private /* synthetic */ Object[] args;
-    private /* synthetic */ Function function;
-
-    public Object[] getArguments() {
-        FunctionResultContext llllllllllllllllIlIllllllIIllIII;
-        return llllllllllllllllIlIllllllIIllIII.args;
-    }
-
-    FunctionResultContext(Class<?> llllllllllllllllIlIllllllIlIIIII, Function llllllllllllllllIlIllllllIlIIIll, Object[] llllllllllllllllIlIllllllIIllllI) {
-        super(llllllllllllllllIlIllllllIlIIIII);
-        FunctionResultContext llllllllllllllllIlIllllllIlIIIIl;
-        llllllllllllllllIlIllllllIlIIIIl.function = llllllllllllllllIlIllllllIlIIIll;
-        llllllllllllllllIlIllllllIlIIIIl.args = llllllllllllllllIlIllllllIIllllI;
-    }
+    private Object[] args;
+    private Function function;
 
     public Function getFunction() {
-        FunctionResultContext llllllllllllllllIlIllllllIIlllII;
-        return llllllllllllllllIlIllllllIIlllII.function;
+        return this.function;
+    }
+
+    FunctionResultContext(Class<?> clazz, Function function, Object[] objectArray) {
+        super(clazz);
+        this.function = function;
+        this.args = objectArray;
+    }
+
+    public Object[] getArguments() {
+        return this.args;
     }
 }
 

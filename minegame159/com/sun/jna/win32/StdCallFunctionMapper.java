@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.win32;
 
@@ -14,50 +14,47 @@ import java.lang.reflect.Method;
 
 public class StdCallFunctionMapper
 implements FunctionMapper {
-    public StdCallFunctionMapper() {
-        StdCallFunctionMapper lIlIlIIIIIlIIlI;
-    }
-
-    protected int getArgumentNativeStackSize(Class<?> lIlIlIIIIIIllII) {
-        if (NativeMapped.class.isAssignableFrom(lIlIlIIIIIIllII)) {
-            lIlIlIIIIIIllII = NativeMappedConverter.getInstance(lIlIlIIIIIIllII).nativeType();
-        }
-        if (lIlIlIIIIIIllII.isArray()) {
-            return Pointer.SIZE;
-        }
-        try {
-            return Native.getNativeSize(lIlIlIIIIIIllII);
-        }
-        catch (IllegalArgumentException lIlIlIIIIIIlllI) {
-            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("Unknown native stack allocation size for ").append(lIlIlIIIIIIllII)));
-        }
-    }
-
     @Override
-    public String getFunctionName(NativeLibrary lIlIIlllllllIlI, Method lIlIIllllllIIIl) {
-        Class<?>[] lIlIIllllllIllI;
-        String lIlIIlllllllIII = lIlIIllllllIIIl.getName();
-        int lIlIIllllllIlll = 0;
-        for (Class<?> lIlIIllllllllll : lIlIIllllllIllI = lIlIIllllllIIIl.getParameterTypes()) {
-            StdCallFunctionMapper lIlIIllllllIIll;
-            lIlIIllllllIlll += lIlIIllllllIIll.getArgumentNativeStackSize(lIlIIllllllllll);
+    public String getFunctionName(NativeLibrary nativeLibrary, Method method) {
+        Class<?>[] classArray;
+        String string = method.getName();
+        int n = 0;
+        for (Class<?> unsatisfiedLinkError2 : classArray = method.getParameterTypes()) {
+            n += this.getArgumentNativeStackSize(unsatisfiedLinkError2);
+            if (-2 <= 0) continue;
+            return null;
         }
-        String lIlIIllllllIlIl = String.valueOf(new StringBuilder().append(lIlIIlllllllIII).append("@").append(lIlIIllllllIlll));
-        int lIlIIllllllIlII = 63;
+        String string2 = String.valueOf(new StringBuilder().append(string).append("@").append(n));
+        int n2 = 63;
         try {
-            Function lIlIIlllllllllI = lIlIIlllllllIlI.getFunction(lIlIIllllllIlIl, lIlIIllllllIlII);
-            lIlIIlllllllIII = lIlIIlllllllllI.getName();
+            Function unsatisfiedLinkError = nativeLibrary.getFunction(string2, n2);
+            string = unsatisfiedLinkError.getName();
         }
-        catch (UnsatisfiedLinkError lIlIIllllllllII) {
+        catch (UnsatisfiedLinkError unsatisfiedLinkError) {
             try {
-                Function lIlIIllllllllIl = lIlIIlllllllIlI.getFunction(String.valueOf(new StringBuilder().append("_").append(lIlIIllllllIlIl)), lIlIIllllllIlII);
-                lIlIIlllllllIII = lIlIIllllllllIl.getName();
+                Function function = nativeLibrary.getFunction(String.valueOf(new StringBuilder().append("_").append(string2)), n2);
+                string = function.getName();
             }
-            catch (UnsatisfiedLinkError unsatisfiedLinkError) {
+            catch (UnsatisfiedLinkError unsatisfiedLinkError2) {
                 // empty catch block
             }
         }
-        return lIlIIlllllllIII;
+        return string;
+    }
+
+    protected int getArgumentNativeStackSize(Class<?> clazz) {
+        if (NativeMapped.class.isAssignableFrom(clazz)) {
+            clazz = NativeMappedConverter.getInstance(clazz).nativeType();
+        }
+        if (clazz.isArray()) {
+            return Pointer.SIZE;
+        }
+        try {
+            return Native.getNativeSize(clazz);
+        }
+        catch (IllegalArgumentException illegalArgumentException) {
+            throw new IllegalArgumentException(String.valueOf(new StringBuilder().append("Unknown native stack allocation size for ").append(clazz)));
+        }
     }
 }
 

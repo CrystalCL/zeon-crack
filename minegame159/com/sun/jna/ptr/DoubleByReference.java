@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -8,24 +8,20 @@ import com.sun.jna.ptr.ByReference;
 public class DoubleByReference
 extends ByReference {
     public double getValue() {
-        DoubleByReference llllllllllllllllllIIlIIlllllllII;
-        return llllllllllllllllllIIlIIlllllllII.getPointer().getDouble(0L);
+        return this.getPointer().getDouble(0L);
+    }
+
+    public DoubleByReference(double d) {
+        super(8);
+        this.setValue(d);
+    }
+
+    public void setValue(double d) {
+        this.getPointer().setDouble(0L, d);
     }
 
     public DoubleByReference() {
-        llllllllllllllllllIIlIlIIIIIllII(0.0);
-        DoubleByReference llllllllllllllllllIIlIlIIIIIllII;
-    }
-
-    public void setValue(double llllllllllllllllllIIlIlIIIIIIIIl) {
-        DoubleByReference llllllllllllllllllIIlIlIIIIIIIlI;
-        llllllllllllllllllIIlIlIIIIIIIlI.getPointer().setDouble(0L, llllllllllllllllllIIlIlIIIIIIIIl);
-    }
-
-    public DoubleByReference(double llllllllllllllllllIIlIlIIIIIIlIl) {
-        super(8);
-        DoubleByReference llllllllllllllllllIIlIlIIIIIIllI;
-        llllllllllllllllllIIlIlIIIIIIllI.setValue(llllllllllllllllllIIlIlIIIIIIlIl);
+        this(0.0);
     }
 }
 

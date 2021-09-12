@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -7,25 +7,21 @@ import com.sun.jna.ptr.ByReference;
 
 public class LongByReference
 extends ByReference {
-    public void setValue(long llllllllllllllllIlllIIllllIlllII) {
-        LongByReference llllllllllllllllIlllIIllllIlllIl;
-        llllllllllllllllIlllIIllllIlllIl.getPointer().setLong(0L, llllllllllllllllIlllIIllllIlllII);
-    }
-
-    public LongByReference(long llllllllllllllllIlllIIlllllIIIII) {
+    public LongByReference(long l) {
         super(8);
-        LongByReference llllllllllllllllIlllIIlllllIIIll;
-        llllllllllllllllIlllIIlllllIIIll.setValue(llllllllllllllllIlllIIlllllIIIII);
+        this.setValue(l);
     }
 
-    public long getValue() {
-        LongByReference llllllllllllllllIlllIIllllIllIII;
-        return llllllllllllllllIlllIIllllIllIII.getPointer().getLong(0L);
+    public void setValue(long l) {
+        this.getPointer().setLong(0L, l);
     }
 
     public LongByReference() {
-        llllllllllllllllIlllIIlllllIIllI(0L);
-        LongByReference llllllllllllllllIlllIIlllllIIllI;
+        this(0L);
+    }
+
+    public long getValue() {
+        return this.getPointer().getLong(0L);
     }
 }
 

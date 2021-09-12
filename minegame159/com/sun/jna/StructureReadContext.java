@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna;
 
@@ -9,24 +9,21 @@ import java.lang.reflect.Field;
 
 public class StructureReadContext
 extends FromNativeContext {
-    private /* synthetic */ Field field;
-    private /* synthetic */ Structure structure;
-
-    public Field getField() {
-        StructureReadContext lllllllllllllllllllIIIlllllIlIIl;
-        return lllllllllllllllllllIIIlllllIlIIl.field;
-    }
-
-    StructureReadContext(Structure lllllllllllllllllllIIIlllllIllll, Field lllllllllllllllllllIIIllllllIIIl) {
-        super(lllllllllllllllllllIIIllllllIIIl.getType());
-        StructureReadContext lllllllllllllllllllIIIllllllIIll;
-        lllllllllllllllllllIIIllllllIIll.structure = lllllllllllllllllllIIIlllllIllll;
-        lllllllllllllllllllIIIllllllIIll.field = lllllllllllllllllllIIIllllllIIIl;
-    }
+    private Field field;
+    private Structure structure;
 
     public Structure getStructure() {
-        StructureReadContext lllllllllllllllllllIIIlllllIlIll;
-        return lllllllllllllllllllIIIlllllIlIll.structure;
+        return this.structure;
+    }
+
+    public Field getField() {
+        return this.field;
+    }
+
+    StructureReadContext(Structure structure, Field field) {
+        super(field.getType());
+        this.structure = structure;
+        this.field = field;
     }
 }
 

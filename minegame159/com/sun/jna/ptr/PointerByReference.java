@@ -1,5 +1,5 @@
 /*
- * Decompiled with CFR 0.150.
+ * Decompiled with CFR 0.151.
  */
 package com.sun.jna.ptr;
 
@@ -9,24 +9,20 @@ import com.sun.jna.ptr.ByReference;
 public class PointerByReference
 extends ByReference {
     public PointerByReference() {
-        lllllllllllllllllIllIllIllIIllIl(null);
-        PointerByReference lllllllllllllllllIllIllIllIIllIl;
+        this(null);
+    }
+
+    public void setValue(Pointer pointer) {
+        this.getPointer().setPointer(0L, pointer);
     }
 
     public Pointer getValue() {
-        PointerByReference lllllllllllllllllIllIllIlIlllllI;
-        return lllllllllllllllllIllIllIlIlllllI.getPointer().getPointer(0L);
+        return this.getPointer().getPointer(0L);
     }
 
-    public PointerByReference(Pointer lllllllllllllllllIllIllIllIIlIIl) {
+    public PointerByReference(Pointer pointer) {
         super(Pointer.SIZE);
-        PointerByReference lllllllllllllllllIllIllIllIIlIlI;
-        lllllllllllllllllIllIllIllIIlIlI.setValue(lllllllllllllllllIllIllIllIIlIIl);
-    }
-
-    public void setValue(Pointer lllllllllllllllllIllIllIllIIIIIl) {
-        PointerByReference lllllllllllllllllIllIllIllIIIlII;
-        lllllllllllllllllIllIllIllIIIlII.getPointer().setPointer(0L, lllllllllllllllllIllIllIllIIIIIl);
+        this.setValue(pointer);
     }
 }
 
