@@ -15,9 +15,9 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1113;
-import net.minecraft.class_1536;
-import net.minecraft.class_1787;
+import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.item.FishingRodItem;
 
 public class AutoFish
 extends Module {
@@ -40,7 +40,7 @@ extends Module {
     private void onTick(TickEvent.Post post) {
         if (this.autoCastCheckTimer <= 0) {
             this.autoCastCheckTimer = 30;
-            if (this.autoCast.get().booleanValue() && !this.ticksEnabled && !this.autoCastEnabled && this.mc.field_1724.field_7513 == null && this.mc.field_1724.method_6047().method_7909() instanceof class_1787) {
+            if (this.autoCast.get().booleanValue() && !this.ticksEnabled && !this.autoCastEnabled && this.mc.player.fishHook == null && this.mc.player.getMainHandStack().getItem() instanceof FishingRodItem) {
                 this.autoCastTimer = 0;
                 this.autoCastEnabled = true;
             }
@@ -76,9 +76,9 @@ extends Module {
 
     @EventHandler
     private void onPlaySound(PlaySoundEvent playSoundEvent) {
-        class_1113 class_11132 = playSoundEvent.sound;
-        class_1536 class_15362 = this.mc.field_1724.field_7513;
-        if (class_11132.method_4775().method_12832().equals("entity.fishing_bobber.splash") && (!this.splashDetectionRangeEnabled.get().booleanValue() || Utils.distance(class_15362.method_23317(), class_15362.method_23318(), class_15362.method_23321(), class_11132.method_4784(), class_11132.method_4779(), class_11132.method_4778()) <= this.splashDetectionRange.get())) {
+        SoundInstance SoundInstance2 = playSoundEvent.sound;
+        FishingBobberEntity FishingBobberEntity2 = this.mc.player.fishHook;
+        if (SoundInstance2.getId().getPath().equals("entity.fishing_bobber.splash") && (!this.splashDetectionRangeEnabled.get().booleanValue() || Utils.distance(FishingBobberEntity2.getX(), FishingBobberEntity2.getY(), FishingBobberEntity2.getZ(), SoundInstance2.getX(), SoundInstance2.getY(), SoundInstance2.getZ()) <= this.splashDetectionRange.get())) {
             this.ticksEnabled = true;
             this.ticksToRightClick = this.ticksCatch.get();
             this.ticksData = 0;
@@ -87,7 +87,7 @@ extends Module {
 
     @EventHandler
     private void onKey(KeyEvent keyEvent) {
-        if (this.mc.field_1690.field_1904.method_1434()) {
+        if (this.mc.options.keyUse.isPressed()) {
             this.ticksEnabled = false;
         }
     }

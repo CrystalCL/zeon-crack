@@ -19,13 +19,13 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.misc.Pool;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_2874;
-import net.minecraft.class_310;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.client.MinecraftClient;
 
 public class Breadcrumbs
 extends Module {
     private Section section;
-    private class_2874 lastDimension;
+    private DimensionType lastDimension;
     private final Pool<Section> sectionPool;
     private final Setting<Integer> maxSections;
     private final Setting<Double> sectionLength;
@@ -33,7 +33,7 @@ extends Module {
     private final SettingGroup sgGeneral;
     private final Queue<Section> sections;
 
-    static class_310 access$500(Breadcrumbs breadcrumbs) {
+    static MinecraftClient access$500(Breadcrumbs breadcrumbs) {
         return breadcrumbs.mc;
     }
 
@@ -45,7 +45,7 @@ extends Module {
     }
 
     private boolean isFarEnough(double d, double d2, double d3) {
-        return Math.abs(this.mc.field_1724.method_23317() - d) >= this.sectionLength.get() || Math.abs(this.mc.field_1724.method_23318() - d2) >= this.sectionLength.get() || Math.abs(this.mc.field_1724.method_23321() - d3) >= this.sectionLength.get();
+        return Math.abs(this.mc.player.getX() - d) >= this.sectionLength.get() || Math.abs(this.mc.player.getY() - d2) >= this.sectionLength.get() || Math.abs(this.mc.player.getZ() - d3) >= this.sectionLength.get();
     }
 
     public Breadcrumbs() {
@@ -58,11 +58,11 @@ extends Module {
         this.sections = new ArrayDeque<Section>();
     }
 
-    static class_310 access$200(Breadcrumbs breadcrumbs) {
+    static MinecraftClient access$200(Breadcrumbs breadcrumbs) {
         return breadcrumbs.mc;
     }
 
-    static class_310 access$100(Breadcrumbs breadcrumbs) {
+    static MinecraftClient access$100(Breadcrumbs breadcrumbs) {
         return breadcrumbs.mc;
     }
 
@@ -74,10 +74,10 @@ extends Module {
     public void onActivate() {
         this.section = this.sectionPool.get();
         this.section.set1();
-        this.lastDimension = this.mc.field_1687.method_8597();
+        this.lastDimension = this.mc.world.getDimension();
     }
 
-    static class_310 access$400(Breadcrumbs breadcrumbs) {
+    static MinecraftClient access$400(Breadcrumbs breadcrumbs) {
         return breadcrumbs.mc;
     }
 
@@ -85,14 +85,14 @@ extends Module {
         return new Section(this, null);
     }
 
-    static class_310 access$300(Breadcrumbs breadcrumbs) {
+    static MinecraftClient access$300(Breadcrumbs breadcrumbs) {
         return breadcrumbs.mc;
     }
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
         Object object;
-        if (this.lastDimension != this.mc.field_1687.method_8597()) {
+        if (this.lastDimension != this.mc.world.getDimension()) {
             object = this.sections.iterator();
             while (object.hasNext()) {
                 Section section = (Section)object.next();
@@ -109,7 +109,7 @@ extends Module {
             this.section = this.sectionPool.get();
             this.section.set1();
         }
-        this.lastDimension = this.mc.field_1687.method_8597();
+        this.lastDimension = this.mc.world.getDimension();
     }
 
     @Override
@@ -120,7 +120,7 @@ extends Module {
         this.sections.clear();
     }
 
-    static class_310 access$000(Breadcrumbs breadcrumbs) {
+    static MinecraftClient access$000(Breadcrumbs breadcrumbs) {
         return breadcrumbs.mc;
     }
 
@@ -134,9 +134,9 @@ extends Module {
         public float x1;
 
         public void set1() {
-            this.x1 = (float)Breadcrumbs.access$000((Breadcrumbs)this.this$0).field_1724.method_23317();
-            this.y1 = (float)Breadcrumbs.access$100((Breadcrumbs)this.this$0).field_1724.method_23318();
-            this.z1 = (float)Breadcrumbs.access$200((Breadcrumbs)this.this$0).field_1724.method_23321();
+            this.x1 = (float)Breadcrumbs.access$000((Breadcrumbs)this.this$0).player.getX();
+            this.y1 = (float)Breadcrumbs.access$100((Breadcrumbs)this.this$0).player.getY();
+            this.z1 = (float)Breadcrumbs.access$200((Breadcrumbs)this.this$0).player.getZ();
         }
 
         Section(Breadcrumbs breadcrumbs, 1 var2_2) {
@@ -148,9 +148,9 @@ extends Module {
         }
 
         public void set2() {
-            this.x2 = (float)Breadcrumbs.access$300((Breadcrumbs)this.this$0).field_1724.method_23317();
-            this.y2 = (float)Breadcrumbs.access$400((Breadcrumbs)this.this$0).field_1724.method_23318();
-            this.z2 = (float)Breadcrumbs.access$500((Breadcrumbs)this.this$0).field_1724.method_23321();
+            this.x2 = (float)Breadcrumbs.access$300((Breadcrumbs)this.this$0).player.getX();
+            this.y2 = (float)Breadcrumbs.access$400((Breadcrumbs)this.this$0).player.getY();
+            this.z2 = (float)Breadcrumbs.access$500((Breadcrumbs)this.this$0).player.getZ();
         }
 
         public void render() {

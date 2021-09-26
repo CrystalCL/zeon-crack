@@ -3,17 +3,17 @@
  */
 package minegame159.meteorclient.events.entity;
 
-import net.minecraft.class_1282;
-import net.minecraft.class_1309;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.LivingEntity;
 
 public class DamageEvent {
-    public class_1282 source;
-    public class_1309 entity;
+    public DamageSource source;
+    public LivingEntity entity;
     private static final DamageEvent INSTANCE = new DamageEvent();
 
-    public static DamageEvent get(class_1309 class_13092, class_1282 class_12822) {
-        DamageEvent.INSTANCE.entity = class_13092;
-        DamageEvent.INSTANCE.source = class_12822;
+    public static DamageEvent get(LivingEntity LivingEntity2, DamageSource DamageSource2) {
+        DamageEvent.INSTANCE.entity = LivingEntity2;
+        DamageEvent.INSTANCE.source = DamageSource2;
         return INSTANCE;
     }
 }

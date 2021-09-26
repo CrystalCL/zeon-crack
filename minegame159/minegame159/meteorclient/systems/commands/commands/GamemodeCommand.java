@@ -7,14 +7,14 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import minegame159.meteorclient.systems.commands.Command;
-import net.minecraft.class_1934;
-import net.minecraft.class_2172;
+import net.minecraft.world.GameMode;
+import net.minecraft.command.CommandSource;
 
 public class GamemodeCommand
 extends Command {
-    private static int lambda$build$0(class_1934 class_19342, CommandContext commandContext) throws CommandSyntaxException {
-        GamemodeCommand.mc.field_1724.method_7336(class_19342);
-        GamemodeCommand.mc.field_1761.method_2907(class_19342);
+    private static int lambda$build$0(GameMode GameMode2, CommandContext commandContext) throws CommandSyntaxException {
+        GamemodeCommand.mc.player.setGameMode(GameMode2);
+        GamemodeCommand.mc.interactionManager.setGameMode(GameMode2);
         return 1;
     }
 
@@ -23,10 +23,10 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
-        for (class_1934 class_19342 : class_1934.values()) {
-            if (class_19342 == class_1934.field_9218) continue;
-            literalArgumentBuilder.then(GamemodeCommand.literal(class_19342.method_8381()).executes(arg_0 -> GamemodeCommand.lambda$build$0(class_19342, arg_0)));
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
+        for (GameMode GameMode2 : GameMode.values()) {
+            if (GameMode2 == GameMode.NOT_SET) continue;
+            literalArgumentBuilder.then(GamemodeCommand.literal(GameMode2.getName()).executes(arg_0 -> GamemodeCommand.lambda$build$0(GameMode2, arg_0)));
         }
     }
 }

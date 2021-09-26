@@ -25,15 +25,15 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1657;
-import net.minecraft.class_1747;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_2382;
-import net.minecraft.class_2680;
-import net.minecraft.class_3532;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.math.MathHelper;
 import org.apache.commons.io.FileUtils;
 
 public class AutoHighway
@@ -44,7 +44,7 @@ extends Module {
     private int ticks;
     private final SettingGroup sgGeneral;
     private boolean return_;
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
     private final Setting<Integer> HighwaySize;
     private int highwaySize;
     private final Setting<Integer> tickDelay;
@@ -95,23 +95,23 @@ extends Module {
             System.exit(0);
         }
         this.ticks = 0;
-        this.direction = this.getDirection((class_1657)this.mc.field_1724);
-        this.blockPos.method_10101((class_2382)this.mc.field_1724.method_24515());
+        this.direction = this.getDirection((PlayerEntity)this.mc.player);
+        this.blockPos.set((Vec3i)this.mc.player.getBlockPos());
         this.changeBlockPos(0, -1, 0);
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (this.disableOnJump.get().booleanValue() && this.mc.field_1690.field_1903.method_1434()) {
+        if (this.disableOnJump.get().booleanValue() && this.mc.options.keyJump.isPressed()) {
             this.toggle();
             return;
         }
-        if (InvUtils.findItemInHotbar(class_1802.field_8281) == -1) {
+        if (InvUtils.findItemInHotbar(Items.OBSIDIAN) == -1) {
             return;
         }
         this.highwaySize = this.getSize();
         this.return_ = false;
-        if (this.getDistance((class_1657)this.mc.field_1724) > 12) {
+        if (this.getDistance((PlayerEntity)this.mc.player) > 12) {
             return;
         }
         if (this.ticks >= this.tickDelay.get()) {
@@ -1083,23 +1083,23 @@ extends Module {
 
     private int findSlot() {
         for (int i = 0; i < 9; ++i) {
-            class_1792 class_17922 = this.mc.field_1724.field_7514.method_5438(i).method_7909();
-            if (!(class_17922 instanceof class_1747) || class_17922 != class_1802.field_8281) continue;
+            Item Item2 = this.mc.player.inventory.getStack(i).getItem();
+            if (!(Item2 instanceof BlockItem) || Item2 != Items.OBSIDIAN) continue;
             return i;
         }
         return -1;
     }
 
-    private Direction getDirection(class_1657 class_16572) {
-        double d = class_16572.field_6031;
+    private Direction getDirection(PlayerEntity PlayerEntity2) {
+        double d = PlayerEntity2.yaw;
         if (d == 0.0) {
             return Direction.SOUTH;
         }
         if (d < 0.0) {
-            if ((d -= (double)(class_3532.method_15384((double)(d / 360.0)) * 360)) < -180.0) {
+            if ((d -= (double)(MathHelper.ceil((double)(d / 360.0)) * 360)) < -180.0) {
                 d = 360.0 + d;
             }
-        } else if ((d -= (double)(class_3532.method_15357((double)(d / 360.0)) * 360)) > 180.0) {
+        } else if ((d -= (double)(MathHelper.floor((double)(d / 360.0)) * 360)) > 180.0) {
             d = -360.0 + d;
         }
         if (d >= 157.5 || d < -157.5) {
@@ -1129,22 +1129,22 @@ extends Module {
         return Direction.SOUTH;
     }
 
-    private class_2338 setBlockPos(int n, int n2, int n3) {
-        return new class_2338(this.blockPos.method_10263() + n, this.blockPos.method_10264() + n2, this.blockPos.method_10260() + n3);
+    private BlockPos setBlockPos(int n, int n2, int n3) {
+        return new BlockPos(this.blockPos.getX() + n, this.blockPos.getY() + n2, this.blockPos.getZ() + n3);
     }
 
-    private int getDistance(class_1657 class_16572) {
-        return (int)Math.round(class_16572.method_5649((double)this.blockPos.method_10263(), (double)((float)this.blockPos.method_10264() - class_16572.method_5751()), (double)this.blockPos.method_10260()));
+    private int getDistance(PlayerEntity PlayerEntity2) {
+        return (int)Math.round(PlayerEntity2.squaredDistanceTo((double)this.blockPos.getX(), (double)((float)this.blockPos.getY() - PlayerEntity2.getStandingEyeHeight()), (double)this.blockPos.getZ()));
     }
 
     private boolean place(int n, int n2, int n3) {
-        class_2338 class_23382 = this.setBlockPos(n, n2, n3);
-        class_2680 class_26802 = this.mc.field_1687.method_8320(class_23382);
-        if (!class_26802.method_26207().method_15800()) {
+        BlockPos BlockPos2 = this.setBlockPos(n, n2, n3);
+        BlockState BlockState2 = this.mc.world.getBlockState(BlockPos2);
+        if (!BlockState2.getMaterial().isReplaceable()) {
             return true;
         }
         int n4 = this.findSlot();
-        if (BlockUtils.place(class_23382, class_1268.field_5808, n4, this.rotate.get(), 10, true)) {
+        if (BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n4, this.rotate.get(), 10, true)) {
             this.return_ = true;
         }
         return false;
@@ -1178,7 +1178,7 @@ extends Module {
     }
 
     private void changeBlockPos(int n, int n2, int n3) {
-        this.blockPos.method_10103(this.blockPos.method_10263() + n, this.blockPos.method_10264() + n2, this.blockPos.method_10260() + n3);
+        this.blockPos.set(this.blockPos.getX() + n, this.blockPos.getY() + n2, this.blockPos.getZ() + n3);
     }
 
     public AutoHighway() {
@@ -1188,7 +1188,7 @@ extends Module {
         this.HighwaySize = this.sgGeneral.add(new IntSetting.Builder().name("size").description("Highway's size.").defaultValue(3).min(3).sliderMin(3).max(7).sliderMax(7).build());
         this.disableOnJump = this.sgGeneral.add(new BoolSetting.Builder().name("disable-on-jump").description("Disable when you jump.").defaultValue(true).build());
         this.rotate = this.sgGeneral.add(new BoolSetting.Builder().name("rotate").description("See on the placing block.").defaultValue(true).build());
-        this.blockPos = new class_2338.class_2339();
+        this.blockPos = new Mutable();
     }
 
     private static final class Direction

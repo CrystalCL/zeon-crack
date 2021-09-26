@@ -12,11 +12,11 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1304;
-import net.minecraft.class_1738;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
 public class ChestSwap
 extends Module {
@@ -27,37 +27,37 @@ extends Module {
     private boolean equipChestplate() {
         int n = -1;
         boolean bl = false;
-        for (int i = 0; i < this.mc.field_1724.field_7514.field_7547.size(); ++i) {
-            class_1792 class_17922 = ((class_1799)this.mc.field_1724.field_7514.field_7547.get(i)).method_7909();
+        for (int i = 0; i < this.mc.player.inventory.main.size(); ++i) {
+            Item Item2 = ((ItemStack)this.mc.player.inventory.main.get(i)).getItem();
             switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$player$ChestSwap$Chestplate[this.chestplate.get().ordinal()]) {
                 case 1: {
-                    if (class_17922 != class_1802.field_8058) break;
+                    if (Item2 != Items.DIAMOND_CHESTPLATE) break;
                     n = i;
                     bl = true;
                     break;
                 }
                 case 2: {
-                    if (class_17922 != class_1802.field_22028) break;
+                    if (Item2 != Items.NETHERITE_CHESTPLATE) break;
                     n = i;
                     bl = true;
                     break;
                 }
                 case 3: {
-                    if (class_17922 == class_1802.field_8058) {
+                    if (Item2 == Items.DIAMOND_CHESTPLATE) {
                         n = i;
                         bl = true;
                         break;
                     }
-                    if (class_17922 != class_1802.field_22028) break;
+                    if (Item2 != Items.NETHERITE_CHESTPLATE) break;
                     n = i;
                     break;
                 }
                 case 4: {
-                    if (class_17922 == class_1802.field_8058) {
+                    if (Item2 == Items.DIAMOND_CHESTPLATE) {
                         n = i;
                         break;
                     }
-                    if (class_17922 != class_1802.field_22028) break;
+                    if (Item2 != Items.NETHERITE_CHESTPLATE) break;
                     n = i;
                     bl = true;
                 }
@@ -84,19 +84,19 @@ extends Module {
     }
 
     private void equipElytra() {
-        for (int i = 0; i < this.mc.field_1724.field_7514.field_7547.size(); ++i) {
-            class_1792 class_17922 = ((class_1799)this.mc.field_1724.field_7514.field_7547.get(i)).method_7909();
-            if (class_17922 != class_1802.field_8833) continue;
+        for (int i = 0; i < this.mc.player.inventory.main.size(); ++i) {
+            Item Item2 = ((ItemStack)this.mc.player.inventory.main.get(i)).getItem();
+            if (Item2 != Items.ELYTRA) continue;
             this.equip(i);
             break;
         }
     }
 
     public void swap() {
-        class_1792 class_17922 = this.mc.field_1724.method_6118(class_1304.field_6174).method_7909();
-        if (class_17922 == class_1802.field_8833) {
+        Item Item2 = this.mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem();
+        if (Item2 == Items.ELYTRA) {
             this.equipChestplate();
-        } else if (class_17922 instanceof class_1738 && ((class_1738)class_17922).method_7685() == class_1304.field_6174) {
+        } else if (Item2 instanceof ArmorItem && ((ArmorItem)Item2).getSlotType() == EquipmentSlot.CHEST) {
             this.equipElytra();
         } else if (!this.equipChestplate()) {
             this.equipElytra();

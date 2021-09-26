@@ -4,7 +4,7 @@
 package minegame159.meteorclient.utils.render.color;
 
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -33,22 +33,22 @@ extends Color {
     }
 
     @Override
-    public SettingColor fromTag(class_2487 class_24872) {
-        super.fromTag(class_24872);
-        this.rainbowSpeed = class_24872.method_10574("rainbowSpeed");
+    public SettingColor fromTag(NbtCompound NbtCompound2) {
+        super.fromTag(NbtCompound2);
+        this.rainbowSpeed = NbtCompound2.getDouble("rainbowSpeed");
         return this;
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = super.toTag();
-        class_24872.method_10549("rainbowSpeed", this.rainbowSpeed);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = super.toTag();
+        NbtCompound2.putDouble("rainbowSpeed", this.rainbowSpeed);
+        return NbtCompound2;
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public SettingColor(int n, int n2, int n3, int n4) {
@@ -77,8 +77,8 @@ extends Color {
     }
 
     @Override
-    public Color fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Color fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public SettingColor(int n, int n2, int n3, double d) {

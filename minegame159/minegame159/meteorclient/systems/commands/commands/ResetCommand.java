@@ -13,7 +13,7 @@ import minegame159.meteorclient.systems.commands.arguments.ModuleArgumentType;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2172;
+import net.minecraft.command.CommandSource;
 
 public class ResetCommand
 extends Command {
@@ -45,7 +45,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         ((LiteralArgumentBuilder)((LiteralArgumentBuilder)literalArgumentBuilder.then(((LiteralArgumentBuilder)ResetCommand.literal("settings").then(ResetCommand.argument("module", ModuleArgumentType.module()).executes(ResetCommand::lambda$build$1))).then(ResetCommand.literal("all").executes(ResetCommand::lambda$build$4)))).then(ResetCommand.literal("gui").executes(ResetCommand::lambda$build$5))).then(((LiteralArgumentBuilder)ResetCommand.literal("bind").then(ResetCommand.argument("module", ModuleArgumentType.module()).executes(ResetCommand::lambda$build$6))).then(ResetCommand.literal("all").executes(ResetCommand::lambda$build$8)));
     }
 

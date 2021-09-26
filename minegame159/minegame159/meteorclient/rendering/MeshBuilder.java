@@ -10,11 +10,11 @@ import minegame159.meteorclient.rendering.DrawMode;
 import minegame159.meteorclient.rendering.Matrices;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.world.Dir;
-import net.minecraft.class_1159;
-import net.minecraft.class_286;
-import net.minecraft.class_287;
-import net.minecraft.class_293;
-import net.minecraft.class_4493;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.VertexFormat;
+import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 public class MeshBuilder {
@@ -24,7 +24,7 @@ public class MeshBuilder {
     public boolean texture = false;
     public double alpha = 1.0;
     private double offsetZ;
-    private final class_287 buffer;
+    private final BufferBuilder buffer;
     private int count;
 
     public void gradientQuad(double d, double d2, double d3, double d4, double d5, double d6, double d7, double d8, double d9, double d10, double d11, double d12, Color color, Color color2) {
@@ -37,7 +37,7 @@ public class MeshBuilder {
     }
 
     public MeshBuilder color(Color color) {
-        this.buffer.method_22915((float)color.r / 255.0f, (float)color.g / 255.0f, (float)color.b / 255.0f, (float)color.a / 255.0f * (float)this.alpha);
+        this.buffer.color((float)color.r / 255.0f, (float)color.g / 255.0f, (float)color.b / 255.0f, (float)color.a / 255.0f * (float)this.alpha);
         return this;
     }
 
@@ -81,7 +81,7 @@ public class MeshBuilder {
     }
 
     public void endVertex() {
-        this.buffer.method_1344();
+        this.buffer.next();
         ++this.count;
     }
 
@@ -90,7 +90,7 @@ public class MeshBuilder {
     }
 
     public MeshBuilder color(int n) {
-        this.buffer.method_22915((float)Color.toRGBAR(n) / 255.0f, (float)Color.toRGBAG(n) / 255.0f, (float)Color.toRGBAB(n) / 255.0f, (float)Color.toRGBAA(n) / 255.0f * (float)this.alpha);
+        this.buffer.color((float)Color.toRGBAR(n) / 255.0f, (float)Color.toRGBAG(n) / 255.0f, (float)Color.toRGBAB(n) / 255.0f, (float)Color.toRGBAA(n) / 255.0f * (float)this.alpha);
         return this;
     }
 
@@ -109,7 +109,7 @@ public class MeshBuilder {
     }
 
     public MeshBuilder() {
-        this.buffer = new class_287(0x200000);
+        this.buffer = new BufferBuilder(0x200000);
     }
 
     public void gradientVerticalBox(double d, double d2, double d3, double d4, double d5, double d6, Color color, Color color2, boolean bl) {
@@ -138,11 +138,11 @@ public class MeshBuilder {
     }
 
     public MeshBuilder pos(double d, double d2, double d3) {
-        this.buffer.method_22912(d + this.offsetX, d2 + this.offsetY, d3 + this.offsetZ);
+        this.buffer.vertex(d + this.offsetX, d2 + this.offsetY, d3 + this.offsetZ);
         return this;
     }
 
-    public void begin(RenderEvent renderEvent, DrawMode drawMode, class_293 class_2932) {
+    public void begin(RenderEvent renderEvent, DrawMode drawMode, VertexFormat VertexFormat2) {
         if (renderEvent != null) {
             this.offsetX = -renderEvent.offsetX;
             this.offsetY = -renderEvent.offsetY;
@@ -152,16 +152,16 @@ public class MeshBuilder {
             this.offsetY = 0.0;
             this.offsetZ = 0.0;
         }
-        this.buffer.method_1328(drawMode.toOpenGl(), class_2932);
+        this.buffer.begin(drawMode.toOpenGl(), VertexFormat2);
         this.count = 0;
     }
 
     public void end() {
-        this.buffer.method_1326();
+        this.buffer.end();
         GL11.glPushMatrix();
-        RenderSystem.multMatrix((class_1159)Matrices.getTop());
+        RenderSystem.multMatrix((Matrix4f)Matrices.getTop());
         RenderSystem.enableBlend();
-        RenderSystem.blendFunc((class_4493.class_4535)class_4493.class_4535.field_22541, (class_4493.class_4534)class_4493.class_4534.field_22523);
+        RenderSystem.blendFunc((GlStateManager.class_4535)GlStateManager.class_4535.SRC_ALPHA, (GlStateManager.class_4534)GlStateManager.class_4534.ONE_MINUS_SRC_ALPHA);
         if (this.depthTest) {
             RenderSystem.enableDepthTest();
         } else {
@@ -178,8 +178,8 @@ public class MeshBuilder {
         GL11.glEnable((int)2848);
         RenderSystem.lineWidth((float)1.0f);
         RenderSystem.color4f((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
-        class_4493.method_22083((int)7425);
-        class_286.method_1309((class_287)this.buffer);
+        GlStateManager.shadeModel((int)7425);
+        BufferRenderer.draw((BufferBuilder)this.buffer);
         RenderSystem.enableAlphaTest();
         RenderSystem.enableDepthTest();
         RenderSystem.enableTexture();
@@ -192,7 +192,7 @@ public class MeshBuilder {
     }
 
     public MeshBuilder texture(double d, double d2) {
-        this.buffer.method_22913((float)d, (float)d2);
+        this.buffer.texture((float)d, (float)d2);
         return this;
     }
 
@@ -204,11 +204,11 @@ public class MeshBuilder {
     }
 
     public boolean isBuilding() {
-        return this.buffer.method_22893();
+        return this.buffer.isBuilding();
     }
 
     public MeshBuilder(int n) {
-        this.buffer = new class_287(n);
+        this.buffer = new BufferBuilder(n);
     }
 
     public void texQuad(double d, double d2, double d3, double d4, TextureRegion textureRegion, Color color) {

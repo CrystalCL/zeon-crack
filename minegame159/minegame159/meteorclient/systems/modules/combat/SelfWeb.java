@@ -16,9 +16,9 @@ import minegame159.meteorclient.utils.entity.EntityUtils;
 import minegame159.meteorclient.utils.entity.SortPriority;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
+import net.minecraft.util.Hand;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
 
 public class SelfWeb
 extends Module {
@@ -54,12 +54,12 @@ extends Module {
     }
 
     private void placeWeb() {
-        int n = InvUtils.findItemInHotbar(class_1802.field_8786);
-        class_2338 class_23382 = this.mc.field_1724.method_24515();
-        BlockUtils.place(class_23382, class_1268.field_5808, n, this.rotate.get(), 0, false);
+        int n = InvUtils.findItemInHotbar(Items.COBWEB);
+        BlockPos BlockPos2 = this.mc.player.getBlockPos();
+        BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n, this.rotate.get(), 0, false);
         if (this.doubles.get().booleanValue()) {
-            class_23382 = this.mc.field_1724.method_24515().method_10069(0, 1, 0);
-            BlockUtils.place(class_23382, class_1268.field_5808, n, this.rotate.get(), 0, false);
+            BlockPos2 = this.mc.player.getBlockPos().add(0, 1, 0);
+            BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n, this.rotate.get(), 0, false);
         }
         if (this.turnOff.get().booleanValue()) {
             this.toggle();

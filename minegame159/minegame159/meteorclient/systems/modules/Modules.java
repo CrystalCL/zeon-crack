@@ -238,14 +238,14 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.input.Input;
 import minegame159.meteorclient.utils.misc.input.KeyAction;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2520;
-import net.minecraft.class_2960;
-import net.minecraft.class_310;
-import net.minecraft.class_3545;
-import net.minecraft.class_5321;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Pair;
+import net.minecraft.util.registry.RegistryKey;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -351,16 +351,16 @@ extends System<Modules> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_2499 class_24992 = new class_2499();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtList NbtList2 = new NbtList();
         for (Module module : this.getAll()) {
-            class_2487 class_24873 = module.toTag();
-            if (class_24873 == null) continue;
-            class_24992.add((Object)class_24873);
+            NbtCompound NbtCompound3 = module.toTag();
+            if (NbtCompound3 == null) continue;
+            NbtList2.add((Object)NbtCompound3);
         }
-        class_24872.method_10566("modules", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("modules", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     public void sortModules() {
@@ -458,14 +458,14 @@ extends System<Modules> {
         return module.title;
     }
 
-    public List<class_3545<Module, Integer>> searchSettingTitles(String string) {
-        ArrayList<class_3545<Module, Integer>> arrayList = new ArrayList<class_3545<Module, Integer>>();
+    public List<Pair<Module, Integer>> searchSettingTitles(String string) {
+        ArrayList<Pair<Module, Integer>> arrayList = new ArrayList<Pair<Module, Integer>>();
         for (Module module : this.moduleInstances.values()) {
             block1: for (SettingGroup settingGroup : module.settings) {
                 for (Setting<?> setting : settingGroup) {
                     int n = Utils.search(setting.title, string);
                     if (n <= 0) continue;
-                    arrayList.add((class_3545<Module, Integer>)new class_3545((Object)module, (Object)n));
+                    arrayList.add((Pair<Module, Integer>)new Pair((Object)module, (Object)n));
                     continue block1;
                 }
             }
@@ -502,8 +502,8 @@ extends System<Modules> {
         }
     }
 
-    private static int lambda$searchTitles$3(class_3545 class_35452) {
-        return -((Integer)class_35452.method_15441()).intValue();
+    private static int lambda$searchTitles$3(Pair Pair2) {
+        return -((Integer)Pair2.getRight()).intValue();
     }
 
     public List<Module> getGroup(Category category) {
@@ -585,7 +585,7 @@ extends System<Modules> {
     }
 
     private void onAction(boolean bl, int n, boolean bl2) {
-        if (class_310.method_1551().field_1755 == null && !Input.isKeyPressed(292)) {
+        if (MinecraftClient.getInstance().currentScreen == null && !Input.isKeyPressed(292)) {
             for (Module module : this.moduleInstances.values()) {
                 if (!module.keybind.matches(bl, n) || !bl2 && !module.toggleOnBindRelease) continue;
                 module.doAction();
@@ -611,8 +611,8 @@ extends System<Modules> {
         this.onAction(false, mouseButtonEvent.button, mouseButtonEvent.action == KeyAction.Press);
     }
 
-    private static int lambda$searchSettingTitles$4(class_3545 class_35452) {
-        return -((Integer)class_35452.method_15441()).intValue();
+    private static int lambda$searchSettingTitles$4(Pair Pair2) {
+        return -((Integer)Pair2.getRight()).intValue();
     }
 
     public boolean isActive(Class<? extends Module> clazz) {
@@ -620,20 +620,20 @@ extends System<Modules> {
         return module != null && module.isActive();
     }
 
-    public List<class_3545<Module, Integer>> searchTitles(String string) {
-        ArrayList<class_3545<Module, Integer>> arrayList = new ArrayList<class_3545<Module, Integer>>();
+    public List<Pair<Module, Integer>> searchTitles(String string) {
+        ArrayList<Pair<Module, Integer>> arrayList = new ArrayList<Pair<Module, Integer>>();
         for (Module module : this.moduleInstances.values()) {
             int n = Utils.search(module.title, string);
             if (n <= 0) continue;
-            arrayList.add((class_3545<Module, Integer>)new class_3545((Object)module, (Object)n));
+            arrayList.add((Pair<Module, Integer>)new Pair((Object)module, (Object)n));
         }
         arrayList.sort(Comparator.comparingInt(Modules::lambda$searchTitles$3));
         return arrayList;
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public void setModuleToBind(Module module) {
@@ -675,14 +675,14 @@ extends System<Modules> {
     }
 
     @Override
-    public Modules fromTag(class_2487 class_24872) {
+    public Modules fromTag(NbtCompound NbtCompound2) {
         this.disableAll();
-        class_2499 class_24992 = class_24872.method_10554("modules", 10);
-        for (class_2520 class_25202 : class_24992) {
-            class_2487 class_24873 = (class_2487)class_25202;
-            Module module = this.get(class_24873.method_10558("name"));
+        NbtList NbtList2 = NbtCompound2.getList("modules", 10);
+        for (NbtElement NbtElement2 : NbtList2) {
+            NbtCompound NbtCompound3 = (NbtCompound)NbtElement2;
+            Module module = this.get(NbtCompound3.getString("name"));
             if (module == null) continue;
-            module.fromTag(class_24873);
+            module.fromTag(NbtCompound3);
         }
         return this;
     }
@@ -843,30 +843,30 @@ extends System<Modules> {
     }
 
     public static class ModuleRegistry
-    extends class_2378<Module> {
+    extends Registry<Module> {
         public ModuleRegistry() {
-            super(class_5321.method_29180((class_2960)new class_2960("meteor-client", "modules")), Lifecycle.stable());
+            super(RegistryKey.ofRegistry((Identifier)new Identifier("meteor-client", "modules")), Lifecycle.stable());
         }
 
         @Nullable
-        public class_2960 getId(Module module) {
+        public Identifier getId(Module module) {
             return null;
         }
 
-        public Set<class_2960> method_10235() {
+        public Set<Identifier> getIds() {
             return null;
         }
 
         @Nullable
-        public Module get(@Nullable class_2960 class_29602) {
+        public Module get(@Nullable Identifier Identifier2) {
             return null;
         }
 
-        public Set<Map.Entry<class_5321<Module>, Module>> method_29722() {
+        public Set<Map.Entry<RegistryKey<Module>, Module>> getEntries() {
             return null;
         }
 
-        public Lifecycle method_31138() {
+        public Lifecycle getLifecycle() {
             return null;
         }
 
@@ -874,34 +874,34 @@ extends System<Modules> {
             return 0;
         }
 
-        public boolean method_10250(class_2960 class_29602) {
+        public boolean containsId(Identifier Identifier2) {
             return false;
         }
 
-        public int method_10206(@Nullable Object object) {
+        public int getRawId(@Nullable Object object) {
             return this.getRawId((Module)object);
         }
 
         @Nullable
-        public Object method_29107(@Nullable class_5321 class_53212) {
-            return this.get((class_5321<Module>)class_53212);
+        public Object get(@Nullable RegistryKey RegistryKey2) {
+            return this.get((RegistryKey<Module>)RegistryKey2);
         }
 
         @Nullable
-        public class_2960 method_10221(Object object) {
+        public Identifier getId(Object object) {
             return this.getId((Module)object);
         }
 
-        public Optional method_29113(Object object) {
+        public Optional getKey(Object object) {
             return this.getKey((Module)object);
         }
 
-        public Optional<class_5321<Module>> getKey(Module module) {
+        public Optional<RegistryKey<Module>> getKey(Module module) {
             return Optional.empty();
         }
 
         @Nullable
-        public Module get(@Nullable class_5321<Module> class_53212) {
+        public Module get(@Nullable RegistryKey<Module> RegistryKey2) {
             return null;
         }
 
@@ -919,16 +919,16 @@ extends System<Modules> {
         }
 
         @Nullable
-        public Object method_10223(@Nullable class_2960 class_29602) {
-            return this.get(class_29602);
+        public Object get(@Nullable Identifier Identifier2) {
+            return this.get(Identifier2);
         }
 
-        protected Lifecycle method_31139(Object object) {
+        protected Lifecycle getEntryLifecycle(Object object) {
             return this.getEntryLifecycle((Module)object);
         }
 
         @Nullable
-        public Object method_10200(int n) {
+        public Object get(int n) {
             return this.get(n);
         }
 

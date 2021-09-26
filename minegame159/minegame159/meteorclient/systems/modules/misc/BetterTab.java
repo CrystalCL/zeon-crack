@@ -14,11 +14,11 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_124;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_5251;
-import net.minecraft.class_640;
+import net.minecraft.util.Formatting;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TextColor;
+import net.minecraft.client.network.PlayerListEntry;
 
 public class BetterTab
 extends Module {
@@ -41,29 +41,29 @@ extends Module {
         return this.isActive() ? this.tabSize.get() : 80;
     }
 
-    public class_2561 getPlayerName(class_640 class_6402) {
+    public Text getPlayerName(PlayerListEntry PlayerListEntry2) {
         Object object;
         Color color = null;
-        class_2561 class_25612 = class_6402.method_2971();
-        if (class_25612 == null) {
-            class_25612 = new class_2585(class_6402.method_2966().getName());
+        Text Text2 = PlayerListEntry2.getDisplayName();
+        if (Text2 == null) {
+            Text2 = new LiteralText(PlayerListEntry2.getProfile().getName());
         }
-        if (class_6402.method_2966().getId().toString().equals(this.mc.field_1724.method_7334().getId().toString()) && this.self.get().booleanValue()) {
+        if (PlayerListEntry2.getProfile().getId().toString().equals(this.mc.player.getGameProfile().getId().toString()) && this.self.get().booleanValue()) {
             color = this.selfColor.get();
-        } else if (this.friends.get().booleanValue() && (object = Friends.get().get(class_6402.method_2966().getName())) != null) {
+        } else if (this.friends.get().booleanValue() && (object = Friends.get().get(PlayerListEntry2.getProfile().getName())) != null) {
             color = Friends.get().getFriendColor((Friend)object);
         }
         if (color != null) {
-            object = class_25612.getString();
-            for (class_124 class_1242 : class_124.values()) {
-                if (!class_1242.method_543()) continue;
-                object = ((String)object).replace(class_1242.toString(), "");
+            object = Text2.getString();
+            for (Formatting Schema1483 : Formatting.values()) {
+                if (!Schema1483.isColor()) continue;
+                object = ((String)object).replace(Schema1483.toString(), "");
                 if (4 != 1) continue;
                 return null;
             }
-            class_25612 = new class_2585((String)object).method_10862(class_25612.method_10866().method_27703(new class_5251(color.getPacked())));
+            Text2 = new LiteralText((String)object).setStyle(Text2.getStyle().withColor(new TextColor(color.getPacked())));
         }
-        return class_25612;
+        return Text2;
     }
 }
 

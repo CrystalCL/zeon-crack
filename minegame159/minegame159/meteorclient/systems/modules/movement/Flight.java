@@ -15,8 +15,8 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_243;
-import net.minecraft.class_2828;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
 public class Flight
 extends Module {
@@ -37,15 +37,15 @@ extends Module {
 
     @EventHandler
     private void onSendPacket(PacketEvent.Send send) {
-        if (!(send.packet instanceof class_2828) || this.antiKickMode.get() != AntiKickMode.Packet) {
+        if (!(send.packet instanceof PlayerMoveC2SPacket) || this.antiKickMode.get() != AntiKickMode.Packet) {
             return;
         }
-        class_2828 class_28282 = (class_2828)send.packet;
+        PlayerMoveC2SPacket PlayerMoveC2SPacket2 = (PlayerMoveC2SPacket)send.packet;
         long l = System.currentTimeMillis();
-        double d = class_28282.method_12268(Double.MAX_VALUE);
+        double d = PlayerMoveC2SPacket2.getY(Double.MAX_VALUE);
         if (d != Double.MAX_VALUE) {
-            if (l - this.lastModifiedTime > 1000L && this.lastY != Double.MAX_VALUE && this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10074()).method_26215()) {
-                ((PlayerMoveC2SPacketAccessor)class_28282).setY(this.lastY - 0.0313);
+            if (l - this.lastModifiedTime > 1000L && this.lastY != Double.MAX_VALUE && this.mc.world.getBlockState(this.mc.player.getBlockPos().down()).isAir()) {
+                ((PlayerMoveC2SPacketAccessor)PlayerMoveC2SPacket2).setY(this.lastY - 0.0313);
                 this.lastModifiedTime = l;
             } else {
                 this.lastY = d;
@@ -55,9 +55,9 @@ extends Module {
 
     @EventHandler
     private void onPreTick(TickEvent.Pre pre) {
-        float f = this.mc.field_1724.field_6031;
-        if (this.mc.field_1724.field_6017 >= 3.0f && f == this.lastYaw && this.mc.field_1724.method_18798().method_1033() < 0.003) {
-            this.mc.field_1724.field_6031 += this.flip ? 1.0f : -1.0f;
+        float f = this.mc.player.yaw;
+        if (this.mc.player.fallDistance >= 3.0f && f == this.lastYaw && this.mc.player.getVelocity().length() < 0.003) {
+            this.mc.player.yaw += this.flip ? 1.0f : -1.0f;
             this.flip = !this.flip;
         }
         this.lastYaw = f;
@@ -65,12 +65,12 @@ extends Module {
 
     @Override
     public void onActivate() {
-        if (this.mode.get() == Mode.Abilities && !this.mc.field_1724.method_7325()) {
-            this.mc.field_1724.field_7503.field_7479 = true;
-            if (this.mc.field_1724.field_7503.field_7477) {
+        if (this.mode.get() == Mode.Abilities && !this.mc.player.isSpectator()) {
+            this.mc.player.abilities.flying = true;
+            if (this.mc.player.abilities.creativeMode) {
                 return;
             }
-            this.mc.field_1724.field_7503.field_7478 = true;
+            this.mc.player.abilities.allowFlying = true;
         }
     }
 
@@ -98,12 +98,12 @@ extends Module {
             if (this.antiKickMode.get() == AntiKickMode.Normal && this.delayLeft <= 0 && this.offLeft > 0) {
                 --this.offLeft;
                 if (this.mode.get() == Mode.Abilities) {
-                    this.mc.field_1724.field_7503.field_7479 = false;
-                    this.mc.field_1724.field_7503.method_7248(0.05f);
-                    if (this.mc.field_1724.field_7503.field_7477) {
+                    this.mc.player.abilities.flying = false;
+                    this.mc.player.abilities.setFlySpeed(0.05f);
+                    if (this.mc.player.abilities.creativeMode) {
                         return;
                     }
-                    this.mc.field_1724.field_7503.field_7478 = false;
+                    this.mc.player.abilities.allowFlying = false;
                 }
                 return;
             }
@@ -112,45 +112,45 @@ extends Module {
                 this.offLeft = this.offTime.get();
             }
         }
-        if (this.mc.field_1724.field_6031 != this.lastYaw) {
-            this.mc.field_1724.field_6031 = this.lastYaw;
+        if (this.mc.player.yaw != this.lastYaw) {
+            this.mc.player.yaw = this.lastYaw;
         }
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$movement$Flight$Mode[this.mode.get().ordinal()]) {
             case 1: {
-                this.mc.field_1724.field_7503.field_7479 = false;
-                this.mc.field_1724.field_6281 = this.speed.get().floatValue() * (this.mc.field_1724.method_5624() ? 15.0f : 10.0f);
-                this.mc.field_1724.method_18800(0.0, 0.0, 0.0);
-                class_243 class_2432 = this.mc.field_1724.method_18798();
-                if (this.mc.field_1690.field_1903.method_1434()) {
-                    this.mc.field_1724.method_18799(class_2432.method_1031(0.0, this.speed.get() * (double)(this.verticalSpeedMatch.get() != false ? 10.0f : 5.0f), 0.0));
+                this.mc.player.abilities.flying = false;
+                this.mc.player.flyingSpeed = this.speed.get().floatValue() * (this.mc.player.isSprinting() ? 15.0f : 10.0f);
+                this.mc.player.setVelocity(0.0, 0.0, 0.0);
+                Vec3d Vec3d2 = this.mc.player.getVelocity();
+                if (this.mc.options.keyJump.isPressed()) {
+                    this.mc.player.setVelocity(Vec3d2.add(0.0, this.speed.get() * (double)(this.verticalSpeedMatch.get() != false ? 10.0f : 5.0f), 0.0));
                 }
-                if (!this.mc.field_1690.field_1832.method_1434()) break;
-                this.mc.field_1724.method_18799(class_2432.method_1023(0.0, this.speed.get() * (double)(this.verticalSpeedMatch.get() != false ? 10.0f : 5.0f), 0.0));
+                if (!this.mc.options.keySneak.isPressed()) break;
+                this.mc.player.setVelocity(Vec3d2.subtract(0.0, this.speed.get() * (double)(this.verticalSpeedMatch.get() != false ? 10.0f : 5.0f), 0.0));
                 break;
             }
             case 2: {
-                if (this.mc.field_1724.method_7325()) {
+                if (this.mc.player.isSpectator()) {
                     return;
                 }
-                this.mc.field_1724.field_7503.method_7248(this.speed.get().floatValue());
-                this.mc.field_1724.field_7503.field_7479 = true;
-                if (this.mc.field_1724.field_7503.field_7477) {
+                this.mc.player.abilities.setFlySpeed(this.speed.get().floatValue());
+                this.mc.player.abilities.flying = true;
+                if (this.mc.player.abilities.creativeMode) {
                     return;
                 }
-                this.mc.field_1724.field_7503.field_7478 = true;
+                this.mc.player.abilities.allowFlying = true;
             }
         }
     }
 
     @Override
     public void onDeactivate() {
-        if (this.mode.get() == Mode.Abilities && !this.mc.field_1724.method_7325()) {
-            this.mc.field_1724.field_7503.field_7479 = false;
-            this.mc.field_1724.field_7503.method_7248(0.05f);
-            if (this.mc.field_1724.field_7503.field_7477) {
+        if (this.mode.get() == Mode.Abilities && !this.mc.player.isSpectator()) {
+            this.mc.player.abilities.flying = false;
+            this.mc.player.abilities.setFlySpeed(0.05f);
+            if (this.mc.player.abilities.creativeMode) {
                 return;
             }
-            this.mc.field_1724.field_7503.field_7478 = false;
+            this.mc.player.abilities.allowFlying = false;
         }
     }
 

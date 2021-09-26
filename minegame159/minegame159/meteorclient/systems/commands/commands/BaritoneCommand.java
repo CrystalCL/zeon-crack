@@ -9,7 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import minegame159.meteorclient.systems.commands.Command;
-import net.minecraft.class_2172;
+import net.minecraft.command.CommandSource;
 
 public class BaritoneCommand
 extends Command {
@@ -24,7 +24,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.then(BaritoneCommand.argument("command", StringArgumentType.greedyString()).executes(BaritoneCommand::lambda$build$0));
     }
 }

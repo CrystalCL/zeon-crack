@@ -51,11 +51,11 @@ import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.Keybind;
 import minegame159.meteorclient.utils.misc.Names;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_1044;
-import net.minecraft.class_1799;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
-import net.minecraft.class_437;
+import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.client.gui.screen.Screen;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -77,8 +77,8 @@ implements ISerializable<GuiTheme> {
 
     public abstract WPlus plus();
 
-    public WItemWithLabel itemWithLabel(class_1799 class_17992, String string) {
-        return this.w(new WItemWithLabel(class_17992, string));
+    public WItemWithLabel itemWithLabel(ItemStack ItemStack2, String string) {
+        return this.w(new WItemWithLabel(ItemStack2, string));
     }
 
     public double textHeight() {
@@ -106,11 +106,11 @@ implements ISerializable<GuiTheme> {
     public abstract boolean blur();
 
     @Override
-    public GuiTheme fromTag(class_2487 class_24872) {
-        this.settings.fromTag(class_24872.method_10562("settings"));
-        class_2487 class_24873 = class_24872.method_10562("windowConfigs");
-        for (String string : class_24873.method_10541()) {
-            this.windowConfigs.put(string, new WindowConfig().fromTag(class_24873.method_10562(string)));
+    public GuiTheme fromTag(NbtCompound NbtCompound2) {
+        this.settings.fromTag(NbtCompound2.getCompound("settings"));
+        NbtCompound NbtCompound3 = NbtCompound2.getCompound("windowConfigs");
+        for (String string : NbtCompound3.getKeys()) {
+            this.windowConfigs.put(string, new WindowConfig().fromTag(NbtCompound3.getCompound(string)));
         }
         return this;
     }
@@ -147,8 +147,8 @@ implements ISerializable<GuiTheme> {
     public abstract WHorizontalSeparator horizontalSeparator(String var1);
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public abstract boolean categoryIcons();
@@ -166,16 +166,16 @@ implements ISerializable<GuiTheme> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10566("settings", (class_2520)this.settings.toTag());
-        class_2487 class_24873 = new class_2487();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.put("settings", (NbtElement)this.settings.toTag());
+        NbtCompound NbtCompound3 = new NbtCompound();
         for (String string : this.windowConfigs.keySet()) {
-            class_24873.method_10566(string, (class_2520)this.windowConfigs.get(string).toTag());
+            NbtCompound3.put(string, (NbtElement)this.windowConfigs.get(string).toTag());
         }
-        class_24872.method_10566("windowConfigs", (class_2520)class_24873);
-        return class_24872;
+        NbtCompound2.put("windowConfigs", (NbtElement)NbtCompound3);
+        return NbtCompound2;
     }
 
     public abstract WTriangle triangle();
@@ -184,8 +184,8 @@ implements ISerializable<GuiTheme> {
         return new ModulesScreen(this);
     }
 
-    public WItemWithLabel itemWithLabel(class_1799 class_17992) {
-        return this.itemWithLabel(class_17992, Names.get(class_17992.method_7909()));
+    public WItemWithLabel itemWithLabel(ItemStack ItemStack2) {
+        return this.itemWithLabel(ItemStack2, Names.get(ItemStack2.getItem()));
     }
 
     public WindowConfig getWindowConfig(String string) {
@@ -198,8 +198,8 @@ implements ISerializable<GuiTheme> {
         return windowConfig;
     }
 
-    public boolean isModulesScreen(class_437 class_4372) {
-        return class_4372 instanceof ModulesScreen;
+    public boolean isModulesScreen(Screen Screen2) {
+        return Screen2 instanceof ModulesScreen;
     }
 
     public WLabel label(String string, double d) {
@@ -210,16 +210,16 @@ implements ISerializable<GuiTheme> {
         return this.scale(6.0);
     }
 
-    public WItem item(class_1799 class_17992) {
-        return this.w(new WItem(class_17992));
+    public WItem item(ItemStack ItemStack2) {
+        return this.w(new WItem(ItemStack2));
     }
 
     public WWidget settings(Settings settings) {
         return this.settings(settings, "");
     }
 
-    public WTexture texture(double d, double d2, double d3, class_1044 class_10442) {
-        return this.w(new WTexture(d, d2, d3, class_10442));
+    public WTexture texture(double d, double d2, double d3, AbstractTexture AbstractTexture2) {
+        return this.w(new WTexture(d, d2, d3, AbstractTexture2));
     }
 
     public double textHeight(boolean bl) {

@@ -10,7 +10,7 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_243;
+import net.minecraft.util.math.Vec3d;
 
 public class FastClimb
 extends Module {
@@ -25,14 +25,14 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (!this.mc.field_1724.method_6101() || !this.mc.field_1724.field_5976) {
+        if (!this.mc.player.isClimbing() || !this.mc.player.horizontalCollision) {
             return;
         }
-        if (this.mc.field_1724.field_3913.field_3905 == 0.0f && this.mc.field_1724.field_3913.field_3907 == 0.0f) {
+        if (this.mc.player.input.movementForward == 0.0f && this.mc.player.input.movementSideways == 0.0f) {
             return;
         }
-        class_243 class_2432 = this.mc.field_1724.method_18798();
-        this.mc.field_1724.method_18800(class_2432.field_1352, this.speed.get().doubleValue(), class_2432.field_1350);
+        Vec3d Vec3d2 = this.mc.player.getVelocity();
+        this.mc.player.setVelocity(Vec3d2.x, this.speed.get().doubleValue(), Vec3d2.z);
     }
 }
 

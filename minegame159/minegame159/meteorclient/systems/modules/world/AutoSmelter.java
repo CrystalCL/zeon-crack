@@ -8,8 +8,8 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1720;
-import net.minecraft.class_1735;
+import net.minecraft.screen.AbstractFurnaceScreenHandler;
+import net.minecraft.screen.slot.Slot;
 
 public class AutoSmelter
 extends Module {
@@ -18,9 +18,9 @@ extends Module {
     private boolean waitingForItemsToSmelt;
     private boolean first;
 
-    private boolean takeResults(class_1720 class_17202) {
+    private boolean takeResults(AbstractFurnaceScreenHandler AbstractFurnaceScreenHandler2) {
         InvUtils.quickMove().slotId(2);
-        if (!((class_1735)class_17202.field_7761.get(2)).method_7677().method_7960()) {
+        if (!((Slot)AbstractFurnaceScreenHandler2.slots.get(2)).getStack().isEmpty()) {
             ChatUtils.moduleError(this, "Your inventory is full... disabling.", new Object[0]);
             this.toggle();
             return true;
@@ -38,54 +38,54 @@ extends Module {
         this.waitingForItemsToSmelt = false;
     }
 
-    public void tick(class_1720 class_17202) {
+    public void tick(AbstractFurnaceScreenHandler AbstractFurnaceScreenHandler2) {
         ++this.timer;
         if (!this.first) {
             this.first = true;
             this.step = 0;
             this.timer = 0;
         }
-        if (this.checkFuel(class_17202)) {
+        if (this.checkFuel(AbstractFurnaceScreenHandler2)) {
             return;
         }
-        if (class_17202.method_17363() != 0 || this.timer < 5) {
+        if (AbstractFurnaceScreenHandler2.getCookProgress() != 0 || this.timer < 5) {
             return;
         }
         if (this.step == 0) {
-            if (this.takeResults(class_17202)) {
+            if (this.takeResults(AbstractFurnaceScreenHandler2)) {
                 return;
             }
             ++this.step;
             this.timer = 0;
         } else if (this.step == 1) {
             if (this.waitingForItemsToSmelt) {
-                if (((class_1735)class_17202.field_7761.get(0)).method_7677().method_7960()) {
+                if (((Slot)AbstractFurnaceScreenHandler2.slots.get(0)).getStack().isEmpty()) {
                     this.step = 0;
                     this.timer = 0;
                     this.waitingForItemsToSmelt = false;
                 }
                 return;
             }
-            if (this.insertItems(class_17202)) {
+            if (this.insertItems(AbstractFurnaceScreenHandler2)) {
                 return;
             }
             this.waitingForItemsToSmelt = true;
         }
     }
 
-    private boolean checkFuel(class_1720 class_17202) {
-        if (class_17202.method_17364() <= 1 && !((AbstractFurnaceScreenHandlerAccessor)class_17202).isFuel(((class_1735)class_17202.field_7761.get(1)).method_7677())) {
-            if (!((class_1735)class_17202.field_7761.get(1)).method_7677().method_7960()) {
+    private boolean checkFuel(AbstractFurnaceScreenHandler AbstractFurnaceScreenHandler2) {
+        if (AbstractFurnaceScreenHandler2.getFuelProgress() <= 1 && !((AbstractFurnaceScreenHandlerAccessor)AbstractFurnaceScreenHandler2).isFuel(((Slot)AbstractFurnaceScreenHandler2.slots.get(1)).getStack())) {
+            if (!((Slot)AbstractFurnaceScreenHandler2.slots.get(1)).getStack().isEmpty()) {
                 InvUtils.quickMove().slotId(1);
-                if (!((class_1735)class_17202.field_7761.get(1)).method_7677().method_7960()) {
+                if (!((Slot)AbstractFurnaceScreenHandler2.slots.get(1)).getStack().isEmpty()) {
                     ChatUtils.moduleError(this, "Your inventory is currently full... disabling.", new Object[0]);
                     this.toggle();
                     return true;
                 }
             }
             int n = -1;
-            for (int i = 3; i < class_17202.field_7761.size(); ++i) {
-                if (!((AbstractFurnaceScreenHandlerAccessor)class_17202).isFuel(((class_1735)class_17202.field_7761.get(i)).method_7677())) continue;
+            for (int i = 3; i < AbstractFurnaceScreenHandler2.slots.size(); ++i) {
+                if (!((AbstractFurnaceScreenHandlerAccessor)AbstractFurnaceScreenHandler2).isFuel(((Slot)AbstractFurnaceScreenHandler2.slots.get(i)).getStack())) continue;
                 n = i;
                 break;
             }
@@ -99,13 +99,13 @@ extends Module {
         return false;
     }
 
-    private boolean insertItems(class_1720 class_17202) {
-        if (!((class_1735)class_17202.field_7761.get(0)).method_7677().method_7960()) {
+    private boolean insertItems(AbstractFurnaceScreenHandler AbstractFurnaceScreenHandler2) {
+        if (!((Slot)AbstractFurnaceScreenHandler2.slots.get(0)).getStack().isEmpty()) {
             return true;
         }
         int n = -1;
-        for (int i = 3; i < class_17202.field_7761.size(); ++i) {
-            if (!((AbstractFurnaceScreenHandlerAccessor)class_17202).isSmeltable(((class_1735)class_17202.field_7761.get(i)).method_7677())) continue;
+        for (int i = 3; i < AbstractFurnaceScreenHandler2.slots.size(); ++i) {
+            if (!((AbstractFurnaceScreenHandlerAccessor)AbstractFurnaceScreenHandler2).isSmeltable(((Slot)AbstractFurnaceScreenHandler2.slots.get(i)).getStack())) continue;
             n = i;
             break;
         }

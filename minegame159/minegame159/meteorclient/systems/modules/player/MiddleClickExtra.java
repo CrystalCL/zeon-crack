@@ -17,12 +17,12 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.misc.input.KeyAction;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1657;
-import net.minecraft.class_1753;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_1937;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BowItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.world.World;
 
 public class MiddleClickExtra
 extends Module {
@@ -51,8 +51,8 @@ extends Module {
 
     private void stopIfUsing() {
         if (this.isUsing) {
-            this.mc.field_1690.field_1904.method_23481(false);
-            this.mc.field_1724.field_7514.field_7545 = this.preSlot;
+            this.mc.options.keyUse.setPressed(false);
+            this.mc.player.inventory.selectedSlot = this.preSlot;
             this.isUsing = false;
         }
     }
@@ -66,10 +66,10 @@ extends Module {
     private void onTick(TickEvent.Pre pre) {
         if (this.isUsing) {
             boolean bl = true;
-            if (this.mc.field_1724.method_6047().method_7909() instanceof class_1753) {
-                bl = class_1753.method_7722((int)this.mc.field_1724.method_6048()) < 1.0f;
+            if (this.mc.player.getMainHandStack().getItem() instanceof BowItem) {
+                bl = BowItem.getPullProgress((int)this.mc.player.getItemUseTime()) < 1.0f;
             }
-            this.mc.field_1690.field_1904.method_23481(bl);
+            this.mc.options.keyUse.setPressed(bl);
         }
     }
 
@@ -85,20 +85,20 @@ extends Module {
             }
             return;
         }
-        this.preSlot = this.mc.field_1724.field_7514.field_7545;
-        this.mc.field_1724.field_7514.field_7545 = findItemResult.slot;
+        this.preSlot = this.mc.player.inventory.selectedSlot;
+        this.mc.player.inventory.selectedSlot = findItemResult.slot;
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$player$MiddleClickExtra$Type[Mode.access$100(this.mode.get()).ordinal()]) {
             case 1: {
-                this.mc.field_1761.method_2919((class_1657)this.mc.field_1724, (class_1937)this.mc.field_1687, class_1268.field_5808);
-                this.mc.field_1724.field_7514.field_7545 = this.preSlot;
+                this.mc.interactionManager.interactItem((PlayerEntity)this.mc.player, (World)this.mc.world, Hand.MAIN_HAND);
+                this.mc.player.inventory.selectedSlot = this.preSlot;
                 break;
             }
             case 2: {
-                this.mc.field_1761.method_2919((class_1657)this.mc.field_1724, (class_1937)this.mc.field_1687, class_1268.field_5808);
+                this.mc.interactionManager.interactItem((PlayerEntity)this.mc.player, (World)this.mc.world, Hand.MAIN_HAND);
                 break;
             }
             case 3: {
-                this.mc.field_1690.field_1904.method_23481(true);
+                this.mc.options.keyUse.setPressed(true);
                 this.isUsing = true;
             }
         }
@@ -113,7 +113,7 @@ extends Module {
         public static final /* enum */ Mode Rocket;
         public static final /* enum */ Mode EGap;
         public static final /* enum */ Mode Bow;
-        private final class_1792 item;
+        private final Item item;
         private final Type type;
         public static final /* enum */ Mode Pearl;
 
@@ -129,23 +129,23 @@ extends Module {
             return Enum.valueOf(Mode.class, string);
         }
 
-        static class_1792 access$000(Mode mode) {
+        static Item access$000(Mode mode) {
             return mode.item;
         }
 
         static {
-            Pearl = new Mode(class_1802.field_8634, Type.Immediate);
-            Rocket = new Mode(class_1802.field_8639, Type.Immediate);
-            Rod = new Mode(class_1802.field_8378, Type.LongerSingleClick);
-            Bow = new Mode(class_1802.field_8102, Type.Longer);
-            Gap = new Mode(class_1802.field_8463, Type.Longer);
-            EGap = new Mode(class_1802.field_8367, Type.Longer);
-            Chorus = new Mode(class_1802.field_8233, Type.Longer);
+            Pearl = new Mode(Items.ENDER_PEARL, Type.Immediate);
+            Rocket = new Mode(Items.FIREWORK_ROCKET, Type.Immediate);
+            Rod = new Mode(Items.FISHING_ROD, Type.LongerSingleClick);
+            Bow = new Mode(Items.BOW, Type.Longer);
+            Gap = new Mode(Items.GOLDEN_APPLE, Type.Longer);
+            EGap = new Mode(Items.ENCHANTED_GOLDEN_APPLE, Type.Longer);
+            Chorus = new Mode(Items.CHORUS_FRUIT, Type.Longer);
             $VALUES = Mode.$values();
         }
 
-        private Mode(class_1792 class_17922, Type type) {
-            this.item = class_17922;
+        private Mode(Item Item2, Type type) {
+            this.item = Item2;
             this.type = type;
         }
 

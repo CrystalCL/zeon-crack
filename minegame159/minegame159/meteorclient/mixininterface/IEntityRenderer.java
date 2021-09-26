@@ -3,10 +3,10 @@
  */
 package minegame159.meteorclient.mixininterface;
 
-import net.minecraft.class_1297;
-import net.minecraft.class_2960;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.Identifier;
 
 public interface IEntityRenderer {
-    public class_2960 getTextureInterface(class_1297 var1);
+    public Identifier getTextureInterface(Entity var1);
 }
 

@@ -13,14 +13,14 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2846;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 
 public class OffhandCrash
 extends Module {
     private final Setting<Boolean> doCrash;
-    private static final class_2846 PACKET = new class_2846(class_2846.class_2847.field_12969, new class_2338(0, 0, 0), class_2350.field_11036);
+    private static final PlayerActionC2SPacket PACKET = new PlayerActionC2SPacket(Action.SWAP_ITEM_WITH_OFFHAND, new BlockPos(0, 0, 0), Direction.UP);
     private final SettingGroup sgGeneral;
     private final Setting<Integer> speed;
     private final Setting<Boolean> antiCrash;
@@ -28,7 +28,7 @@ extends Module {
     @EventHandler
     private void onTick(TickEvent.Post post) {
         if (this.doCrash.get().booleanValue()) {
-            Channel channel = ((ClientConnectionAccessor)this.mc.field_1724.field_3944.method_2872()).getChannel();
+            Channel channel = ((ClientConnectionAccessor)this.mc.player.networkHandler.getConnection()).getChannel();
             for (int i = 0; i < this.speed.get(); ++i) {
                 channel.write((Object)PACKET);
                 if (4 >= -1) continue;

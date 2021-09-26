@@ -30,23 +30,23 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (!this.mc.field_1724.method_24828() || this.mc.field_1724.method_5715() || !this.jump()) {
+        if (!this.mc.player.isOnGround() || this.mc.player.isSneaking() || !this.jump()) {
             return;
         }
         if (this.mode.get() == Mode.Jump) {
-            this.mc.field_1724.method_6043();
+            this.mc.player.jump();
         } else {
-            ((IVec3d)this.mc.field_1724.method_18798()).setY(this.velocityHeight.get());
+            ((IVec3d)this.mc.player.getVelocity()).setY(this.velocityHeight.get());
         }
     }
 
     private boolean jump() {
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$movement$AutoJump$JumpWhen[this.jumpIf.get().ordinal()]) {
             case 1: {
-                return this.mc.field_1724.method_5624() && (this.mc.field_1724.field_6250 != 0.0f || this.mc.field_1724.field_6212 != 0.0f);
+                return this.mc.player.isSprinting() && (this.mc.player.forwardSpeed != 0.0f || this.mc.player.sidewaysSpeed != 0.0f);
             }
             case 2: {
-                return this.mc.field_1724.field_6250 != 0.0f || this.mc.field_1724.field_6212 != 0.0f;
+                return this.mc.player.forwardSpeed != 0.0f || this.mc.player.sidewaysSpeed != 0.0f;
             }
             case 3: {
                 return true;

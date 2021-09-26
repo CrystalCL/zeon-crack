@@ -12,12 +12,12 @@ import java.util.Map;
 import java.util.UUID;
 import minegame159.meteorclient.utils.network.HttpUtils;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
-import net.minecraft.class_1011;
-import net.minecraft.class_1043;
-import net.minecraft.class_1044;
-import net.minecraft.class_1657;
-import net.minecraft.class_2960;
-import net.minecraft.class_310;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
 
 public class Capes {
     private static final String CAPE_OWNERS_URL;
@@ -117,8 +117,8 @@ public class Capes {
         }
     }
 
-    public static class_2960 get(class_1657 class_16572) {
-        String string = OWNERS.get(class_16572.method_5667());
+    public static Identifier get(PlayerEntity PlayerEntity2) {
+        String string = OWNERS.get(PlayerEntity2.getUuid());
         if (string != null) {
             Cape cape = TEXTURES.get(string);
             if (cape == null) {
@@ -138,8 +138,8 @@ public class Capes {
     }
 
     private static class Cape
-    extends class_2960 {
-        private class_1011 img;
+    extends Identifier {
+        private NativeImage img;
         private final String name;
         private int retryTimer;
         private boolean downloaded;
@@ -150,7 +150,7 @@ public class Capes {
         }
 
         public void register() {
-            class_310.method_1551().method_1531().method_4616((class_2960)this, (class_1044)new class_1043(this.img));
+            MinecraftClient.getInstance().getTextureManager().registerTexture((Identifier)this, (AbstractTexture)new NativeImageBackedTexture(this.img));
             this.img = null;
             this.downloading = false;
             this.downloaded = true;
@@ -189,7 +189,7 @@ lbl-1000:
                         return;
                     }
                 }
-                this.img = class_1011.method_4309((InputStream)var2_3);
+                this.img = NativeImage.read((InputStream)var2_3);
                 var3_5 = Capes.access$400();
                 synchronized (var3_5) {
                     Capes.access$400().add(this);
@@ -222,7 +222,7 @@ lbl-1000:
         }
 
         public int compareTo(Object object) {
-            return super.method_12833((class_2960)object);
+            return super.compareTo((Identifier)object);
         }
     }
 }

@@ -24,12 +24,12 @@ import minegame159.meteorclient.utils.entity.FakePlayerUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_3726;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.ShapeContext;
 
 public class AutoTrap
 extends Module {
@@ -37,13 +37,13 @@ extends Module {
     private final Setting<Boolean> rotate;
     private final Setting<Boolean> render;
     private boolean placed;
-    private class_1657 target;
+    private PlayerEntity target;
     private final Setting<Boolean> turnOff;
     private final SettingGroup sgGeneral;
     private final Setting<ShapeMode> shapeMode;
     private final Setting<BottomMode> bottomPlacement;
     private final Setting<TopMode> topPlacement;
-    private final List<class_2338> placePositions;
+    private final List<BlockPos> placePositions;
     private final Setting<SettingColor> lineColor;
     private final Setting<Integer> range;
     private final Setting<SettingColor> sideColor;
@@ -53,7 +53,7 @@ extends Module {
     @Override
     public String getInfoString() {
         if (this.target != null) {
-            return this.target.method_5820();
+            return this.target.getEntityName();
         }
         return null;
     }
@@ -63,14 +63,14 @@ extends Module {
         if (!this.render.get().booleanValue() || this.placePositions.isEmpty()) {
             return;
         }
-        for (class_2338 class_23382 : this.placePositions) {
-            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, class_23382, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
+        for (BlockPos BlockPos2 : this.placePositions) {
+            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, BlockPos2, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
         }
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        int n = InvUtils.findItemInHotbar(class_2246.field_10540.method_8389());
+        int n = InvUtils.findItemInHotbar(Blocks.OBSIDIAN.asItem());
         if (this.turnOff.get().booleanValue() && (this.placed && this.placePositions.isEmpty() || n == -1)) {
             this.sendToggledMsg();
             this.toggle();
@@ -80,7 +80,7 @@ extends Module {
             this.placePositions.clear();
             return;
         }
-        if (this.target == null || this.mc.field_1724.method_5739((class_1297)this.target) > (float)this.range.get().intValue()) {
+        if (this.target == null || this.mc.player.distanceTo((Entity)this.target) > (float)this.range.get().intValue()) {
             this.placePositions.clear();
             this.target = this.findTarget();
             this.placed = false;
@@ -88,9 +88,9 @@ extends Module {
         }
         this.findPlacePos(this.target);
         if (this.delay >= this.delaySetting.get() && this.placePositions.size() > 0) {
-            class_2338 class_23382 = this.placePositions.get(this.placePositions.size() - 1);
-            if (BlockUtils.place(class_23382, class_1268.field_5808, n, this.rotate.get(), 50, true)) {
-                this.placePositions.remove(class_23382);
+            BlockPos BlockPos2 = this.placePositions.get(this.placePositions.size() - 1);
+            if (BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n, this.rotate.get(), 50, true)) {
+                this.placePositions.remove(BlockPos2);
                 this.placed = true;
             }
             this.delay = 0;
@@ -99,9 +99,9 @@ extends Module {
         }
     }
 
-    private void add(class_2338 class_23382) {
-        if (!this.placePositions.contains(class_23382) && this.mc.field_1687.method_8320(class_23382).method_26207().method_15800() && this.mc.field_1687.method_8628(class_2246.field_10540.method_9564(), class_23382, class_3726.method_16194())) {
-            this.placePositions.add(class_23382);
+    private void add(BlockPos BlockPos2) {
+        if (!this.placePositions.contains(BlockPos2) && this.mc.world.getBlockState(BlockPos2).getMaterial().isReplaceable() && this.mc.world.canPlace(Blocks.OBSIDIAN.getDefaultState(), BlockPos2, ShapeContext.absent())) {
+            this.placePositions.add(BlockPos2);
         }
     }
 
@@ -119,71 +119,71 @@ extends Module {
         this.shapeMode = this.sgRender.add(new EnumSetting.Builder().name("shape-mode").description("How the shapes are rendered.").defaultValue(ShapeMode.Both).build());
         this.sideColor = this.sgRender.add(new ColorSetting.Builder().name("side-color").description("The color of the sides of the blocks being rendered.").defaultValue(new SettingColor(204, 0, 0, 10)).build());
         this.lineColor = this.sgRender.add(new ColorSetting.Builder().name("line-color").description("The color of the lines of the blocks being rendered.").defaultValue(new SettingColor(204, 0, 0, 255)).build());
-        this.placePositions = new ArrayList<class_2338>();
+        this.placePositions = new ArrayList<BlockPos>();
     }
 
-    private void findPlacePos(class_1657 class_16572) {
+    private void findPlacePos(PlayerEntity PlayerEntity2) {
         this.placePositions.clear();
-        class_2338 class_23382 = class_16572.method_24515();
+        BlockPos BlockPos2 = PlayerEntity2.getBlockPos();
         switch (this.topPlacement.get()) {
             case Full: {
-                this.add(class_23382.method_10069(0, 2, 0));
-                this.add(class_23382.method_10069(1, 1, 0));
-                this.add(class_23382.method_10069(-1, 1, 0));
-                this.add(class_23382.method_10069(0, 1, 1));
-                this.add(class_23382.method_10069(0, 1, -1));
+                this.add(BlockPos2.add(0, 2, 0));
+                this.add(BlockPos2.add(1, 1, 0));
+                this.add(BlockPos2.add(-1, 1, 0));
+                this.add(BlockPos2.add(0, 1, 1));
+                this.add(BlockPos2.add(0, 1, -1));
                 break;
             }
             case Face: {
-                this.add(class_23382.method_10069(1, 1, 0));
-                this.add(class_23382.method_10069(-1, 1, 0));
-                this.add(class_23382.method_10069(0, 1, 1));
-                this.add(class_23382.method_10069(0, 1, -1));
+                this.add(BlockPos2.add(1, 1, 0));
+                this.add(BlockPos2.add(-1, 1, 0));
+                this.add(BlockPos2.add(0, 1, 1));
+                this.add(BlockPos2.add(0, 1, -1));
                 break;
             }
             case Top: {
-                this.add(class_23382.method_10069(0, 2, 0));
+                this.add(BlockPos2.add(0, 2, 0));
             }
         }
         switch (this.bottomPlacement.get()) {
             case Platform: {
-                this.add(class_23382.method_10069(0, -1, 0));
-                this.add(class_23382.method_10069(1, -1, 0));
-                this.add(class_23382.method_10069(0, -1, 0));
-                this.add(class_23382.method_10069(0, -1, 1));
-                this.add(class_23382.method_10069(0, -1, -1));
+                this.add(BlockPos2.add(0, -1, 0));
+                this.add(BlockPos2.add(1, -1, 0));
+                this.add(BlockPos2.add(0, -1, 0));
+                this.add(BlockPos2.add(0, -1, 1));
+                this.add(BlockPos2.add(0, -1, -1));
                 break;
             }
             case Full: {
-                this.add(class_23382.method_10069(1, 0, 0));
-                this.add(class_23382.method_10069(-1, 0, 0));
-                this.add(class_23382.method_10069(0, 0, -1));
-                this.add(class_23382.method_10069(0, 0, 1));
+                this.add(BlockPos2.add(1, 0, 0));
+                this.add(BlockPos2.add(-1, 0, 0));
+                this.add(BlockPos2.add(0, 0, -1));
+                this.add(BlockPos2.add(0, 0, 1));
                 break;
             }
             case Single: {
-                this.add(class_23382.method_10069(0, -1, 0));
+                this.add(BlockPos2.add(0, -1, 0));
             }
         }
     }
 
-    private class_1657 findTarget() {
-        for (class_1657 object : this.mc.field_1687.method_18456()) {
-            if (object == this.mc.field_1724 || !Friends.get().attack(object) || !object.method_5805()) continue;
+    private PlayerEntity findTarget() {
+        for (PlayerEntity object : this.mc.world.getPlayers()) {
+            if (object == this.mc.player || !Friends.get().attack(object) || !object.isAlive()) continue;
             if (this.target == null) {
                 this.target = object;
                 continue;
             }
-            if (!(this.mc.field_1724.method_5739((class_1297)object) < this.mc.field_1724.method_5739((class_1297)this.target))) continue;
+            if (!(this.mc.player.distanceTo((Entity)object) < this.mc.player.distanceTo((Entity)this.target))) continue;
             this.target = object;
         }
         for (FakePlayerEntity fakePlayerEntity : FakePlayerUtils.getPlayers().keySet()) {
-            if (!Friends.get().attack((class_1657)fakePlayerEntity) || !fakePlayerEntity.method_5805()) continue;
+            if (!Friends.get().attack((PlayerEntity)fakePlayerEntity) || !fakePlayerEntity.isAlive()) continue;
             if (this.target == null) {
                 this.target = fakePlayerEntity;
                 continue;
             }
-            if (!(this.mc.field_1724.method_5739((class_1297)fakePlayerEntity) < this.mc.field_1724.method_5739((class_1297)this.target))) continue;
+            if (!(this.mc.player.distanceTo((Entity)fakePlayerEntity) < this.mc.player.distanceTo((Entity)this.target))) continue;
             this.target = fakePlayerEntity;
         }
         return this.target;

@@ -9,7 +9,7 @@ import minegame159.meteorclient.rendering.MeshBuilder;
 import minegame159.meteorclient.rendering.text.CharData;
 import minegame159.meteorclient.utils.render.ByteTexture;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_1044;
+import net.minecraft.client.texture.AbstractTexture;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTTPackContext;
@@ -18,7 +18,7 @@ import org.lwjgl.stb.STBTruetype;
 import org.lwjgl.system.MemoryStack;
 
 public class Font {
-    public final class_1044 texture;
+    public final AbstractTexture texture;
     private final CharData[] charData;
     private final float ascent;
     private final float scale;

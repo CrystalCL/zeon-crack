@@ -39,19 +39,19 @@ import minegame159.meteorclient.utils.misc.Vec3;
 import minegame159.meteorclient.utils.render.NametagUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1297;
-import net.minecraft.class_1299;
-import net.minecraft.class_1309;
-import net.minecraft.class_1533;
-import net.minecraft.class_1541;
-import net.minecraft.class_1542;
-import net.minecraft.class_1657;
-import net.minecraft.class_1799;
-import net.minecraft.class_1887;
-import net.minecraft.class_1890;
-import net.minecraft.class_1934;
-import net.minecraft.class_2378;
-import net.minecraft.class_290;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.entity.TntEntity;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.world.GameMode;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.client.render.VertexFormats;
 import org.lwjgl.opengl.GL11;
 
 public class Nametags
@@ -62,10 +62,10 @@ extends Module {
     private final Setting<SettingColor> enchantmentTextColor;
     private final Setting<Boolean> displayDistance;
     private final Setting<SettingColor> healthStage3;
-    private final Setting<List<class_1887>> displayedEnchantments;
+    private final Setting<List<Enchantment>> displayedEnchantments;
     private final double[] itemWidths;
     private final Setting<SettingColor> background;
-    private final Map<class_1887, Integer> enchantmentsToShowScale;
+    private final Map<Enchantment, Integer> enchantmentsToShowScale;
     private final Setting<SettingColor> otherHealthStage3;
     private final Setting<SettingColor> healthStage1;
     private final Setting<SettingColor> pingColor;
@@ -94,17 +94,17 @@ extends Module {
     private final Setting<Double> enchantTextScale;
     private final Setting<SettingColor> otherNameColor;
     private final SettingGroup sgItems;
-    private final Setting<Object2BooleanMap<class_1299<?>>> entities;
+    private final Setting<Object2BooleanMap<EntityType<?>>> entities;
     private final Setting<Boolean> ignoreEmpty;
 
-    private void renderGenericNametag(class_1309 class_13092) {
+    private void renderGenericNametag(LivingEntity LivingEntity2) {
         TextRenderer textRenderer = TextRenderer.get();
         NametagUtils.begin(this.pos);
-        String string = class_13092.method_5864().method_5897().getString();
+        String string = LivingEntity2.getType().getName().getString();
         string = String.valueOf(new StringBuilder().append(string).append(" "));
-        float f = class_13092.method_6067();
-        int n = Math.round(class_13092.method_6032() + f);
-        double d = (float)n / (class_13092.method_6063() + f);
+        float f = LivingEntity2.getAbsorptionAmount();
+        int n = Math.round(LivingEntity2.getHealth() + f);
+        double d = (float)n / (LivingEntity2.getMaxHealth() + f);
         String string2 = String.valueOf(n);
         Color color = d <= 0.333 ? (Color)this.otherHealthStage3.get() : (d <= 0.666 ? (Color)this.otherHealthStage2.get() : (Color)this.otherHealthStage1.get());
         double d2 = textRenderer.getWidth(string);
@@ -122,49 +122,49 @@ extends Module {
         NametagUtils.end();
     }
 
-    private void renderNametagPlayer(class_1657 class_16572) {
+    private void renderNametagPlayer(PlayerEntity PlayerEntity2) {
         TextRenderer textRenderer = TextRenderer.get();
         NametagUtils.begin(this.pos);
         String string = "";
-        if (this.displayMeteor.get().booleanValue() && MeteorPlayers.get(class_16572)) {
+        if (this.displayMeteor.get().booleanValue() && MeteorPlayers.get(PlayerEntity2)) {
             string = "M ";
         }
-        class_1934 class_19342 = EntityUtils.getGameMode(class_16572);
+        GameMode GameMode2 = EntityUtils.getGameMode(PlayerEntity2);
         String string2 = "ERR";
-        if (class_19342 != null) {
-            switch (class_19342) {
-                case field_9219: {
+        if (GameMode2 != null) {
+            switch (GameMode2) {
+                case SPECTATOR: {
                     string2 = "Sp";
                     break;
                 }
-                case field_9215: {
+                case SURVIVAL: {
                     string2 = "S";
                     break;
                 }
-                case field_9220: {
+                case CREATIVE: {
                     string2 = "C";
                     break;
                 }
-                case field_9216: {
+                case ADVENTURE: {
                     string2 = "A";
                 }
             }
         }
         string2 = String.valueOf(new StringBuilder().append("[").append(string2).append("] "));
-        Color color = Friends.get().getFriendColor(class_16572);
-        String string3 = class_16572 == this.mc.field_1724 ? Modules.get().get(NameProtect.class).getName(class_16572.method_7334().getName()) : class_16572.method_7334().getName();
-        if (Modules.get().get(FakePlayer.class).showID(class_16572)) {
-            string3 = String.valueOf(new StringBuilder().append(string3).append(" [").append(FakePlayerUtils.getID((FakePlayerEntity)class_16572)).append("]"));
+        Color color = Friends.get().getFriendColor(PlayerEntity2);
+        String string3 = PlayerEntity2 == this.mc.player ? Modules.get().get(NameProtect.class).getName(PlayerEntity2.getGameProfile().getName()) : PlayerEntity2.getGameProfile().getName();
+        if (Modules.get().get(FakePlayer.class).showID(PlayerEntity2)) {
+            string3 = String.valueOf(new StringBuilder().append(string3).append(" [").append(FakePlayerUtils.getID((FakePlayerEntity)PlayerEntity2)).append("]"));
         }
         string3 = String.valueOf(new StringBuilder().append(string3).append(" "));
-        float f = class_16572.method_6067();
-        int n = Math.round(class_16572.method_6032() + f);
-        double d = (float)n / (class_16572.method_6063() + f);
+        float f = PlayerEntity2.getAbsorptionAmount();
+        int n = Math.round(PlayerEntity2.getHealth() + f);
+        double d = (float)n / (PlayerEntity2.getMaxHealth() + f);
         String string4 = String.valueOf(n);
         Color color2 = d <= 0.333 ? (Color)this.healthStage3.get() : (d <= 0.666 ? (Color)this.healthStage2.get() : (Color)this.healthStage1.get());
-        int n2 = EntityUtils.getPing(class_16572);
+        int n2 = EntityUtils.getPing(PlayerEntity2);
         String string5 = String.valueOf(new StringBuilder().append(" [").append(n2).append("ms]"));
-        double d2 = (double)Math.round(Utils.distanceToCamera((class_1297)class_16572) * 10.0) / 10.0;
+        double d2 = (double)Math.round(Utils.distanceToCamera((Entity)PlayerEntity2) * 10.0) / 10.0;
         String string6 = String.valueOf(new StringBuilder().append(" ").append(d2).append("m"));
         double d3 = textRenderer.getWidth(string);
         double d4 = textRenderer.getWidth(string2);
@@ -211,22 +211,22 @@ extends Module {
             boolean bl = false;
             int n3 = 0;
             for (int i = 0; i < 6; ++i) {
-                class_1799 class_17992 = this.getItem(class_16572, i);
-                if (!(this.itemWidths[i] != 0.0 || this.ignoreEmpty.get().booleanValue() && class_17992.method_7960())) {
+                ItemStack ItemStack2 = this.getItem(PlayerEntity2, i);
+                if (!(this.itemWidths[i] != 0.0 || this.ignoreEmpty.get().booleanValue() && ItemStack2.isEmpty())) {
                     this.itemWidths[i] = 32.0 + this.itemSpacing.get();
                 }
-                if (!class_17992.method_7960()) {
+                if (!ItemStack2.isEmpty()) {
                     bl = true;
                 }
                 if (!this.displayItemEnchants.get().booleanValue()) continue;
-                Map map = class_1890.method_8222((class_1799)class_17992);
+                Map map = EnchantmentHelper.get((ItemStack)ItemStack2);
                 this.enchantmentsToShowScale.clear();
-                for (class_1887 d17 : this.displayedEnchantments.get()) {
+                for (Enchantment d17 : this.displayedEnchantments.get()) {
                     if (!map.containsKey(d17)) continue;
                     this.enchantmentsToShowScale.put(d17, (Integer)map.get(d17));
                 }
-                for (class_1887 class_18872 : this.enchantmentsToShowScale.keySet()) {
-                    String string7 = String.valueOf(new StringBuilder().append(Utils.getEnchantSimpleName(class_18872, this.enchantLength.get())).append(" ").append(this.enchantmentsToShowScale.get(class_18872)));
+                for (Enchantment Enchantment2 : this.enchantmentsToShowScale.keySet()) {
+                    String string7 = String.valueOf(new StringBuilder().append(Utils.getEnchantSimpleName(Enchantment2, this.enchantLength.get())).append(" ").append(this.enchantmentsToShowScale.get(Enchantment2)));
                     this.itemWidths[i] = Math.max(this.itemWidths[i], textRenderer.getWidth(string7) / 2.0);
                 }
                 n3 = Math.max(n3, this.enchantmentsToShowScale.size());
@@ -242,19 +242,19 @@ extends Module {
             double d18 = -d11 - 7.0 - d14;
             double d19 = -d17;
             for (int i = 0; i < 6; ++i) {
-                class_1799 class_17992 = this.getItem(class_16572, i);
+                ItemStack ItemStack2 = this.getItem(PlayerEntity2, i);
                 GL11.glPushMatrix();
                 GL11.glScaled((double)2.0, (double)2.0, (double)1.0);
-                this.mc.method_1480().method_4010(class_17992, (int)(d19 / 2.0), (int)(d18 / 2.0));
-                this.mc.method_1480().method_4025(this.mc.field_1772, class_17992, (int)(d19 / 2.0), (int)(d18 / 2.0));
+                this.mc.getItemRenderer().renderGuiItemIcon(ItemStack2, (int)(d19 / 2.0), (int)(d18 / 2.0));
+                this.mc.getItemRenderer().renderGuiItemOverlay(this.mc.textRenderer, ItemStack2, (int)(d19 / 2.0), (int)(d18 / 2.0));
                 GL11.glPopMatrix();
                 if (n3 > 0 && this.displayItemEnchants.get().booleanValue()) {
                     textRenderer.begin(0.5 * this.enchantTextScale.get(), false, true);
-                    Map map = class_1890.method_8222((class_1799)class_17992);
-                    HashMap<class_1887, Integer> hashMap = new HashMap<class_1887, Integer>();
-                    for (class_1887 class_18873 : this.displayedEnchantments.get()) {
-                        if (!map.containsKey(class_18873)) continue;
-                        hashMap.put(class_18873, (Integer)map.get(class_18873));
+                    Map map = EnchantmentHelper.get((ItemStack)ItemStack2);
+                    HashMap<Enchantment, Integer> hashMap = new HashMap<Enchantment, Integer>();
+                    for (Enchantment Enchantment3 : this.displayedEnchantments.get()) {
+                        if (!map.containsKey(Enchantment3)) continue;
+                        hashMap.put(Enchantment3, (Integer)map.get(Enchantment3));
                     }
                     double d20 = this.itemWidths[i];
                     double d21 = 0.0;
@@ -269,10 +269,10 @@ extends Module {
                         }
                     }
                     double d23 = d19;
-                    for (class_1887 class_18874 : hashMap.keySet()) {
-                        String string8 = String.valueOf(new StringBuilder().append(Utils.getEnchantSimpleName(class_18874, this.enchantLength.get())).append(" ").append(hashMap.get(class_18874)));
+                    for (Enchantment Enchantment4 : hashMap.keySet()) {
+                        String string8 = String.valueOf(new StringBuilder().append(Utils.getEnchantSimpleName(Enchantment4, this.enchantLength.get())).append(" ").append(hashMap.get(Enchantment4)));
                         Color color3 = this.enchantmentTextColor.get();
-                        if (class_18874.method_8195()) {
+                        if (Enchantment4.isCursed()) {
                             color3 = this.RED;
                         }
                         switch (this.enchantPos.get()) {
@@ -313,10 +313,10 @@ extends Module {
         return String.valueOf(new StringBuilder().append(n4).append(".").append(n5).append(" s"));
     }
 
-    private List<class_1887> setDefaultList() {
-        ArrayList<class_1887> arrayList = new ArrayList<class_1887>();
-        for (class_1887 class_18872 : class_2378.field_11160) {
-            arrayList.add(class_18872);
+    private List<Enchantment> setDefaultList() {
+        ArrayList<Enchantment> arrayList = new ArrayList<Enchantment>();
+        for (Enchantment Enchantment2 : Registry.ENCHANTMENT) {
+            arrayList.add(Enchantment2);
         }
         return arrayList;
     }
@@ -324,43 +324,43 @@ extends Module {
     @EventHandler
     private void onRender2D(Render2DEvent render2DEvent) {
         boolean bl = !Modules.get().isActive(Freecam.class);
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            class_1299 class_12992;
-            if (!this.entities.get().containsKey((Object)class_12972.method_5864()) || (class_12992 = class_12972.method_5864()) == class_1299.field_6097 && (bl && class_12972 == this.mc.field_1719 || !this.yourself.get().booleanValue() && class_12972 == this.mc.field_1724)) continue;
-            this.pos.set(class_12972, render2DEvent.tickDelta);
-            this.pos.add(0.0, this.getHeight(class_12972), 0.0);
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            EntityType EntityType2;
+            if (!this.entities.get().containsKey((Object)Entity2.getType()) || (EntityType2 = Entity2.getType()) == EntityType.PLAYER && (bl && Entity2 == this.mc.cameraEntity || !this.yourself.get().booleanValue() && Entity2 == this.mc.player)) continue;
+            this.pos.set(Entity2, render2DEvent.tickDelta);
+            this.pos.add(0.0, this.getHeight(Entity2), 0.0);
             if (!NametagUtils.to2D(this.pos, this.scale.get())) continue;
-            if (class_12992 == class_1299.field_6097) {
-                this.renderNametagPlayer((class_1657)class_12972);
+            if (EntityType2 == EntityType.PLAYER) {
+                this.renderNametagPlayer((PlayerEntity)Entity2);
                 continue;
             }
-            if (class_12992 == class_1299.field_6052) {
-                this.renderNametagItem(((class_1542)class_12972).method_6983());
+            if (EntityType2 == EntityType.ITEM) {
+                this.renderNametagItem(((ItemEntity)Entity2).getStack());
                 continue;
             }
-            if (class_12992 == class_1299.field_6043) {
-                this.renderNametagItem(((class_1533)class_12972).method_6940());
+            if (EntityType2 == EntityType.ITEM_FRAME) {
+                this.renderNametagItem(((ItemFrameEntity)Entity2).getHeldItemStack());
                 continue;
             }
-            if (class_12992 == class_1299.field_6063) {
-                this.renderTntNametag((class_1541)class_12972);
+            if (EntityType2 == EntityType.TNT) {
+                this.renderTntNametag((TntEntity)Entity2);
                 continue;
             }
-            if (!(class_12972 instanceof class_1309)) continue;
-            this.renderGenericNametag((class_1309)class_12972);
+            if (!(Entity2 instanceof LivingEntity)) continue;
+            this.renderGenericNametag((LivingEntity)Entity2);
         }
     }
 
     private void drawBg(double d, double d2, double d3, double d4) {
-        Renderer.NORMAL.begin(null, DrawMode.Triangles, class_290.field_1576);
+        Renderer.NORMAL.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
         Renderer.NORMAL.quad(d - 1.0, d2 - 1.0, d3 + 2.0, d4 + 2.0, this.background.get());
         Renderer.NORMAL.end();
     }
 
-    private void renderTntNametag(class_1541 class_15412) {
+    private void renderTntNametag(TntEntity TntEntity2) {
         TextRenderer textRenderer = TextRenderer.get();
         NametagUtils.begin(this.pos);
-        String string = Nametags.ticksToTime(class_15412.method_6968());
+        String string = Nametags.ticksToTime(TntEntity2.getFuseTimer());
         double d = textRenderer.getWidth(string);
         double d2 = textRenderer.getHeight();
         double d3 = d / 2.0;
@@ -379,7 +379,7 @@ extends Module {
         this.sgPlayers = this.settings.createGroup("Players");
         this.sgItems = this.settings.createGroup("Items");
         this.sgOther = this.settings.createGroup("Other");
-        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entities").description("Select entities to draw nametags on.").defaultValue((Object2BooleanMap<class_1299<?>>)Utils.asObject2BooleanOpenHashMap(class_1299.field_6097, class_1299.field_6052)).build());
+        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entities").description("Select entities to draw nametags on.").defaultValue((Object2BooleanMap<EntityType<?>>)Utils.asObject2BooleanOpenHashMap(EntityType.PLAYER, EntityType.ITEM)).build());
         this.scale = this.sgGeneral.add(new DoubleSetting.Builder().name("scale").description("The scale of the nametag.").defaultValue(1.5).min(0.1).build());
         this.yourself = this.sgGeneral.add(new BoolSetting.Builder().name("self-nametag").description("Displays a nametag on your player if you're in Freecam.").defaultValue(true).build());
         this.background = this.sgGeneral.add(new ColorSetting.Builder().name("background").description("The color of the nametag background.").defaultValue(new SettingColor(0, 0, 0, 75)).build());
@@ -414,44 +414,44 @@ extends Module {
         this.pos = new Vec3();
         this.itemWidths = new double[6];
         this.RED = new Color(255, 15, 15);
-        this.enchantmentsToShowScale = new HashMap<class_1887, Integer>();
+        this.enchantmentsToShowScale = new HashMap<Enchantment, Integer>();
     }
 
-    private class_1799 getItem(class_1657 class_16572, int n) {
+    private ItemStack getItem(PlayerEntity PlayerEntity2, int n) {
         switch (n) {
             case 0: {
-                return class_16572.method_6047();
+                return PlayerEntity2.getMainHandStack();
             }
             case 1: {
-                return (class_1799)class_16572.field_7514.field_7548.get(3);
+                return (ItemStack)PlayerEntity2.inventory.armor.get(3);
             }
             case 2: {
-                return (class_1799)class_16572.field_7514.field_7548.get(2);
+                return (ItemStack)PlayerEntity2.inventory.armor.get(2);
             }
             case 3: {
-                return (class_1799)class_16572.field_7514.field_7548.get(1);
+                return (ItemStack)PlayerEntity2.inventory.armor.get(1);
             }
             case 4: {
-                return (class_1799)class_16572.field_7514.field_7548.get(0);
+                return (ItemStack)PlayerEntity2.inventory.armor.get(0);
             }
             case 5: {
-                return class_16572.method_6079();
+                return PlayerEntity2.getOffHandStack();
             }
         }
-        return class_1799.field_8037;
+        return ItemStack.EMPTY;
     }
 
-    private double getHeight(class_1297 class_12972) {
-        double d = class_12972.method_18381(class_12972.method_18376());
-        d = class_12972.method_5864() == class_1299.field_6052 || class_12972.method_5864() == class_1299.field_6043 ? (d += 0.2) : (d += 0.5);
+    private double getHeight(Entity Entity2) {
+        double d = Entity2.getEyeHeight(Entity2.getPose());
+        d = Entity2.getType() == EntityType.ITEM || Entity2.getType() == EntityType.ITEM_FRAME ? (d += 0.2) : (d += 0.5);
         return d;
     }
 
-    private void renderNametagItem(class_1799 class_17992) {
+    private void renderNametagItem(ItemStack ItemStack2) {
         TextRenderer textRenderer = TextRenderer.get();
         NametagUtils.begin(this.pos);
-        String string = class_17992.method_7964().getString();
-        String string2 = String.valueOf(new StringBuilder().append(" x").append(class_17992.method_7947()));
+        String string = ItemStack2.getName().getString();
+        String string2 = String.valueOf(new StringBuilder().append(" x").append(ItemStack2.getCount()));
         double d = textRenderer.getWidth(string);
         double d2 = textRenderer.getWidth(string2);
         double d3 = textRenderer.getHeight();

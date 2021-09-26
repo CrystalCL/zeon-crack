@@ -24,7 +24,7 @@ extends Module {
 
     @Override
     public void onActivate() {
-        this.username = this.mc.method_1548().method_1676();
+        this.username = this.mc.getSession().getUsername();
     }
 
     public String getName(String string) {

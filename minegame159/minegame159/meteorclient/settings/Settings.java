@@ -14,9 +14,9 @@ import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.NbtUtils;
 import minegame159.meteorclient.utils.render.color.RainbowColors;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -28,13 +28,13 @@ Iterable<SettingGroup> {
     private SettingGroup defaultGroup;
 
     @Override
-    public Settings fromTag(class_2487 class_24872) {
-        class_2499 class_24992 = class_24872.method_10554("groups", 10);
-        for (class_2520 class_25202 : class_24992) {
-            class_2487 class_24873 = (class_2487)class_25202;
-            SettingGroup settingGroup = this.getGroup(class_24873.method_10558("name"));
+    public Settings fromTag(NbtCompound NbtCompound2) {
+        NbtList NbtList2 = NbtCompound2.getList("groups", 10);
+        for (NbtElement NbtElement2 : NbtList2) {
+            NbtCompound NbtCompound3 = (NbtCompound)NbtElement2;
+            SettingGroup settingGroup = this.getGroup(NbtCompound3.getString("name"));
             if (settingGroup == null) continue;
-            settingGroup.fromTag(class_24873);
+            settingGroup.fromTag(NbtCompound3);
         }
         return this;
     }
@@ -55,8 +55,8 @@ Iterable<SettingGroup> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public SettingGroup getDefaultGroup() {
@@ -108,10 +108,10 @@ Iterable<SettingGroup> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10566("groups", (class_2520)NbtUtils.listToTag(this.groups));
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.put("groups", (NbtElement)NbtUtils.listToTag(this.groups));
+        return NbtCompound2;
     }
 
     public void onActivated() {

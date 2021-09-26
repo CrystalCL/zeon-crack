@@ -15,16 +15,16 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_3532;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 
 public class Anchor
 extends Module {
     private boolean foundHole;
     private int holeX;
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
     public double deltaZ;
     private int holeZ;
     private final Setting<Integer> maxHeight;
@@ -53,12 +53,12 @@ extends Module {
         this.cancelMove = this.sgGeneral.add(new BoolSetting.Builder().name("cancel-jump-in-hole").description("Prevents you from jumping when Anchor is active and Min Pitch is met.").defaultValue(false).build());
         this.pull = this.sgGeneral.add(new BoolSetting.Builder().name("pull").description("The pull strength of Anchor.").defaultValue(false).build());
         this.pullSpeed = this.sgGeneral.add(new DoubleSetting.Builder().name("pull-speed").description("How fast to pull towards the hole in blocks per second.").defaultValue(0.3).min(0.0).sliderMax(5.0).build());
-        this.blockPos = new class_2338.class_2339();
+        this.blockPos = new Mutable();
     }
 
     private boolean isAir(int n, int n2, int n3) {
-        this.blockPos.method_10103(n, n2, n3);
-        return !((AbstractBlockAccessor)this.mc.field_1687.method_8320((class_2338)this.blockPos).method_26204()).isCollidable();
+        this.blockPos.set(n, n2, n3);
+        return !((AbstractBlockAccessor)this.mc.world.getBlockState((BlockPos)this.blockPos).getBlock()).isCollidable();
     }
 
     private boolean isHole(int n, int n2, int n3) {
@@ -67,13 +67,13 @@ extends Module {
 
     @EventHandler
     private void onPreTick(TickEvent.Pre pre) {
-        this.cancelJump = this.foundHole && this.cancelMove.get() != false && this.mc.field_1724.field_5965 >= (float)this.minPitch.get().intValue();
+        this.cancelJump = this.foundHole && this.cancelMove.get() != false && this.mc.player.pitch >= (float)this.minPitch.get().intValue();
     }
 
     private boolean isHoleBlock(int n, int n2, int n3) {
-        this.blockPos.method_10103(n, n2, n3);
-        class_2248 class_22482 = this.mc.field_1687.method_8320((class_2338)this.blockPos).method_26204();
-        return class_22482 == class_2246.field_9987 || class_22482 == class_2246.field_10540 || class_22482 == class_2246.field_22423;
+        this.blockPos.set(n, n2, n3);
+        Block Block2 = this.mc.world.getBlockState((BlockPos)this.blockPos).getBlock();
+        return Block2 == Blocks.BEDROCK || Block2 == Blocks.OBSIDIAN || Block2 == Blocks.CRYING_OBSIDIAN;
     }
 
     @EventHandler
@@ -81,8 +81,8 @@ extends Module {
         int n;
         int n2;
         this.controlMovement = false;
-        int n3 = class_3532.method_15357((double)this.mc.field_1724.method_23317());
-        if (this.isHole(n3, n2 = class_3532.method_15357((double)this.mc.field_1724.method_23318()), n = class_3532.method_15357((double)this.mc.field_1724.method_23321()))) {
+        int n3 = MathHelper.floor((double)this.mc.player.getX());
+        if (this.isHole(n3, n2 = MathHelper.floor((double)this.mc.player.getY()), n = MathHelper.floor((double)this.mc.player.getZ()))) {
             this.wasInHole = true;
             this.holeX = n3;
             this.holeZ = n;
@@ -94,7 +94,7 @@ extends Module {
         if (this.wasInHole) {
             this.wasInHole = false;
         }
-        if (this.mc.field_1724.field_5965 < (float)this.minPitch.get().intValue()) {
+        if (this.mc.player.pitch < (float)this.minPitch.get().intValue()) {
             return;
         }
         this.foundHole = false;
@@ -109,9 +109,9 @@ extends Module {
         }
         if (this.foundHole) {
             this.controlMovement = true;
-            this.deltaX = Utils.clamp(d - this.mc.field_1724.method_23317(), -0.05, 0.05);
-            this.deltaZ = Utils.clamp(d2 - this.mc.field_1724.method_23321(), -0.05, 0.05);
-            ((IVec3d)this.mc.field_1724.method_18798()).set(this.deltaX, this.mc.field_1724.method_18798().field_1351 - (this.pull.get() != false ? this.pullSpeed.get() : 0.0), this.deltaZ);
+            this.deltaX = Utils.clamp(d - this.mc.player.getX(), -0.05, 0.05);
+            this.deltaZ = Utils.clamp(d2 - this.mc.player.getZ(), -0.05, 0.05);
+            ((IVec3d)this.mc.player.getVelocity()).set(this.deltaX, this.mc.player.getVelocity().y - (this.pull.get() != false ? this.pullSpeed.get() : 0.0), this.deltaZ);
         }
     }
 }

@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.network.PacketUtils;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
-import net.minecraft.class_2596;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.Packet;
 
 public class PacketBoolSetting
-extends Setting<Object2BooleanMap<Class<? extends class_2596<?>>>> {
+extends Setting<Object2BooleanMap<Class<? extends Packet<?>>>> {
     private static List<String> suggestions;
 
     @Override
@@ -31,33 +31,33 @@ extends Setting<Object2BooleanMap<Class<? extends class_2596<?>>>> {
     public List<String> getSuggestions() {
         if (suggestions == null) {
             suggestions = new ArrayList<String>(PacketUtils.getC2SPackets().size() + PacketUtils.getS2CPackets().size());
-            for (Class<? extends class_2596<?>> clazz : PacketUtils.getC2SPackets()) {
+            for (Class<? extends Packet<?>> clazz : PacketUtils.getC2SPackets()) {
                 suggestions.add(PacketUtils.getName(clazz));
             }
-            for (Class<? extends class_2596<?>> clazz : PacketUtils.getS2CPackets()) {
+            for (Class<? extends Packet<?>> clazz : PacketUtils.getS2CPackets()) {
                 suggestions.add(PacketUtils.getName(clazz));
             }
         }
         return suggestions;
     }
 
-    public PacketBoolSetting(String string, String string2, Object2BooleanMap<Class<? extends class_2596<?>>> object2BooleanMap, Consumer<Object2BooleanMap<Class<? extends class_2596<?>>>> consumer, Consumer<Setting<Object2BooleanMap<Class<? extends class_2596<?>>>>> consumer2) {
+    public PacketBoolSetting(String string, String string2, Object2BooleanMap<Class<? extends Packet<?>>> object2BooleanMap, Consumer<Object2BooleanMap<Class<? extends Packet<?>>>> consumer, Consumer<Setting<Object2BooleanMap<Class<? extends Packet<?>>>>> consumer2) {
         super(string, string2, object2BooleanMap, consumer, consumer2);
         this.value = new Object2BooleanArrayMap(object2BooleanMap);
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    protected Object2BooleanMap<Class<? extends class_2596<?>>> parseImpl(String string) {
+    protected Object2BooleanMap<Class<? extends Packet<?>>> parseImpl(String string) {
         String[] stringArray = string.split(",");
         Object2BooleanOpenHashMap object2BooleanOpenHashMap = new Object2BooleanOpenHashMap(stringArray.length);
         try {
             for (String string2 : stringArray) {
-                Class<? extends class_2596<?>> clazz = PacketUtils.getPacket(string2.trim());
+                Class<? extends Packet<?>> clazz = PacketUtils.getPacket(string2.trim());
                 if (clazz == null) continue;
                 object2BooleanOpenHashMap.put(clazz, true);
                 if (0 != -1) continue;
@@ -76,13 +76,13 @@ extends Setting<Object2BooleanMap<Class<? extends class_2596<?>>>> {
     }
 
     @Override
-    public Object2BooleanMap<Class<? extends class_2596<?>>> fromTag(class_2487 class_24872) {
+    public Object2BooleanMap<Class<? extends Packet<?>>> fromTag(NbtCompound NbtCompound2) {
         ((Object2BooleanMap)this.get()).clear();
-        class_2487 class_24873 = class_24872.method_10562("value");
-        for (String string : class_24873.method_10541()) {
-            Class<? extends class_2596<?>> clazz = PacketUtils.getPacket(string);
+        NbtCompound NbtCompound3 = NbtCompound2.getCompound("value");
+        for (String string : NbtCompound3.getKeys()) {
+            Class<? extends Packet<?>> clazz = PacketUtils.getPacket(string);
             if (clazz == null) continue;
-            ((Object2BooleanMap)this.get()).put(clazz, class_24873.method_10577(string));
+            ((Object2BooleanMap)this.get()).put(clazz, NbtCompound3.getBoolean(string));
         }
         this.changed();
         return (Object2BooleanMap)this.get();
@@ -94,38 +94,38 @@ extends Setting<Object2BooleanMap<Class<? extends class_2596<?>>>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2487 class_24873 = new class_2487();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound NbtCompound3 = new NbtCompound();
         for (Class clazz : ((Object2BooleanMap)this.get()).keySet()) {
-            class_24873.method_10556(PacketUtils.getName(clazz), ((Object2BooleanMap)this.get()).getBoolean((Object)clazz));
+            NbtCompound3.putBoolean(PacketUtils.getName(clazz), ((Object2BooleanMap)this.get()).getBoolean((Object)clazz));
         }
-        class_24872.method_10566("value", (class_2520)class_24873);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtCompound3);
+        return NbtCompound2;
     }
 
     @Override
-    protected boolean isValueValid(Object2BooleanMap<Class<? extends class_2596<?>>> object2BooleanMap) {
+    protected boolean isValueValid(Object2BooleanMap<Class<? extends Packet<?>>> object2BooleanMap) {
         return true;
     }
 
     public static class Builder {
-        private Object2BooleanMap<Class<? extends class_2596<?>>> defaultValue;
+        private Object2BooleanMap<Class<? extends Packet<?>>> defaultValue;
         private String name = "undefined";
         private String description = "";
-        private Consumer<Setting<Object2BooleanMap<Class<? extends class_2596<?>>>>> onModuleActivated;
-        private Consumer<Object2BooleanMap<Class<? extends class_2596<?>>>> onChanged;
+        private Consumer<Setting<Object2BooleanMap<Class<? extends Packet<?>>>>> onModuleActivated;
+        private Consumer<Object2BooleanMap<Class<? extends Packet<?>>>> onChanged;
 
         public PacketBoolSetting build() {
             return new PacketBoolSetting(this.name, this.description, this.defaultValue, this.onChanged, this.onModuleActivated);
         }
 
-        public Builder onChanged(Consumer<Object2BooleanMap<Class<? extends class_2596<?>>>> consumer) {
+        public Builder onChanged(Consumer<Object2BooleanMap<Class<? extends Packet<?>>>> consumer) {
             this.onChanged = consumer;
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<Object2BooleanMap<Class<? extends class_2596<?>>>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<Object2BooleanMap<Class<? extends Packet<?>>>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
@@ -135,7 +135,7 @@ extends Setting<Object2BooleanMap<Class<? extends class_2596<?>>>> {
             return this;
         }
 
-        public Builder defaultValue(Object2BooleanMap<Class<? extends class_2596<?>>> object2BooleanMap) {
+        public Builder defaultValue(Object2BooleanMap<Class<? extends Packet<?>>> object2BooleanMap) {
             this.defaultValue = object2BooleanMap;
             return this;
         }

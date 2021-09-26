@@ -10,9 +10,9 @@ import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.NbtException;
 import minegame159.meteorclient.utils.render.ByteTexture;
-import net.minecraft.class_2487;
-import net.minecraft.class_2960;
-import net.minecraft.class_310;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -24,18 +24,18 @@ implements ISerializable<AccountCache> {
     private ByteTexture headTexture;
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("username", this.username);
-        class_24872.method_10582("uuid", this.uuid);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("username", this.username);
+        NbtCompound2.putString("uuid", this.uuid);
+        return NbtCompound2;
     }
 
     public boolean makeHead(String string) {
         try {
             byte[] byArray = new byte[192];
             int[] nArray = new int[4];
-            BufferedImage bufferedImage = string.equals("steve") ? ImageIO.read(class_310.method_1551().method_1478().method_14486(new class_2960("meteor-client", "steve.png")).method_14482()) : ImageIO.read(new URL(string));
+            BufferedImage bufferedImage = string.equals("steve") ? ImageIO.read(MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("meteor-client", "steve.png")).getInputStream()) : ImageIO.read(new URL(string));
             int n = 0;
             for (int i = 0; i < 8; ++i) {
                 for (int j = 0; j < 8; ++j) {
@@ -64,17 +64,17 @@ implements ISerializable<AccountCache> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public AccountCache fromTag(class_2487 class_24872) {
-        if (!class_24872.method_10545("username") || !class_24872.method_10545("uuid")) {
+    public AccountCache fromTag(NbtCompound NbtCompound2) {
+        if (!NbtCompound2.contains("username") || !NbtCompound2.contains("uuid")) {
             throw new NbtException();
         }
-        this.username = class_24872.method_10558("username");
-        this.uuid = class_24872.method_10558("uuid");
+        this.username = NbtCompound2.getString("username");
+        this.uuid = NbtCompound2.getString("uuid");
         return this;
     }
 }

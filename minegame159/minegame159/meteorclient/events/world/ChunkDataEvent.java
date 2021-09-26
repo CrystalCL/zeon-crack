@@ -4,19 +4,19 @@
 package minegame159.meteorclient.events.world;
 
 import minegame159.meteorclient.utils.misc.Pool;
-import net.minecraft.class_2818;
+import net.minecraft.world.chunk.WorldChunk;
 
 public class ChunkDataEvent {
-    public class_2818 chunk;
+    public WorldChunk chunk;
     private static final Pool<ChunkDataEvent> INSTANCE = new Pool<ChunkDataEvent>(ChunkDataEvent::new);
 
     public static void returnChunkDataEvent(ChunkDataEvent chunkDataEvent) {
         INSTANCE.free(chunkDataEvent);
     }
 
-    public static ChunkDataEvent get(class_2818 class_28182) {
+    public static ChunkDataEvent get(WorldChunk WorldChunk2) {
         ChunkDataEvent chunkDataEvent = INSTANCE.get();
-        chunkDataEvent.chunk = class_28182;
+        chunkDataEvent.chunk = WorldChunk2;
         return chunkDataEvent;
     }
 }

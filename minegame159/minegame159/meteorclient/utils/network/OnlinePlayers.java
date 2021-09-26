@@ -6,7 +6,7 @@ package minegame159.meteorclient.utils.network;
 import minegame159.meteorclient.systems.config.Config;
 import minegame159.meteorclient.utils.network.HttpUtils;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
-import net.minecraft.class_310;
+import net.minecraft.client.MinecraftClient;
 
 public class OnlinePlayers {
     private static long lastPingTime;
@@ -33,7 +33,7 @@ public class OnlinePlayers {
 
     private static void lambda$update$0() {
         String string = "http://meteorclient.com/api/online/ping";
-        String string2 = class_310.method_1551().method_1548().method_1673();
+        String string2 = MinecraftClient.getInstance().getSession().getUuid();
         if (string2 != null && !string2.isEmpty() && Config.get().sendDataToApi) {
             string = String.valueOf(new StringBuilder().append(string).append("?uuid=").append(string2));
         }

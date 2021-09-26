@@ -8,7 +8,7 @@ import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_310;
+import net.minecraft.client.MinecraftClient;
 
 public class Fullbright
 extends Module {
@@ -36,7 +36,7 @@ extends Module {
     }
 
     private static class StaticListener {
-        private static final class_310 mc = class_310.method_1551();
+        private static final MinecraftClient mc = MinecraftClient.getInstance();
         private static double prevGamma;
         private static int lastTimesEnabled;
         private static int timesEnabled;
@@ -47,12 +47,12 @@ extends Module {
         @EventHandler
         private static void onTick(TickEvent.Post post) {
             if (timesEnabled > 0 && lastTimesEnabled == 0) {
-                prevGamma = StaticListener.mc.field_1690.field_1840;
+                prevGamma = StaticListener.mc.options.gamma;
             } else if (timesEnabled == 0 && lastTimesEnabled > 0) {
-                StaticListener.mc.field_1690.field_1840 = prevGamma;
+                StaticListener.mc.options.gamma = prevGamma;
             }
             if (timesEnabled > 0) {
-                StaticListener.mc.field_1690.field_1840 = 16.0;
+                StaticListener.mc.options.gamma = 16.0;
             }
             lastTimesEnabled = timesEnabled;
         }

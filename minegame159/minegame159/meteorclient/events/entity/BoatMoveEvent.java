@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.events.entity;
 
-import net.minecraft.class_1690;
+import net.minecraft.entity.vehicle.BoatEntity;
 
 public class BoatMoveEvent {
-    public class_1690 boat;
+    public BoatEntity boat;
     private static final BoatMoveEvent INSTANCE = new BoatMoveEvent();
 
-    public static BoatMoveEvent get(class_1690 class_16902) {
-        BoatMoveEvent.INSTANCE.boat = class_16902;
+    public static BoatMoveEvent get(BoatEntity BoatEntity2) {
+        BoatMoveEvent.INSTANCE.boat = BoatEntity2;
         return INSTANCE;
     }
 }

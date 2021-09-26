@@ -26,14 +26,14 @@ import minegame159.meteorclient.systems.profiles.Profile;
 import minegame159.meteorclient.systems.profiles.Profiles;
 import minegame159.meteorclient.systems.waypoints.Waypoints;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 import org.apache.commons.lang3.StringUtils;
 
 public class ProfilesTab
 extends Tab {
     @Override
-    public boolean isScreen(class_437 class_4372) {
-        return class_4372 instanceof ProfilesScreen;
+    public boolean isScreen(Screen Screen2) {
+        return Screen2 instanceof ProfilesScreen;
     }
 
     @Override
@@ -71,8 +71,8 @@ extends Tab {
         }
 
         @Override
-        protected void method_25426() {
-            super.method_25426();
+        protected void init() {
+            super.init();
             this.initWidget();
         }
 
@@ -86,11 +86,11 @@ extends Tab {
         }
 
         private void lambda$initWidget$2() {
-            Utils.mc.method_1507((class_437)new EditProfileScreen(this.theme, null, this::initWidget));
+            Utils.mc.openScreen((Screen)new EditProfileScreen(this.theme, null, this::initWidget));
         }
 
         private void lambda$initWidget$0(Profile profile) {
-            Utils.mc.method_1507((class_437)new EditProfileScreen(this.theme, profile, this::initWidget));
+            Utils.mc.openScreen((Screen)new EditProfileScreen(this.theme, profile, this::initWidget));
         }
     }
 
@@ -214,7 +214,7 @@ extends Tab {
             } else {
                 Profiles.get().save();
             }
-            this.method_25419();
+            this.onClose();
         }
 
         public EditProfileScreen(GuiTheme guiTheme, Profile profile, Runnable runnable) {

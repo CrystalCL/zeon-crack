@@ -13,8 +13,8 @@ import minegame159.meteorclient.systems.modules.render.hud.HUD;
 import minegame159.meteorclient.systems.modules.render.hud.HudRenderer;
 import minegame159.meteorclient.systems.modules.render.hud.modules.HudElement;
 import minegame159.meteorclient.utils.render.RenderUtils;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
 public class ArmorHud
 extends HudElement {
@@ -24,23 +24,23 @@ extends HudElement {
     private final Setting<Boolean> flipOrder;
     private final Setting<Durability> durability;
 
-    private class_1799 getItem(int n) {
+    private ItemStack getItem(int n) {
         if (this.isInEditor()) {
             switch (n) {
                 default: {
-                    return class_1802.field_22030.method_7854();
+                    return Items.NETHERITE_BOOTS.getDefaultStack();
                 }
                 case 1: {
-                    return class_1802.field_22029.method_7854();
+                    return Items.NETHERITE_LEGGINGS.getDefaultStack();
                 }
                 case 2: {
-                    return class_1802.field_22028.method_7854();
+                    return Items.NETHERITE_CHESTPLATE.getDefaultStack();
                 }
                 case 3: 
             }
-            return class_1802.field_22027.method_7854();
+            return Items.NETHERITE_HELMET.getDefaultStack();
         }
-        return this.mc.field_1724.field_7514.method_7372(n);
+        return this.mc.player.inventory.getArmorStack(n);
     }
 
     public ArmorHud(HUD hUD) {
@@ -60,7 +60,7 @@ extends HudElement {
         for (int i = 0; i < 4; ++i) {
             double d3;
             double d4;
-            class_1799 class_17992 = this.getItem(n);
+            ItemStack ItemStack2 = this.getItem(n);
             RenderSystem.pushMatrix();
             RenderSystem.scaled((double)this.scale.get(), (double)this.scale.get(), (double)1.0);
             if (this.orientation.get() == Orientation.Vertical) {
@@ -70,16 +70,16 @@ extends HudElement {
                 d4 = d / this.scale.get() + (double)(i * 18);
                 d3 = d2 / this.scale.get();
             }
-            RenderUtils.drawItem(class_17992, (int)d4, (int)d3, class_17992.method_7963() && this.durability.get() == Durability.Default);
-            if (class_17992.method_7963() && !this.isInEditor() && this.durability.get() != Durability.Default && this.durability.get() != Durability.None) {
+            RenderUtils.drawItem(ItemStack2, (int)d4, (int)d3, ItemStack2.isDamageable() && this.durability.get() == Durability.Default);
+            if (ItemStack2.isDamageable() && !this.isInEditor() && this.durability.get() != Durability.Default && this.durability.get() != Durability.None) {
                 String string = "err";
                 switch (this.durability.get()) {
                     case Numbers: {
-                        string = Integer.toString(class_17992.method_7936() - class_17992.method_7919());
+                        string = Integer.toString(ItemStack2.getMaxDamage() - ItemStack2.getDamage());
                         break;
                     }
                     case Percentage: {
-                        string = Integer.toString(Math.round((float)(class_17992.method_7936() - class_17992.method_7919()) * 100.0f / (float)class_17992.method_7936()));
+                        string = Integer.toString(Math.round((float)(ItemStack2.getMaxDamage() - ItemStack2.getDamage()) * 100.0f / (float)ItemStack2.getMaxDamage()));
                     }
                 }
                 double d5 = hudRenderer.textWidth(string);

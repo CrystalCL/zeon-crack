@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import minegame159.meteorclient.systems.commands.Command;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
-import net.minecraft.class_2172;
+import net.minecraft.command.CommandSource;
 
 public class PanicCommand
 extends Command {
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.executes(PanicCommand::lambda$build$0);
     }
 

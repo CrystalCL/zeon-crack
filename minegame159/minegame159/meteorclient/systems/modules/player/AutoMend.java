@@ -14,13 +14,13 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.combat.AutoArmor;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1304;
-import net.minecraft.class_1738;
-import net.minecraft.class_1799;
-import net.minecraft.class_1829;
-import net.minecraft.class_1887;
-import net.minecraft.class_1890;
-import net.minecraft.class_1893;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 
 public class AutoMend
 extends Module {
@@ -29,42 +29,42 @@ extends Module {
     private final Setting<Boolean> armourSlots;
     private final Setting<Boolean> swords;
 
-    private boolean checkSlot(class_1799 class_17992, int n) {
+    private boolean checkSlot(ItemStack ItemStack2, int n) {
         boolean bl = false;
-        if (n == 5 && ((class_1738)class_17992.method_7909()).method_7685() == class_1304.field_6169) {
+        if (n == 5 && ((ArmorItem)ItemStack2.getItem()).getSlotType() == EquipmentSlot.HEAD) {
             bl = true;
-        } else if (n == 6 && ((class_1738)class_17992.method_7909()).method_7685() == class_1304.field_6174) {
+        } else if (n == 6 && ((ArmorItem)ItemStack2.getItem()).getSlotType() == EquipmentSlot.CHEST) {
             bl = true;
-        } else if (n == 7 && ((class_1738)class_17992.method_7909()).method_7685() == class_1304.field_6172) {
+        } else if (n == 7 && ((ArmorItem)ItemStack2.getItem()).getSlotType() == EquipmentSlot.LEGS) {
             bl = true;
-        } else if (n == 8 && ((class_1738)class_17992.method_7909()).method_7685() == class_1304.field_6166) {
+        } else if (n == 8 && ((ArmorItem)ItemStack2.getItem()).getSlotType() == EquipmentSlot.FEET) {
             bl = true;
         }
         return bl;
     }
 
     private void replaceArmour(int n, boolean bl) {
-        for (int i = 0; i < this.mc.field_1724.field_7514.field_7547.size(); ++i) {
-            class_1799 class_17992 = this.mc.field_1724.field_7514.method_5438(i);
-            if (!(class_17992.method_7909() instanceof class_1738) || !this.checkSlot(this.mc.field_1724.field_7514.method_5438(i), n) || class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)class_17992) == 0 || !class_17992.method_7986()) continue;
+        for (int i = 0; i < this.mc.player.inventory.main.size(); ++i) {
+            ItemStack ItemStack2 = this.mc.player.inventory.getStack(i);
+            if (!(ItemStack2.getItem() instanceof ArmorItem) || !this.checkSlot(this.mc.player.inventory.getStack(i), n) || EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)ItemStack2) == 0 || !ItemStack2.isDamaged()) continue;
             InvUtils.move().from(i).toId(n);
             break;
         }
-        if (!this.mc.field_1724.field_7514.method_5438(39 - (n - 5)).method_7986() && this.removeFinished.get().booleanValue() && this.mc.field_1724.field_7514.method_7376() != -1) {
-            InvUtils.move().fromId(n).to(this.mc.field_1724.field_7514.method_7376());
+        if (!this.mc.player.inventory.getStack(39 - (n - 5)).isDamaged() && this.removeFinished.get().booleanValue() && this.mc.player.inventory.getEmptySlot() != -1) {
+            InvUtils.move().fromId(n).to(this.mc.player.inventory.getEmptySlot());
         }
     }
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1724.field_7512.method_7602().size() != 46) {
+        if (this.mc.player.currentScreenHandler.getStacks().size() != 46) {
             return;
         }
-        if (this.mc.field_1724.method_6079().method_7960()) {
+        if (this.mc.player.getOffHandStack().isEmpty()) {
             this.replaceItem(true);
-        } else if (!this.mc.field_1724.method_6079().method_7986()) {
+        } else if (!this.mc.player.getOffHandStack().isDamaged()) {
             this.replaceItem(false);
-        } else if (class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)this.mc.field_1724.method_6079()) == 0) {
+        } else if (EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)this.mc.player.getOffHandStack()) == 0) {
             this.replaceItem(false);
         }
         if (this.armourSlots.get().booleanValue()) {
@@ -73,15 +73,15 @@ extends Module {
                 this.armourSlots.set(false);
             }
             for (int i = 5; i < 9; ++i) {
-                if (this.mc.field_1724.field_7514.method_5438(39 - (i - 5)).method_7960()) {
+                if (this.mc.player.inventory.getStack(39 - (i - 5)).isEmpty()) {
                     this.replaceArmour(i, true);
                     continue;
                 }
-                if (!this.mc.field_1724.field_7514.method_5438(39 - (i - 5)).method_7986()) {
+                if (!this.mc.player.inventory.getStack(39 - (i - 5)).isDamaged()) {
                     this.replaceArmour(i, false);
                     continue;
                 }
-                if (class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)this.mc.field_1724.field_7514.method_5438(39 - (i - 5))) != 0) continue;
+                if (EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)this.mc.player.inventory.getStack(39 - (i - 5))) != 0) continue;
                 this.replaceArmour(i, false);
                 if (true) continue;
                 return;
@@ -98,14 +98,14 @@ extends Module {
     }
 
     private void replaceItem(boolean bl) {
-        for (int i = 0; i < this.mc.field_1724.field_7514.field_7547.size(); ++i) {
-            class_1799 class_17992 = this.mc.field_1724.field_7514.method_5438(i);
-            if (class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)class_17992) == 0 || !class_17992.method_7986() || !this.swords.get().booleanValue() && class_17992.method_7909() instanceof class_1829) continue;
+        for (int i = 0; i < this.mc.player.inventory.main.size(); ++i) {
+            ItemStack ItemStack2 = this.mc.player.inventory.getStack(i);
+            if (EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)ItemStack2) == 0 || !ItemStack2.isDamaged() || !this.swords.get().booleanValue() && ItemStack2.getItem() instanceof SwordItem) continue;
             InvUtils.move().from(i).toOffhand();
             break;
         }
-        if (!this.mc.field_1724.method_6079().method_7986() && this.removeFinished.get().booleanValue() && this.mc.field_1724.field_7514.method_7376() != -1) {
-            InvUtils.move().fromOffhand().to(this.mc.field_1724.field_7514.method_7376());
+        if (!this.mc.player.getOffHandStack().isDamaged() && this.removeFinished.get().booleanValue() && this.mc.player.inventory.getEmptySlot() != -1) {
+            InvUtils.move().fromOffhand().to(this.mc.player.inventory.getEmptySlot());
         }
     }
 }

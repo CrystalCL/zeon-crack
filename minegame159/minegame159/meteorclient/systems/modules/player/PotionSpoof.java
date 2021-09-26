@@ -13,12 +13,12 @@ import minegame159.meteorclient.settings.StatusEffectSetting;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1291;
-import net.minecraft.class_1293;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 
 public class PotionSpoof
 extends Module {
-    private final Setting<Object2IntMap<class_1291>> potions;
+    private final Setting<Object2IntMap<StatusEffect>> potions;
     private final SettingGroup sgGeneral;
 
     public PotionSpoof() {
@@ -29,17 +29,17 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        for (class_1291 class_12912 : this.potions.get().keySet()) {
-            int n = this.potions.get().getInt((Object)class_12912);
+        for (StatusEffect StatusEffect2 : this.potions.get().keySet()) {
+            int n = this.potions.get().getInt((Object)StatusEffect2);
             if (n <= 0) continue;
-            if (this.mc.field_1724.method_6059(class_12912)) {
-                class_1293 class_12932 = this.mc.field_1724.method_6112(class_12912);
-                ((StatusEffectInstanceAccessor)class_12932).setAmplifier(n - 1);
-                if (class_12932.method_5584() >= 20) continue;
-                ((StatusEffectInstanceAccessor)class_12932).setDuration(20);
+            if (this.mc.player.hasStatusEffect(StatusEffect2)) {
+                StatusEffectInstance StatusEffectInstance2 = this.mc.player.getStatusEffect(StatusEffect2);
+                ((StatusEffectInstanceAccessor)StatusEffectInstance2).setAmplifier(n - 1);
+                if (StatusEffectInstance2.getDuration() >= 20) continue;
+                ((StatusEffectInstanceAccessor)StatusEffectInstance2).setDuration(20);
                 continue;
             }
-            this.mc.field_1724.method_6092(new class_1293(class_12912, 20, n - 1));
+            this.mc.player.addStatusEffect(new StatusEffectInstance(StatusEffect2, 20, n - 1));
         }
     }
 }

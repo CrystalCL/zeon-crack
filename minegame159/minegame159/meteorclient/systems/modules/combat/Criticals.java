@@ -16,31 +16,31 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.combat.KillAura;
-import net.minecraft.class_1511;
-import net.minecraft.class_1937;
-import net.minecraft.class_2596;
-import net.minecraft.class_2824;
-import net.minecraft.class_2828;
-import net.minecraft.class_2879;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.world.World;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 
 public class Criticals
 extends Module {
     private int sendTimer;
     private final Setting<Mode> mode;
     private final SettingGroup sgGeneral;
-    private class_2824 attackPacket;
-    private class_2879 swingPacket;
+    private PlayerInteractEntityC2SPacket attackPacket;
+    private HandSwingC2SPacket swingPacket;
     private final Setting<Boolean> crystals;
     private boolean sendPackets;
     private final Setting<Boolean> ka;
 
     @EventHandler
     private void onSendPacket(PacketEvent.Send send) {
-        if (send.packet instanceof class_2824 && ((class_2824)send.packet).method_12252() == class_2824.class_2825.field_12875) {
-            if (((class_2824)send.packet).method_12248((class_1937)this.mc.field_1687) != Modules.get().get(KillAura.class).getTarget() && this.ka.get().booleanValue()) {
+        if (send.packet instanceof PlayerInteractEntityC2SPacket && ((PlayerInteractEntityC2SPacket)send.packet).getType() == PlayerInteractEntityC2SPacket.class_2825.ATTACK) {
+            if (((PlayerInteractEntityC2SPacket)send.packet).getEntity((World)this.mc.world) != Modules.get().get(KillAura.class).getTarget() && this.ka.get().booleanValue()) {
                 return;
             }
-            if (((class_2824)send.packet).method_12248((class_1937)this.mc.field_1687) instanceof class_1511 && !this.crystals.get().booleanValue()) {
+            if (((PlayerInteractEntityC2SPacket)send.packet).getEntity((World)this.mc.world) instanceof EndCrystalEntity && !this.crystals.get().booleanValue()) {
                 return;
             }
             if (this.skipCrit()) {
@@ -51,7 +51,7 @@ extends Module {
             } else {
                 this.doJumpMode(send);
             }
-        } else if (send.packet instanceof class_2879 && this.mode.get() != Mode.Packet) {
+        } else if (send.packet instanceof HandSwingC2SPacket && this.mode.get() != Mode.Packet) {
             if (this.skipCrit()) {
                 return;
             }
@@ -60,15 +60,15 @@ extends Module {
     }
 
     private void doPacketMode() {
-        double d = this.mc.field_1724.method_23317();
-        double d2 = this.mc.field_1724.method_23318();
-        double d3 = this.mc.field_1724.method_23321();
-        class_2828.class_2829 class_28292 = new class_2828.class_2829(d, d2 + 0.0625, d3, false);
-        class_2828.class_2829 class_28293 = new class_2828.class_2829(d, d2, d3, false);
+        double d = this.mc.player.getX();
+        double d2 = this.mc.player.getY();
+        double d3 = this.mc.player.getZ();
+        PlayerMoveC2SPacket.class_2829 class_28292 = new PlayerMoveC2SPacket.class_2829(d, d2 + 0.0625, d3, false);
+        PlayerMoveC2SPacket.class_2829 class_28293 = new PlayerMoveC2SPacket.class_2829(d, d2, d3, false);
         ((IPlayerMoveC2SPacket)class_28292).setTag(1337);
         ((IPlayerMoveC2SPacket)class_28293).setTag(1337);
-        this.mc.field_1724.field_3944.method_2883((class_2596)class_28292);
-        this.mc.field_1724.field_3944.method_2883((class_2596)class_28293);
+        this.mc.player.networkHandler.sendPacket((Packet)class_28292);
+        this.mc.player.networkHandler.sendPacket((Packet)class_28293);
     }
 
     @EventHandler
@@ -79,8 +79,8 @@ extends Module {
                 if (this.attackPacket == null || this.swingPacket == null) {
                     return;
                 }
-                this.mc.method_1562().method_2883((class_2596)this.attackPacket);
-                this.mc.method_1562().method_2883((class_2596)this.swingPacket);
+                this.mc.getNetworkHandler().sendPacket((Packet)this.attackPacket);
+                this.mc.getNetworkHandler().sendPacket((Packet)this.swingPacket);
                 this.attackPacket = null;
                 this.swingPacket = null;
             } else {
@@ -107,15 +107,15 @@ extends Module {
 
     private void doJumpModeSwing(PacketEvent.Send send) {
         if (this.sendPackets && this.swingPacket == null) {
-            this.swingPacket = (class_2879)send.packet;
+            this.swingPacket = (HandSwingC2SPacket)send.packet;
             send.cancel();
         }
     }
 
     private boolean skipCrit() {
         boolean bl;
-        boolean bl2 = bl = !this.mc.field_1724.method_5869() && !this.mc.field_1724.method_5771() && !this.mc.field_1724.method_6101();
-        if (!this.mc.field_1724.method_24828()) {
+        boolean bl2 = bl = !this.mc.player.isSubmergedInWater() && !this.mc.player.isInLava() && !this.mc.player.isClimbing();
+        if (!this.mc.player.isOnGround()) {
             return true;
         }
         return !bl;
@@ -130,11 +130,11 @@ extends Module {
         if (!this.sendPackets) {
             this.sendPackets = true;
             this.sendTimer = this.mode.get() == Mode.Jump ? 6 : 4;
-            this.attackPacket = (class_2824)send.packet;
+            this.attackPacket = (PlayerInteractEntityC2SPacket)send.packet;
             if (this.mode.get() == Mode.Jump) {
-                this.mc.field_1724.method_6043();
+                this.mc.player.jump();
             } else {
-                ((IVec3d)this.mc.field_1724.method_18798()).setY(0.25);
+                ((IVec3d)this.mc.player.getVelocity()).setY(0.25);
             }
             send.cancel();
         }

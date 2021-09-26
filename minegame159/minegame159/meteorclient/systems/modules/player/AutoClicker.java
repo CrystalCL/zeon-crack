@@ -35,11 +35,11 @@ extends Module {
             case Hold: {
                 switch (this.button.get()) {
                     case Left: {
-                        this.mc.field_1690.field_1886.method_23481(true);
+                        this.mc.options.keyAttack.setPressed(true);
                         break;
                     }
                     case Right: {
-                        this.mc.field_1690.field_1904.method_23481(true);
+                        this.mc.options.keyUse.setPressed(true);
                     }
                 }
                 break;
@@ -63,15 +63,15 @@ extends Module {
 
     @Override
     public void onDeactivate() {
-        this.mc.field_1690.field_1886.method_23481(false);
-        this.mc.field_1690.field_1904.method_23481(false);
+        this.mc.options.keyAttack.setPressed(false);
+        this.mc.options.keyUse.setPressed(false);
     }
 
     @Override
     public void onActivate() {
         this.timer = 0;
-        this.mc.field_1690.field_1886.method_23481(false);
-        this.mc.field_1690.field_1904.method_23481(false);
+        this.mc.options.keyAttack.setPressed(false);
+        this.mc.options.keyUse.setPressed(false);
     }
 
     public static final class Button

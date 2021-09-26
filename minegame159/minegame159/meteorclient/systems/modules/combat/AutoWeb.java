@@ -17,54 +17,54 @@ import minegame159.meteorclient.utils.entity.FakePlayerEntity;
 import minegame159.meteorclient.utils.entity.FakePlayerUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_1802;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 
 public class AutoWeb
 extends Module {
     private final Setting<Boolean> doubles;
-    private class_1657 target;
+    private PlayerEntity target;
     private final Setting<Boolean> rotate;
     private final Setting<Double> range;
     private final SettingGroup sgGeneral;
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        int n = InvUtils.findItemInHotbar(class_1802.field_8786);
+        int n = InvUtils.findItemInHotbar(Items.COBWEB);
         if (n == -1) {
             return;
         }
-        if (this.target != null && ((double)this.mc.field_1724.method_5739((class_1297)this.target) > this.range.get() || !this.target.method_5805())) {
+        if (this.target != null && ((double)this.mc.player.distanceTo((Entity)this.target) > this.range.get() || !this.target.isAlive())) {
             this.target = null;
         }
-        for (class_1657 object : this.mc.field_1687.method_18456()) {
-            if (object == this.mc.field_1724 || !Friends.get().attack(object) || !object.method_5805() || (double)this.mc.field_1724.method_5739((class_1297)object) > this.range.get()) continue;
+        for (PlayerEntity object : this.mc.world.getPlayers()) {
+            if (object == this.mc.player || !Friends.get().attack(object) || !object.isAlive() || (double)this.mc.player.distanceTo((Entity)object) > this.range.get()) continue;
             if (this.target == null) {
                 this.target = object;
                 continue;
             }
-            if (!(this.mc.field_1724.method_5739((class_1297)this.target) > this.mc.field_1724.method_5739((class_1297)object))) continue;
+            if (!(this.mc.player.distanceTo((Entity)this.target) > this.mc.player.distanceTo((Entity)object))) continue;
             this.target = object;
         }
         if (this.target == null) {
             for (FakePlayerEntity fakePlayerEntity : FakePlayerUtils.getPlayers().keySet()) {
-                if (fakePlayerEntity.method_6032() <= 0.0f || !Friends.get().attack((class_1657)fakePlayerEntity) || !fakePlayerEntity.method_5805()) continue;
+                if (fakePlayerEntity.getHealth() <= 0.0f || !Friends.get().attack((PlayerEntity)fakePlayerEntity) || !fakePlayerEntity.isAlive()) continue;
                 if (this.target == null) {
                     this.target = fakePlayerEntity;
                     continue;
                 }
-                if (!(this.mc.field_1724.method_5739((class_1297)fakePlayerEntity) < this.mc.field_1724.method_5739((class_1297)this.target))) continue;
+                if (!(this.mc.player.distanceTo((Entity)fakePlayerEntity) < this.mc.player.distanceTo((Entity)this.target))) continue;
                 this.target = fakePlayerEntity;
             }
         }
         if (this.target != null) {
-            Iterator<Object> iterator = this.target.method_24515();
-            BlockUtils.place(iterator, class_1268.field_5808, n, this.rotate.get(), 0, false);
+            Iterator<Object> iterator = this.target.getBlockPos();
+            BlockUtils.place(iterator, Hand.MAIN_HAND, n, this.rotate.get(), 0, false);
             if (this.doubles.get().booleanValue()) {
-                iterator = iterator.method_10069(0, 1, 0);
-                BlockUtils.place(iterator, class_1268.field_5808, InvUtils.findItemInHotbar(class_1802.field_8786), this.rotate.get(), 0, false);
+                iterator = iterator.add(0, 1, 0);
+                BlockUtils.place(iterator, Hand.MAIN_HAND, InvUtils.findItemInHotbar(Items.COBWEB), this.rotate.get(), 0, false);
             }
         }
     }

@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.events.packets;
 
-import net.minecraft.class_2767;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 
 public class PlaySoundPacketEvent {
     private static final PlaySoundPacketEvent INSTANCE = new PlaySoundPacketEvent();
-    public class_2767 packet;
+    public PlaySoundS2CPacket packet;
 
-    public static PlaySoundPacketEvent get(class_2767 class_27672) {
-        PlaySoundPacketEvent.INSTANCE.packet = class_27672;
+    public static PlaySoundPacketEvent get(PlaySoundS2CPacket PlaySoundS2CPacket2) {
+        PlaySoundPacketEvent.INSTANCE.packet = PlaySoundS2CPacket2;
         return INSTANCE;
     }
 }

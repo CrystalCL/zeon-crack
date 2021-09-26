@@ -28,26 +28,26 @@ import minegame159.meteorclient.utils.network.MeteorExecutor;
 import minegame159.meteorclient.utils.render.RenderUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1922;
-import net.minecraft.class_1923;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_265;
-import net.minecraft.class_2680;
-import net.minecraft.class_2791;
-import net.minecraft.class_2874;
-import net.minecraft.class_2902;
-import net.minecraft.class_310;
+import net.minecraft.world.BlockView;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.Heightmap;
+import net.minecraft.client.MinecraftClient;
 
 public class Search
 extends Module {
-    private final Setting<List<class_2248>> blocks;
+    private final Setting<List<Block>> blocks;
     private final SettingGroup sgTracers;
     private final SettingGroup sgRender;
     private final Setting<SettingColor> tracersColor;
-    private static final class_2338.class_2339 BLOCK_POS = new class_2338.class_2339();
-    private class_2874 lastDimension;
+    private static final Mutable BLOCK_POS = new Mutable();
+    private DimensionType lastDimension;
     private final Long2ObjectArrayMap<MyChunk> chunks;
     private final Setting<Boolean> fullBlock;
     private final Setting<SettingColor> color;
@@ -56,18 +56,18 @@ extends Module {
     private final LongList toRemove;
     private final SettingGroup sgGeneral;
     private final LongList toUpdate;
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
 
-    static class_310 access$300(Search search) {
+    static MinecraftClient access$300(Search search) {
         return search.mc;
     }
 
     private void searchViewDistance() {
-        int n = this.mc.field_1690.field_1870;
-        for (int i = this.mc.field_1724.field_6024 - n; i <= this.mc.field_1724.field_6024 + n; ++i) {
-            for (int j = this.mc.field_1724.field_5980 - n; j <= this.mc.field_1724.field_5980 + n; ++j) {
-                if (!this.mc.field_1687.method_2935().method_12123(i, j)) continue;
-                this.searchChunk((class_2791)this.mc.field_1687.method_8497(i, j), null);
+        int n = this.mc.options.viewDistance;
+        for (int i = this.mc.player.chunkX - n; i <= this.mc.player.chunkX + n; ++i) {
+            for (int j = this.mc.player.chunkZ - n; j <= this.mc.player.chunkZ + n; ++j) {
+                if (!this.mc.world.getChunkManager().isChunkLoaded(i, j)) continue;
+                this.searchChunk((Chunk)this.mc.world.getChunk(i, j), null);
                 if (2 >= 0) continue;
                 return;
             }
@@ -76,7 +76,7 @@ extends Module {
         }
     }
 
-    static class_310 access$700(Search search) {
+    static MinecraftClient access$700(Search search) {
         return search.mc;
     }
 
@@ -84,16 +84,16 @@ extends Module {
         return search.tracersColor;
     }
 
-    static class_310 access$600(Search search) {
+    static MinecraftClient access$600(Search search) {
         return search.mc;
     }
 
-    static class_2338.class_2339 access$800() {
+    static Mutable access$800() {
         return BLOCK_POS;
     }
 
-    private void searchChunk(class_2791 class_27912, ChunkDataEvent chunkDataEvent) {
-        MeteorExecutor.execute(() -> this.lambda$searchChunk$2(class_27912, chunkDataEvent));
+    private void searchChunk(Chunk Chunk2, ChunkDataEvent chunkDataEvent) {
+        MeteorExecutor.execute(() -> this.lambda$searchChunk$2(Chunk2, chunkDataEvent));
     }
 
     /*
@@ -136,7 +136,7 @@ extends Module {
         this.sgRender = this.settings.createGroup("Render");
         this.sgTracers = this.settings.createGroup("Tracers");
         this.chunks = new Long2ObjectArrayMap();
-        this.blocks = this.sgGeneral.add(new BlockListSetting.Builder().name("blocks").description("Blocks to search for.").defaultValue(new ArrayList<class_2248>(0)).onChanged(this::lambda$new$0).build());
+        this.blocks = this.sgGeneral.add(new BlockListSetting.Builder().name("blocks").description("Blocks to search for.").defaultValue(new ArrayList<Block>(0)).onChanged(this::lambda$new$0).build());
         this.color = this.sgRender.add(new ColorSetting.Builder().name("color").description("The color.").defaultValue(new SettingColor(0, 255, 200)).build());
         this.fullBlock = this.sgRender.add(new BoolSetting.Builder().name("full-block").description("If outlines will be rendered as full blocks.").defaultValue(false).build());
         this.tracersEnabled = this.sgTracers.add(new BoolSetting.Builder().name("tracers-enabled").description("Draws lines to the blocks.").defaultValue(false).build());
@@ -144,7 +144,7 @@ extends Module {
         this.blockPool = new Pool<MyBlock>(this::lambda$new$1);
         this.toRemove = new LongArrayList();
         this.toUpdate = new LongArrayList();
-        this.blockPos = new class_2338.class_2339();
+        this.blockPos = new Mutable();
     }
 
     static void access$100(Search search, int n, int n2) {
@@ -177,7 +177,7 @@ extends Module {
     @EventHandler
     private void onTick(TickEvent.Post post) {
         Long2ObjectArrayMap<MyChunk> long2ObjectArrayMap;
-        if (this.lastDimension != this.mc.field_1687.method_8597()) {
+        if (this.lastDimension != this.mc.world.getDimension()) {
             long2ObjectArrayMap = this.chunks;
             synchronized (long2ObjectArrayMap) {
                 for (MyChunk myChunk : this.chunks.values()) {
@@ -193,7 +193,7 @@ extends Module {
                 if (!longListIterator.hasNext()) {
                     this.toUpdate.clear();
                     // MONITOREXIT @DISABLED, blocks:[3, 5, 6] lbl17 : MonitorExitStatement: MONITOREXIT : var2_2
-                    this.lastDimension = this.mc.field_1687.method_8597();
+                    this.lastDimension = this.mc.world.getDimension();
                     return;
                 }
                 long l = (Long)longListIterator.next();
@@ -204,15 +204,15 @@ extends Module {
         }
     }
 
-    static class_310 access$500(Search search) {
+    static MinecraftClient access$500(Search search) {
         return search.mc;
     }
 
-    static class_310 access$200(Search search) {
+    static MinecraftClient access$200(Search search) {
         return search.mc;
     }
 
-    static class_310 access$400(Search search) {
+    static MinecraftClient access$400(Search search) {
         return search.mc;
     }
 
@@ -222,7 +222,7 @@ extends Module {
 
     @EventHandler
     private void onChunkData(ChunkDataEvent chunkDataEvent) {
-        this.searchChunk((class_2791)chunkDataEvent.chunk, chunkDataEvent);
+        this.searchChunk((Chunk)chunkDataEvent.chunk, chunkDataEvent);
     }
 
     /*
@@ -230,24 +230,24 @@ extends Module {
      * Enabled unnecessary exception pruning
      * Enabled aggressive exception aggregation
      */
-    private void lambda$onBlockUpdate$4(class_2338 class_23382, class_2680 class_26802) {
-        int n = class_23382.method_10263() >> 4;
-        int n2 = class_23382.method_10260() >> 4;
-        long l = class_1923.method_8331((int)n, (int)n2);
+    private void lambda$onBlockUpdate$4(BlockPos BlockPos2, BlockState BlockState2) {
+        int n = BlockPos2.getX() >> 4;
+        int n2 = BlockPos2.getZ() >> 4;
+        long l = ChunkPos.toLong((int)n, (int)n2);
         Long2ObjectArrayMap<MyChunk> long2ObjectArrayMap = this.chunks;
         synchronized (long2ObjectArrayMap) {
-            if (this.blocks.get().contains(class_26802.method_26204())) {
-                ((MyChunk)this.chunks.computeIfAbsent(l, arg_0 -> this.lambda$onBlockUpdate$3(n, n2, arg_0))).add(class_23382, true);
+            if (this.blocks.get().contains(BlockState2.getBlock())) {
+                ((MyChunk)this.chunks.computeIfAbsent(l, arg_0 -> this.lambda$onBlockUpdate$3(n, n2, arg_0))).add(BlockPos2, true);
             } else {
                 MyChunk myChunk = (MyChunk)this.chunks.get(l);
                 if (myChunk == null) return;
-                myChunk.remove(class_23382);
+                myChunk.remove(BlockPos2);
             }
             return;
         }
     }
 
-    static class_310 access$900(Search search) {
+    static MinecraftClient access$900(Search search) {
         return search.mc;
     }
 
@@ -260,25 +260,25 @@ extends Module {
     }
 
     private void addToUpdate(int n, int n2) {
-        long l = class_1923.method_8331((int)n, (int)n2);
+        long l = ChunkPos.toLong((int)n, (int)n2);
         if (this.chunks.containsKey(l) && !this.toUpdate.contains(l)) {
             this.toUpdate.add(l);
         }
     }
 
-    static class_310 access$1100(Search search) {
+    static MinecraftClient access$1100(Search search) {
         return search.mc;
     }
 
-    public void onBlockUpdate(class_2338 class_23382, class_2680 class_26802) {
-        MeteorExecutor.execute(() -> this.lambda$onBlockUpdate$4(class_23382, class_26802));
+    public void onBlockUpdate(BlockPos BlockPos2, BlockState BlockState2) {
+        MeteorExecutor.execute(() -> this.lambda$onBlockUpdate$4(BlockPos2, BlockState2));
     }
 
     private MyBlock lambda$new$1() {
         return new MyBlock(this, null);
     }
 
-    static class_2338.class_2339 access$1200(Search search) {
+    static Mutable access$1200(Search search) {
         return search.blockPos;
     }
 
@@ -301,29 +301,29 @@ extends Module {
      * Converted monitor instructions to comments
      * Lifted jumps to return sites
      */
-    private void lambda$searchChunk$2(class_2791 class_27912, ChunkDataEvent chunkDataEvent) {
-        MyChunk myChunk = new MyChunk(this, class_27912.method_12004().field_9181, class_27912.method_12004().field_9180);
-        int i = class_27912.method_12004().method_8326();
+    private void lambda$searchChunk$2(Chunk Chunk2, ChunkDataEvent chunkDataEvent) {
+        MyChunk myChunk = new MyChunk(this, Chunk2.getPos().x, Chunk2.getPos().z);
+        int i = Chunk2.getPos().getStartX();
         while (true) {
-            if (i <= class_27912.method_12004().method_8327()) {
+            if (i <= Chunk2.getPos().getEndX()) {
             } else {
                 Long2ObjectArrayMap<MyChunk> long2ObjectArrayMap = this.chunks;
                 // MONITORENTER : long2ObjectArrayMap
                 if (MyChunk.access$1600(myChunk).size() > 0) {
-                    this.chunks.put(class_27912.method_12004().method_8324(), (Object)myChunk);
+                    this.chunks.put(Chunk2.getPos().toLong(), (Object)myChunk);
                 }
                 // MONITOREXIT : long2ObjectArrayMap
                 if (chunkDataEvent == null) return;
                 ChunkDataEvent.returnChunkDataEvent(chunkDataEvent);
                 return;
             }
-            for (int j = class_27912.method_12004().method_8328(); j <= class_27912.method_12004().method_8329(); ++j) {
-                int n = class_27912.method_12032(class_2902.class_2903.field_13202).method_12603(i - class_27912.method_12004().method_8326(), j - class_27912.method_12004().method_8328());
+            for (int j = Chunk2.getPos().getStartZ(); j <= Chunk2.getPos().getEndZ(); ++j) {
+                int n = Chunk2.getHeightmap(Type.WORLD_SURFACE).get(i - Chunk2.getPos().getStartX(), j - Chunk2.getPos().getStartZ());
                 for (int k = 0; k < n; ++k) {
-                    this.blockPos.method_10103(i, k, j);
-                    class_2680 class_26802 = class_27912.method_8320((class_2338)this.blockPos);
-                    if (!this.blocks.get().contains(class_26802.method_26204())) continue;
-                    myChunk.add((class_2338)this.blockPos, false);
+                    this.blockPos.set(i, k, j);
+                    BlockState BlockState2 = Chunk2.getBlockState((BlockPos)this.blockPos);
+                    if (!this.blocks.get().contains(BlockState2.getBlock())) continue;
+                    myChunk.add((BlockPos)this.blockPos, false);
                 }
             }
             ++i;
@@ -332,7 +332,7 @@ extends Module {
 
     @Override
     public void onActivate() {
-        this.lastDimension = this.mc.field_1687.method_8597();
+        this.lastDimension = this.mc.world.getDimension();
         this.searchViewDistance();
     }
 
@@ -346,48 +346,48 @@ extends Module {
             return myChunk.blocks;
         }
 
-        private void addToUpdateChunk(class_2338 class_23382) {
+        private void addToUpdateChunk(BlockPos BlockPos2) {
             Search.access$100(this.this$0, this.x, this.z);
-            double d = Math.abs(class_23382.method_10263() + (class_23382.method_10263() < 0 ? 1 : 0)) % 16;
-            double d2 = Math.abs(class_23382.method_10260() + (class_23382.method_10260() < 0 ? 1 : 0)) % 16;
+            double d = Math.abs(BlockPos2.getX() + (BlockPos2.getX() < 0 ? 1 : 0)) % 16;
+            double d2 = Math.abs(BlockPos2.getZ() + (BlockPos2.getZ() < 0 ? 1 : 0)) % 16;
             if (d == 15.0) {
-                Search.access$100(this.this$0, this.x + (class_23382.method_10263() < 0 ? -1 : 1), this.z);
+                Search.access$100(this.this$0, this.x + (BlockPos2.getX() < 0 ? -1 : 1), this.z);
             } else if (d == 0.0) {
-                Search.access$100(this.this$0, this.x - (class_23382.method_10263() < 0 ? -1 : 1), this.z);
+                Search.access$100(this.this$0, this.x - (BlockPos2.getX() < 0 ? -1 : 1), this.z);
             }
             if (d2 == 15.0) {
-                Search.access$100(this.this$0, this.x, this.z + (class_23382.method_10260() < 0 ? -1 : 1));
+                Search.access$100(this.this$0, this.x, this.z + (BlockPos2.getZ() < 0 ? -1 : 1));
             } else if (d2 == 0.0) {
-                Search.access$100(this.this$0, this.x, this.z - (class_23382.method_10260() < 0 ? -1 : 1));
+                Search.access$100(this.this$0, this.x, this.z - (BlockPos2.getZ() < 0 ? -1 : 1));
             }
         }
 
-        public void add(class_2338 class_23382, boolean bl) {
+        public void add(BlockPos BlockPos2, boolean bl) {
             if (bl) {
                 for (MyBlock myBlock : this.blocks) {
-                    if (!myBlock.equals(class_23382)) continue;
+                    if (!myBlock.equals(BlockPos2)) continue;
                     return;
                 }
             }
             MyBlock myBlock = (MyBlock)Search.access$000(this.this$0).get();
-            myBlock.set(class_23382);
+            myBlock.set(BlockPos2);
             this.blocks.add(myBlock);
-            this.addToUpdateChunk(class_23382);
+            this.addToUpdateChunk(BlockPos2);
         }
 
         public boolean shouldBeDeleted() {
-            int n = Search.access$200((Search)this.this$0).field_1690.field_1870 + 1;
-            return this.x > Search.access$300((Search)this.this$0).field_1724.field_6024 + n || this.x < Search.access$400((Search)this.this$0).field_1724.field_6024 - n || this.z > Search.access$500((Search)this.this$0).field_1724.field_5980 + n || this.z < Search.access$600((Search)this.this$0).field_1724.field_5980 - n;
+            int n = Search.access$200((Search)this.this$0).options.viewDistance + 1;
+            return this.x > Search.access$300((Search)this.this$0).player.chunkX + n || this.x < Search.access$400((Search)this.this$0).player.chunkX - n || this.z > Search.access$500((Search)this.this$0).player.chunkZ + n || this.z < Search.access$600((Search)this.this$0).player.chunkZ - n;
         }
 
-        public void remove(class_2338 class_23382) {
+        public void remove(BlockPos BlockPos2) {
             for (int i = 0; i < this.blocks.size(); ++i) {
                 MyBlock myBlock = this.blocks.get(i);
-                if (!myBlock.equals(class_23382)) continue;
+                if (!myBlock.equals(BlockPos2)) continue;
                 this.blocks.remove(i);
                 return;
             }
-            this.addToUpdateChunk(class_23382);
+            this.addToUpdateChunk(BlockPos2);
         }
 
         public MyChunk(Search search, int n, int n2) {
@@ -418,7 +418,7 @@ extends Module {
     }
 
     private class MyBlock {
-        private class_2680 state;
+        private BlockState state;
         private int x;
         private static final int BA_RI;
         private static final int BO_LE;
@@ -443,8 +443,8 @@ extends Module {
         final Search this$0;
         private static final int BA;
 
-        public boolean equals(class_2338 class_23382) {
-            return this.x == class_23382.method_10263() && this.y == class_23382.method_10264() && this.z == class_23382.method_10260();
+        public boolean equals(BlockPos BlockPos2) {
+            return this.x == BlockPos2.getX() && this.y == BlockPos2.getY() && this.z == BlockPos2.getZ();
         }
 
         public void render(RenderEvent renderEvent) {
@@ -456,15 +456,15 @@ extends Module {
             double d6 = this.z + 1;
             boolean bl = true;
             if (!((Boolean)Search.access$1000(this.this$0).get()).booleanValue()) {
-                class_265 class_2652 = this.state.method_26218((class_1922)Search.access$1100((Search)this.this$0).field_1687, (class_2338)Search.access$1200(this.this$0));
-                bl = class_2248.method_9614((class_265)class_2652);
-                if (!class_2652.method_1110()) {
-                    d = (double)this.x + class_2652.method_1091(class_2350.class_2351.field_11048);
-                    d2 = (double)this.y + class_2652.method_1091(class_2350.class_2351.field_11052);
-                    d3 = (double)this.z + class_2652.method_1091(class_2350.class_2351.field_11051);
-                    d4 = (double)this.x + class_2652.method_1105(class_2350.class_2351.field_11048);
-                    d5 = (double)this.y + class_2652.method_1105(class_2350.class_2351.field_11052);
-                    d6 = (double)this.z + class_2652.method_1105(class_2350.class_2351.field_11051);
+                VoxelShape VoxelShape2 = this.state.getOutlineShape((BlockView)Search.access$1100((Search)this.this$0).world, (BlockPos)Search.access$1200(this.this$0));
+                bl = Block.isShapeFullCube((VoxelShape)VoxelShape2);
+                if (!VoxelShape2.isEmpty()) {
+                    d = (double)this.x + VoxelShape2.getMin(Direction.class_2351.X);
+                    d2 = (double)this.y + VoxelShape2.getMin(Direction.class_2351.Y);
+                    d3 = (double)this.z + VoxelShape2.getMin(Direction.class_2351.Z);
+                    d4 = (double)this.x + VoxelShape2.getMax(Direction.class_2351.X);
+                    d5 = (double)this.y + VoxelShape2.getMax(Direction.class_2351.Y);
+                    d6 = (double)this.z + VoxelShape2.getMax(Direction.class_2351.Z);
                 }
             }
             if (bl) {
@@ -508,7 +508,7 @@ extends Module {
                 Renderer.LINES.boxEdges(d, d2, d3, d4, d5, d6, (Color)Search.access$1300(this.this$0).get(), 0);
             }
             if (((Boolean)Search.access$1400(this.this$0).get()).booleanValue()) {
-                RenderUtils.drawTracerToPos(new class_2338(this.x, this.y, this.z), (Color)Search.access$1500(this.this$0).get(), renderEvent);
+                RenderUtils.drawTracerToPos(new BlockPos(this.x, this.y, this.z), (Color)Search.access$1500(this.this$0).get(), renderEvent);
             }
         }
 
@@ -534,8 +534,8 @@ extends Module {
         }
 
         private boolean isBlock(double d, double d2, double d3) {
-            Search.access$800().method_10102((double)this.x + d, (double)this.y + d2, (double)this.z + d3);
-            return Search.access$900((Search)this.this$0).field_1687.method_8320((class_2338)Search.access$800()).method_26204() == this.state.method_26204();
+            Search.access$800().set((double)this.x + d, (double)this.y + d2, (double)this.z + d3);
+            return Search.access$900((Search)this.this$0).world.getBlockState((BlockPos)Search.access$800()).getBlock() == this.state.getBlock();
         }
 
         MyBlock(Search search, 1 var2_2) {
@@ -546,11 +546,11 @@ extends Module {
             this.this$0 = search;
         }
 
-        public void set(class_2338 class_23382) {
-            this.x = class_23382.method_10263();
-            this.y = class_23382.method_10264();
-            this.z = class_23382.method_10260();
-            this.state = Search.access$700((Search)this.this$0).field_1687.method_8320(class_23382);
+        public void set(BlockPos BlockPos2) {
+            this.x = BlockPos2.getX();
+            this.y = BlockPos2.getY();
+            this.z = BlockPos2.getZ();
+            this.state = Search.access$700((Search)this.this$0).world.getBlockState(BlockPos2);
             this.updateNeighbours();
         }
 

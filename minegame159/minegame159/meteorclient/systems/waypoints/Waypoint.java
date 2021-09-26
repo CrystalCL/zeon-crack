@@ -9,9 +9,9 @@ import minegame159.meteorclient.systems.waypoints.Waypoints;
 import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.Dimension;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
-import net.minecraft.class_290;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.client.render.VertexFormats;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -42,20 +42,20 @@ implements ISerializable<Waypoint> {
     }
 
     @Override
-    public Waypoint fromTag(class_2487 class_24872) {
-        this.name = class_24872.method_10558("name");
-        this.icon = class_24872.method_10558("icon");
-        this.color.fromTag(class_24872.method_10562("color"));
-        this.x = class_24872.method_10550("x");
-        this.y = class_24872.method_10550("y");
-        this.z = class_24872.method_10550("z");
-        this.visible = class_24872.method_10577("visible");
-        this.maxVisibleDistance = class_24872.method_10550("maxVisibleDistance");
-        this.scale = class_24872.method_10574("scale");
-        this.actualDimension = Dimension.valueOf(class_24872.method_10558("dimension"));
-        this.overworld = class_24872.method_10577("overworld");
-        this.nether = class_24872.method_10577("nether");
-        this.end = class_24872.method_10577("end");
+    public Waypoint fromTag(NbtCompound NbtCompound2) {
+        this.name = NbtCompound2.getString("name");
+        this.icon = NbtCompound2.getString("icon");
+        this.color.fromTag(NbtCompound2.getCompound("color"));
+        this.x = NbtCompound2.getInt("x");
+        this.y = NbtCompound2.getInt("y");
+        this.z = NbtCompound2.getInt("z");
+        this.visible = NbtCompound2.getBoolean("visible");
+        this.maxVisibleDistance = NbtCompound2.getInt("maxVisibleDistance");
+        this.scale = NbtCompound2.getDouble("scale");
+        this.actualDimension = Dimension.valueOf(NbtCompound2.getString("dimension"));
+        this.overworld = NbtCompound2.getBoolean("overworld");
+        this.nether = NbtCompound2.getBoolean("nether");
+        this.end = NbtCompound2.getBoolean("end");
         if (!Waypoints.get().icons.containsKey(this.icon)) {
             this.icon = "Square";
         }
@@ -63,26 +63,26 @@ implements ISerializable<Waypoint> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10582("icon", this.icon);
-        class_24872.method_10566("color", (class_2520)this.color.toTag());
-        class_24872.method_10569("x", this.x);
-        class_24872.method_10569("y", this.y);
-        class_24872.method_10569("z", this.z);
-        class_24872.method_10556("visible", this.visible);
-        class_24872.method_10569("maxVisibleDistance", this.maxVisibleDistance);
-        class_24872.method_10549("scale", this.scale);
-        class_24872.method_10582("dimension", this.actualDimension.name());
-        class_24872.method_10556("overworld", this.overworld);
-        class_24872.method_10556("nether", this.nether);
-        class_24872.method_10556("end", this.end);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.putString("icon", this.icon);
+        NbtCompound2.put("color", (NbtElement)this.color.toTag());
+        NbtCompound2.putInt("x", this.x);
+        NbtCompound2.putInt("y", this.y);
+        NbtCompound2.putInt("z", this.z);
+        NbtCompound2.putBoolean("visible", this.visible);
+        NbtCompound2.putInt("maxVisibleDistance", this.maxVisibleDistance);
+        NbtCompound2.putDouble("scale", this.scale);
+        NbtCompound2.putString("dimension", this.actualDimension.name());
+        NbtCompound2.putBoolean("overworld", this.overworld);
+        NbtCompound2.putBoolean("nether", this.nether);
+        NbtCompound2.putBoolean("end", this.end);
+        return NbtCompound2;
     }
 
     public void renderIcon(double d, double d2, double d3, double d4, double d5) {
-        MB.begin(null, DrawMode.Triangles, class_290.field_1575);
+        MB.begin(null, DrawMode.Triangles, VertexFormats.POSITION_TEXTURE_COLOR);
         int n = this.color.a;
         this.color.a = (int)((double)this.color.a * d4);
         MB.pos(d, d2, d3).texture(0.0, 0.0).color(this.color).endVertex();
@@ -91,7 +91,7 @@ implements ISerializable<Waypoint> {
         MB.pos(d, d2, d3).texture(0.0, 0.0).color(this.color).endVertex();
         MB.pos(d + d5, d2 + d5, d3).texture(1.0, 1.0).color(this.color).endVertex();
         MB.pos(d, d2 + d5, d3).texture(0.0, 1.0).color(this.color).endVertex();
-        Waypoints.get().icons.get(this.icon).method_23207();
+        Waypoints.get().icons.get(this.icon).bindTexture();
         MB.end();
         this.color.a = n;
     }
@@ -109,8 +109,8 @@ implements ISerializable<Waypoint> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     private int correctIconIndex(int n) {

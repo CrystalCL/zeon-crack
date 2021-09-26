@@ -11,7 +11,7 @@ import minegame159.meteorclient.rendering.text.Font;
 import minegame159.meteorclient.rendering.text.TextRenderer;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_290;
+import net.minecraft.client.render.VertexFormats;
 import org.lwjgl.BufferUtils;
 
 public class CustomTextRenderer
@@ -47,7 +47,7 @@ implements TextRenderer {
             throw new RuntimeException("CustomTextRenderer.end() called without calling begin()");
         }
         if (!this.scaleOnly) {
-            this.font.texture.method_23207();
+            this.font.texture.bindTexture();
             this.mb.end();
         }
         this.building = false;
@@ -61,7 +61,7 @@ implements TextRenderer {
             throw new RuntimeException("CustomTextRenderer.begin() called twice");
         }
         if (!bl) {
-            this.mb.begin(null, DrawMode.Triangles, class_290.field_20887);
+            this.mb.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR_TEXTURE);
         }
         if (bl2) {
             this.font = this.fonts[this.fonts.length - 1];

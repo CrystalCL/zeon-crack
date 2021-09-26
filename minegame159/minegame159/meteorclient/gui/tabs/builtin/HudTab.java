@@ -18,10 +18,10 @@ import minegame159.meteorclient.systems.modules.render.hud.HUD;
 import minegame159.meteorclient.systems.modules.render.hud.modules.HudElement;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_290;
-import net.minecraft.class_310;
-import net.minecraft.class_437;
-import net.minecraft.class_4587;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class HudTab
 extends Tab {
@@ -29,7 +29,7 @@ extends Tab {
 
     @Override
     public void openScreen(GuiTheme guiTheme) {
-        Utils.mc.method_1507((class_437)this.createScreen(guiTheme));
+        Utils.mc.openScreen((Screen)this.createScreen(guiTheme));
     }
 
     public HudTab() {
@@ -43,8 +43,8 @@ extends Tab {
     }
 
     @Override
-    public boolean isScreen(class_437 class_4372) {
-        return class_4372 instanceof HudScreen;
+    public boolean isScreen(Screen Screen2) {
+        return Screen2 instanceof HudScreen;
     }
 
     private static class HudScreen
@@ -65,13 +65,13 @@ extends Tab {
         private double mouseStartX;
 
         @Override
-        public boolean method_25402(double d, double d2, int n) {
+        public boolean mouseClicked(double d, double d2, int n) {
             if (this.hoveredModule != null) {
                 if (n == 1) {
                     if (!this.selectedElements.isEmpty()) {
                         this.selectedElements.clear();
                     }
-                    class_310.method_1551().method_1507((class_437)new HudElementScreen(this.theme, this.hoveredModule));
+                    MinecraftClient.getInstance().openScreen((Screen)new HudElementScreen(this.theme, this.hoveredModule));
                 } else {
                     this.dragging = true;
                     this.dragged = false;
@@ -82,7 +82,7 @@ extends Tab {
                 }
                 return true;
             }
-            double d3 = class_310.method_1551().method_22683().method_4495();
+            double d3 = MinecraftClient.getInstance().getWindow().getScaleFactor();
             this.selecting = true;
             this.mouseStartX = d * d3;
             this.mouseStartY = d2 * d3;
@@ -120,8 +120,8 @@ extends Tab {
         }
 
         @Override
-        public void method_16014(double d, double d2) {
-            double d3 = class_310.method_1551().method_22683().method_4495();
+        public void mouseMoved(double d, double d2) {
+            double d3 = MinecraftClient.getInstance().getWindow().getScaleFactor();
             d *= d3;
             d2 *= d3;
             if (this.selecting) {
@@ -223,7 +223,7 @@ extends Tab {
         }
 
         @Override
-        public boolean method_25406(double d, double d2, int n) {
+        public boolean mouseReleased(double d, double d2, int n) {
             if (this.dragging) {
                 this.dragging = false;
                 if (!this.dragged && this.hoveredModule != null) {
@@ -253,18 +253,18 @@ extends Tab {
         }
 
         @Override
-        public void method_25394(class_4587 class_45872, int n, int n2, float f) {
-            double d = class_310.method_1551().method_22683().method_4495();
+        public void render(MatrixStack MatrixStack2, int n, int n2, float f) {
+            double d = MinecraftClient.getInstance().getWindow().getScaleFactor();
             n = (int)((double)n * d);
             n2 = (int)((double)n2 * d);
             if (!Utils.canUpdate()) {
-                this.method_25420(class_45872);
+                this.renderBackground(MatrixStack2);
                 Utils.unscaledProjection();
                 this.hud.onRender(Render2DEvent.get(0, 0, f));
             } else {
                 Utils.unscaledProjection();
             }
-            Renderer.NORMAL.begin(null, DrawMode.Triangles, class_290.field_1576);
+            Renderer.NORMAL.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
             for (HudElement hudElement : this.hud.elements) {
                 if (hudElement.active) continue;
                 this.renderElement(hudElement, this.INACTIVE_BG_COLOR, this.INACTIVE_OL_COLOR);

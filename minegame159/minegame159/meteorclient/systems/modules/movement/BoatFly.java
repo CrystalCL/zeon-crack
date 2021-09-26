@@ -14,8 +14,8 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.PlayerUtils;
-import net.minecraft.class_243;
-import net.minecraft.class_2692;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.packet.s2c.play.VehicleMoveS2CPacket;
 
 public class BoatFly
 extends Module {
@@ -27,26 +27,26 @@ extends Module {
 
     @EventHandler
     private void onReceivePacket(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2692 && this.cancelServerPackets.get().booleanValue()) {
+        if (receive.packet instanceof VehicleMoveS2CPacket && this.cancelServerPackets.get().booleanValue()) {
             receive.cancel();
         }
     }
 
     @EventHandler
     private void onBoatMove(BoatMoveEvent boatMoveEvent) {
-        if (boatMoveEvent.boat.method_5642() != this.mc.field_1724) {
+        if (boatMoveEvent.boat.getPrimaryPassenger() != this.mc.player) {
             return;
         }
-        boatMoveEvent.boat.field_6031 = this.mc.field_1724.field_6031;
-        class_243 class_2432 = PlayerUtils.getHorizontalVelocity(this.speed.get());
-        double d = class_2432.method_10216();
+        boatMoveEvent.boat.yaw = this.mc.player.yaw;
+        Vec3d Vec3d2 = PlayerUtils.getHorizontalVelocity(this.speed.get());
+        double d = Vec3d2.getX();
         double d2 = 0.0;
-        double d3 = class_2432.method_10215();
-        if (this.mc.field_1690.field_1903.method_1434()) {
+        double d3 = Vec3d2.getZ();
+        if (this.mc.options.keyJump.isPressed()) {
             d2 += this.verticalSpeed.get() / 20.0;
         }
-        d2 = this.mc.field_1690.field_1867.method_1434() ? (d2 -= this.verticalSpeed.get() / 20.0) : (d2 -= this.fallSpeed.get() / 20.0);
-        ((IVec3d)boatMoveEvent.boat.method_18798()).set(d, d2, d3);
+        d2 = this.mc.options.keySprint.isPressed() ? (d2 -= this.verticalSpeed.get() / 20.0) : (d2 -= this.fallSpeed.get() / 20.0);
+        ((IVec3d)boatMoveEvent.boat.getVelocity()).set(d, d2, d3);
     }
 
     public BoatFly() {

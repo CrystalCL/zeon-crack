@@ -5,7 +5,7 @@ package minegame159.meteorclient.settings;
 
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -23,8 +23,8 @@ extends Setting<String> {
     }
 
     @Override
-    public String fromTag(class_2487 class_24872) {
-        this.set(class_24872.method_10558("value"));
+    public String fromTag(NbtCompound NbtCompound2) {
+        this.set(NbtCompound2.getString("value"));
         return (String)this.get();
     }
 
@@ -34,10 +34,10 @@ extends Setting<String> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_24872.method_10582("value", (String)this.get());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound2.putString("value", (String)this.get());
+        return NbtCompound2;
     }
 
     @Override
@@ -49,8 +49,8 @@ extends Setting<String> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override

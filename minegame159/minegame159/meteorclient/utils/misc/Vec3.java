@@ -3,19 +3,19 @@
  */
 package minegame159.meteorclient.utils.misc;
 
-import net.minecraft.class_1297;
-import net.minecraft.class_243;
-import net.minecraft.class_3532;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.MathHelper;
 
 public class Vec3 {
     public double z;
     public double y;
     public double x;
 
-    public void set(class_243 class_2432) {
-        this.x = class_2432.field_1352;
-        this.y = class_2432.field_1351;
-        this.z = class_2432.field_1350;
+    public void set(Vec3d Vec3d2) {
+        this.x = Vec3d2.x;
+        this.y = Vec3d2.y;
+        this.z = Vec3d2.z;
     }
 
     public void negate() {
@@ -30,10 +30,10 @@ public class Vec3 {
         this.z = d3;
     }
 
-    public void set(class_1297 class_12972, double d) {
-        this.x = class_3532.method_16436((double)d, (double)class_12972.field_6038, (double)class_12972.method_23317());
-        this.y = class_3532.method_16436((double)d, (double)class_12972.field_5971, (double)class_12972.method_23318());
-        this.z = class_3532.method_16436((double)d, (double)class_12972.field_5989, (double)class_12972.method_23321());
+    public void set(Entity Entity2, double d) {
+        this.x = MathHelper.lerp((double)d, (double)Entity2.lastRenderX, (double)Entity2.getX());
+        this.y = MathHelper.lerp((double)d, (double)Entity2.lastRenderY, (double)Entity2.getY());
+        this.z = MathHelper.lerp((double)d, (double)Entity2.lastRenderZ, (double)Entity2.getZ());
     }
 
     public double distanceTo(Vec3 vec3) {

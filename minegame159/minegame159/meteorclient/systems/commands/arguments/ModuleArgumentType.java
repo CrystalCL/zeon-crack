@@ -16,8 +16,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
-import net.minecraft.class_2172;
-import net.minecraft.class_2585;
+import net.minecraft.command.CommandSource;
+import net.minecraft.text.LiteralText;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -45,7 +45,7 @@ implements ArgumentType<Module> {
     }
 
     private static Message lambda$static$1(Object object) {
-        return new class_2585(String.valueOf(new StringBuilder().append("Module with name ").append(object).append(" doesn't exist.")));
+        return new LiteralText(String.valueOf(new StringBuilder().append("Module with name ").append(object).append(" doesn't exist.")));
     }
 
     public Object parse(StringReader stringReader) throws CommandSyntaxException {
@@ -66,7 +66,7 @@ implements ArgumentType<Module> {
     }
 
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder suggestionsBuilder) {
-        return class_2172.method_9264(Modules.get().getAll().stream().map(ModuleArgumentType::lambda$listSuggestions$2), (SuggestionsBuilder)suggestionsBuilder);
+        return CommandSource.suggestMatching(Modules.get().getAll().stream().map(ModuleArgumentType::lambda$listSuggestions$2), (SuggestionsBuilder)suggestionsBuilder);
     }
 }
 

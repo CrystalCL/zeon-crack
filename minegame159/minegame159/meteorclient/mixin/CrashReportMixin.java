@@ -8,13 +8,13 @@ import minegame159.meteorclient.systems.config.Config;
 import minegame159.meteorclient.systems.modules.Category;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
-import net.minecraft.class_128;
+import net.minecraft.util.crash.CrashReport;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_128.class})
+@Mixin(value={CrashReport.class})
 public class CrashReportMixin {
     @Inject(method={"addStackTrace"}, at={@At(value="TAIL")})
     private void onAddStackTrace(StringBuilder stringBuilder, CallbackInfo callbackInfo) {

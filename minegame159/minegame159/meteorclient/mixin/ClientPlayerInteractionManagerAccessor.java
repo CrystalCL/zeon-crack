@@ -3,17 +3,17 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_2338;
-import net.minecraft.class_636;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.network.ClientPlayerInteractionManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_636.class})
+@Mixin(value={ClientPlayerInteractionManager.class})
 public interface ClientPlayerInteractionManagerAccessor {
     @Accessor(value="currentBreakingProgress")
     public float getBreakingProgress();
 
     @Accessor(value="currentBreakingPos")
-    public class_2338 getCurrentBreakingBlockPos();
+    public BlockPos getCurrentBreakingBlockPos();
 }
 

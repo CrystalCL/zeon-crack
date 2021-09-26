@@ -4,20 +4,20 @@
 package minegame159.meteorclient.utils.misc;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.class_1934;
-import net.minecraft.class_2561;
-import net.minecraft.class_2703;
+import net.minecraft.world.GameMode;
+import net.minecraft.text.Text;
+import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 
 public class PlayerListEntryFactory
-extends class_2703 {
+extends PlayerListS2CPacket {
     private static final PlayerListEntryFactory INSTANCE = new PlayerListEntryFactory();
 
-    public static class_2703.class_2705 create(GameProfile gameProfile, int n, class_1934 class_19342, class_2561 class_25612) {
-        return INSTANCE._create(gameProfile, n, class_19342, class_25612);
+    public static Entry create(GameProfile gameProfile, int n, GameMode GameMode2, Text Text2) {
+        return INSTANCE._create(gameProfile, n, GameMode2, Text2);
     }
 
-    private class_2703.class_2705 _create(GameProfile gameProfile, int n, class_1934 class_19342, class_2561 class_25612) {
-        return new class_2703.class_2705((class_2703)this, gameProfile, n, class_19342, class_25612);
+    private Entry _create(GameProfile gameProfile, int n, GameMode GameMode2, Text Text2) {
+        return new Entry((PlayerListS2CPacket)this, gameProfile, n, GameMode2, Text2);
     }
 }
 

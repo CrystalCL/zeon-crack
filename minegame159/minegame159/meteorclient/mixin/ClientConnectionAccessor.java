@@ -4,11 +4,11 @@
 package minegame159.meteorclient.mixin;
 
 import io.netty.channel.Channel;
-import net.minecraft.class_2535;
+import net.minecraft.network.ClientConnection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_2535.class})
+@Mixin(value={ClientConnection.class})
 public interface ClientConnectionAccessor {
     @Accessor(value="channel")
     public Channel getChannel();

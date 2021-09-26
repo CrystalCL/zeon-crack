@@ -24,14 +24,14 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.entity.EntityUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1297;
-import net.minecraft.class_1299;
-import net.minecraft.class_238;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.util.math.Box;
 
 public class ESP
 extends Module {
     private final Setting<SettingColor> waterAnimalsColor;
-    private final Setting<Object2BooleanMap<class_1299<?>>> entities;
+    private final Setting<Object2BooleanMap<EntityType<?>>> entities;
     private int count;
     private final Color outlineColor;
     private final Setting<SettingColor> monstersColor;
@@ -55,7 +55,7 @@ extends Module {
         this.sgColors = this.settings.createGroup("Colors");
         this.mode = this.sgGeneral.add(new EnumSetting.Builder().name("mode").description("Rendering mode.").defaultValue(Mode.Outline).build());
         this.shapeMode = this.sgGeneral.add(new EnumSetting.Builder().name("box-mode").description("How the shapes are rendered.").defaultValue(ShapeMode.Both).build());
-        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entites").description("Select specific entities.").defaultValue((Object2BooleanMap<class_1299<?>>)Utils.asObject2BooleanOpenHashMap(class_1299.field_6097)).build());
+        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entites").description("Select specific entities.").defaultValue((Object2BooleanMap<EntityType<?>>)Utils.asObject2BooleanOpenHashMap(EntityType.PLAYER)).build());
         this.showInvis = this.sgGeneral.add(new BoolSetting.Builder().name("show-invisible").description("Shows invisibile entities.").defaultValue(true).build());
         this.useNameColor = this.sgColors.add(new BoolSetting.Builder().name("use-name-color").description("Uses players displayname color for the ESP color (good for minigames).").defaultValue(false).build());
         this.playersColor = this.sgColors.add(new ColorSetting.Builder().name("players-color").description("The other player's color.").defaultValue(new SettingColor(255, 255, 255)).build());
@@ -75,9 +75,9 @@ extends Module {
         this.sideColor.a = 25;
     }
 
-    private void render(RenderEvent renderEvent, class_1297 class_12972, Color color) {
+    private void render(RenderEvent renderEvent, Entity Entity2, Color color) {
         this.setSideColor(color);
-        double d = this.mc.field_1719.method_5649(class_12972.method_23317() + (double)(class_12972.method_17681() / 2.0f), class_12972.method_23318() + (double)(class_12972.method_17682() / 2.0f), class_12972.method_23321() + (double)(class_12972.method_17681() / 2.0f));
+        double d = this.mc.cameraEntity.squaredDistanceTo(Entity2.getX() + (double)(Entity2.getWidth() / 2.0f), Entity2.getY() + (double)(Entity2.getHeight() / 2.0f), Entity2.getZ() + (double)(Entity2.getWidth() / 2.0f));
         double d2 = 1.0;
         if (d <= this.fadeDistance.get() * this.fadeDistance.get()) {
             d2 = d / (this.fadeDistance.get() * this.fadeDistance.get());
@@ -87,11 +87,11 @@ extends Module {
         color.a = (int)((double)color.a * d2);
         this.sideColor.a = (int)((double)this.sideColor.a * d2);
         if (d2 >= 0.075) {
-            double d3 = (class_12972.method_23317() - class_12972.field_6014) * (double)renderEvent.tickDelta;
-            double d4 = (class_12972.method_23318() - class_12972.field_6036) * (double)renderEvent.tickDelta;
-            double d5 = (class_12972.method_23321() - class_12972.field_5969) * (double)renderEvent.tickDelta;
-            class_238 class_2383 = class_12972.method_5829();
-            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, d3 + class_2383.field_1323, d4 + class_2383.field_1322, d5 + class_2383.field_1321, d3 + class_2383.field_1320, d4 + class_2383.field_1325, d5 + class_2383.field_1324, this.sideColor, color, this.shapeMode.get(), 0);
+            double d3 = (Entity2.getX() - Entity2.prevX) * (double)renderEvent.tickDelta;
+            double d4 = (Entity2.getY() - Entity2.prevY) * (double)renderEvent.tickDelta;
+            double d5 = (Entity2.getZ() - Entity2.prevZ) * (double)renderEvent.tickDelta;
+            Box Box3 = Entity2.getBoundingBox();
+            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, d3 + Box3.minX, d4 + Box3.minY, d5 + Box3.minZ, d3 + Box3.maxX, d4 + Box3.maxY, d5 + Box3.maxZ, this.sideColor, color, this.shapeMode.get(), 0);
         }
         color.a = n;
         this.sideColor.a = n2;
@@ -102,12 +102,12 @@ extends Module {
         return Integer.toString(this.count);
     }
 
-    public Color getOutlineColor(class_1297 class_12972) {
-        if (!this.entities.get().getBoolean((Object)class_12972.method_5864())) {
+    public Color getOutlineColor(Entity Entity2) {
+        if (!this.entities.get().getBoolean((Object)Entity2.getType())) {
             return null;
         }
-        Color color = this.getColor(class_12972);
-        double d = this.mc.field_1719.method_5649(class_12972.method_23317() + (double)(class_12972.method_17681() / 2.0f), class_12972.method_23318() + (double)(class_12972.method_17682() / 2.0f), class_12972.method_23321() + (double)(class_12972.method_17681() / 2.0f));
+        Color color = this.getColor(Entity2);
+        double d = this.mc.cameraEntity.squaredDistanceTo(Entity2.getX() + (double)(Entity2.getWidth() / 2.0f), Entity2.getY() + (double)(Entity2.getHeight() / 2.0f), Entity2.getZ() + (double)(Entity2.getWidth() / 2.0f));
         double d2 = 1.0;
         if (d <= this.fadeDistance.get() * this.fadeDistance.get()) {
             d2 = d / (this.fadeDistance.get() * this.fadeDistance.get());
@@ -123,17 +123,17 @@ extends Module {
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
         this.count = 0;
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!Modules.get().isActive(Freecam.class) && class_12972 == this.mc.field_1724 || !this.entities.get().getBoolean((Object)class_12972.method_5864()) || !EntityUtils.isInRenderDistance(class_12972)) continue;
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!Modules.get().isActive(Freecam.class) && Entity2 == this.mc.player || !this.entities.get().getBoolean((Object)Entity2.getType()) || !EntityUtils.isInRenderDistance(Entity2)) continue;
             if (this.mode.get() == Mode.Box) {
-                this.render(renderEvent, class_12972, this.getColor(class_12972));
+                this.render(renderEvent, Entity2, this.getColor(Entity2));
             }
             ++this.count;
         }
     }
 
-    public Color getColor(class_1297 class_12972) {
-        return EntityUtils.getEntityColor(class_12972, this.playersColor.get(), this.animalsColor.get(), this.waterAnimalsColor.get(), this.monstersColor.get(), this.ambientColor.get(), this.miscColor.get(), this.useNameColor.get());
+    public Color getColor(Entity Entity2) {
+        return EntityUtils.getEntityColor(Entity2, this.playersColor.get(), this.animalsColor.get(), this.waterAnimalsColor.get(), this.monstersColor.get(), this.ambientColor.get(), this.miscColor.get(), this.useNameColor.get());
     }
 
     public boolean isOutline() {

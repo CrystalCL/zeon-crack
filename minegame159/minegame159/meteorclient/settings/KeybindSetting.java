@@ -12,7 +12,7 @@ import minegame159.meteorclient.gui.widgets.WKeybind;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.misc.Keybind;
 import minegame159.meteorclient.utils.misc.input.KeyAction;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -37,8 +37,8 @@ extends Setting<Keybind> {
     }
 
     @Override
-    public Keybind fromTag(class_2487 class_24872) {
-        ((Keybind)this.get()).fromTag(class_24872);
+    public Keybind fromTag(NbtCompound NbtCompound2) {
+        ((Keybind)this.get()).fromTag(NbtCompound2);
         return (Keybind)this.get();
     }
 
@@ -83,13 +83,13 @@ extends Setting<Keybind> {
     }
 
     @Override
-    public class_2487 toTag() {
+    public NbtCompound toTag() {
         return ((Keybind)this.get()).toTag();
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override

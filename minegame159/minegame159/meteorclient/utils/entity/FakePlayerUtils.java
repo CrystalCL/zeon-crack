@@ -8,10 +8,10 @@ import java.util.Map;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.player.FakePlayer;
 import minegame159.meteorclient.utils.entity.FakePlayerEntity;
-import net.minecraft.class_310;
+import net.minecraft.client.MinecraftClient;
 
 public class FakePlayerUtils {
-    private static final class_310 mc = class_310.method_1551();
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
     public static int ID;
     private static final Map<FakePlayerEntity, Integer> players;
 

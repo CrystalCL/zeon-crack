@@ -23,20 +23,20 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1802;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2583;
-import net.minecraft.class_2596;
-import net.minecraft.class_2820;
-import net.minecraft.class_465;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.text.Style;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.BookUpdateC2SPacket;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 
 public class BookBot
 extends Module {
     private final Setting<Integer> delay;
     private final Setting<Integer> noOfBooks;
-    private class_2499 pages;
+    private NbtList pages;
     private boolean firstChar;
     private final Setting<String> fileName;
     private PrimitiveIterator.OfInt stream;
@@ -70,7 +70,7 @@ extends Module {
                     float f = 0.0f;
                     bl2 = false;
                     do {
-                        float f2 = ((TextHandlerAccessor)this.mc.field_1772.method_27527()).getWidthRetriever().getWidth(this.nextChar, class_2583.field_24360);
+                        float f2 = ((TextHandlerAccessor)this.mc.textRenderer.getTextHandler()).getWidthRetriever().getWidth(this.nextChar, Style.EMPTY);
                         if (this.nextChar == 10) {
                             if (!this.readChar()) {
                                 bl2 = true;
@@ -88,13 +88,13 @@ extends Module {
                 bl = true;
                 break;
             }
-            this.pages.add((Object)class_2519.method_23256((String)String.valueOf(this.pageSb)));
+            this.pages.add((Object)NbtString.of((String)String.valueOf(this.pageSb)));
             if (bl) break;
         }
-        this.mc.field_1724.method_6047().method_7959("pages", (class_2520)this.pages);
-        this.mc.field_1724.method_6047().method_7959("author", (class_2520)class_2519.method_23256((String)"squidoodly"));
-        this.mc.field_1724.method_6047().method_7959("title", (class_2520)class_2519.method_23256((String)this.name.get()));
-        this.mc.field_1724.field_3944.method_2883((class_2596)new class_2820(this.mc.field_1724.method_6047(), true, this.mc.field_1724.field_7514.field_7545));
+        this.mc.player.getMainHandStack().putSubTag("pages", (NbtElement)this.pages);
+        this.mc.player.getMainHandStack().putSubTag("author", (NbtElement)NbtString.of((String)"squidoodly"));
+        this.mc.player.getMainHandStack().putSubTag("title", (NbtElement)NbtString.of((String)this.name.get()));
+        this.mc.player.networkHandler.sendPacket((Packet)new BookUpdateC2SPacket(this.mc.player.getMainHandStack(), true, this.mc.player.inventory.selectedSlot));
         --this.booksLeft;
     }
 
@@ -112,7 +112,7 @@ extends Module {
         this.noOfPages = this.sgGeneral.add(new IntSetting.Builder().name("no-of-pages").description("The number of pages to write per book.").defaultValue(100).min(1).max(100).sliderMax(100).build());
         this.noOfBooks = this.sgGeneral.add(new IntSetting.Builder().name("no-of-books").description("The number of books to make (or until the file runs out).").defaultValue(1).build());
         this.delay = this.sgGeneral.add(new IntSetting.Builder().name("delay").description("The amount of delay between writing books in milliseconds.").defaultValue(300).min(75).sliderMin(75).sliderMax(600).build());
-        this.pages = new class_2499();
+        this.pages = new NbtList();
         this.ticksLeft = 0;
         this.pageSb = new StringBuilder();
         this.lineSb = new StringBuilder();
@@ -121,26 +121,26 @@ extends Module {
     @Override
     public void onDeactivate() {
         this.booksLeft = 0;
-        this.pages = new class_2499();
+        this.pages = new NbtList();
     }
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
         Object object;
-        if (this.mc.field_1755 instanceof class_465) {
+        if (this.mc.currentScreen instanceof HandledScreen) {
             return;
         }
         if (this.booksLeft <= 0) {
             this.toggle();
             return;
         }
-        if (this.mc.field_1724.method_6047().method_7909() != class_1802.field_8674) {
-            object = InvUtils.findItemWithCount(class_1802.field_8674);
+        if (this.mc.player.getMainHandStack().getItem() != Items.WRITABLE_BOOK) {
+            object = InvUtils.findItemWithCount(Items.WRITABLE_BOOK);
             if (((InvUtils.FindItemResult)object).slot <= 8 && ((InvUtils.FindItemResult)object).slot != -1) {
-                this.mc.field_1724.field_7514.field_7545 = ((InvUtils.FindItemResult)object).slot;
-                ((IClientPlayerInteractionManager)this.mc.field_1761).syncSelectedSlot2();
+                this.mc.player.inventory.selectedSlot = ((InvUtils.FindItemResult)object).slot;
+                ((IClientPlayerInteractionManager)this.mc.interactionManager).syncSelectedSlot2();
             } else if (((InvUtils.FindItemResult)object).slot > 8) {
-                InvUtils.move().from(((InvUtils.FindItemResult)object).slot).toHotbar(this.mc.field_1724.field_7514.field_7545);
+                InvUtils.move().from(((InvUtils.FindItemResult)object).slot).toHotbar(this.mc.player.inventory.selectedSlot);
             } else {
                 return;
             }

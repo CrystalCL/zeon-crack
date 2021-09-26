@@ -10,10 +10,10 @@ import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
 
 public class ModuleListSetting
 extends Setting<List<Module>> {
@@ -30,11 +30,11 @@ extends Setting<List<Module>> {
     }
 
     @Override
-    public List<Module> fromTag(class_2487 class_24872) {
+    public List<Module> fromTag(NbtCompound NbtCompound2) {
         ((List)this.get()).clear();
-        class_2499 class_24992 = class_24872.method_10554("modules", 8);
-        for (class_2520 class_25202 : class_24992) {
-            Module module = Modules.get().get(class_25202.method_10714());
+        NbtList NbtList2 = NbtCompound2.getList("modules", 8);
+        for (NbtElement NbtElement2 : NbtList2) {
+            Module module = Modules.get().get(NbtElement2.asString());
             if (module == null) continue;
             ((List)this.get()).add(module);
         }
@@ -43,14 +43,14 @@ extends Setting<List<Module>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2499 class_24992 = new class_2499();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtList NbtList2 = new NbtList();
         for (Module module : (List)this.get()) {
-            class_24992.add((Object)class_2519.method_23256((String)module.name));
+            NbtList2.add((Object)NbtString.of((String)module.name));
         }
-        class_24872.method_10566("modules", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("modules", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     @Override
@@ -86,8 +86,8 @@ extends Setting<List<Module>> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override

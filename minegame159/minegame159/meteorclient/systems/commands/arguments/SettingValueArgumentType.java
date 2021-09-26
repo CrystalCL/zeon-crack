@@ -12,8 +12,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.concurrent.CompletableFuture;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.systems.commands.arguments.SettingArgumentType;
-import net.minecraft.class_2172;
-import net.minecraft.class_2960;
+import net.minecraft.command.CommandSource;
+import net.minecraft.util.Identifier;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -42,11 +42,11 @@ implements ArgumentType<String> {
         catch (CommandSyntaxException commandSyntaxException) {
             return null;
         }
-        Iterable<class_2960> iterable = setting.getIdentifierSuggestions();
+        Iterable<Identifier> iterable = setting.getIdentifierSuggestions();
         if (iterable != null) {
-            return class_2172.method_9270(iterable, (SuggestionsBuilder)suggestionsBuilder);
+            return CommandSource.suggestIdentifiers(iterable, (SuggestionsBuilder)suggestionsBuilder);
         }
-        return class_2172.method_9265(setting.getSuggestions(), (SuggestionsBuilder)suggestionsBuilder);
+        return CommandSource.suggestMatching(setting.getSuggestions(), (SuggestionsBuilder)suggestionsBuilder);
     }
 }
 

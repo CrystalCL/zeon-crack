@@ -13,8 +13,8 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.PlayerUtils;
-import net.minecraft.class_1309;
-import net.minecraft.class_243;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.Vec3d;
 
 public class EntitySpeed
 extends Module {
@@ -33,18 +33,18 @@ extends Module {
 
     @EventHandler
     private void onLivingEntityMove(LivingEntityMoveEvent livingEntityMoveEvent) {
-        if (livingEntityMoveEvent.entity.method_5642() != this.mc.field_1724) {
+        if (livingEntityMoveEvent.entity.getPrimaryPassenger() != this.mc.player) {
             return;
         }
-        class_1309 class_13092 = livingEntityMoveEvent.entity;
-        if (this.onlyOnGround.get().booleanValue() && !class_13092.method_24828()) {
+        LivingEntity LivingEntity2 = livingEntityMoveEvent.entity;
+        if (this.onlyOnGround.get().booleanValue() && !LivingEntity2.isOnGround()) {
             return;
         }
-        if (!this.inWater.get().booleanValue() && class_13092.method_5799()) {
+        if (!this.inWater.get().booleanValue() && LivingEntity2.isTouchingWater()) {
             return;
         }
-        class_243 class_2432 = PlayerUtils.getHorizontalVelocity(this.speed.get());
-        ((IVec3d)livingEntityMoveEvent.movement).setXZ(class_2432.field_1352, class_2432.field_1350);
+        Vec3d Vec3d2 = PlayerUtils.getHorizontalVelocity(this.speed.get());
+        ((IVec3d)livingEntityMoveEvent.movement).setXZ(Vec3d2.x, Vec3d2.z);
     }
 }
 

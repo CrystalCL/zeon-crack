@@ -4,33 +4,33 @@
 package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.mixininterface.IExplosionS2CPacket;
-import net.minecraft.class_2664;
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value={class_2664.class})
+@Mixin(value={ExplosionS2CPacket.class})
 public class ExplosionS2CPacketMixin
 implements IExplosionS2CPacket {
     @Shadow
-    private float field_12176;
+    private float playerVelocityX;
     @Shadow
-    private float field_12183;
+    private float playerVelocityY;
     @Shadow
-    private float field_12182;
+    private float playerVelocityZ;
 
     @Override
     public void setVelocityX(float f) {
-        this.field_12176 = f;
+        this.playerVelocityX = f;
     }
 
     @Override
     public void setVelocityY(float f) {
-        this.field_12183 = f;
+        this.playerVelocityY = f;
     }
 
     @Override
     public void setVelocityZ(float f) {
-        this.field_12182 = f;
+        this.playerVelocityZ = f;
     }
 }
 

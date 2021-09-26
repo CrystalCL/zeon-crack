@@ -21,22 +21,22 @@ import minegame159.meteorclient.utils.misc.ByteCountDataOutput;
 import minegame159.meteorclient.utils.misc.Keybind;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_124;
-import net.minecraft.class_1291;
-import net.minecraft.class_1292;
-import net.minecraft.class_1293;
-import net.minecraft.class_1747;
-import net.minecraft.class_1767;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_2248;
-import net.minecraft.class_2480;
-import net.minecraft.class_2487;
-import net.minecraft.class_2585;
-import net.minecraft.class_2588;
-import net.minecraft.class_4174;
-import net.minecraft.class_5250;
+import net.minecraft.util.Formatting;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.item.BlockItem;
+import net.minecraft.util.DyeColor;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.block.Block;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.item.FoodComponent;
+import net.minecraft.text.MutableText;
 
 public class BetterTooltips
 extends Module {
@@ -70,21 +70,21 @@ extends Module {
         return this.isActive() && this.isPressed() && this.echest.get() != false;
     }
 
-    public Color getShulkerColor(class_1799 class_17992) {
+    public Color getShulkerColor(ItemStack ItemStack2) {
         if (this.shulkerColorFromType.get().booleanValue()) {
-            if (!(class_17992.method_7909() instanceof class_1747)) {
+            if (!(ItemStack2.getItem() instanceof BlockItem)) {
                 return this.shulkersColor.get();
             }
-            class_2248 class_22482 = ((class_1747)class_17992.method_7909()).method_7711();
-            if (!(class_22482 instanceof class_2480)) {
+            Block Block2 = ((BlockItem)ItemStack2.getItem()).getBlock();
+            if (!(Block2 instanceof ShulkerBoxBlock)) {
                 return this.shulkersColor.get();
             }
-            class_2480 class_24802 = (class_2480)class_2480.method_9503((class_1792)class_17992.method_7909());
-            class_1767 class_17672 = class_24802.method_10528();
-            if (class_17672 == null) {
+            ShulkerBoxBlock ShulkerBoxBlock2 = (ShulkerBoxBlock)ShulkerBoxBlock.getBlockFromItem((Item)ItemStack2.getItem());
+            DyeColor DyeColor2 = ShulkerBoxBlock2.getColor();
+            if (DyeColor2 == null) {
                 return this.shulkersColor.get();
             }
-            float[] fArray = class_17672.method_7787();
+            float[] fArray = DyeColor2.getColorComponents();
             return new Color(fArray[0], fArray[1], fArray[2], 1.0f);
         }
         return this.shulkersColor.get();
@@ -95,35 +95,35 @@ extends Module {
     }
 
     private void lambda$appendTooltip$0(GetTooltipEvent.Append append, Pair pair) {
-        class_1293 class_12932 = (class_1293)pair.getFirst();
-        append.list.add(1, this.getStatusText(class_12932));
+        StatusEffectInstance StatusEffectInstance2 = (StatusEffectInstance)pair.getFirst();
+        append.list.add(1, this.getStatusText(StatusEffectInstance2));
     }
 
     public boolean previewShulkers() {
         return this.isActive() && this.isPressed() && this.shulkers.get() != false;
     }
 
-    private class_5250 getStatusText(class_1293 class_12932) {
-        class_2588 class_25882 = new class_2588(class_12932.method_5586());
-        if (class_12932.method_5578() != 0) {
-            class_25882.method_27693(String.format(" %d (%s)", class_12932.method_5578() + 1, class_1292.method_5577((class_1293)class_12932, (float)1.0f)));
+    private MutableText getStatusText(StatusEffectInstance StatusEffectInstance2) {
+        TranslatableText TranslatableText2 = new TranslatableText(StatusEffectInstance2.getTranslationKey());
+        if (StatusEffectInstance2.getAmplifier() != 0) {
+            TranslatableText2.append(String.format(" %d (%s)", StatusEffectInstance2.getAmplifier() + 1, StatusEffectUtil.durationToString((StatusEffectInstance)StatusEffectInstance2, (float)1.0f)));
         } else {
-            class_25882.method_27693(String.format(" (%s)", class_1292.method_5577((class_1293)class_12932, (float)1.0f)));
+            TranslatableText2.append(String.format(" (%s)", StatusEffectUtil.durationToString((StatusEffectInstance)StatusEffectInstance2, (float)1.0f)));
         }
-        if (class_12932.method_5579().method_5573()) {
-            return class_25882.method_27692(class_124.field_1078);
+        if (StatusEffectInstance2.getEffectType().isBeneficial()) {
+            return TranslatableText2.formatted(Formatting.BLUE);
         }
-        return class_25882.method_27692(class_124.field_1061);
+        return TranslatableText2.formatted(Formatting.RED);
     }
 
-    public static boolean hasItems(class_1799 class_17992) {
-        class_2487 class_24872 = class_17992.method_7941("BlockEntityTag");
-        return class_24872 != null && class_24872.method_10573("Items", 9);
+    public static boolean hasItems(ItemStack ItemStack2) {
+        NbtCompound NbtCompound2 = ItemStack2.getSubTag("BlockEntityTag");
+        return NbtCompound2 != null && NbtCompound2.contains("Items", 9);
     }
 
     @EventHandler
     private void modifyTooltip(GetTooltipEvent.Modify modify) {
-        if (BetterTooltips.hasItems(modify.itemStack) && this.shulkers.get().booleanValue() && this.previewShulkers() || modify.itemStack.method_7909() == class_1802.field_8466 && this.echest.get().booleanValue() && this.previewEChest()) {
+        if (BetterTooltips.hasItems(modify.itemStack) && this.shulkers.get().booleanValue() && this.previewShulkers() || modify.itemStack.getItem() == Items.ENDER_CHEST && this.echest.get().booleanValue() && this.previewEChest()) {
             for (int i = 0; i < modify.list.size(); ++i) {
                 modify.y -= 10;
             }
@@ -133,56 +133,56 @@ extends Module {
 
     @EventHandler
     private void appendTooltip(GetTooltipEvent.Append append) {
-        class_2487 class_24872;
-        class_2487 class_24873;
+        NbtCompound NbtCompound2;
+        NbtCompound NbtCompound3;
         int n;
         Object object;
         if (this.byteSize.get().booleanValue()) {
             try {
-                append.itemStack.method_7953(new class_2487()).method_10713((DataOutput)ByteCountDataOutput.INSTANCE);
+                append.itemStack.writeNbt(new NbtCompound()).write((DataOutput)ByteCountDataOutput.INSTANCE);
                 int n2 = ByteCountDataOutput.INSTANCE.getCount();
                 ByteCountDataOutput.INSTANCE.reset();
                 object = this.useKbIfBigEnoughEnabled.get() != false && n2 >= 1024 ? String.format("%.2f kb", Float.valueOf((float)n2 / 1024.0f)) : String.format("%d bytes", n2);
-                append.list.add(new class_2585(String.valueOf(new StringBuilder().append(class_124.field_1080).append((String)object))));
+                append.list.add(new LiteralText(String.valueOf(new StringBuilder().append(Formatting.GRAY).append((String)object))));
             }
             catch (IOException iOException) {
                 iOException.printStackTrace();
             }
         }
         if (this.statusEffects.get().booleanValue()) {
-            class_4174 class_41742;
-            if (append.itemStack.method_7909() == class_1802.field_8766) {
-                class_2487 class_24874 = append.itemStack.method_7969();
-                if (class_24874 != null && (object = class_24874.method_10554("Effects", 10)) != null) {
+            FoodComponent FoodComponent2;
+            if (append.itemStack.getItem() == Items.SUSPICIOUS_STEW) {
+                NbtCompound NbtCompound4 = append.itemStack.getTag();
+                if (NbtCompound4 != null && (object = NbtCompound4.getList("Effects", 10)) != null) {
                     for (n = 0; n < object.size(); ++n) {
-                        class_24873 = object.method_10602(n);
-                        byte by = class_24873.method_10571("EffectId");
-                        int n3 = class_24873.method_10545("EffectDuration") ? class_24873.method_10550("EffectDuration") : 160;
-                        class_1293 class_12932 = new class_1293(class_1291.method_5569((int)by), n3, 0);
-                        append.list.add(1, this.getStatusText(class_12932));
+                        NbtCompound3 = object.getCompound(n);
+                        byte by = NbtCompound3.getByte("EffectId");
+                        int n3 = NbtCompound3.contains("EffectDuration") ? NbtCompound3.getInt("EffectDuration") : 160;
+                        StatusEffectInstance StatusEffectInstance2 = new StatusEffectInstance(StatusEffect.byRawId((int)by), n3, 0);
+                        append.list.add(1, this.getStatusText(StatusEffectInstance2));
                         if (null == null) continue;
                         return;
                     }
                 }
-            } else if (append.itemStack.method_7909().method_19263() && (class_41742 = append.itemStack.method_7909().method_19264()) != null) {
-                class_41742.method_19235().forEach(arg_0 -> this.lambda$appendTooltip$0(append, arg_0));
+            } else if (append.itemStack.getItem().isFood() && (FoodComponent2 = append.itemStack.getItem().getFoodComponent()) != null) {
+                FoodComponent2.getStatusEffects().forEach(arg_0 -> this.lambda$appendTooltip$0(append, arg_0));
             }
         }
-        if (this.beehive.get().booleanValue() && (append.itemStack.method_7909() == class_1802.field_20416 || append.itemStack.method_7909() == class_1802.field_20415) && (class_24872 = append.itemStack.method_7969()) != null) {
-            class_2487 class_24875;
-            object = class_24872.method_10562("BlockStateTag");
+        if (this.beehive.get().booleanValue() && (append.itemStack.getItem() == Items.BEEHIVE || append.itemStack.getItem() == Items.BEE_NEST) && (NbtCompound2 = append.itemStack.getTag()) != null) {
+            NbtCompound NbtCompound5;
+            object = NbtCompound2.getCompound("BlockStateTag");
             if (object != null) {
-                n = object.method_10550("honey_level");
-                append.list.add(1, new class_2585(String.format("%sHoney level: %s%d%s.", class_124.field_1080, class_124.field_1054, n, class_124.field_1080)));
+                n = object.getInt("honey_level");
+                append.list.add(1, new LiteralText(String.format("%sHoney level: %s%d%s.", Formatting.GRAY, Formatting.YELLOW, n, Formatting.GRAY)));
             }
-            if ((class_24875 = class_24872.method_10562("BlockEntityTag")) != null) {
-                class_24873 = class_24875.method_10554("Bees", 10);
-                append.list.add(1, new class_2585(String.format("%sBees: %s%d%s.", class_124.field_1080, class_124.field_1054, class_24873.size(), class_124.field_1080)));
+            if ((NbtCompound5 = NbtCompound2.getCompound("BlockEntityTag")) != null) {
+                NbtCompound3 = NbtCompound5.getList("Bees", 10);
+                append.list.add(1, new LiteralText(String.format("%sBees: %s%d%s.", Formatting.GRAY, Formatting.YELLOW, NbtCompound3.size(), Formatting.GRAY)));
             }
         }
-        if (BetterTooltips.hasItems(append.itemStack) && this.shulkers.get() != false && !this.previewShulkers() || append.itemStack.method_7909() == class_1802.field_8466 && this.echest.get() != false && !this.previewEChest() || append.itemStack.method_7909() == class_1802.field_8204 && this.maps.get().booleanValue() && !this.previewMaps()) {
-            append.list.add(new class_2585(""));
-            append.list.add(new class_2585(String.valueOf(new StringBuilder().append("Hold ").append(class_124.field_1054).append(this.keybind).append(class_124.field_1070).append(" to preview"))));
+        if (BetterTooltips.hasItems(append.itemStack) && this.shulkers.get() != false && !this.previewShulkers() || append.itemStack.getItem() == Items.ENDER_CHEST && this.echest.get() != false && !this.previewEChest() || append.itemStack.getItem() == Items.FILLED_MAP && this.maps.get().booleanValue() && !this.previewMaps()) {
+            append.list.add(new LiteralText(""));
+            append.list.add(new LiteralText(String.valueOf(new StringBuilder().append("Hold ").append(Formatting.YELLOW).append(this.keybind).append(Formatting.RESET).append(" to preview"))));
         }
     }
 

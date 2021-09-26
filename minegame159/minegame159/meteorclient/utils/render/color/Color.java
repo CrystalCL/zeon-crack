@@ -4,8 +4,8 @@
 package minegame159.meteorclient.utils.render.color;
 
 import minegame159.meteorclient.utils.misc.ISerializable;
-import net.minecraft.class_243;
-import net.minecraft.class_2487;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -112,13 +112,13 @@ implements ISerializable<Color> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10569("r", this.r);
-        class_24872.method_10569("g", this.g);
-        class_24872.method_10569("b", this.b);
-        class_24872.method_10569("a", this.a);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putInt("r", this.r);
+        NbtCompound2.putInt("g", this.g);
+        NbtCompound2.putInt("b", this.b);
+        NbtCompound2.putInt("a", this.a);
+        return NbtCompound2;
     }
 
     public Color(int n, int n2, int n3) {
@@ -130,16 +130,16 @@ implements ISerializable<Color> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public Color fromTag(class_2487 class_24872) {
-        this.r = class_24872.method_10550("r");
-        this.g = class_24872.method_10550("g");
-        this.b = class_24872.method_10550("b");
-        this.a = class_24872.method_10550("a");
+    public Color fromTag(NbtCompound NbtCompound2) {
+        this.r = NbtCompound2.getInt("r");
+        this.g = NbtCompound2.getInt("g");
+        this.b = NbtCompound2.getInt("b");
+        this.a = NbtCompound2.getInt("a");
         this.validate();
         return this;
     }
@@ -179,8 +179,8 @@ implements ISerializable<Color> {
         return (n << 16) + (n2 << 8) + n3 + (n4 << 24);
     }
 
-    public class_243 getVec3d() {
-        return new class_243((double)this.r / 255.0, (double)this.g / 255.0, (double)this.b / 255.0);
+    public Vec3d getVec3d() {
+        return new Vec3d((double)this.r / 255.0, (double)this.g / 255.0, (double)this.b / 255.0);
     }
 
     public static int toRGBAB(int n) {

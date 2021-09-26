@@ -13,109 +13,109 @@ import minegame159.meteorclient.utils.entity.FakePlayerUtils;
 import minegame159.meteorclient.utils.entity.SortPriority;
 import minegame159.meteorclient.utils.misc.text.TextUtils;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_1297;
-import net.minecraft.class_1299;
-import net.minecraft.class_1309;
-import net.minecraft.class_1657;
-import net.minecraft.class_1934;
-import net.minecraft.class_2338;
-import net.minecraft.class_2586;
-import net.minecraft.class_2680;
-import net.minecraft.class_310;
-import net.minecraft.class_3611;
-import net.minecraft.class_3612;
-import net.minecraft.class_640;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.GameMode;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.client.network.PlayerListEntry;
 
 public class EntityUtils {
-    private static final List<class_1297> entities = new ArrayList<class_1297>();
-    public static class_310 mc;
+    private static final List<Entity> entities = new ArrayList<Entity>();
+    public static MinecraftClient mc;
 
-    public static boolean isAttackable(class_1299<?> class_12992) {
-        return class_12992 != class_1299.field_6083 && class_12992 != class_1299.field_6122 && class_12992 != class_1299.field_6089 && class_12992 != class_1299.field_6133 && class_12992 != class_1299.field_6052 && class_12992 != class_1299.field_6124 && class_12992 != class_1299.field_6135 && class_12992 != class_1299.field_6082 && class_12992 != class_1299.field_6064 && class_12992 != class_1299.field_6045 && class_12992 != class_1299.field_6127 && class_12992 != class_1299.field_6112 && class_12992 != class_1299.field_6103 && class_12992 != class_1299.field_6044 && class_12992 != class_1299.field_6144;
+    public static boolean isAttackable(EntityType<?> EntityType2) {
+        return EntityType2 != EntityType.AREA_EFFECT_CLOUD && EntityType2 != EntityType.ARROW && EntityType2 != EntityType.FALLING_BLOCK && EntityType2 != EntityType.FIREWORK_ROCKET && EntityType2 != EntityType.ITEM && EntityType2 != EntityType.LLAMA_SPIT && EntityType2 != EntityType.SPECTRAL_ARROW && EntityType2 != EntityType.ENDER_PEARL && EntityType2 != EntityType.EXPERIENCE_BOTTLE && EntityType2 != EntityType.POTION && EntityType2 != EntityType.TRIDENT && EntityType2 != EntityType.LIGHTNING_BOLT && EntityType2 != EntityType.FISHING_BOBBER && EntityType2 != EntityType.EXPERIENCE_ORB && EntityType2 != EntityType.EGG;
     }
 
-    private static boolean lambda$getPlayerTarget$1(double d, boolean bl, class_1297 class_12972) {
-        if (!(class_12972 instanceof class_1657) || class_12972 == EntityUtils.mc.field_1724) {
+    private static boolean lambda$getPlayerTarget$1(double d, boolean bl, Entity Entity2) {
+        if (!(Entity2 instanceof PlayerEntity) || Entity2 == EntityUtils.mc.player) {
             return false;
         }
-        if (((class_1657)class_12972).method_29504() || ((class_1657)class_12972).method_6032() <= 0.0f) {
+        if (((PlayerEntity)Entity2).isDead() || ((PlayerEntity)Entity2).getHealth() <= 0.0f) {
             return false;
         }
-        if ((double)EntityUtils.mc.field_1724.method_5739(class_12972) > d) {
+        if ((double)EntityUtils.mc.player.distanceTo(Entity2) > d) {
             return false;
         }
-        if (!Friends.get().attack((class_1657)class_12972) && !bl) {
+        if (!Friends.get().attack((PlayerEntity)Entity2) && !bl) {
             return false;
         }
-        return EntityUtils.getGameMode((class_1657)class_12972) == class_1934.field_9215 || class_12972 instanceof FakePlayerEntity;
+        return EntityUtils.getGameMode((PlayerEntity)Entity2) == GameMode.SURVIVAL || Entity2 instanceof FakePlayerEntity;
     }
 
-    public static int getPing(class_1657 class_16572) {
-        if (mc.method_1562() == null) {
+    public static int getPing(PlayerEntity PlayerEntity2) {
+        if (mc.getNetworkHandler() == null) {
             return 0;
         }
-        class_640 class_6402 = mc.method_1562().method_2871(class_16572.method_5667());
-        if (class_6402 == null) {
+        PlayerListEntry PlayerListEntry2 = mc.getNetworkHandler().getPlayerListEntry(PlayerEntity2.getUuid());
+        if (PlayerListEntry2 == null) {
             return 0;
         }
-        return class_6402.method_2959();
+        return PlayerListEntry2.getLatency();
     }
 
-    public static Color getEntityColor(class_1297 class_12972, Color color, Color color2, Color color3, Color color4, Color color5, Color color6, boolean bl) {
-        if (class_12972 instanceof class_1657) {
-            Color color7 = Friends.get().getFriendColor((class_1657)class_12972);
+    public static Color getEntityColor(Entity Entity2, Color color, Color color2, Color color3, Color color4, Color color5, Color color6, boolean bl) {
+        if (Entity2 instanceof PlayerEntity) {
+            Color color7 = Friends.get().getFriendColor((PlayerEntity)Entity2);
             if (color7 != null) {
                 return new Color(color7.r, color7.g, color7.b, color.a);
             }
             if (bl) {
-                return TextUtils.getMostPopularColor(class_12972.method_5476());
+                return TextUtils.getMostPopularColor(Entity2.getDisplayName());
             }
             return color;
         }
-        switch (class_12972.method_5864().method_5891()) {
-            case field_6294: {
+        switch (Entity2.getType().getSpawnGroup()) {
+            case CREATURE: {
                 return color2;
             }
-            case field_6300: {
+            case WATER_CREATURE: {
                 return color3;
             }
-            case field_6302: {
+            case MONSTER: {
                 return color4;
             }
-            case field_6303: {
+            case AMBIENT: {
                 return color5;
             }
-            case field_17715: {
+            case MISC: {
                 return color6;
             }
         }
         return Utils.WHITE;
     }
 
-    public static float getTotalHealth(class_1657 class_16572) {
-        return class_16572.method_6032() + class_16572.method_6067();
+    public static float getTotalHealth(PlayerEntity PlayerEntity2) {
+        return PlayerEntity2.getHealth() + PlayerEntity2.getAbsorptionAmount();
     }
 
-    public static void getList(Predicate<class_1297> predicate, SortPriority sortPriority, List<class_1297> list) {
-        for (class_1297 class_12972 : EntityUtils.mc.field_1687.method_18112()) {
-            if (!predicate.test(class_12972)) continue;
-            list.add(class_12972);
+    public static void getList(Predicate<Entity> predicate, SortPriority sortPriority, List<Entity> list) {
+        for (Entity Entity2 : EntityUtils.mc.world.getEntities()) {
+            if (!predicate.test(Entity2)) continue;
+            list.add(Entity2);
         }
-        for (class_1297 class_12972 : FakePlayerUtils.getPlayers().keySet()) {
-            if (!predicate.test(class_12972)) continue;
-            list.add(class_12972);
+        for (Entity Entity2 : FakePlayerUtils.getPlayers().keySet()) {
+            if (!predicate.test(Entity2)) continue;
+            list.add(Entity2);
         }
         list.sort((arg_0, arg_1) -> EntityUtils.lambda$getList$0(sortPriority, arg_0, arg_1));
     }
 
-    public static boolean isInRenderDistance(class_2338 class_23382) {
-        if (class_23382 == null) {
+    public static boolean isInRenderDistance(BlockPos BlockPos2) {
+        if (BlockPos2 == null) {
             return false;
         }
-        return EntityUtils.isInRenderDistance(class_23382.method_10263(), class_23382.method_10260());
+        return EntityUtils.isInRenderDistance(BlockPos2.getX(), BlockPos2.getZ());
     }
 
-    public static class_1297 get(Predicate<class_1297> predicate, SortPriority sortPriority) {
+    public static Entity get(Predicate<Entity> predicate, SortPriority sortPriority) {
         entities.clear();
         EntityUtils.getList(predicate, sortPriority, entities);
         if (!entities.isEmpty()) {
@@ -131,89 +131,89 @@ public class EntityUtils {
         return n > 0 ? -1 : 1;
     }
 
-    private static int sort(class_1297 class_12972, class_1297 class_12973, SortPriority sortPriority) {
+    private static int sort(Entity Entity2, Entity Entity3, SortPriority sortPriority) {
         switch (1.$SwitchMap$minegame159$meteorclient$utils$entity$SortPriority[sortPriority.ordinal()]) {
             case 1: {
-                return Double.compare(class_12972.method_5739((class_1297)EntityUtils.mc.field_1724), class_12973.method_5739((class_1297)EntityUtils.mc.field_1724));
+                return Double.compare(Entity2.distanceTo((Entity)EntityUtils.mc.player), Entity3.distanceTo((Entity)EntityUtils.mc.player));
             }
             case 2: {
-                return EntityUtils.invertSort(Double.compare(class_12972.method_5739((class_1297)EntityUtils.mc.field_1724), class_12973.method_5739((class_1297)EntityUtils.mc.field_1724)));
+                return EntityUtils.invertSort(Double.compare(Entity2.distanceTo((Entity)EntityUtils.mc.player), Entity3.distanceTo((Entity)EntityUtils.mc.player)));
             }
             case 3: {
-                return EntityUtils.sortHealth(class_12972, class_12973);
+                return EntityUtils.sortHealth(Entity2, Entity3);
             }
             case 4: {
-                return EntityUtils.invertSort(EntityUtils.sortHealth(class_12972, class_12973));
+                return EntityUtils.invertSort(EntityUtils.sortHealth(Entity2, Entity3));
             }
         }
         return 0;
     }
 
-    private static int lambda$getList$0(SortPriority sortPriority, class_1297 class_12972, class_1297 class_12973) {
-        return EntityUtils.sort(class_12972, class_12973, sortPriority);
+    private static int lambda$getList$0(SortPriority sortPriority, Entity Entity2, Entity Entity3) {
+        return EntityUtils.sort(Entity2, Entity3, sortPriority);
     }
 
-    public static boolean isAboveWater(class_1297 class_12972) {
-        class_2680 class_26802;
-        class_2338.class_2339 class_23392 = class_12972.method_24515().method_25503();
-        for (int i = 0; i < 64 && !(class_26802 = EntityUtils.mc.field_1687.method_8320((class_2338)class_23392)).method_26207().method_15801(); ++i) {
-            class_3611 class_36112 = class_26802.method_26227().method_15772();
-            if (class_36112 == class_3612.field_15910 || class_36112 == class_3612.field_15909) {
+    public static boolean isAboveWater(Entity Entity2) {
+        BlockState BlockState2;
+        Mutable class_23392 = Entity2.getBlockPos().mutableCopy();
+        for (int i = 0; i < 64 && !(BlockState2 = EntityUtils.mc.world.getBlockState((BlockPos)class_23392)).getMaterial().blocksMovement(); ++i) {
+            Fluid Fluid2 = BlockState2.getFluidState().getFluid();
+            if (Fluid2 == Fluids.WATER || Fluid2 == Fluids.FLOWING_WATER) {
                 return true;
             }
-            class_23392.method_10100(0, -1, 0);
+            class_23392.move(0, -1, 0);
             if (-5 < 0) continue;
             return false;
         }
         return false;
     }
 
-    public static boolean isInvalid(class_1657 class_16572, double d) {
-        if (class_16572 == null) {
+    public static boolean isInvalid(PlayerEntity PlayerEntity2, double d) {
+        if (PlayerEntity2 == null) {
             return true;
         }
-        return (double)EntityUtils.mc.field_1724.method_5739((class_1297)class_16572) > d || !class_16572.method_5805() || class_16572.method_29504() || class_16572.method_6032() <= 0.0f;
+        return (double)EntityUtils.mc.player.distanceTo((Entity)PlayerEntity2) > d || !PlayerEntity2.isAlive() || PlayerEntity2.isDead() || PlayerEntity2.getHealth() <= 0.0f;
     }
 
-    public static class_1934 getGameMode(class_1657 class_16572) {
-        class_640 class_6402 = mc.method_1562().method_2871(class_16572.method_5667());
-        if (class_6402 == null) {
+    public static GameMode getGameMode(PlayerEntity PlayerEntity2) {
+        PlayerListEntry PlayerListEntry2 = mc.getNetworkHandler().getPlayerListEntry(PlayerEntity2.getUuid());
+        if (PlayerListEntry2 == null) {
             return null;
         }
-        return class_6402.method_2958();
+        return PlayerListEntry2.getGameMode();
     }
 
-    public static class_1657 getPlayerTarget(double d, SortPriority sortPriority, boolean bl) {
+    public static PlayerEntity getPlayerTarget(double d, SortPriority sortPriority, boolean bl) {
         if (!Utils.canUpdate()) {
             return null;
         }
-        return (class_1657)EntityUtils.get(arg_0 -> EntityUtils.lambda$getPlayerTarget$1(d, bl, arg_0), sortPriority);
+        return (PlayerEntity)EntityUtils.get(arg_0 -> EntityUtils.lambda$getPlayerTarget$1(d, bl, arg_0), sortPriority);
     }
 
     public static boolean isInRenderDistance(double d, double d2) {
-        double d3 = Math.abs(EntityUtils.mc.field_1773.method_19418().method_19326().field_1352 - d);
-        double d4 = Math.abs(EntityUtils.mc.field_1773.method_19418().method_19326().field_1350 - d2);
-        double d5 = (EntityUtils.mc.field_1690.field_1870 + 1) * 16;
+        double d3 = Math.abs(EntityUtils.mc.gameRenderer.getCamera().getPos().x - d);
+        double d4 = Math.abs(EntityUtils.mc.gameRenderer.getCamera().getPos().z - d2);
+        double d5 = (EntityUtils.mc.options.viewDistance + 1) * 16;
         return d3 < d5 && d4 < d5;
     }
 
-    public static boolean isInRenderDistance(class_2586 class_25862) {
-        if (class_25862 == null) {
+    public static boolean isInRenderDistance(BlockEntity BlockEntity2) {
+        if (BlockEntity2 == null) {
             return false;
         }
-        return EntityUtils.isInRenderDistance(class_25862.method_11016().method_10263(), class_25862.method_11016().method_10260());
+        return EntityUtils.isInRenderDistance(BlockEntity2.getPos().getX(), BlockEntity2.getPos().getZ());
     }
 
-    public static boolean isInRenderDistance(class_1297 class_12972) {
-        if (class_12972 == null) {
+    public static boolean isInRenderDistance(Entity Entity2) {
+        if (Entity2 == null) {
             return false;
         }
-        return EntityUtils.isInRenderDistance(class_12972.method_23317(), class_12972.method_23321());
+        return EntityUtils.isInRenderDistance(Entity2.getX(), Entity2.getZ());
     }
 
-    private static int sortHealth(class_1297 class_12972, class_1297 class_12973) {
-        boolean bl = class_12972 instanceof class_1309;
-        boolean bl2 = class_12973 instanceof class_1309;
+    private static int sortHealth(Entity Entity2, Entity Entity3) {
+        boolean bl = Entity2 instanceof LivingEntity;
+        boolean bl2 = Entity3 instanceof LivingEntity;
         if (!bl && !bl2) {
             return 0;
         }
@@ -223,7 +223,7 @@ public class EntityUtils {
         if (!bl) {
             return -1;
         }
-        return Float.compare(((class_1309)class_12972).method_6032(), ((class_1309)class_12973).method_6032());
+        return Float.compare(((LivingEntity)Entity2).getHealth(), ((LivingEntity)Entity3).getHealth());
     }
 }
 

@@ -7,8 +7,8 @@ import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.events.game.OpenScreenEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_465;
-import net.minecraft.class_485;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 
 public class NoInteract
 extends Module {
@@ -17,7 +17,7 @@ extends Module {
         if (openScreenEvent.screen == null) {
             return;
         }
-        if (!openScreenEvent.screen.method_25421() && !(openScreenEvent.screen instanceof class_485) && openScreenEvent.screen instanceof class_465) {
+        if (!openScreenEvent.screen.isPauseScreen() && !(openScreenEvent.screen instanceof AbstractInventoryScreen) && openScreenEvent.screen instanceof HandledScreen) {
             openScreenEvent.setCancelled(true);
         }
     }

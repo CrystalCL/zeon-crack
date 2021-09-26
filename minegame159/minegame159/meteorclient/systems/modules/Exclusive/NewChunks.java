@@ -32,17 +32,17 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1923;
-import net.minecraft.class_1937;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2487;
-import net.minecraft.class_2626;
-import net.minecraft.class_2637;
-import net.minecraft.class_2672;
-import net.minecraft.class_2680;
-import net.minecraft.class_2818;
-import net.minecraft.class_3610;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
+import net.minecraft.block.BlockState;
+import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.fluid.FluidState;
 import org.apache.commons.io.FileUtils;
 
 public class NewChunks
@@ -50,10 +50,10 @@ extends Module {
     private final Setting<Boolean> CHUNKS_VERTICAL_RENDER;
     private final Setting<SettingColor> NEW_CHUNKS_COLOR;
     private final Setting<Integer> VERTICAL_RENDER_TRANSPARENT;
-    private Set<class_1923> oldChunks;
+    private Set<ChunkPos> oldChunks;
     private final SettingGroup g;
     private final Setting<Boolean> NEW_CHUNKS_RENDER;
-    private Set<class_1923> newChunks;
+    private Set<ChunkPos> newChunks;
     private static List<String> s = new ArrayList<String>(Arrays.asList("7fc7444b84b47e7c1be9f65c8ebe0fe412f939c0ae2b57e3c0daa37553cfff7500092756c99bc9c95d8c47fa8a3f611ab17227f0cd25564af2b02f3f28be4128", "a515b8f491894a07243b27c43a0e7f4673fb99d37e9b67eaaebf1c67b74885dc82b0db97a9d64004bb20c7574a487234886a2cc26e839c602b2d215ee8614bb7", "ac1c43d764dc255d4b001e78c3dfd648301a72b61983dcb5b3a8d313d863b637a9e47ebc96fc8b44e16d6341ed2732b11e95ede532b158d310091922cac5209a", "a1ab6994314bf8781370742e57da9f66e77617c0d8ab1a6e6b0ae2597416aadd7ed409e0c29af688a3220e71eff0387367a23f3fc6806f2cf960a2c5faacc286", "588f8b178ed627ba1f13ae1028263a1a27172e48978e5afe5898d7b80e6e8d444e9042201814cf532c4352fca0ba784166e901dd132ae70541e2da992e554da4", "66f39e0e0a30f1b92549b2002de842ed6667914a4088264304dbfb63489e3b93b621f4738561ee4d34924a27e7f5bedc2a9bc9995eb12e97e6af37bdb46de856", "4467f402ae533470cbb23cbf4be622c1050253ac4939d8afc31c0cfd463243e44d06ac5278f0f2470253d91299ab8c03834eea6d57a3792dec4e7c15c89cba73", "e3c8b9b4345ecc4e507058c3d013a80a4ce9c652ea96a716bd42821f58515e1a8b299060250c0d0cd0f72e34a506f500e659bf0dff81e365d18e0b42ad6cd468", "106bf5173aa80ddec866537648142a0d4aaa787db41fa86727b465ff02aa0e6cabf83e924410f6c1d038887840997155150436520cc5ee51f23c2201cd65304b"));
     private final Setting<Boolean> OLD_CHUNKS_RENDER;
     private final Setting<Boolean> REMOVE;
@@ -62,12 +62,12 @@ extends Module {
     private final Setting<Integer> VERTICAL_RENDER_MAX_DISTANCE;
     private final SettingGroup r;
 
-    private void lambda$onReadPacket$0(class_2350[] class_2350Array, class_2338 class_23382, class_2680 class_26802) {
-        if (!class_26802.method_26227().method_15769() && !class_26802.method_26227().method_15771()) {
-            class_1923 class_19232 = new class_1923(class_23382);
-            for (class_2350 class_23502 : class_2350Array) {
-                if (!this.mc.field_1687.method_8320(class_23382.method_10093(class_23502)).method_26227().method_15771() || this.oldChunks.contains(class_19232)) continue;
-                this.newChunks.add(class_19232);
+    private void lambda$onReadPacket$0(Direction[] DirectionArray, BlockPos BlockPos2, BlockState BlockState2) {
+        if (!BlockState2.getFluidState().isEmpty() && !BlockState2.getFluidState().isStill()) {
+            ChunkPos ChunkPos2 = new ChunkPos(BlockPos2);
+            for (Direction Direction2 : DirectionArray) {
+                if (!this.mc.world.getBlockState(BlockPos2.offset(Direction2)).getFluidState().isStill() || this.oldChunks.contains(ChunkPos2)) continue;
+                this.newChunks.add(ChunkPos2);
                 return;
             }
         }
@@ -81,20 +81,20 @@ extends Module {
     @EventHandler
     private void WorldRender(RenderEvent renderEvent) {
         Object object;
-        Set<class_1923> set;
+        Set<ChunkPos> set;
         if (this.NEW_CHUNKS_RENDER.get().booleanValue()) {
             set = this.newChunks;
             synchronized (set) {
                 if (this.CHUNKS_VERTICAL_RENDER.get().booleanValue()) {
                     object = new SettingColor(this.NEW_CHUNKS_COLOR.get());
                     ((SettingColor)object).a = this.VERTICAL_RENDER_TRANSPARENT.get();
-                    for (class_1923 class_19232 : this.newChunks) {
-                        if (!(Utils.distance(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318(), this.mc.field_1724.method_23321(), class_19232.method_8326() + 7, this.mc.field_1724.method_23318(), class_19232.method_8328() + 7) <= (double)(this.VERTICAL_RENDER_MAX_DISTANCE.get() * 16))) continue;
-                        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (double)class_19232.method_8326() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 0.0, (double)class_19232.method_8328() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (double)class_19232.method_8327() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 255.0, (double)class_19232.method_8329() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (Color)object, (Color)object, ShapeMode.Both, 6);
+                    for (ChunkPos ChunkPos2 : this.newChunks) {
+                        if (!(Utils.distance(this.mc.player.getX(), this.mc.player.getY(), this.mc.player.getZ(), ChunkPos2.getStartX() + 7, this.mc.player.getY(), ChunkPos2.getStartZ() + 7) <= (double)(this.VERTICAL_RENDER_MAX_DISTANCE.get() * 16))) continue;
+                        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (double)ChunkPos2.getStartX() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 0.0, (double)ChunkPos2.getStartZ() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (double)ChunkPos2.getEndX() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 255.0, (double)ChunkPos2.getEndZ() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (Color)object, (Color)object, ShapeMode.Both, 6);
                     }
                 }
                 for (Object object2 : this.newChunks) {
-                    Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, object2.method_8326() + 1, 0.0, object2.method_8328() + 1, object2.method_8327(), 0.0, object2.method_8329(), this.NEW_CHUNKS_COLOR.get(), this.NEW_CHUNKS_COLOR.get(), ShapeMode.Both, 124);
+                    Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, object2.getStartX() + 1, 0.0, object2.getStartZ() + 1, object2.getEndX(), 0.0, object2.getEndZ(), this.NEW_CHUNKS_COLOR.get(), this.NEW_CHUNKS_COLOR.get(), ShapeMode.Both, 124);
                 }
             }
         }
@@ -104,13 +104,13 @@ extends Module {
                 if (this.CHUNKS_VERTICAL_RENDER.get().booleanValue()) {
                     object = new SettingColor(this.OLD_CHUNKS_COLOR.get());
                     ((SettingColor)object).a = this.VERTICAL_RENDER_TRANSPARENT.get();
-                    for (class_1923 class_19232 : this.oldChunks) {
-                        if (!(Utils.distance(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318(), this.mc.field_1724.method_23321(), class_19232.method_8326() + 7, this.mc.field_1724.method_23318(), class_19232.method_8328() + 7) <= (double)(this.VERTICAL_RENDER_MAX_DISTANCE.get() * 16))) continue;
-                        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (double)class_19232.method_8326() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 0.0, (double)class_19232.method_8328() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (double)class_19232.method_8327() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 255.0, (double)class_19232.method_8329() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (Color)object, (Color)object, ShapeMode.Both, 6);
+                    for (ChunkPos ChunkPos2 : this.oldChunks) {
+                        if (!(Utils.distance(this.mc.player.getX(), this.mc.player.getY(), this.mc.player.getZ(), ChunkPos2.getStartX() + 7, this.mc.player.getY(), ChunkPos2.getStartZ() + 7) <= (double)(this.VERTICAL_RENDER_MAX_DISTANCE.get() * 16))) continue;
+                        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (double)ChunkPos2.getStartX() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 0.0, (double)ChunkPos2.getStartZ() + 7.5 + (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (double)ChunkPos2.getEndX() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), 255.0, (double)ChunkPos2.getEndZ() - 6.5 - (double)this.VERTICAL_RENDER_OFFSET.get().intValue(), (Color)object, (Color)object, ShapeMode.Both, 6);
                     }
                 }
                 for (Object object2 : this.oldChunks) {
-                    Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, object2.method_8326() + 1, 0.0, object2.method_8328() + 1, object2.method_8327(), 0.0, object2.method_8329(), this.OLD_CHUNKS_COLOR.get(), this.OLD_CHUNKS_COLOR.get(), ShapeMode.Both, 124);
+                    Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, object2.getStartX() + 1, 0.0, object2.getStartZ() + 1, object2.getEndX(), 0.0, object2.getEndZ(), this.OLD_CHUNKS_COLOR.get(), this.OLD_CHUNKS_COLOR.get(), ShapeMode.Both, 124);
                 }
             }
         }
@@ -119,37 +119,37 @@ extends Module {
     @EventHandler
     private void onReadPacket(PacketEvent.Receive receive) {
         block6: {
-            class_2672 class_26722;
-            class_1923 class_19232;
+            ChunkDataS2CPacket ChunkDataS2CPacket2;
+            ChunkPos ChunkPos2;
             block7: {
-                class_2350[] class_2350Array;
+                Direction[] DirectionArray;
                 block5: {
-                    class_2350Array = new class_2350[]{class_2350.field_11034, class_2350.field_11043, class_2350.field_11039, class_2350.field_11035, class_2350.field_11036};
-                    if (!(receive.packet instanceof class_2637)) break block5;
-                    class_2637 class_26372 = (class_2637)receive.packet;
-                    class_26372.method_30621((arg_0, arg_1) -> this.lambda$onReadPacket$0(class_2350Array, arg_0, arg_1));
+                    DirectionArray = new Direction[]{Direction.EAST, Direction.NORTH, Direction.WEST, Direction.SOUTH, Direction.UP};
+                    if (!(receive.packet instanceof ChunkDeltaUpdateS2CPacket)) break block5;
+                    ChunkDeltaUpdateS2CPacket ChunkDeltaUpdateS2CPacket2 = (ChunkDeltaUpdateS2CPacket)receive.packet;
+                    ChunkDeltaUpdateS2CPacket2.visitUpdates((arg_0, arg_1) -> this.lambda$onReadPacket$0(DirectionArray, arg_0, arg_1));
                     break block6;
                 }
-                if (!(receive.packet instanceof class_2626)) break block7;
-                class_2626 class_26262 = (class_2626)receive.packet;
-                if (class_26262.method_11308().method_26227().method_15769() || class_26262.method_11308().method_26227().method_15771()) break block6;
-                class_1923 class_19233 = new class_1923(class_26262.method_11309());
-                for (class_2350 class_23502 : class_2350Array) {
-                    if (!this.mc.field_1687.method_8320(class_26262.method_11309().method_10093(class_23502)).method_26227().method_15771() || this.oldChunks.contains(class_19233)) continue;
-                    this.newChunks.add(class_19233);
+                if (!(receive.packet instanceof BlockUpdateS2CPacket)) break block7;
+                BlockUpdateS2CPacket BlockUpdateS2CPacket2 = (BlockUpdateS2CPacket)receive.packet;
+                if (BlockUpdateS2CPacket2.getState().getFluidState().isEmpty() || BlockUpdateS2CPacket2.getState().getFluidState().isStill()) break block6;
+                ChunkPos ChunkPos3 = new ChunkPos(BlockUpdateS2CPacket2.getPos());
+                for (Direction Direction2 : DirectionArray) {
+                    if (!this.mc.world.getBlockState(BlockUpdateS2CPacket2.getPos().offset(Direction2)).getFluidState().isStill() || this.oldChunks.contains(ChunkPos3)) continue;
+                    this.newChunks.add(ChunkPos3);
                     return;
                 }
                 break block6;
             }
-            if (receive.packet instanceof class_2672 && this.mc.field_1687 != null && !this.newChunks.contains(class_19232 = new class_1923((class_26722 = (class_2672)receive.packet).method_11523(), class_26722.method_11524())) && this.mc.field_1687.method_2935().method_12246(class_26722.method_11523(), class_26722.method_11524()) == null) {
-                class_2818 class_28182 = new class_2818((class_1937)this.mc.field_1687, class_19232, null);
-                class_28182.method_12224(null, class_26722.method_11521(), new class_2487(), class_26722.method_11526());
+            if (receive.packet instanceof ChunkDataS2CPacket && this.mc.world != null && !this.newChunks.contains(ChunkPos2 = new ChunkPos((ChunkDataS2CPacket2 = (ChunkDataS2CPacket)receive.packet).getX(), ChunkDataS2CPacket2.getZ())) && this.mc.world.getChunkManager().getChunk(ChunkDataS2CPacket2.getX(), ChunkDataS2CPacket2.getZ()) == null) {
+                WorldChunk WorldChunk2 = new WorldChunk((World)this.mc.world, ChunkPos2, null);
+                WorldChunk2.loadFromPacket(null, ChunkDataS2CPacket2.getReadBuffer(), new NbtCompound(), ChunkDataS2CPacket2.getVerticalStripBitmask());
                 for (int i = 0; i < 16; ++i) {
-                    for (int j = 0; j < this.mc.field_1687.method_8322(); ++j) {
+                    for (int j = 0; j < this.mc.world.getHeight(); ++j) {
                         for (int k = 0; k < 16; ++k) {
-                            class_3610 class_36102 = class_28182.method_12234(i, j, k);
-                            if (class_36102.method_15769() || class_36102.method_15771()) continue;
-                            this.oldChunks.add(class_19232);
+                            FluidState FluidState2 = WorldChunk2.getFluidState(i, j, k);
+                            if (FluidState2.isEmpty() || FluidState2.isStill()) continue;
+                            this.oldChunks.add(ChunkPos2);
                             return;
                         }
                         if (3 <= 4) continue;

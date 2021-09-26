@@ -8,8 +8,8 @@ import minegame159.meteorclient.rendering.DrawMode;
 import minegame159.meteorclient.rendering.MeshBuilder;
 import minegame159.meteorclient.rendering.ShapeMode;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_2338;
-import net.minecraft.class_290;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.render.VertexFormats;
 
 public class Renderer {
     public static final MeshBuilder NORMAL = new MeshBuilder();
@@ -20,8 +20,8 @@ public class Renderer {
         Renderer.boxWithLines(meshBuilder, meshBuilder2, d, d2, d3, d + d4, d2 + d4, d3 + d4, color, color2, shapeMode, n);
     }
 
-    public static void boxWithLines(MeshBuilder meshBuilder, MeshBuilder meshBuilder2, class_2338 class_23382, Color color, Color color2, ShapeMode shapeMode, int n) {
-        Renderer.boxWithLines(meshBuilder, meshBuilder2, class_23382.method_10263(), class_23382.method_10264(), class_23382.method_10260(), class_23382.method_10263() + 1, class_23382.method_10264() + 1, class_23382.method_10260() + 1, color, color2, shapeMode, n);
+    public static void boxWithLines(MeshBuilder meshBuilder, MeshBuilder meshBuilder2, BlockPos BlockPos2, Color color, Color color2, ShapeMode shapeMode, int n) {
+        Renderer.boxWithLines(meshBuilder, meshBuilder2, BlockPos2.getX(), BlockPos2.getY(), BlockPos2.getZ(), BlockPos2.getX() + 1, BlockPos2.getY() + 1, BlockPos2.getZ() + 1, color, color2, shapeMode, n);
     }
 
     public static void quadWithLinesHorizontal(MeshBuilder meshBuilder, MeshBuilder meshBuilder2, double d, double d2, double d3, double d4, double d5, Color color, Color color2, ShapeMode shapeMode) {
@@ -67,8 +67,8 @@ public class Renderer {
 
     public static void begin(RenderEvent renderEvent) {
         if (!building) {
-            NORMAL.begin(renderEvent, DrawMode.Triangles, class_290.field_1576);
-            LINES.begin(renderEvent, DrawMode.Lines, class_290.field_1576);
+            NORMAL.begin(renderEvent, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
+            LINES.begin(renderEvent, DrawMode.Lines, VertexFormats.POSITION_COLOR);
             building = true;
         }
     }

@@ -31,12 +31,12 @@ import minegame159.meteorclient.systems.modules.player.AutoDrop;
 import minegame159.meteorclient.systems.modules.player.AutoEat;
 import minegame159.meteorclient.systems.modules.player.AutoTool;
 import minegame159.meteorclient.systems.modules.player.NoBreakDelay;
-import net.minecraft.class_1831;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_2661;
+import net.minecraft.item.ToolItem;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 
 public class InfinityMiner
 extends Module {
@@ -50,20 +50,20 @@ extends Module {
     private final SettingGroup sgAutoToggles;
     private int playerY;
     public final Setting<Boolean> autoLogOut;
-    public final Setting<class_2248> repairBlock;
+    public final Setting<Block> repairBlock;
     private Mode currentMode;
     private Mode secondaryMode;
     public final Setting<Boolean> autoWalkHome;
-    public final Setting<class_2248> targetBlock;
+    public final Setting<Block> targetBlock;
     public final Setting<Double> durabilityThreshold;
     private final SettingGroup sgExtras;
 
     private void requestLogout(Mode mode) {
-        if (this.mc.field_1724 != null) {
+        if (this.mc.player != null) {
             if (mode == Mode.Home) {
-                this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585("Infinity Miner: Inventory is Full and You Are Home")));
+                this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText("Infinity Miner: Inventory is Full and You Are Home")));
             } else {
-                this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585("Infinity Miner: Inventory is Full")));
+                this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText("Infinity Miner: Inventory is Full")));
             }
         }
     }
@@ -79,15 +79,15 @@ extends Module {
             }
             this.BLOCKER = false;
         }
-        if (this.mc.field_1724 != null) {
-            this.playerX = (int)this.mc.field_1724.method_23317();
-            this.playerY = (int)this.mc.field_1724.method_23318();
-            this.playerZ = (int)this.mc.field_1724.method_23321();
+        if (this.mc.player != null) {
+            this.playerX = (int)this.mc.player.getX();
+            this.playerY = (int)this.mc.player.getY();
+            this.playerZ = (int)this.mc.player.getZ();
         }
     }
 
     private boolean isTool() {
-        return this.mc.field_1724 != null && this.mc.field_1724.method_6047() != null && this.mc.field_1724.method_6047().method_7909() instanceof class_1831;
+        return this.mc.player != null && this.mc.player.getMainHandStack() != null && this.mc.player.getMainHandStack().getItem() instanceof ToolItem;
     }
 
     private void baritoneRequestStop() {
@@ -102,7 +102,7 @@ extends Module {
 
     private void baritoneRequestMineRepairBlock() {
         try {
-            BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(new class_2248[]{this.repairBlock.get()});
+            BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(new Block[]{this.repairBlock.get()});
             this.baritoneRunning = true;
         }
         catch (Exception exception) {
@@ -162,7 +162,7 @@ extends Module {
     @EventHandler
     private void onTick(TickEvent.Post post) {
         try {
-            if (this.mc.field_1724 == null) {
+            if (this.mc.player == null) {
                 return;
             }
             if (!this.baritoneRunning && this.currentMode == Mode.Still) {
@@ -186,7 +186,7 @@ extends Module {
                 if (((Boolean)BaritoneAPI.getSettings().mineScanDroppedItems.value).booleanValue()) {
                     BaritoneAPI.getSettings().mineScanDroppedItems.value = false;
                 }
-                if (this.isTool() && this.getCurrentDamage() >= this.mc.field_1724.method_6047().method_7936() - n) {
+                if (this.isTool() && this.getCurrentDamage() >= this.mc.player.getMainHandStack().getMaxDamage() - n) {
                     if (this.secondaryMode != Mode.Home) {
                         this.currentMode = Mode.Target;
                         this.baritoneRequestMineTargetBlock();
@@ -199,7 +199,7 @@ extends Module {
                 if (!((Boolean)BaritoneAPI.getSettings().mineScanDroppedItems.value).booleanValue()) {
                     BaritoneAPI.getSettings().mineScanDroppedItems.value = true;
                 }
-                if (this.isTool() && (double)this.getCurrentDamage() <= this.durabilityThreshold.get() * (double)this.mc.field_1724.method_6047().method_7936()) {
+                if (this.isTool() && (double)this.getCurrentDamage() <= this.durabilityThreshold.get() * (double)this.mc.player.getMainHandStack().getMaxDamage()) {
                     this.currentMode = Mode.Repair;
                     this.baritoneRequestMineRepairBlock();
                 } else if (this.autoWalkHome.get().booleanValue() && this.isInventoryFull().booleanValue()) {
@@ -208,7 +208,7 @@ extends Module {
                     this.requestLogout(this.currentMode);
                 }
             } else if (this.currentMode == Mode.Home) {
-                if (Math.abs(this.mc.field_1724.method_23318() - (double)this.playerY) <= 0.5 && Math.abs(this.mc.field_1724.method_23317() - (double)this.playerX) <= 0.5 && Math.abs(this.mc.field_1724.method_23321() - (double)this.playerZ) <= 0.5) {
+                if (Math.abs(this.mc.player.getY() - (double)this.playerY) <= 0.5 && Math.abs(this.mc.player.getX() - (double)this.playerX) <= 0.5 && Math.abs(this.mc.player.getZ() - (double)this.playerZ) <= 0.5) {
                     if (this.autoLogOut.get().booleanValue()) {
                         this.requestLogout(this.currentMode);
                     }
@@ -224,20 +224,20 @@ extends Module {
     }
 
     private Boolean isInventoryFull() {
-        if (this.mc.field_1724 == null) {
+        if (this.mc.player == null) {
             return false;
         }
-        if (this.mc.field_1724.field_7514.method_7376() != -1) {
+        if (this.mc.player.inventory.getEmptySlot() != -1) {
             return false;
         }
-        for (int i = 0; i < this.mc.field_1724.field_7514.method_5439(); ++i) {
-            if (this.mc.field_1724.field_7514.method_5438(i).method_7909() != this.targetBlock.get().method_8389() || this.mc.field_1724.field_7514.method_5438(i).method_7947() >= this.targetBlock.get().method_8389().method_7882()) continue;
+        for (int i = 0; i < this.mc.player.inventory.size(); ++i) {
+            if (this.mc.player.inventory.getStack(i).getItem() != this.targetBlock.get().asItem() || this.mc.player.inventory.getStack(i).getCount() >= this.targetBlock.get().asItem().getMaxCount()) continue;
             return false;
         }
         return true;
     }
 
-    public class_2248 getCurrentTarget() {
+    public Block getCurrentTarget() {
         return this.currentMode == Mode.Repair ? this.repairBlock.get() : this.targetBlock.get();
     }
 
@@ -274,10 +274,10 @@ extends Module {
                 return String.valueOf(new StringBuilder().append("Heading Home: ").append(nArray[0]).append(" ").append(nArray[1]).append(" ").append(nArray[2]));
             }
             case 2: {
-                return String.valueOf(new StringBuilder().append("Mining: ").append(this.getCurrentTarget().method_9518().getString()));
+                return String.valueOf(new StringBuilder().append("Mining: ").append(this.getCurrentTarget().getName().getString()));
             }
             case 3: {
-                return String.valueOf(new StringBuilder().append("Repair-Mining: ").append(this.getCurrentTarget().method_9518().getString()));
+                return String.valueOf(new StringBuilder().append("Repair-Mining: ").append(this.getCurrentTarget().getName().getString()));
             }
             case 4: {
                 return "Resting";
@@ -291,8 +291,8 @@ extends Module {
         this.sgGeneral = this.settings.getDefaultGroup();
         this.sgAutoToggles = this.settings.createGroup("Auto Toggles");
         this.sgExtras = this.settings.createGroup("Extras");
-        this.targetBlock = this.sgGeneral.add(new BlockSetting.Builder().name("target-block").description("The target block to mine.").defaultValue(class_2246.field_22109).build());
-        this.repairBlock = this.sgGeneral.add(new BlockSetting.Builder().name("repair-block").description("The block mined to repair your pickaxe.").defaultValue(class_2246.field_10213).build());
+        this.targetBlock = this.sgGeneral.add(new BlockSetting.Builder().name("target-block").description("The target block to mine.").defaultValue(Blocks.ANCIENT_DEBRIS).build());
+        this.repairBlock = this.sgGeneral.add(new BlockSetting.Builder().name("repair-block").description("The block mined to repair your pickaxe.").defaultValue(Blocks.NETHER_QUARTZ_ORE).build());
         this.durabilityThreshold = this.sgGeneral.add(new DoubleSetting.Builder().name("durability-threshold").description("The durability at which to start repairing as a percent of maximum durability.").defaultValue(0.15).max(0.95).min(0.05).sliderMin(0.05).sliderMax(0.95).build());
         this.smartModuleToggle = this.sgAutoToggles.add(new BoolSetting.Builder().name("smart-module-toggle").description("Will automatically enable helpful modules.").defaultValue(true).build());
         this.autoWalkHome = this.sgExtras.add(new BoolSetting.Builder().name("walk-home").description("Will walk 'home' when your inventory is full.").defaultValue(false).build());
@@ -304,12 +304,12 @@ extends Module {
     }
 
     private int getCurrentDamage() {
-        return this.mc.field_1724 != null ? this.mc.field_1724.method_6047().method_7909().method_7841() - this.mc.field_1724.method_6047().method_7919() : -1;
+        return this.mc.player != null ? this.mc.player.getMainHandStack().getItem().getMaxDamage() - this.mc.player.getMainHandStack().getDamage() : -1;
     }
 
     private void baritoneRequestMineTargetBlock() {
         try {
-            BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(new class_2248[]{this.targetBlock.get()});
+            BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(new Block[]{this.targetBlock.get()});
             this.baritoneRunning = true;
         }
         catch (Exception exception) {

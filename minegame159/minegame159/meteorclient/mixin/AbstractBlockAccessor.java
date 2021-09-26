@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_4970;
+import net.minecraft.block.AbstractBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_4970.class})
+@Mixin(value={AbstractBlock.class})
 public interface AbstractBlockAccessor {
     @Accessor
     public boolean isCollidable();

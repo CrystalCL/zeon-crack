@@ -8,7 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import minegame159.meteorclient.systems.Systems;
 import minegame159.meteorclient.systems.commands.Command;
-import net.minecraft.class_2172;
+import net.minecraft.command.CommandSource;
 
 public class ReloadCommand
 extends Command {
@@ -22,7 +22,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.executes(ReloadCommand::lambda$build$0);
     }
 }

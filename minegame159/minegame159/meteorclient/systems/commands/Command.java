@@ -11,16 +11,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import minegame159.meteorclient.systems.config.Config;
-import net.minecraft.class_2172;
-import net.minecraft.class_310;
+import net.minecraft.command.CommandSource;
+import net.minecraft.client.MinecraftClient;
 
 public abstract class Command {
     private final String description;
     private final String name;
-    protected static class_310 mc;
+    protected static MinecraftClient mc;
     private final List<String> aliases = new ArrayList<String>();
 
-    public abstract void build(LiteralArgumentBuilder<class_2172> var1);
+    public abstract void build(LiteralArgumentBuilder<CommandSource> var1);
 
     public List<String> getAliases() {
         return this.aliases;
@@ -30,7 +30,7 @@ public abstract class Command {
         return this.name;
     }
 
-    protected static <T> LiteralArgumentBuilder<class_2172> literal(String string) {
+    protected static <T> LiteralArgumentBuilder<CommandSource> literal(String string) {
         return LiteralArgumentBuilder.literal((String)string);
     }
 
@@ -38,10 +38,10 @@ public abstract class Command {
         this.name = string;
         this.description = string2;
         Collections.addAll(this.aliases, stringArray);
-        mc = class_310.method_1551();
+        mc = MinecraftClient.getInstance();
     }
 
-    protected static <T> RequiredArgumentBuilder<class_2172, T> argument(String string, ArgumentType<T> argumentType) {
+    protected static <T> RequiredArgumentBuilder<CommandSource, T> argument(String string, ArgumentType<T> argumentType) {
         return RequiredArgumentBuilder.argument((String)string, argumentType);
     }
 
@@ -49,13 +49,13 @@ public abstract class Command {
         return this.description;
     }
 
-    public void register(CommandDispatcher<class_2172> commandDispatcher, String string) {
+    public void register(CommandDispatcher<CommandSource> commandDispatcher, String string) {
         LiteralArgumentBuilder literalArgumentBuilder = LiteralArgumentBuilder.literal((String)string);
-        this.build((LiteralArgumentBuilder<class_2172>)literalArgumentBuilder);
+        this.build((LiteralArgumentBuilder<CommandSource>)literalArgumentBuilder);
         commandDispatcher.register(literalArgumentBuilder);
     }
 
-    public final void registerTo(CommandDispatcher<class_2172> commandDispatcher) {
+    public final void registerTo(CommandDispatcher<CommandSource> commandDispatcher) {
         this.register(commandDispatcher, this.name);
         for (String string : this.aliases) {
             this.register(commandDispatcher, string);

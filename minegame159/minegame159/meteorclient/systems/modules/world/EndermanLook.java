@@ -12,26 +12,26 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.entity.Target;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1297;
-import net.minecraft.class_1560;
-import net.minecraft.class_243;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.mob.EndermanEntity;
+import net.minecraft.util.math.Vec3d;
 
 public class EndermanLook
 extends Module {
     private final SettingGroup sgGeneral;
     private final Setting<Mode> lookMode;
 
-    private boolean angleCheck(class_1297 class_12972) {
-        class_243 class_2432 = this.mc.field_1724.method_5828(1.0f).method_1029();
-        class_243 class_2433 = new class_243(class_12972.method_23317() - this.mc.field_1724.method_23317(), class_12972.method_23320() - this.mc.field_1724.method_23320(), class_12972.method_23321() - this.mc.field_1724.method_23321());
-        double d = class_2433.method_1033();
-        double d2 = class_2432.method_1026(class_2433 = class_2433.method_1029());
-        return d2 > 1.0 - 0.025 / d && this.mc.field_1724.method_6057(class_12972);
+    private boolean angleCheck(Entity Entity2) {
+        Vec3d Vec3d2 = this.mc.player.getRotationVec(1.0f).normalize();
+        Vec3d Vec3d3 = new Vec3d(Entity2.getX() - this.mc.player.getX(), Entity2.getEyeY() - this.mc.player.getEyeY(), Entity2.getZ() - this.mc.player.getZ());
+        double d = Vec3d3.length();
+        double d2 = Vec3d2.dotProduct(Vec3d3 = Vec3d3.normalize());
+        return d2 > 1.0 - 0.025 / d && this.mc.player.canSee(Entity2);
     }
 
     private boolean shouldLook() {
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972 instanceof class_1560) || !class_12972.method_5805() || !this.angleCheck(class_12972)) continue;
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2 instanceof EndermanEntity) || !Entity2.isAlive() || !this.angleCheck(Entity2)) continue;
             return true;
         }
         return false;
@@ -40,15 +40,15 @@ extends Module {
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
         if (this.lookMode.get() == Mode.LookAway) {
-            if (this.mc.field_1724.field_7503.field_7477 || !this.shouldLook()) {
+            if (this.mc.player.abilities.creativeMode || !this.shouldLook()) {
                 return;
             }
-            Rotations.rotate(this.mc.field_1724.field_6031, 90.0, -75, null);
+            Rotations.rotate(this.mc.player.yaw, 90.0, -75, null);
         } else {
-            for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-                class_1560 class_15602;
-                if (!(class_12972 instanceof class_1560) || (class_15602 = (class_1560)class_12972).method_7028() || !class_15602.method_5805() || !this.mc.field_1724.method_6057((class_1297)class_15602)) continue;
-                Rotations.rotate(Rotations.getYaw((class_1297)class_15602), Rotations.getPitch((class_1297)class_15602, Target.Head), -75, null);
+            for (Entity Entity2 : this.mc.world.getEntities()) {
+                EndermanEntity EndermanEntity2;
+                if (!(Entity2 instanceof EndermanEntity) || (EndermanEntity2 = (EndermanEntity)Entity2).isAngry() || !EndermanEntity2.isAlive() || !this.mc.player.canSee((Entity)EndermanEntity2)) continue;
+                Rotations.rotate(Rotations.getYaw((Entity)EndermanEntity2), Rotations.getPitch((Entity)EndermanEntity2, Target.Head), -75, null);
                 break;
             }
         }

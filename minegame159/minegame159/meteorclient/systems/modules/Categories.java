@@ -5,7 +5,7 @@ package minegame159.meteorclient.systems.modules;
 
 import minegame159.meteorclient.systems.modules.Category;
 import minegame159.meteorclient.systems.modules.Modules;
-import net.minecraft.class_1802;
+import net.minecraft.item.Items;
 
 public class Categories {
     public static final Category Player;
@@ -27,13 +27,13 @@ public class Categories {
     }
 
     static {
-        Combat = new Category("Combat", class_1802.field_8845.method_7854());
-        Player = new Category("Player", class_1802.field_8694.method_7854());
-        Movement = new Category("Movement", class_1802.field_8285.method_7854());
-        Render = new Category("Render", class_1802.field_8280.method_7854());
-        World = new Category("World", class_1802.field_8270.method_7854());
-        Misc = new Category("Misc", class_1802.field_8187.method_7854());
-        Exclusive = new Category("Exclusive", class_1802.field_8301.method_7854());
+        Combat = new Category("Combat", Items.GOLDEN_SWORD.getDefaultStack());
+        Player = new Category("Player", Items.ARMOR_STAND.getDefaultStack());
+        Movement = new Category("Movement", Items.DIAMOND_BOOTS.getDefaultStack());
+        Render = new Category("Render", Items.GLASS.getDefaultStack());
+        World = new Category("World", Items.GRASS_BLOCK.getDefaultStack());
+        Misc = new Category("Misc", Items.LAVA_BUCKET.getDefaultStack());
+        Exclusive = new Category("Exclusive", Items.END_CRYSTAL.getDefaultStack());
     }
 }
 

@@ -14,10 +14,10 @@ import minegame159.meteorclient.utils.misc.NbtUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.RainbowColors;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1657;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2520;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -80,8 +80,8 @@ implements Iterable<Friend> {
         return false;
     }
 
-    public boolean show(class_1657 class_16572) {
-        Friend friend = this.get(class_16572);
+    public boolean show(PlayerEntity PlayerEntity2) {
+        Friend friend = this.get(PlayerEntity2);
         if (friend == null) {
             return false;
         }
@@ -97,8 +97,8 @@ implements Iterable<Friend> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
@@ -125,21 +125,21 @@ implements Iterable<Friend> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_2499 class_24992 = new class_2499();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtList NbtList2 = new NbtList();
         for (Friend friend : this.friends) {
-            class_24992.add((Object)friend.toTag());
+            NbtList2.add((Object)friend.toTag());
         }
-        class_24872.method_10566("friends", (class_2520)class_24992);
-        class_24872.method_10566("enemy-color", (class_2520)this.enemyColor.toTag());
-        class_24872.method_10566("neutral-color", (class_2520)this.neutralColor.toTag());
-        class_24872.method_10566("trusted-color", (class_2520)this.trustedColor.toTag());
-        class_24872.method_10556("attack-neutral", this.attackNeutral);
-        class_24872.method_10556("show-enemies", this.showEnemies);
-        class_24872.method_10556("show-neutral", this.showNeutral);
-        class_24872.method_10556("show-trusted", this.showTrusted);
-        return class_24872;
+        NbtCompound2.put("friends", (NbtElement)NbtList2);
+        NbtCompound2.put("enemy-color", (NbtElement)this.enemyColor.toTag());
+        NbtCompound2.put("neutral-color", (NbtElement)this.neutralColor.toTag());
+        NbtCompound2.put("trusted-color", (NbtElement)this.trustedColor.toTag());
+        NbtCompound2.putBoolean("attack-neutral", this.attackNeutral);
+        NbtCompound2.putBoolean("show-enemies", this.showEnemies);
+        NbtCompound2.putBoolean("show-neutral", this.showNeutral);
+        NbtCompound2.putBoolean("show-trusted", this.showTrusted);
+        return NbtCompound2;
     }
 
     public int count() {
@@ -147,34 +147,34 @@ implements Iterable<Friend> {
     }
 
     @Override
-    public Friends fromTag(class_2487 class_24872) {
-        this.friends = NbtUtils.listFromTag(class_24872.method_10554("friends", 10), Friends::lambda$fromTag$0);
-        if (class_24872.method_10545("enemy-color")) {
-            this.enemyColor.fromTag(class_24872.method_10562("enemy-color"));
+    public Friends fromTag(NbtCompound NbtCompound2) {
+        this.friends = NbtUtils.listFromTag(NbtCompound2.getList("friends", 10), Friends::lambda$fromTag$0);
+        if (NbtCompound2.contains("enemy-color")) {
+            this.enemyColor.fromTag(NbtCompound2.getCompound("enemy-color"));
         }
-        if (class_24872.method_10545("neutral-color")) {
-            this.neutralColor.fromTag(class_24872.method_10562("neutral-color"));
+        if (NbtCompound2.contains("neutral-color")) {
+            this.neutralColor.fromTag(NbtCompound2.getCompound("neutral-color"));
         }
-        if (class_24872.method_10545("trusted-color")) {
-            this.trustedColor.fromTag(class_24872.method_10562("trusted-color"));
+        if (NbtCompound2.contains("trusted-color")) {
+            this.trustedColor.fromTag(NbtCompound2.getCompound("trusted-color"));
         }
-        if (class_24872.method_10545("attack-neutral")) {
-            this.attackNeutral = class_24872.method_10577("attack-neutral");
+        if (NbtCompound2.contains("attack-neutral")) {
+            this.attackNeutral = NbtCompound2.getBoolean("attack-neutral");
         }
-        if (class_24872.method_10545("show-enemies")) {
-            this.showEnemies = class_24872.method_10577("show-enemies");
+        if (NbtCompound2.contains("show-enemies")) {
+            this.showEnemies = NbtCompound2.getBoolean("show-enemies");
         }
-        if (class_24872.method_10545("show-neutral")) {
-            this.showNeutral = class_24872.method_10577("show-neutral");
+        if (NbtCompound2.contains("show-neutral")) {
+            this.showNeutral = NbtCompound2.getBoolean("show-neutral");
         }
-        if (class_24872.method_10545("show-trusted")) {
-            this.showTrusted = class_24872.method_10577("show-trusted");
+        if (NbtCompound2.contains("show-trusted")) {
+            this.showTrusted = NbtCompound2.getBoolean("show-trusted");
         }
         return this;
     }
 
-    public boolean notTrusted(class_1657 class_16572) {
-        Friend friend = this.get(class_16572);
+    public boolean notTrusted(PlayerEntity PlayerEntity2) {
+        Friend friend = this.get(PlayerEntity2);
         return friend == null || friend.type != FriendType.Trusted;
     }
 
@@ -186,8 +186,8 @@ implements Iterable<Friend> {
         return null;
     }
 
-    public boolean attack(class_1657 class_16572) {
-        Friend friend = this.get(class_16572);
+    public boolean attack(PlayerEntity PlayerEntity2) {
+        Friend friend = this.get(PlayerEntity2);
         if (friend == null) {
             return true;
         }
@@ -202,16 +202,16 @@ implements Iterable<Friend> {
         return this.attackNeutral;
     }
 
-    private static Friend lambda$fromTag$0(class_2520 class_25202) {
-        return new Friend((class_2487)class_25202);
+    private static Friend lambda$fromTag$0(NbtElement NbtElement2) {
+        return new Friend((NbtCompound)NbtElement2);
     }
 
     public static Friends get() {
         return Systems.get(Friends.class);
     }
 
-    public Friend get(class_1657 class_16572) {
-        return this.get(class_16572.method_7334().getName());
+    public Friend get(PlayerEntity PlayerEntity2) {
+        return this.get(PlayerEntity2.getGameProfile().getName());
     }
 
     public void addOrRemove(Friend friend) {
@@ -222,8 +222,8 @@ implements Iterable<Friend> {
         }
     }
 
-    public Color getFriendColor(class_1657 class_16572) {
-        return this.getFriendColor(this.get(class_16572));
+    public Color getFriendColor(PlayerEntity PlayerEntity2) {
+        return this.getFriendColor(this.get(PlayerEntity2));
     }
 }
 

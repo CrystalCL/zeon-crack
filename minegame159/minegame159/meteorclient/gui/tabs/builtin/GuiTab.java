@@ -11,7 +11,7 @@ import minegame159.meteorclient.gui.tabs.WindowTabScreen;
 import minegame159.meteorclient.gui.widgets.containers.WTable;
 import minegame159.meteorclient.gui.widgets.input.WDropdown;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 
 public class GuiTab
 extends Tab {
@@ -20,8 +20,8 @@ extends Tab {
     }
 
     @Override
-    public boolean isScreen(class_437 class_4372) {
-        return class_4372 instanceof GuiScreen;
+    public boolean isScreen(Screen Screen2) {
+        return Screen2 instanceof GuiScreen;
     }
 
     @Override
@@ -43,7 +43,7 @@ extends Tab {
 
         private static void lambda$new$0(WDropdown wDropdown, Tab tab) {
             GuiThemes.select((String)wDropdown.get());
-            Utils.mc.method_1507(null);
+            Utils.mc.openScreen(null);
             tab.openScreen(GuiThemes.get());
         }
     }

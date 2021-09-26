@@ -4,19 +4,19 @@
 package minegame159.meteorclient.events.packets;
 
 import minegame159.meteorclient.events.Cancellable;
-import net.minecraft.class_2596;
+import net.minecraft.network.Packet;
 
 public class PacketEvent
 extends Cancellable {
-    public class_2596<?> packet;
+    public Packet<?> packet;
 
     public static class Receive
     extends PacketEvent {
         private static final Receive INSTANCE = new Receive();
 
-        public static Receive get(class_2596<?> class_25962) {
+        public static Receive get(Packet<?> Packet2) {
             INSTANCE.setCancelled(false);
-            Receive.INSTANCE.packet = class_25962;
+            Receive.INSTANCE.packet = Packet2;
             return INSTANCE;
         }
     }
@@ -25,8 +25,8 @@ extends Cancellable {
     extends PacketEvent {
         private static final Sent INSTANCE = new Sent();
 
-        public static Sent get(class_2596<?> class_25962) {
-            Sent.INSTANCE.packet = class_25962;
+        public static Sent get(Packet<?> Packet2) {
+            Sent.INSTANCE.packet = Packet2;
             return INSTANCE;
         }
     }
@@ -35,9 +35,9 @@ extends Cancellable {
     extends PacketEvent {
         private static final Send INSTANCE = new Send();
 
-        public static Send get(class_2596<?> class_25962) {
+        public static Send get(Packet<?> Packet2) {
             INSTANCE.setCancelled(false);
-            Send.INSTANCE.packet = class_25962;
+            Send.INSTANCE.packet = Packet2;
             return INSTANCE;
         }
     }

@@ -13,15 +13,15 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2561;
-import net.minecraft.class_345;
+import net.minecraft.text.Text;
+import net.minecraft.client.gui.hud.ClientBossBar;
 
 public class BossStack
 extends Module {
     public final Setting<Boolean> stack;
     private final Setting<Double> spacing;
     public final Setting<Boolean> hideName;
-    public static final WeakHashMap<class_345, Integer> barMap = new WeakHashMap();
+    public static final WeakHashMap<ClientBossBar, Integer> barMap = new WeakHashMap();
     private final SettingGroup sgGeneral;
 
     @EventHandler
@@ -38,12 +38,12 @@ extends Module {
         bossSpacing.spacing = this.spacing.get().intValue();
     }
 
-    private static void lambda$onGetBars$1(HashMap hashMap, class_345 class_3452) {
-        String string = class_3452.method_5414().method_10851();
+    private static void lambda$onGetBars$1(HashMap hashMap, ClientBossBar ClientBossBar2) {
+        String string = ClientBossBar2.getName().asString();
         if (hashMap.containsKey(string)) {
-            barMap.compute((class_345)hashMap.get(string), BossStack::lambda$onGetBars$0);
+            barMap.compute((ClientBossBar)hashMap.get(string), BossStack::lambda$onGetBars$0);
         } else {
-            hashMap.put(string, class_3452);
+            hashMap.put(string, ClientBossBar2);
         }
     }
 
@@ -55,24 +55,24 @@ extends Module {
         this.spacing = this.sgGeneral.add(new DoubleSetting.Builder().name("bar-spacing").description("The spacing reduction between each boss bar.").defaultValue(10.0).min(0.0).sliderMax(10.0).build());
     }
 
-    private static Integer lambda$onGetBars$0(class_345 class_3452, Integer n) {
+    private static Integer lambda$onGetBars$0(ClientBossBar ClientBossBar2, Integer n) {
         return n == null ? 2 : n + 1;
     }
 
     @EventHandler
     private void onFetchText(RenderBossBarEvent.BossText bossText) {
         if (this.hideName.get().booleanValue()) {
-            bossText.name = class_2561.method_30163((String)"");
+            bossText.name = Text.of((String)"");
             return;
         }
         if (barMap.isEmpty() || !this.stack.get().booleanValue()) {
             return;
         }
-        class_345 class_3452 = bossText.bossBar;
-        Integer n = barMap.get(class_3452);
-        barMap.remove(class_3452);
+        ClientBossBar ClientBossBar2 = bossText.bossBar;
+        Integer n = barMap.get(ClientBossBar2);
+        barMap.remove(ClientBossBar2);
         if (n != null && !this.hideName.get().booleanValue()) {
-            bossText.name = bossText.name.method_27662().method_27693(String.valueOf(new StringBuilder().append(" x").append(n)));
+            bossText.name = bossText.name.copy().append(String.valueOf(new StringBuilder().append(" x").append(n)));
         }
     }
 }

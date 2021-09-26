@@ -13,13 +13,13 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1472;
-import net.minecraft.class_1657;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1820;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.SheepEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.ShearsItem;
 
 public class AutoShearer
 extends Module {
@@ -28,28 +28,28 @@ extends Module {
     private final SettingGroup sgGeneral;
     private final Setting<Boolean> rotate;
     private int preSlot;
-    private class_1297 entity;
+    private Entity entity;
     private final Setting<Boolean> antiBreak;
 
     private void interact() {
-        this.mc.field_1761.method_2905((class_1657)this.mc.field_1724, this.entity, this.offHand ? class_1268.field_5810 : class_1268.field_5808);
-        this.mc.field_1724.field_7514.field_7545 = this.preSlot;
+        this.mc.interactionManager.interactEntity((PlayerEntity)this.mc.player, this.entity, this.offHand ? Hand.OFF_HAND : Hand.MAIN_HAND);
+        this.mc.player.inventory.selectedSlot = this.preSlot;
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
         this.entity = null;
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
+        for (Entity Entity2 : this.mc.world.getEntities()) {
             int n;
             boolean bl;
-            if (!(class_12972 instanceof class_1472) || ((class_1472)class_12972).method_6629() || ((class_1472)class_12972).method_6109() || (double)this.mc.field_1724.method_5739(class_12972) > this.distance.get()) continue;
+            if (!(Entity2 instanceof SheepEntity) || ((SheepEntity)Entity2).isSheared() || ((SheepEntity)Entity2).isBaby() || (double)this.mc.player.distanceTo(Entity2) > this.distance.get()) continue;
             boolean bl2 = false;
-            if (this.mc.field_1724.field_7514.method_7391().method_7909() instanceof class_1820) {
-                if (this.antiBreak.get().booleanValue() && this.mc.field_1724.field_7514.method_7391().method_7919() >= this.mc.field_1724.field_7514.method_7391().method_7936() - 1) {
+            if (this.mc.player.inventory.getMainHandStack().getItem() instanceof ShearsItem) {
+                if (this.antiBreak.get().booleanValue() && this.mc.player.inventory.getMainHandStack().getDamage() >= this.mc.player.inventory.getMainHandStack().getMaxDamage() - 1) {
                     bl2 = true;
                 }
-            } else if (((class_1799)this.mc.field_1724.field_7514.field_7544.get(0)).method_7909() instanceof class_1820) {
-                if (this.antiBreak.get().booleanValue() && ((class_1799)this.mc.field_1724.field_7514.field_7544.get(0)).method_7919() >= ((class_1799)this.mc.field_1724.field_7514.field_7544.get(0)).method_7936() - 1) {
+            } else if (((ItemStack)this.mc.player.inventory.offHand.get(0)).getItem() instanceof ShearsItem) {
+                if (this.antiBreak.get().booleanValue() && ((ItemStack)this.mc.player.inventory.offHand.get(0)).getDamage() >= ((ItemStack)this.mc.player.inventory.offHand.get(0)).getMaxDamage() - 1) {
                     bl2 = true;
                 } else {
                     this.offHand = true;
@@ -58,14 +58,14 @@ extends Module {
                 bl2 = true;
             }
             boolean bl3 = bl = !bl2;
-            if (bl2 && (n = InvUtils.findItemInHotbar(class_1802.field_8868, this::lambda$onTick$0)) != -1) {
-                this.mc.field_1724.field_7514.field_7545 = n;
+            if (bl2 && (n = InvUtils.findItemInHotbar(Items.SHEARS, this::lambda$onTick$0)) != -1) {
+                this.mc.player.inventory.selectedSlot = n;
                 bl = true;
             }
             if (!bl) continue;
-            this.entity = class_12972;
+            this.entity = Entity2;
             if (this.rotate.get().booleanValue()) {
-                Rotations.rotate(Rotations.getYaw(class_12972), Rotations.getPitch(class_12972), -100, this::interact);
+                Rotations.rotate(Rotations.getYaw(Entity2), Rotations.getPitch(Entity2), -100, this::interact);
             } else {
                 this.interact();
             }
@@ -73,8 +73,8 @@ extends Module {
         }
     }
 
-    private boolean lambda$onTick$0(class_1799 class_17992) {
-        return this.antiBreak.get() == false || this.antiBreak.get() != false && class_17992.method_7919() < class_17992.method_7936() - 1;
+    private boolean lambda$onTick$0(ItemStack ItemStack2) {
+        return this.antiBreak.get() == false || this.antiBreak.get() != false && ItemStack2.getDamage() < ItemStack2.getMaxDamage() - 1;
     }
 
     public AutoShearer() {

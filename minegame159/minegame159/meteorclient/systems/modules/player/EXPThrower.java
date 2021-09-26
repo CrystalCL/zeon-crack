@@ -12,14 +12,14 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1268;
-import net.minecraft.class_1657;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1887;
-import net.minecraft.class_1890;
-import net.minecraft.class_1893;
-import net.minecraft.class_1937;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.world.World;
 
 public class EXPThrower
 extends Module {
@@ -41,10 +41,10 @@ extends Module {
             n = 0;
             int n2 = 0;
             for (int i = 0; i < 4; ++i) {
-                if (!((class_1799)this.mc.field_1724.field_7514.field_7548.get(i)).method_7960() && class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)this.mc.field_1724.field_7514.method_7372(i)) == 1) {
+                if (!((ItemStack)this.mc.player.inventory.armor.get(i)).isEmpty() && EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)this.mc.player.inventory.getArmorStack(i)) == 1) {
                     ++n2;
                 }
-                if (((class_1799)this.mc.field_1724.field_7514.field_7548.get(i)).method_7986()) continue;
+                if (((ItemStack)this.mc.player.inventory.armor.get(i)).isDamaged()) continue;
                 ++n;
                 if (null == null) continue;
                 return;
@@ -54,9 +54,9 @@ extends Module {
                 return;
             }
         }
-        if ((n = InvUtils.findItemInHotbar(class_1802.field_8287)) != -1) {
+        if ((n = InvUtils.findItemInHotbar(Items.EXPERIENCE_BOTTLE)) != -1) {
             if (this.lookDown.get().booleanValue()) {
-                Rotations.rotate(this.mc.field_1724.field_6031, 90.0, () -> this.lambda$onTick$0(n));
+                Rotations.rotate(this.mc.player.yaw, 90.0, () -> this.lambda$onTick$0(n));
             } else {
                 this.throwExp(n);
             }
@@ -68,10 +68,10 @@ extends Module {
     }
 
     private void throwExp(int n) {
-        int n2 = this.mc.field_1724.field_7514.field_7545;
-        this.mc.field_1724.field_7514.field_7545 = n;
-        this.mc.field_1761.method_2919((class_1657)this.mc.field_1724, (class_1937)this.mc.field_1687, class_1268.field_5808);
-        this.mc.field_1724.field_7514.field_7545 = n2;
+        int n2 = this.mc.player.inventory.selectedSlot;
+        this.mc.player.inventory.selectedSlot = n;
+        this.mc.interactionManager.interactItem((PlayerEntity)this.mc.player, (World)this.mc.world, Hand.MAIN_HAND);
+        this.mc.player.inventory.selectedSlot = n2;
     }
 }
 

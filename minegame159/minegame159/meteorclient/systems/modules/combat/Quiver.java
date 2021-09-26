@@ -17,12 +17,12 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.RotationUtils;
-import net.minecraft.class_1293;
-import net.minecraft.class_1294;
-import net.minecraft.class_1657;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1844;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.potion.PotionUtil;
 
 public class Quiver
 extends Module {
@@ -50,7 +50,7 @@ extends Module {
     public void onActivate() {
         this.shooting = false;
         int n = 0;
-        this.prevSlot = this.mc.field_1724.field_7514.field_7545;
+        this.prevSlot = this.mc.player.inventory.selectedSlot;
         this.shotStrength = false;
         this.shotSpeed = false;
         this.foundStrength = false;
@@ -66,7 +66,7 @@ extends Module {
             this.toggle();
             return;
         }
-        this.mc.field_1724.field_7514.field_7545 = n2;
+        this.mc.player.inventory.selectedSlot = n2;
         for (Map.Entry<ArrowType, Integer> entry : this.getAllArrows().entrySet()) {
             if (entry.getKey() == ArrowType.Strength && !this.foundStrength) {
                 this.strengthSlot = entry.getValue();
@@ -116,8 +116,8 @@ extends Module {
 
     private void endShooting(int n) {
         this.setPressed(false);
-        this.mc.field_1724.method_6075();
-        this.mc.field_1761.method_2897((class_1657)this.mc.field_1724);
+        this.mc.player.stopUsingItem();
+        this.mc.interactionManager.stopUsingItem((PlayerEntity)this.mc.player);
         if (n != 9) {
             this.moveItems(9, n);
         }
@@ -126,27 +126,27 @@ extends Module {
 
     @Override
     public void onDeactivate() {
-        this.mc.field_1724.field_7514.field_7545 = this.prevSlot;
+        this.mc.player.inventory.selectedSlot = this.prevSlot;
     }
 
     private boolean isType(String string, int n) {
         List list;
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        class_1799 class_17992 = this.mc.field_1724.field_7514.method_5438(n);
-        if (class_17992.method_7909() == class_1802.field_8087 && (list = class_1844.method_8063((class_1799)class_17992).method_8049()).size() > 0) {
-            class_1293 class_12932 = (class_1293)list.get(0);
-            return class_12932.method_5586().equals(string);
+        ItemStack ItemStack2 = this.mc.player.inventory.getStack(n);
+        if (ItemStack2.getItem() == Items.TIPPED_ARROW && (list = PotionUtil.getPotion((ItemStack)ItemStack2).getEffects()).size() > 0) {
+            StatusEffectInstance StatusEffectInstance2 = (StatusEffectInstance)list.get(0);
+            return StatusEffectInstance2.getTranslationKey().equals(string);
         }
         return false;
     }
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        RotationUtils.packetRotate(this.mc.field_1724.field_6031, -90.0f);
+        RotationUtils.packetRotate(this.mc.player.yaw, -90.0f);
         boolean bl = false;
-        if (this.shooting && this.mc.field_1724.method_6048() >= this.charge.get()) {
+        if (this.shooting && this.mc.player.getItemUseTime() >= this.charge.get()) {
             if (this.shootingArrow == ArrowType.Strength) {
                 this.endShooting(this.strengthSlot);
             }
@@ -183,16 +183,16 @@ extends Module {
     }
 
     private void setPressed(boolean bl) {
-        this.mc.field_1690.field_1904.method_23481(bl);
+        this.mc.options.keyUse.setPressed(bl);
     }
 
     private int findBow() {
         int n = -1;
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
         for (int i = 0; i < 9; ++i) {
-            if (this.mc.field_1724.field_7514.method_5438(i).method_7909() != class_1802.field_8102) continue;
+            if (this.mc.player.inventory.getStack(i).getItem() != Items.BOW) continue;
             n = i;
             if (4 > 0) continue;
             return 0;
@@ -202,10 +202,10 @@ extends Module {
 
     private Map<ArrowType, Integer> getAllArrows() {
         HashMap<ArrowType, Integer> hashMap = new HashMap<ArrowType, Integer>();
-        boolean bl = this.mc.field_1724.method_6088().containsKey(class_1294.field_5910);
-        boolean bl2 = this.mc.field_1724.method_6088().containsKey(class_1294.field_5904);
+        boolean bl = this.mc.player.getActiveStatusEffects().containsKey(StatusEffects.STRENGTH);
+        boolean bl2 = this.mc.player.getActiveStatusEffects().containsKey(StatusEffects.SPEED);
         for (int i = 35; i >= 0; --i) {
-            if (this.mc.field_1724.field_7514.method_5438(i).method_7909() != class_1802.field_8087 || i == this.mc.field_1724.field_7514.field_7545) continue;
+            if (this.mc.player.inventory.getStack(i).getItem() != Items.TIPPED_ARROW || i == this.mc.player.inventory.selectedSlot) continue;
             if (this.checkEffects.get().booleanValue()) {
                 if (this.isType("effect.minecraft.strength", i) && !bl) {
                     hashMap.put(ArrowType.Strength, i);

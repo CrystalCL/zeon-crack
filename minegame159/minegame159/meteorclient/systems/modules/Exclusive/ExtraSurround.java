@@ -26,11 +26,11 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Exclusive.Ezz;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import org.apache.commons.io.FileUtils;
 
 public class ExtraSurround
@@ -44,11 +44,11 @@ extends Module {
     private final Setting<Boolean> rotate;
     private final Setting<ecenter> center;
     private final Setting<antcry> anti;
-    class_2338 pos;
+    BlockPos pos;
     private final Setting<SurrMode> mode;
 
     private boolean e(int n, int n2, int n3) {
-        return Ezz.BlockPlace(Ezz.SetRelative(n, n2, n3), InvUtils.findItemInHotbar(class_1802.field_8466), this.rotate.get());
+        return Ezz.BlockPlace(Ezz.SetRelative(n, n2, n3), InvUtils.findItemInHotbar(Items.ENDER_CHEST), this.rotate.get());
     }
 
     @EventHandler
@@ -58,44 +58,44 @@ extends Module {
             if (this.center.get() == ecenter.legit) {
                 double d = 0.0;
                 double d2 = 0.0;
-                class_243 class_2432 = this.mc.field_1724.method_19538();
-                if (class_2432.field_1352 > 0.0 && this.gp(class_2432.field_1352) < 3L) {
+                Vec3d Vec3d2 = this.mc.player.getPos();
+                if (Vec3d2.x > 0.0 && this.gp(Vec3d2.x) < 3L) {
                     d = 0.185;
                 }
-                if (class_2432.field_1352 > 0.0 && this.gp(class_2432.field_1352) > 6L) {
+                if (Vec3d2.x > 0.0 && this.gp(Vec3d2.x) > 6L) {
                     d = -0.185;
                 }
-                if (class_2432.field_1352 < 0.0 && this.gp(class_2432.field_1352) < 3L) {
+                if (Vec3d2.x < 0.0 && this.gp(Vec3d2.x) < 3L) {
                     d = -0.185;
                 }
-                if (class_2432.field_1352 < 0.0 && this.gp(class_2432.field_1352) > 6L) {
+                if (Vec3d2.x < 0.0 && this.gp(Vec3d2.x) > 6L) {
                     d = 0.185;
                 }
-                if (class_2432.field_1350 > 0.0 && this.gp(class_2432.field_1350) < 3L) {
+                if (Vec3d2.z > 0.0 && this.gp(Vec3d2.z) < 3L) {
                     d2 = 0.185;
                 }
-                if (class_2432.field_1350 > 0.0 && this.gp(class_2432.field_1350) > 6L) {
+                if (Vec3d2.z > 0.0 && this.gp(Vec3d2.z) > 6L) {
                     d2 = -0.185;
                 }
-                if (class_2432.field_1350 < 0.0 && this.gp(class_2432.field_1350) < 3L) {
+                if (Vec3d2.z < 0.0 && this.gp(Vec3d2.z) < 3L) {
                     d2 = -0.185;
                 }
-                if (class_2432.field_1350 < 0.0 && this.gp(class_2432.field_1350) > 6L) {
+                if (Vec3d2.z < 0.0 && this.gp(Vec3d2.z) > 6L) {
                     d2 = 0.185;
                 }
                 if (d != 0.0 || d2 != 0.0) {
-                    double d3 = this.mc.field_1724.method_23317() + d;
-                    double d4 = this.mc.field_1724.method_23321() + d2;
-                    this.mc.field_1724.method_5814(d3, this.mc.field_1724.method_23318(), d4);
-                    this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318(), this.mc.field_1724.method_23321(), this.mc.field_1724.method_24828()));
+                    double d3 = this.mc.player.getX() + d;
+                    double d4 = this.mc.player.getZ() + d2;
+                    this.mc.player.setPosition(d3, this.mc.player.getY(), d4);
+                    this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY(), this.mc.player.getZ(), this.mc.player.isOnGround()));
                     return;
                 }
             }
-            if (this.disableOnJump.get().booleanValue() && this.mc.field_1690.field_1903.method_1434()) {
+            if (this.disableOnJump.get().booleanValue() && this.mc.options.keyJump.isPressed()) {
                 this.toggle();
                 return;
             }
-            if (this.onlyOnGround.get().booleanValue() && !this.mc.field_1724.method_24828()) {
+            if (this.onlyOnGround.get().booleanValue() && !this.mc.player.isOnGround()) {
                 return;
             }
             if (this.mode.get() == SurrMode.Normal) {
@@ -418,42 +418,42 @@ extends Module {
         if (this.center.get() == ecenter.fast) {
             double d = 0.0;
             double d2 = 0.0;
-            class_243 class_2432 = this.mc.field_1724.method_19538();
-            if (class_2432.field_1352 > 0.0 && this.gp(class_2432.field_1352) < 3L) {
+            Vec3d Vec3d2 = this.mc.player.getPos();
+            if (Vec3d2.x > 0.0 && this.gp(Vec3d2.x) < 3L) {
                 d = 0.3;
             }
-            if (class_2432.field_1352 > 0.0 && this.gp(class_2432.field_1352) > 6L) {
+            if (Vec3d2.x > 0.0 && this.gp(Vec3d2.x) > 6L) {
                 d = -0.3;
             }
-            if (class_2432.field_1352 < 0.0 && this.gp(class_2432.field_1352) < 3L) {
+            if (Vec3d2.x < 0.0 && this.gp(Vec3d2.x) < 3L) {
                 d = -0.3;
             }
-            if (class_2432.field_1352 < 0.0 && this.gp(class_2432.field_1352) > 6L) {
+            if (Vec3d2.x < 0.0 && this.gp(Vec3d2.x) > 6L) {
                 d = 0.3;
             }
-            if (class_2432.field_1350 > 0.0 && this.gp(class_2432.field_1350) < 3L) {
+            if (Vec3d2.z > 0.0 && this.gp(Vec3d2.z) < 3L) {
                 d2 = 0.3;
             }
-            if (class_2432.field_1350 > 0.0 && this.gp(class_2432.field_1350) > 6L) {
+            if (Vec3d2.z > 0.0 && this.gp(Vec3d2.z) > 6L) {
                 d2 = -0.3;
             }
-            if (class_2432.field_1350 < 0.0 && this.gp(class_2432.field_1350) < 3L) {
+            if (Vec3d2.z < 0.0 && this.gp(Vec3d2.z) < 3L) {
                 d2 = -0.3;
             }
-            if (class_2432.field_1350 < 0.0 && this.gp(class_2432.field_1350) > 6L) {
+            if (Vec3d2.z < 0.0 && this.gp(Vec3d2.z) > 6L) {
                 d2 = 0.3;
             }
             if (d != 0.0 || d2 != 0.0) {
-                double d3 = this.mc.field_1724.method_23317() + d;
-                double d4 = this.mc.field_1724.method_23321() + d2;
-                this.mc.field_1724.method_5814(d3, this.mc.field_1724.method_23318(), d4);
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318(), this.mc.field_1724.method_23321(), this.mc.field_1724.method_24828()));
+                double d3 = this.mc.player.getX() + d;
+                double d4 = this.mc.player.getZ() + d2;
+                this.mc.player.setPosition(d3, this.mc.player.getY(), d4);
+                this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY(), this.mc.player.getZ(), this.mc.player.isOnGround()));
             }
         }
     }
 
     private boolean p(int n, int n2, int n3) {
-        return Ezz.BlockPlace(Ezz.SetRelative(n, n2, n3), InvUtils.findItemInHotbar(class_1802.field_8281), this.rotate.get());
+        return Ezz.BlockPlace(Ezz.SetRelative(n, n2, n3), InvUtils.findItemInHotbar(Items.OBSIDIAN), this.rotate.get());
     }
 
     public static final class SurrMode

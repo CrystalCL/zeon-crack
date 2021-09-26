@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.events.entity;
 
-import net.minecraft.class_1297;
+import net.minecraft.entity.Entity;
 
 public class EntityDestroyEvent {
-    public class_1297 entity;
+    public Entity entity;
     private static final EntityDestroyEvent INSTANCE = new EntityDestroyEvent();
 
-    public static EntityDestroyEvent get(class_1297 class_12972) {
-        EntityDestroyEvent.INSTANCE.entity = class_12972;
+    public static EntityDestroyEvent get(Entity Entity2) {
+        EntityDestroyEvent.INSTANCE.entity = Entity2;
         return INSTANCE;
     }
 }

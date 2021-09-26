@@ -10,8 +10,8 @@ import minegame159.meteorclient.gui.renderer.GuiRenderer;
 import minegame159.meteorclient.gui.utils.Cell;
 import minegame159.meteorclient.gui.widgets.WWidget;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_310;
-import net.minecraft.class_312;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Mouse;
 
 public abstract class WContainer
 extends WWidget {
@@ -34,8 +34,8 @@ extends WWidget {
     public void moveCells(double d, double d2) {
         for (Cell<?> cell : this.cells) {
             cell.move(d, d2);
-            class_312 class_3122 = class_310.method_1551().field_1729;
-            ((WWidget)cell.widget()).mouseMoved(class_3122.method_1603(), class_3122.method_1604(), class_3122.method_1603(), class_3122.method_1604());
+            Mouse Mouse2 = MinecraftClient.getInstance().mouse;
+            ((WWidget)cell.widget()).mouseMoved(Mouse2.getX(), Mouse2.getY(), Mouse2.getX(), Mouse2.getY());
         }
     }
 

@@ -14,19 +14,19 @@ import minegame159.meteorclient.events.world.ChunkDataEvent;
 import minegame159.meteorclient.mixininterface.IExplosionS2CPacket;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.movement.Velocity;
-import net.minecraft.class_1297;
-import net.minecraft.class_1542;
-import net.minecraft.class_2653;
-import net.minecraft.class_2664;
-import net.minecraft.class_2672;
-import net.minecraft.class_2678;
-import net.minecraft.class_2716;
-import net.minecraft.class_2767;
-import net.minecraft.class_2775;
-import net.minecraft.class_2818;
-import net.minecraft.class_310;
-import net.minecraft.class_634;
-import net.minecraft.class_638;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
+import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,21 +34,21 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(value={class_634.class})
+@Mixin(value={ClientPlayNetworkHandler.class})
 public abstract class ClientPlayNetworkHandlerMixin {
     @Shadow
-    private class_310 field_3690;
+    private MinecraftClient client;
     @Shadow
-    private class_638 field_3699;
+    private ClientWorld world;
     private boolean worldNotNull;
 
     @Inject(at={@At(value="HEAD")}, method={"onGameJoin"})
-    private void onGameJoinHead(class_2678 class_26782, CallbackInfo callbackInfo) {
-        this.worldNotNull = this.field_3699 != null;
+    private void onGameJoinHead(GameJoinS2CPacket GameJoinS2CPacket2, CallbackInfo callbackInfo) {
+        this.worldNotNull = this.world != null;
     }
 
     @Inject(at={@At(value="TAIL")}, method={"onGameJoin"})
-    private void onGameJoinTail(class_2678 class_26782, CallbackInfo callbackInfo) {
+    private void onGameJoinTail(GameJoinS2CPacket GameJoinS2CPacket2, CallbackInfo callbackInfo) {
         if (this.worldNotNull) {
             MeteorClient.EVENT_BUS.post(GameLeftEvent.get());
         }
@@ -56,43 +56,43 @@ public abstract class ClientPlayNetworkHandlerMixin {
     }
 
     @Inject(at={@At(value="HEAD")}, method={"onPlaySound"})
-    private void onPlaySound(class_2767 class_27672, CallbackInfo callbackInfo) {
-        MeteorClient.EVENT_BUS.post(PlaySoundPacketEvent.get(class_27672));
+    private void onPlaySound(PlaySoundS2CPacket PlaySoundS2CPacket2, CallbackInfo callbackInfo) {
+        MeteorClient.EVENT_BUS.post(PlaySoundPacketEvent.get(PlaySoundS2CPacket2));
     }
 
     @Inject(method={"onChunkData"}, at={@At(value="TAIL")})
-    private void onChunkData(class_2672 class_26722, CallbackInfo callbackInfo) {
-        class_2818 class_28182 = this.field_3690.field_1687.method_8497(class_26722.method_11523(), class_26722.method_11524());
-        MeteorClient.EVENT_BUS.post(ChunkDataEvent.get(class_28182));
+    private void onChunkData(ChunkDataS2CPacket ChunkDataS2CPacket2, CallbackInfo callbackInfo) {
+        WorldChunk WorldChunk2 = this.client.world.getChunk(ChunkDataS2CPacket2.getX(), ChunkDataS2CPacket2.getZ());
+        MeteorClient.EVENT_BUS.post(ChunkDataEvent.get(WorldChunk2));
     }
 
     @Inject(method={"onScreenHandlerSlotUpdate"}, at={@At(value="TAIL")})
-    private void onContainerSlotUpdate(class_2653 class_26532, CallbackInfo callbackInfo) {
-        MeteorClient.EVENT_BUS.post(ContainerSlotUpdateEvent.get(class_26532));
+    private void onContainerSlotUpdate(ScreenHandlerSlotUpdateS2CPacket ScreenHandlerSlotUpdateS2CPacket2, CallbackInfo callbackInfo) {
+        MeteorClient.EVENT_BUS.post(ContainerSlotUpdateEvent.get(ScreenHandlerSlotUpdateS2CPacket2));
     }
 
     @Inject(method={"onEntitiesDestroy"}, at={@At(value="INVOKE", target="Lnet/minecraft/client/world/ClientWorld;removeEntity(I)V")}, locals=LocalCapture.CAPTURE_FAILSOFT)
-    private void onEntityDestroy(class_2716 class_27162, CallbackInfo callbackInfo, int n, int n2) {
-        MeteorClient.EVENT_BUS.post(EntityDestroyEvent.get(this.field_3690.field_1687.method_8469(n2)));
+    private void onEntityDestroy(EntitiesDestroyS2CPacket EntitiesDestroyS2CPacket2, CallbackInfo callbackInfo, int n, int n2) {
+        MeteorClient.EVENT_BUS.post(EntityDestroyEvent.get(this.client.world.getEntityById(n2)));
     }
 
     @Inject(method={"onExplosion"}, at={@At(value="INVOKE", target="Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V", shift=At.Shift.AFTER)})
-    private void onExplosionVelocity(class_2664 class_26642, CallbackInfo callbackInfo) {
+    private void onExplosionVelocity(ExplosionS2CPacket ExplosionS2CPacket2, CallbackInfo callbackInfo) {
         Velocity velocity = Modules.get().get(Velocity.class);
         if (!velocity.explosions.get().booleanValue()) {
             return;
         }
-        ((IExplosionS2CPacket)class_26642).setVelocityX((float)((double)class_26642.method_11472() * velocity.getHorizontal()));
-        ((IExplosionS2CPacket)class_26642).setVelocityY((float)((double)class_26642.method_11473() * velocity.getVertical()));
-        ((IExplosionS2CPacket)class_26642).setVelocityZ((float)((double)class_26642.method_11474() * velocity.getHorizontal()));
+        ((IExplosionS2CPacket)ExplosionS2CPacket2).setVelocityX((float)((double)ExplosionS2CPacket2.getPlayerVelocityX() * velocity.getHorizontal()));
+        ((IExplosionS2CPacket)ExplosionS2CPacket2).setVelocityY((float)((double)ExplosionS2CPacket2.getPlayerVelocityY() * velocity.getVertical()));
+        ((IExplosionS2CPacket)ExplosionS2CPacket2).setVelocityZ((float)((double)ExplosionS2CPacket2.getPlayerVelocityZ() * velocity.getHorizontal()));
     }
 
     @Inject(method={"onItemPickupAnimation"}, at={@At(value="INVOKE", target="Lnet/minecraft/client/world/ClientWorld;getEntityById(I)Lnet/minecraft/entity/Entity;", ordinal=0)})
-    private void onItemPickupAnimation(class_2775 class_27752, CallbackInfo callbackInfo) {
-        class_1297 class_12972 = this.field_3690.field_1687.method_8469(class_27752.method_11915());
-        class_1297 class_12973 = this.field_3690.field_1687.method_8469(class_27752.method_11912());
-        if (class_12972 instanceof class_1542 && class_12973 == this.field_3690.field_1724) {
-            MeteorClient.EVENT_BUS.post(PickItemsEvent.get(((class_1542)class_12972).method_6983(), class_27752.method_11913()));
+    private void onItemPickupAnimation(ItemPickupAnimationS2CPacket ItemPickupAnimationS2CPacket2, CallbackInfo callbackInfo) {
+        Entity Entity2 = this.client.world.getEntityById(ItemPickupAnimationS2CPacket2.getEntityId());
+        Entity Entity3 = this.client.world.getEntityById(ItemPickupAnimationS2CPacket2.getCollectorEntityId());
+        if (Entity2 instanceof ItemEntity && Entity3 == this.client.player) {
+            MeteorClient.EVENT_BUS.post(PickItemsEvent.get(((ItemEntity)Entity2).getStack(), ItemPickupAnimationS2CPacket2.getStackAmount()));
         }
     }
 }

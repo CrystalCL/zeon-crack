@@ -16,13 +16,13 @@ import minegame159.meteorclient.gui.WidgetScreen;
 import minegame159.meteorclient.mixininterface.IMinecraftClient;
 import minegame159.meteorclient.systems.config.Config;
 import minegame159.meteorclient.utils.network.OnlinePlayers;
-import net.minecraft.class_1041;
-import net.minecraft.class_239;
-import net.minecraft.class_310;
-import net.minecraft.class_312;
-import net.minecraft.class_3695;
-import net.minecraft.class_437;
-import net.minecraft.class_638;
+import net.minecraft.client.util.Window;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Mouse;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,30 +34,30 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={class_310.class}, priority=1001)
+@Mixin(value={MinecraftClient.class}, priority=1001)
 public abstract class MinecraftClientMixin
 implements IMinecraftClient {
     @Shadow
-    public class_638 field_1687;
+    public ClientWorld world;
     @Shadow
     @Final
-    public class_312 field_1729;
+    public Mouse mouse;
     @Shadow
     @Final
-    private class_1041 field_1704;
+    private Window window;
     @Shadow
     @Nullable
-    public class_437 field_1755;
+    public Screen currentScreen;
     @Unique
     private boolean doItemUseCalled;
     @Unique
     private boolean rightClick;
 
     @Shadow
-    protected abstract void method_1583();
+    protected abstract void doItemUse();
 
     @Shadow
-    public abstract class_3695 method_16011();
+    public abstract Profiler getProfiler();
 
     @Inject(method={"<init>"}, at={@At(value="TAIL")})
     private void onInit(CallbackInfo callbackInfo) {
@@ -68,20 +68,20 @@ implements IMinecraftClient {
     private void onPreTick(CallbackInfo callbackInfo) {
         OnlinePlayers.update();
         this.doItemUseCalled = false;
-        this.method_16011().method_15396("meteor-client_pre_update");
+        this.getProfiler().push("meteor-client_pre_update");
         MeteorClient.EVENT_BUS.post(TickEvent.Pre.get());
-        this.method_16011().method_15407();
+        this.getProfiler().pop();
         if (this.rightClick && !this.doItemUseCalled) {
-            this.method_1583();
+            this.doItemUse();
         }
         this.rightClick = false;
     }
 
     @Inject(at={@At(value="TAIL")}, method={"tick"})
     private void onTick(CallbackInfo callbackInfo) {
-        this.method_16011().method_15396("meteor-client_post_update");
+        this.getProfiler().push("meteor-client_post_update");
         MeteorClient.EVENT_BUS.post(TickEvent.Post.get());
-        this.method_16011().method_15407();
+        this.getProfiler().pop();
     }
 
     @Inject(method={"doItemUse"}, at={@At(value="HEAD")})
@@ -90,31 +90,31 @@ implements IMinecraftClient {
     }
 
     @Inject(method={"disconnect(Lnet/minecraft/client/gui/screen/Screen;)V"}, at={@At(value="HEAD")})
-    private void onDisconnect(class_437 class_4372, CallbackInfo callbackInfo) {
-        if (this.field_1687 != null) {
+    private void onDisconnect(Screen Screen2, CallbackInfo callbackInfo) {
+        if (this.world != null) {
             MeteorClient.EVENT_BUS.post(GameLeftEvent.get());
         }
     }
 
     @Inject(method={"openScreen"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onOpenScreen(class_437 class_4372, CallbackInfo callbackInfo) {
-        if (class_4372 instanceof WidgetScreen) {
-            class_4372.method_16014(this.field_1729.method_1603() * this.field_1704.method_4495(), this.field_1729.method_1604() * this.field_1704.method_4495());
+    private void onOpenScreen(Screen Screen2, CallbackInfo callbackInfo) {
+        if (Screen2 instanceof WidgetScreen) {
+            Screen2.mouseMoved(this.mouse.getX() * this.window.getScaleFactor(), this.mouse.getY() * this.window.getScaleFactor());
         }
-        OpenScreenEvent openScreenEvent = OpenScreenEvent.get(class_4372);
+        OpenScreenEvent openScreenEvent = OpenScreenEvent.get(Screen2);
         MeteorClient.EVENT_BUS.post(openScreenEvent);
         if (openScreenEvent.isCancelled()) {
             callbackInfo.cancel();
             return;
         }
-        if (class_4372 == null) {
+        if (Screen2 == null) {
             GuiKeyEvents.resetPostKeyEvents();
         }
     }
 
     @Redirect(method={"doItemUse"}, at=@At(value="FIELD", target="Lnet/minecraft/client/MinecraftClient;crosshairTarget:Lnet/minecraft/util/hit/HitResult;", ordinal=1))
-    private class_239 doItemUseMinecraftClientCrosshairTargetProxy(class_310 class_3102) {
-        return MeteorClient.EVENT_BUS.post(ItemUseCrosshairTargetEvent.get((class_239)class_3102.field_1765)).target;
+    private HitResult doItemUseMinecraftClientCrosshairTargetProxy(MinecraftClient MinecraftClient2) {
+        return MeteorClient.EVENT_BUS.post(ItemUseCrosshairTargetEvent.get((HitResult)MinecraftClient2.crosshairTarget)).target;
     }
 
     @ModifyVariable(method={"reloadResources"}, at=@At(value="STORE"), ordinal=0)

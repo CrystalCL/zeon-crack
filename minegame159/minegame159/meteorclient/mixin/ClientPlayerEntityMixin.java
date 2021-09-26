@@ -15,10 +15,10 @@ import minegame159.meteorclient.systems.modules.movement.NoSlow;
 import minegame159.meteorclient.systems.modules.movement.Scaffold;
 import minegame159.meteorclient.systems.modules.player.Portals;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_310;
-import net.minecraft.class_437;
-import net.minecraft.class_634;
-import net.minecraft.class_746;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,15 +28,15 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={class_746.class})
+@Mixin(value={ClientPlayerEntity.class})
 public abstract class ClientPlayerEntityMixin {
     @Shadow
     @Final
-    public class_634 field_3944;
+    public ClientPlayNetworkHandler networkHandler;
     private boolean ignoreChatMessage;
 
     @Shadow
-    public abstract void method_3142(String var1);
+    public abstract void sendChatMessage(String var1);
 
     @Inject(at={@At(value="HEAD")}, method={"sendChatMessage"}, cancellable=true)
     private void onSendChatMessage(String string, CallbackInfo callbackInfo) {
@@ -47,7 +47,7 @@ public abstract class ClientPlayerEntityMixin {
             SendMessageEvent sendMessageEvent = MeteorClient.EVENT_BUS.post(SendMessageEvent.get(string));
             if (!sendMessageEvent.isCancelled()) {
                 this.ignoreChatMessage = true;
-                this.method_3142(sendMessageEvent.msg);
+                this.sendChatMessage(sendMessageEvent.msg);
                 this.ignoreChatMessage = false;
             }
             callbackInfo.cancel();
@@ -65,19 +65,19 @@ public abstract class ClientPlayerEntityMixin {
     }
 
     @Redirect(method={"updateNausea"}, at=@At(value="FIELD", target="Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;"))
-    private class_437 updateNauseaGetCurrentScreenProxy(class_310 class_3102) {
+    private Screen updateNauseaGetCurrentScreenProxy(MinecraftClient MinecraftClient2) {
         if (Modules.get().isActive(Portals.class)) {
             return null;
         }
-        return class_3102.field_1755;
+        return MinecraftClient2.currentScreen;
     }
 
     @Redirect(method={"tickMovement"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
-    private boolean proxy_tickMovement_isUsingItem(class_746 class_7462) {
+    private boolean proxy_tickMovement_isUsingItem(ClientPlayerEntity ClientPlayerEntity2) {
         if (Modules.get().get(NoSlow.class).items()) {
             return false;
         }
-        return class_7462.method_6115();
+        return ClientPlayerEntity2.isUsingItem();
     }
 
     @Inject(method={"isSneaking"}, at={@At(value="HEAD")}, cancellable=true)

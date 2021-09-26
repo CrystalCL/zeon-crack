@@ -53,9 +53,9 @@ import minegame159.meteorclient.systems.modules.render.hud.modules.WelcomeHud;
 import minegame159.meteorclient.utils.render.AlignmentX;
 import minegame159.meteorclient.utils.render.AlignmentY;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -78,14 +78,14 @@ extends Module {
     public final Setting<SettingColor> primaryColor;
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = super.toTag();
-        class_2499 class_24992 = new class_2499();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = super.toTag();
+        NbtList NbtList2 = new NbtList();
         for (HudElement hudElement : this.elements) {
-            class_24992.add((Object)hudElement.toTag());
+            NbtList2.add((Object)hudElement.toTag());
         }
-        class_24872.method_10566("modules", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("modules", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     private HudElement getModule(String string) {
@@ -97,17 +97,17 @@ extends Module {
     }
 
     @Override
-    public Module fromTag(class_2487 class_24872) {
-        if (class_24872.method_10545("modules")) {
-            class_2499 class_24992 = class_24872.method_10554("modules", 10);
-            for (class_2520 class_25202 : class_24992) {
-                class_2487 class_24873 = (class_2487)class_25202;
-                HudElement hudElement = this.getModule(class_24873.method_10558("name"));
+    public Module fromTag(NbtCompound NbtCompound2) {
+        if (NbtCompound2.contains("modules")) {
+            NbtList NbtList2 = NbtCompound2.getList("modules", 10);
+            for (NbtElement NbtElement2 : NbtList2) {
+                NbtCompound NbtCompound3 = (NbtCompound)NbtElement2;
+                HudElement hudElement = this.getModule(NbtCompound3.getString("name"));
                 if (hudElement == null) continue;
-                hudElement.fromTag(class_24873);
+                hudElement.fromTag(NbtCompound3);
             }
         }
-        return super.fromTag(class_24872);
+        return super.fromTag(NbtCompound2);
     }
 
     @Override
@@ -166,12 +166,12 @@ extends Module {
 
     @EventHandler
     public void onRender(Render2DEvent render2DEvent) {
-        if (this.mc.field_1690.field_1866) {
+        if (this.mc.options.debugEnabled) {
             return;
         }
         RENDERER.begin(this.scale.get(), render2DEvent.tickDelta, false);
         for (HudElement hudElement : this.elements) {
-            if (!hudElement.active && !HudTab.INSTANCE.isScreen(this.mc.field_1755) && !(this.mc.field_1755 instanceof HudElementScreen)) continue;
+            if (!hudElement.active && !HudTab.INSTANCE.isScreen(this.mc.currentScreen) && !(this.mc.currentScreen instanceof HudElementScreen)) continue;
             hudElement.update(RENDERER);
             hudElement.render(RENDERER);
         }
@@ -190,8 +190,8 @@ extends Module {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 }
 

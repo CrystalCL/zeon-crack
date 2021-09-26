@@ -18,8 +18,8 @@ import minegame159.meteorclient.systems.modules.Category;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1802;
-import net.minecraft.class_3545;
+import net.minecraft.item.Items;
+import net.minecraft.util.Pair;
 
 public class ModulesScreen
 extends TabScreen {
@@ -31,19 +31,19 @@ extends TabScreen {
     protected void createSearchW(WContainer wContainer, String string) {
         if (!string.isEmpty()) {
             WSection wSection;
-            List<class_3545<Module, Integer>> list = Modules.get().searchTitles(string);
+            List<Pair<Module, Integer>> list = Modules.get().searchTitles(string);
             if (list.size() > 0) {
                 wSection = wContainer.add(this.theme.section("Modules")).expandX().widget();
                 wSection.spacing = 0.0;
-                for (class_3545<Module, Integer> class_35452 : list) {
-                    wSection.add(this.theme.module((Module)class_35452.method_15442())).expandX();
+                for (Pair<Module, Integer> Pair2 : list) {
+                    wSection.add(this.theme.module((Module)Pair2.getLeft())).expandX();
                 }
             }
             if ((list = Modules.get().searchSettingTitles(string)).size() > 0) {
                 wSection = wContainer.add(this.theme.section("Settings")).expandX().widget();
                 wSection.spacing = 0.0;
-                for (class_3545<Module, Integer> class_35452 : list) {
-                    wSection.add(this.theme.module((Module)class_35452.method_15442())).expandX();
+                for (Pair<Module, Integer> Pair2 : list) {
+                    wSection.add(this.theme.module((Module)Pair2.getLeft())).expandX();
                 }
             }
         }
@@ -54,7 +54,7 @@ extends TabScreen {
     }
 
     private void lambda$createSearch$1(WContainer wContainer) {
-        wContainer.add(this.theme.item(class_1802.field_8251.method_7854())).pad(2.0);
+        wContainer.add(this.theme.item(Items.COMPASS.getDefaultStack())).pad(2.0);
     }
 
     protected void createCategory(WContainer wContainer, Category category) {

@@ -14,13 +14,13 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.input.Input;
-import net.minecraft.class_5498;
+import net.minecraft.client.option.Perspective;
 
 public class FreeRotate
 extends Module {
     public final Setting<Boolean> togglePerpective;
     public final Setting<Mode> mode;
-    private class_5498 prePers;
+    private Perspective prePers;
     private final SettingGroup sgGeneral;
     public final Setting<Double> sensitivity;
     public float cameraYaw;
@@ -62,16 +62,16 @@ extends Module {
                     }
                     case 2: {
                         if (Input.isKeyPressed(263)) {
-                            this.mc.field_1724.field_6031 = (float)((double)this.mc.field_1724.field_6031 - 0.5);
+                            this.mc.player.yaw = (float)((double)this.mc.player.yaw - 0.5);
                         }
                         if (Input.isKeyPressed(262)) {
-                            this.mc.field_1724.field_6031 = (float)((double)this.mc.field_1724.field_6031 + 0.5);
+                            this.mc.player.yaw = (float)((double)this.mc.player.yaw + 0.5);
                         }
                         if (Input.isKeyPressed(265)) {
-                            this.mc.field_1724.field_5965 = (float)((double)this.mc.field_1724.field_5965 - 0.5);
+                            this.mc.player.pitch = (float)((double)this.mc.player.pitch - 0.5);
                         }
                         if (!Input.isKeyPressed(264)) break;
-                        this.mc.field_1724.field_5965 = (float)((double)this.mc.field_1724.field_5965 + 0.5);
+                        this.mc.player.pitch = (float)((double)this.mc.player.pitch + 0.5);
                     }
                 }
                 ++n;
@@ -79,32 +79,32 @@ extends Module {
                 return;
             }
         }
-        this.mc.field_1724.field_5965 = Utils.clamp(this.mc.field_1724.field_5965, -90.0f, 90.0f);
+        this.mc.player.pitch = Utils.clamp(this.mc.player.pitch, -90.0f, 90.0f);
         this.cameraPitch = Utils.clamp(this.cameraPitch, -90.0f, 90.0f);
     }
 
     public boolean playerMode() {
-        return this.isActive() && this.mc.field_1690.method_31044() == class_5498.field_26665 && this.mode.get() == Mode.Player;
+        return this.isActive() && this.mc.options.getPerspective() == Perspective.THIRD_PERSON_BACK && this.mode.get() == Mode.Player;
     }
 
     @Override
     public void onDeactivate() {
-        if (this.mc.field_1690.method_31044() != this.prePers && this.togglePerpective.get().booleanValue()) {
-            this.mc.field_1690.method_31043(this.prePers);
+        if (this.mc.options.getPerspective() != this.prePers && this.togglePerpective.get().booleanValue()) {
+            this.mc.options.setPerspective(this.prePers);
         }
     }
 
     public boolean cameraMode() {
-        return this.isActive() && this.mc.field_1690.method_31044() == class_5498.field_26665 && this.mode.get() == Mode.Camera;
+        return this.isActive() && this.mc.options.getPerspective() == Perspective.THIRD_PERSON_BACK && this.mode.get() == Mode.Camera;
     }
 
     @Override
     public void onActivate() {
-        this.cameraYaw = this.mc.field_1724.field_6031;
-        this.cameraPitch = this.mc.field_1724.field_5965;
-        this.prePers = this.mc.field_1690.method_31044();
-        if (this.prePers != class_5498.field_26665 && this.togglePerpective.get().booleanValue()) {
-            this.mc.field_1690.method_31043(class_5498.field_26665);
+        this.cameraYaw = this.mc.player.yaw;
+        this.cameraPitch = this.mc.player.pitch;
+        this.prePers = this.mc.options.getPerspective();
+        if (this.prePers != Perspective.THIRD_PERSON_BACK && this.togglePerpective.get().booleanValue()) {
+            this.mc.options.setPerspective(Perspective.THIRD_PERSON_BACK);
         }
     }
 

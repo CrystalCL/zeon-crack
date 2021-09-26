@@ -13,8 +13,8 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1703;
-import net.minecraft.class_1707;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.GenericContainerScreenHandler;
 
 public class AutoSteal
 extends Module {
@@ -27,20 +27,20 @@ extends Module {
     private final Setting<Boolean> autoStealEnabled;
     private final Setting<Boolean> dumpButtonEnabled;
 
-    public void dumpAsync(class_1703 class_17032) {
-        MeteorExecutor.execute(() -> this.lambda$dumpAsync$3(class_17032));
+    public void dumpAsync(ScreenHandler ScreenHandler2) {
+        MeteorExecutor.execute(() -> this.lambda$dumpAsync$3(ScreenHandler2));
     }
 
     public boolean getStealButtonEnabled() {
         return this.stealButtonEnabled.get();
     }
 
-    private void steal(class_1703 class_17032) {
-        this.moveSlots(class_17032, 0, this.getRows(class_17032) * 9);
+    private void steal(ScreenHandler ScreenHandler2) {
+        this.moveSlots(ScreenHandler2, 0, this.getRows(ScreenHandler2) * 9);
     }
 
-    private void lambda$stealAsync$2(class_1703 class_17032) {
-        this.steal(class_17032);
+    private void lambda$stealAsync$2(ScreenHandler ScreenHandler2) {
+        this.steal(ScreenHandler2);
     }
 
     public boolean getDumpButtonEnabled() {
@@ -51,9 +51,9 @@ extends Module {
         this.checkAutoSettings();
     }
 
-    private void moveSlots(class_1703 class_17032, int n, int n2) {
+    private void moveSlots(ScreenHandler ScreenHandler2, int n, int n2) {
         for (int i = n; i < n2; ++i) {
-            if (!class_17032.method_7611(i).method_7681()) continue;
+            if (!ScreenHandler2.getSlot(i).hasStack()) continue;
             int n3 = this.getSleepTime();
             if (n3 > 0) {
                 try {
@@ -63,14 +63,14 @@ extends Module {
                     interruptedException.printStackTrace();
                 }
             }
-            if (this.mc.field_1755 == null) break;
+            if (this.mc.currentScreen == null) break;
             InvUtils.quickMove().slotId(i);
         }
     }
 
-    private void dump(class_1703 class_17032) {
-        int n = this.getRows(class_17032) * 9;
-        this.moveSlots(class_17032, n, n + 36);
+    private void dump(ScreenHandler ScreenHandler2) {
+        int n = this.getRows(ScreenHandler2) * 9;
+        this.moveSlots(ScreenHandler2, n, n + 36);
     }
 
     public boolean getAutoDumpEnabled() {
@@ -81,16 +81,16 @@ extends Module {
         return this.minimumDelay.get() + (this.randomDelay.get() > 0 ? ThreadLocalRandom.current().nextInt(0, this.randomDelay.get()) : 0);
     }
 
-    public void stealAsync(class_1703 class_17032) {
-        MeteorExecutor.execute(() -> this.lambda$stealAsync$2(class_17032));
+    public void stealAsync(ScreenHandler ScreenHandler2) {
+        MeteorExecutor.execute(() -> this.lambda$stealAsync$2(ScreenHandler2));
     }
 
-    private int getRows(class_1703 class_17032) {
-        return class_17032 instanceof class_1707 ? ((class_1707)class_17032).method_17388() : 3;
+    private int getRows(ScreenHandler ScreenHandler2) {
+        return ScreenHandler2 instanceof GenericContainerScreenHandler ? ((GenericContainerScreenHandler)ScreenHandler2).getRows() : 3;
     }
 
-    private void lambda$dumpAsync$3(class_1703 class_17032) {
-        this.dump(class_17032);
+    private void lambda$dumpAsync$3(ScreenHandler ScreenHandler2) {
+        this.dump(ScreenHandler2);
     }
 
     private void checkAutoSettings() {

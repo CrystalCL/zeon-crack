@@ -12,19 +12,19 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1299;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import org.lwjgl.opengl.GL11;
 
 public class Chams
 extends Module {
     private final SettingGroup sgGeneral;
-    private final Setting<Object2BooleanMap<class_1299<?>>> entities;
+    private final Setting<Object2BooleanMap<EntityType<?>>> entities;
 
     public Chams() {
         super(Categories.Render, "chams", "Renders entities through walls.");
         this.sgGeneral = this.settings.getDefaultGroup();
-        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entities").description("Select entities to show through walls.").defaultValue((Object2BooleanMap<class_1299<?>>)Utils.asObject2BooleanOpenHashMap(class_1299.field_6097)).build());
+        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entities").description("Select entities to show through walls.").defaultValue((Object2BooleanMap<EntityType<?>>)Utils.asObject2BooleanOpenHashMap(EntityType.PLAYER)).build());
     }
 
     @EventHandler
@@ -43,8 +43,8 @@ extends Module {
         }
     }
 
-    public boolean shouldRender(class_1297 class_12972) {
-        return this.isActive() && this.entities.get().getBoolean((Object)class_12972.method_5864());
+    public boolean shouldRender(Entity Entity2) {
+        return this.isActive() && this.entities.get().getBoolean((Object)Entity2.getType());
     }
 }
 

@@ -9,33 +9,33 @@ import minegame159.meteorclient.gui.screens.settings.LeftRightListSettingScreen;
 import minegame159.meteorclient.gui.widgets.WWidget;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.misc.Names;
-import net.minecraft.class_2378;
-import net.minecraft.class_3414;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.sound.SoundEvent;
 
 public class SoundEventListSettingScreen
-extends LeftRightListSettingScreen<class_3414> {
+extends LeftRightListSettingScreen<SoundEvent> {
     @Override
-    protected WWidget getValueWidget(class_3414 class_34142) {
-        return this.theme.label(this.getValueName(class_34142));
+    protected WWidget getValueWidget(SoundEvent SoundEvent2) {
+        return this.theme.label(this.getValueName(SoundEvent2));
     }
 
     @Override
     protected WWidget getValueWidget(Object object) {
-        return this.getValueWidget((class_3414)object);
+        return this.getValueWidget((SoundEvent)object);
     }
 
     @Override
     protected String getValueName(Object object) {
-        return this.getValueName((class_3414)object);
+        return this.getValueName((SoundEvent)object);
     }
 
-    public SoundEventListSettingScreen(GuiTheme guiTheme, Setting<List<class_3414>> setting) {
-        super(guiTheme, "Select sounds", setting, class_2378.field_11156);
+    public SoundEventListSettingScreen(GuiTheme guiTheme, Setting<List<SoundEvent>> setting) {
+        super(guiTheme, "Select sounds", setting, Registry.SOUND_EVENT);
     }
 
     @Override
-    protected String getValueName(class_3414 class_34142) {
-        return Names.getSoundName(class_34142.method_14833());
+    protected String getValueName(SoundEvent SoundEvent2) {
+        return Names.getSoundName(SoundEvent2.getId());
     }
 }
 

@@ -11,9 +11,9 @@ import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.mixin.CustomPayloadC2SPacketAccessor;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2540;
-import net.minecraft.class_2817;
-import net.minecraft.class_2960;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
 
 public class VanillaSpoof
@@ -36,13 +36,13 @@ extends Module {
 
         @EventHandler
         private void onPacketSend(PacketEvent.Send send) {
-            if (!this.this$0.isActive() || !(send.packet instanceof class_2817)) {
+            if (!this.this$0.isActive() || !(send.packet instanceof CustomPayloadC2SPacket)) {
                 return;
             }
             CustomPayloadC2SPacketAccessor customPayloadC2SPacketAccessor = (CustomPayloadC2SPacketAccessor)send.packet;
-            class_2960 class_29602 = customPayloadC2SPacketAccessor.getChannel();
-            if (class_29602.equals((Object)class_2817.field_12831)) {
-                customPayloadC2SPacketAccessor.setData(new class_2540(Unpooled.buffer()).method_10814("vanilla"));
+            Identifier Identifier2 = customPayloadC2SPacketAccessor.getChannel();
+            if (Identifier2.equals((Object)CustomPayloadC2SPacket.BRAND)) {
+                customPayloadC2SPacketAccessor.setData(new PacketByteBuf(Unpooled.buffer()).writeString("vanilla"));
             } else if (StringUtils.containsIgnoreCase((CharSequence)customPayloadC2SPacketAccessor.getData().toString(StandardCharsets.UTF_8), (CharSequence)"fabric")) {
                 send.cancel();
             }

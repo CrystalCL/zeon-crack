@@ -18,22 +18,22 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1297;
-import net.minecraft.class_1665;
-import net.minecraft.class_1676;
-import net.minecraft.class_1922;
-import net.minecraft.class_2338;
-import net.minecraft.class_238;
-import net.minecraft.class_243;
-import net.minecraft.class_259;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.world.BlockView;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.util.shape.VoxelShapes6;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
 public class ArrowDodge
 extends Module {
     private final Setting<MoveType> moveType;
     private final SettingGroup sgMovement;
-    private final List<class_243> possibleMoveDirections;
+    private final List<Vec3d> possibleMoveDirections;
     private final Setting<Integer> arrowLookahead;
     private final Setting<Double> moveSpeed;
     private final Setting<Boolean> groundCheck;
@@ -41,52 +41,52 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1724 == null) {
+        if (this.mc.player == null) {
             return;
         }
-        class_238 class_2383 = this.mc.field_1724.method_5829();
-        if (class_2383 == null) {
+        Box Box3 = this.mc.player.getBoundingBox();
+        if (Box3 == null) {
             return;
         }
-        class_2383 = class_2383.method_1014(0.6);
+        Box3 = Box3.expand(0.6);
         Double d = this.moveSpeed.get();
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972 instanceof class_1676) || ((class_1676)class_12972).method_24921() == this.mc.field_1724 || class_12972 instanceof class_1665 && ((ProjectileInGroundAccessor)class_12972).getInGround()) continue;
-            ArrayList<class_238> arrayList = new ArrayList<class_238>();
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2 instanceof ProjectileEntity) || ((ProjectileEntity)Entity2).getOwner() == this.mc.player || Entity2 instanceof PersistentProjectileEntity && ((ProjectileInGroundAccessor)Entity2).getInGround()) continue;
+            ArrayList<Box> arrayList = new ArrayList<Box>();
             for (int i = 0; i < this.arrowLookahead.get(); ++i) {
-                class_238 class_2384 = class_12972.method_19538().method_1019(class_12972.method_18798().method_1021((double)((float)i / 5.0f)));
-                arrayList.add(new class_238(class_2384.method_1023(class_12972.method_5829().method_17939() / 2.0, 0.0, class_12972.method_5829().method_17941() / 2.0), class_2384.method_1031(class_12972.method_5829().method_17939() / 2.0, class_12972.method_5829().method_17940(), class_12972.method_5829().method_17941() / 2.0)));
+                Box Box4 = Entity2.getPos().add(Entity2.getVelocity().multiply((double)((float)i / 5.0f)));
+                arrayList.add(new Box(Box4.subtract(Entity2.getBoundingBox().getXLength() / 2.0, 0.0, Entity2.getBoundingBox().getZLength() / 2.0), Box4.add(Entity2.getBoundingBox().getXLength() / 2.0, Entity2.getBoundingBox().getYLength(), Entity2.getBoundingBox().getZLength() / 2.0)));
             }
-            for (class_238 class_2384 : arrayList) {
-                if (!class_2383.method_994(class_2384)) continue;
+            for (Box Box4 : arrayList) {
+                if (!Box3.intersects(Box4)) continue;
                 Collections.shuffle(this.possibleMoveDirections);
                 boolean bl = false;
-                for (class_243 class_2432 : this.possibleMoveDirections) {
-                    class_243 class_2433 = class_2432.method_1021(d.doubleValue());
-                    if (!this.isValid(class_2433, arrayList, class_2383)) continue;
-                    this.move(class_2433);
+                for (Vec3d Vec3d2 : this.possibleMoveDirections) {
+                    Vec3d Vec3d3 = Vec3d2.multiply(d.doubleValue());
+                    if (!this.isValid(Vec3d3, arrayList, Box3)) continue;
+                    this.move(Vec3d3);
                     bl = true;
                     break;
                 }
                 if (bl) continue;
-                double d2 = Math.toRadians(class_12972.field_6031);
-                double d3 = Math.toRadians(class_12972.field_5965);
+                double d2 = Math.toRadians(Entity2.yaw);
+                double d3 = Math.toRadians(Entity2.pitch);
                 double d4 = Math.sin(d2) * Math.cos(d3) * d;
                 double d5 = Math.sin(d3) * d;
                 double d6 = -Math.cos(d2) * Math.cos(d3) * d;
-                this.move(new class_243(d4, d5, d6));
+                this.move(new Vec3d(d4, d5, d6));
             }
         }
     }
 
-    private void move(class_243 class_2432) {
+    private void move(Vec3d Vec3d2) {
         MoveType moveType = this.moveType.get();
         if (moveType == MoveType.Client) {
-            this.mc.field_1724.method_18799(class_2432);
+            this.mc.player.setVelocity(Vec3d2);
         } else if (moveType == MoveType.Packet) {
-            class_243 class_2433 = this.mc.field_1724.method_19538().method_1019(class_2432);
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(class_2433.field_1352, class_2433.field_1351, class_2433.field_1350, false));
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(class_2433.field_1352, class_2433.field_1351 - 0.01, class_2433.field_1350, true));
+            Vec3d Vec3d3 = this.mc.player.getPos().add(Vec3d2);
+            this.mc.player.networkHandler.sendPacket((VoxelShapes6)new PlayerMoveC2SPacket.class_2829(Vec3d3.x, Vec3d3.y, Vec3d3.z, false));
+            this.mc.player.networkHandler.sendPacket((VoxelShapes6)new PlayerMoveC2SPacket.class_2829(Vec3d3.x, Vec3d3.y - 0.01, Vec3d3.z, true));
         }
     }
 
@@ -98,22 +98,22 @@ extends Module {
         this.moveType = this.sgMovement.add(new EnumSetting.Builder().name("move-type").description("The way you are moved by this module").defaultValue(MoveType.Client).build());
         this.moveSpeed = this.sgMovement.add(new DoubleSetting.Builder().name("move-speed").description("How fast should you be when dodging arrow").defaultValue(1.0).min(0.01).sliderMax(5.0).build());
         this.groundCheck = this.sgGeneral.add(new BoolSetting.Builder().name("ground-check").description("Tries to prevent you from falling to your death.").defaultValue(true).build());
-        this.possibleMoveDirections = Arrays.asList(new class_243(1.0, 0.0, 1.0), new class_243(0.0, 0.0, 1.0), new class_243(-1.0, 0.0, 1.0), new class_243(1.0, 0.0, 0.0), new class_243(-1.0, 0.0, 0.0), new class_243(1.0, 0.0, -1.0), new class_243(0.0, 0.0, -1.0), new class_243(-1.0, 0.0, -1.0));
+        this.possibleMoveDirections = Arrays.asList(new Vec3d(1.0, 0.0, 1.0), new Vec3d(0.0, 0.0, 1.0), new Vec3d(-1.0, 0.0, 1.0), new Vec3d(1.0, 0.0, 0.0), new Vec3d(-1.0, 0.0, 0.0), new Vec3d(1.0, 0.0, -1.0), new Vec3d(0.0, 0.0, -1.0), new Vec3d(-1.0, 0.0, -1.0));
     }
 
-    private boolean isValid(class_243 class_2432, List<class_238> list, class_238 class_2383) {
-        class_2338 class_23382 = null;
-        for (class_238 class_2384 : list) {
-            class_238 class_2386;
-            if (class_2384.method_994(class_2386 = class_2383.method_997(class_2432))) {
+    private boolean isValid(Vec3d Vec3d2, List<Box> list, Box Box3) {
+        BlockPos BlockPos2 = null;
+        for (Box Box4 : list) {
+            Box Box6;
+            if (Box4.intersects(Box6 = Box3.offset(Vec3d2))) {
                 return false;
             }
-            class_23382 = this.mc.field_1724.method_24515().method_10080(class_2432.field_1352, class_2432.field_1351, class_2432.field_1350);
-            if (this.mc.field_1687.method_8320(class_23382).method_26220((class_1922)this.mc.field_1687, class_23382) == class_259.method_1073()) continue;
+            BlockPos2 = this.mc.player.getBlockPos().add(Vec3d2.x, Vec3d2.y, Vec3d2.z);
+            if (this.mc.world.getBlockState(BlockPos2).getCollisionShape((BlockView)this.mc.world, BlockPos2) == VoxelShapes.empty()) continue;
             return false;
         }
-        if (this.groundCheck.get().booleanValue() && class_23382 != null) {
-            return this.mc.field_1687.method_8320(class_23382.method_10074()).method_26220((class_1922)this.mc.field_1687, class_23382.method_10074()) != class_259.method_1073();
+        if (this.groundCheck.get().booleanValue() && BlockPos2 != null) {
+            return this.mc.world.getBlockState(BlockPos2.down()).getCollisionShape((BlockView)this.mc.world, BlockPos2.down()) != VoxelShapes.empty();
         }
         return true;
     }

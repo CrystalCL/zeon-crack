@@ -9,7 +9,7 @@ import minegame159.meteorclient.gui.widgets.containers.WContainer;
 import minegame159.meteorclient.rendering.DrawMode;
 import minegame159.meteorclient.rendering.MeshBuilder;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_290;
+import net.minecraft.client.render.VertexFormats;
 
 public class GuiDebugRenderer {
     private static final Color WIDGET_COLOR;
@@ -47,7 +47,7 @@ public class GuiDebugRenderer {
         if (wWidget == null) {
             return;
         }
-        this.mb.begin(null, DrawMode.Lines, class_290.field_1576);
+        this.mb.begin(null, DrawMode.Lines, VertexFormats.POSITION_COLOR);
         this.renderWidget(wWidget);
         this.mb.end();
     }

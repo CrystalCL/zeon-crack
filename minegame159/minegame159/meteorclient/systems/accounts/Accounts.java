@@ -16,8 +16,8 @@ import minegame159.meteorclient.systems.accounts.types.TheAlteningAccount;
 import minegame159.meteorclient.utils.misc.NbtException;
 import minegame159.meteorclient.utils.misc.NbtUtils;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -28,8 +28,8 @@ implements Iterable<Account<?>> {
     private List<Account<?>> accounts = new ArrayList();
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public void add(Account<?> account) {
@@ -55,19 +55,19 @@ implements Iterable<Account<?>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10566("accounts", (class_2520)NbtUtils.listToTag(this.accounts));
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.put("accounts", (NbtElement)NbtUtils.listToTag(this.accounts));
+        return NbtCompound2;
     }
 
-    private void lambda$fromTag$1(class_2487 class_24872) {
-        this.accounts = NbtUtils.listFromTag(class_24872.method_10554("accounts", 10), Accounts::lambda$fromTag$0);
+    private void lambda$fromTag$1(NbtCompound NbtCompound2) {
+        this.accounts = NbtUtils.listFromTag(NbtCompound2.getList("accounts", 10), Accounts::lambda$fromTag$0);
     }
 
     @Override
-    public Accounts fromTag(class_2487 class_24872) {
-        MeteorExecutor.execute(() -> this.lambda$fromTag$1(class_24872));
+    public Accounts fromTag(NbtCompound NbtCompound2) {
+        MeteorExecutor.execute(() -> this.lambda$fromTag$1(NbtCompound2));
         return this;
     }
 
@@ -81,20 +81,20 @@ implements Iterable<Account<?>> {
         }
     }
 
-    private static Account lambda$fromTag$0(class_2520 class_25202) {
-        class_2487 class_24872 = (class_2487)class_25202;
-        if (!class_24872.method_10545("type")) {
+    private static Account lambda$fromTag$0(NbtElement NbtElement2) {
+        NbtCompound NbtCompound2 = (NbtCompound)NbtElement2;
+        if (!NbtCompound2.contains("type")) {
             return null;
         }
-        AccountType accountType = AccountType.valueOf(class_24872.method_10558("type"));
+        AccountType accountType = AccountType.valueOf(NbtCompound2.getString("type"));
         try {
             Object object = null;
             if (accountType == AccountType.Cracked) {
-                object = new CrackedAccount(null).fromTag(class_24872);
+                object = new CrackedAccount(null).fromTag(NbtCompound2);
             } else if (accountType == AccountType.Premium) {
-                object = new PremiumAccount(null, null).fromTag(class_24872);
+                object = new PremiumAccount(null, null).fromTag(NbtCompound2);
             } else if (accountType == AccountType.TheAltening) {
-                object = new TheAlteningAccount(null).fromTag(class_24872);
+                object = new TheAlteningAccount(null).fromTag(NbtCompound2);
             }
             if (((Account)object).fetchHead()) {
                 return object;

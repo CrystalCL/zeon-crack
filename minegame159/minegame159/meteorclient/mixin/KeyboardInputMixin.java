@@ -5,13 +5,13 @@ package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.movement.GUIMove;
-import net.minecraft.class_743;
+import net.minecraft.client.input.KeyboardInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_743.class})
+@Mixin(value={KeyboardInput.class})
 public class KeyboardInputMixin {
     @Inject(method={"tick"}, at={@At(value="TAIL")})
     private void onTick(boolean bl, CallbackInfo callbackInfo) {

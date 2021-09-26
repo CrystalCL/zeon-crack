@@ -20,29 +20,29 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1268;
-import net.minecraft.class_1802;
-import net.minecraft.class_1810;
-import net.minecraft.class_1922;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2382;
-import net.minecraft.class_2596;
-import net.minecraft.class_2846;
-import net.minecraft.class_2879;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.item.Items;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.world.BlockView;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class InstaMine
 extends Module {
     private final SettingGroup sgGeneral;
     private final Setting<Boolean> crystal;
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
     private final Setting<Boolean> rotate;
     private final Setting<ShapeMode> shapeMode;
     private final Setting<SettingColor> lineColor;
     private final SettingGroup sgRender;
-    private class_2350 direction;
+    private Direction direction;
     private boolean shouldMine;
     private final Setting<Boolean> pick;
     private int ticks;
@@ -53,45 +53,45 @@ extends Module {
     @Override
     public void onActivate() {
         this.ticks = 0;
-        this.blockPos.method_10103(0, -1, 0);
+        this.blockPos.set(0, -1, 0);
         this.shouldMine = false;
     }
 
     private void lambda$onTick$0() {
-        this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, (class_2338)this.blockPos, this.direction));
+        this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, (BlockPos)this.blockPos, this.direction));
     }
 
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
-        if (!(this.render.get().booleanValue() && this.shouldMine() && this.shouldMine && this.blockPos.method_10264() != -1)) {
+        if (!(this.render.get().booleanValue() && this.shouldMine() && this.shouldMine && this.blockPos.getY() != -1)) {
             return;
         }
-        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (class_2338)this.blockPos, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
+        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (BlockPos)this.blockPos, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
         if (this.ticks >= this.tickDelay.get()) {
             this.ticks = 0;
-            if (this.shouldMine() && this.shouldMine && !this.mc.field_1687.method_8320((class_2338)this.blockPos).method_26215()) {
-                if (this.crystal.get().booleanValue() && (this.mc.field_1687.method_8320((class_2338)this.blockPos).method_26204().method_27839(class_2246.field_10540) || this.mc.field_1687.method_8320((class_2338)this.blockPos).method_26204().method_27839(class_2246.field_9987))) {
-                    class_1268 class_12682 = InvUtils.getHand(class_1802.field_8301);
-                    int n = InvUtils.findItemInHotbar(class_1802.field_8301);
-                    int n2 = this.mc.field_1724.field_7514.field_7545;
-                    if (class_12682 != class_1268.field_5810 && n != -1) {
-                        this.mc.field_1724.field_7514.field_7545 = n;
+            if (this.shouldMine() && this.shouldMine && !this.mc.world.getBlockState((BlockPos)this.blockPos).isAir()) {
+                if (this.crystal.get().booleanValue() && (this.mc.world.getBlockState((BlockPos)this.blockPos).getBlock().is(Blocks.OBSIDIAN) || this.mc.world.getBlockState((BlockPos)this.blockPos).getBlock().is(Blocks.BEDROCK))) {
+                    Hand Hand2 = InvUtils.getHand(Items.END_CRYSTAL);
+                    int n = InvUtils.findItemInHotbar(Items.END_CRYSTAL);
+                    int n2 = this.mc.player.inventory.selectedSlot;
+                    if (Hand2 != Hand.OFF_HAND && n != -1) {
+                        this.mc.player.inventory.selectedSlot = n;
                     }
-                    this.mc.field_1761.method_2896(this.mc.field_1724, this.mc.field_1687, class_12682, new class_3965(this.mc.field_1724.method_19538(), this.direction, (class_2338)this.blockPos, false));
-                    if (class_12682 != class_1268.field_5810) {
-                        this.mc.field_1724.field_7514.field_7545 = n2;
+                    this.mc.interactionManager.interactBlock(this.mc.player, this.mc.world, Hand2, new BlockHitResult(this.mc.player.getPos(), this.direction, (BlockPos)this.blockPos, false));
+                    if (Hand2 != Hand.OFF_HAND) {
+                        this.mc.player.inventory.selectedSlot = n2;
                     }
                 }
                 if (this.rotate.get().booleanValue()) {
-                    Rotations.rotate(Rotations.getYaw((class_2338)this.blockPos), Rotations.getPitch((class_2338)this.blockPos), this::lambda$onTick$0);
+                    Rotations.rotate(Rotations.getYaw((BlockPos)this.blockPos), Rotations.getPitch((BlockPos)this.blockPos), this::lambda$onTick$0);
                 } else {
-                    this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, (class_2338)this.blockPos, this.direction));
+                    this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, (BlockPos)this.blockPos, this.direction));
                 }
-                this.mc.method_1562().method_2883((class_2596)new class_2879(class_1268.field_5808));
+                this.mc.getNetworkHandler().sendPacket((Packet)new HandSwingC2SPacket(Hand.MAIN_HAND));
             }
         } else {
             ++this.ticks;
@@ -101,15 +101,15 @@ extends Module {
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent startBreakingBlockEvent) {
         this.direction = startBreakingBlockEvent.direction;
-        this.blockPos.method_10101((class_2382)startBreakingBlockEvent.blockPos);
-        this.shouldMine = this.mc.field_1687.method_8320(startBreakingBlockEvent.blockPos).method_26214((class_1922)this.mc.field_1687, startBreakingBlockEvent.blockPos) >= 0.0f;
+        this.blockPos.set((Vec3i)startBreakingBlockEvent.blockPos);
+        this.shouldMine = this.mc.world.getBlockState(startBreakingBlockEvent.blockPos).getHardness((BlockView)this.mc.world, startBreakingBlockEvent.blockPos) >= 0.0f;
     }
 
     private boolean shouldMine() {
         if (!this.pick.get().booleanValue()) {
             return true;
         }
-        return this.pick.get() != false && this.mc.field_1724.field_7514.method_7391().method_7909() instanceof class_1810 && (this.mc.field_1724.method_6047().method_7909() == class_1802.field_8377 || this.mc.field_1724.method_6047().method_7909() == class_1802.field_22024);
+        return this.pick.get() != false && this.mc.player.inventory.getMainHandStack().getItem() instanceof PickaxeItem && (this.mc.player.getMainHandStack().getItem() == Items.DIAMOND_PICKAXE || this.mc.player.getMainHandStack().getItem() == Items.NETHERITE_PICKAXE);
     }
 
     public InstaMine() {
@@ -124,7 +124,7 @@ extends Module {
         this.shapeMode = this.sgRender.add(new EnumSetting.Builder().name("shape-mode").description("How the shapes are rendered.").defaultValue(ShapeMode.Both).build());
         this.sideColor = this.sgRender.add(new ColorSetting.Builder().name("side-color").description("The color of the sides of the blocks being rendered.").defaultValue(new SettingColor(204, 0, 0, 10)).build());
         this.lineColor = this.sgRender.add(new ColorSetting.Builder().name("line-color").description("The color of the lines of the blocks being rendered.").defaultValue(new SettingColor(204, 0, 0, 255)).build());
-        this.blockPos = new class_2338.class_2339(0, -1, 0);
+        this.blockPos = new Mutable(0, -1, 0);
     }
 }
 

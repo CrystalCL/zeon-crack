@@ -21,9 +21,9 @@ import minegame159.meteorclient.settings.EntityTypeListSetting;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.entity.EntityUtils;
 import minegame159.meteorclient.utils.misc.Names;
-import net.minecraft.class_1299;
-import net.minecraft.class_2378;
-import net.minecraft.class_3545;
+import net.minecraft.entity.EntityType;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.Pair;
 
 public class EntityTypeListSettingScreen
 extends WindowScreen {
@@ -47,39 +47,39 @@ extends WindowScreen {
     private WSection animals;
     private WTable miscT;
 
-    private void lambda$initWidgets$7(List list, class_1299 class_12992) {
-        int n = Utils.search(Names.get(class_12992), this.filterText);
+    private void lambda$initWidgets$7(List list, EntityType EntityType2) {
+        int n = Utils.search(Names.get(EntityType2), this.filterText);
         if (n > 0) {
-            list.add(new class_3545((Object)class_12992, (Object)n));
+            list.add(new Pair((Object)EntityType2, (Object)n));
         }
     }
 
-    private void lambda$initWidgets$6(List list, WCheckbox wCheckbox, List list2, WCheckbox wCheckbox2, List list3, WCheckbox wCheckbox3, List list4, WCheckbox wCheckbox4, List list5, WCheckbox wCheckbox5, class_1299 class_12992) {
-        if (!this.setting.onlyAttackable || EntityUtils.isAttackable(class_12992)) {
-            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[class_12992.method_5891().ordinal()]) {
+    private void lambda$initWidgets$6(List list, WCheckbox wCheckbox, List list2, WCheckbox wCheckbox2, List list3, WCheckbox wCheckbox3, List list4, WCheckbox wCheckbox4, List list5, WCheckbox wCheckbox5, EntityType EntityType2) {
+        if (!this.setting.onlyAttackable || EntityUtils.isAttackable(EntityType2)) {
+            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[EntityType2.getSpawnGroup().ordinal()]) {
                 case 1: {
-                    list.add(class_12992);
-                    this.addEntityType(this.animalsT, wCheckbox, class_12992);
+                    list.add(EntityType2);
+                    this.addEntityType(this.animalsT, wCheckbox, EntityType2);
                     break;
                 }
                 case 2: {
-                    list2.add(class_12992);
-                    this.addEntityType(this.waterAnimalsT, wCheckbox2, class_12992);
+                    list2.add(EntityType2);
+                    this.addEntityType(this.waterAnimalsT, wCheckbox2, EntityType2);
                     break;
                 }
                 case 3: {
-                    list3.add(class_12992);
-                    this.addEntityType(this.monstersT, wCheckbox3, class_12992);
+                    list3.add(EntityType2);
+                    this.addEntityType(this.monstersT, wCheckbox3, EntityType2);
                     break;
                 }
                 case 4: {
-                    list4.add(class_12992);
-                    this.addEntityType(this.ambientT, wCheckbox4, class_12992);
+                    list4.add(EntityType2);
+                    this.addEntityType(this.ambientT, wCheckbox4, EntityType2);
                     break;
                 }
                 case 5: {
-                    list5.add(class_12992);
-                    this.addEntityType(this.miscT, wCheckbox5, class_12992);
+                    list5.add(EntityType2);
+                    this.addEntityType(this.miscT, wCheckbox5, EntityType2);
                 }
             }
         }
@@ -89,10 +89,10 @@ extends WindowScreen {
         this.tableChecked(list, wCheckbox.checked);
     }
 
-    private void lambda$addEntityType$9(WCheckbox wCheckbox, class_1299 class_12992, WCheckbox wCheckbox2) {
+    private void lambda$addEntityType$9(WCheckbox wCheckbox, EntityType EntityType2, WCheckbox wCheckbox2) {
         if (wCheckbox.checked) {
-            ((Object2BooleanMap)this.setting.get()).put((Object)class_12992, true);
-            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[class_12992.method_5891().ordinal()]) {
+            ((Object2BooleanMap)this.setting.get()).put((Object)EntityType2, true);
+            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[EntityType2.getSpawnGroup().ordinal()]) {
                 case 1: {
                     if (this.hasAnimal == 0) {
                         wCheckbox2.checked = true;
@@ -128,8 +128,8 @@ extends WindowScreen {
                     ++this.hasMisc;
                 }
             }
-        } else if (((Object2BooleanMap)this.setting.get()).removeBoolean((Object)class_12992)) {
-            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[class_12992.method_5891().ordinal()]) {
+        } else if (((Object2BooleanMap)this.setting.get()).removeBoolean((Object)EntityType2)) {
+            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[EntityType2.getSpawnGroup().ordinal()]) {
                 case 1: {
                     --this.hasAnimal;
                     if (this.hasAnimal != 0) break;
@@ -174,7 +174,7 @@ extends WindowScreen {
         this.hasAnimal = 0;
         for (Object object2 : ((Object2BooleanMap)this.setting.get()).keySet()) {
             if (!((Object2BooleanMap)this.setting.get()).getBoolean(object2) || this.setting.onlyAttackable && !EntityUtils.isAttackable(object2)) continue;
-            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[object2.method_5891().ordinal()]) {
+            switch (1.$SwitchMap$net$minecraft$entity$SpawnGroup[object2.getSpawnGroup().ordinal()]) {
                 case 1: {
                     ++this.hasAnimal;
                     break;
@@ -226,15 +226,15 @@ extends WindowScreen {
         wCheckbox4.action = () -> this.lambda$initWidgets$5(arrayList4, wCheckbox4);
         Cell<WSection> cell5 = this.add(this.misc).expandX();
         this.miscT = this.misc.add(this.theme.table()).expandX().widget();
-        Consumer<class_1299> consumer = arg_0 -> this.lambda$initWidgets$6((List)object3, (WCheckbox)object2, arrayList, wCheckbox, arrayList2, wCheckbox2, arrayList3, wCheckbox3, arrayList4, wCheckbox4, arg_0);
+        Consumer<EntityType> consumer = arg_0 -> this.lambda$initWidgets$6((List)object3, (WCheckbox)object2, arrayList, wCheckbox, arrayList2, wCheckbox2, arrayList3, wCheckbox3, arrayList4, wCheckbox4, arg_0);
         if (this.filterText.isEmpty()) {
-            class_2378.field_11145.forEach(consumer);
+            Registry.ENTITY_TYPE.forEach(consumer);
         } else {
-            ArrayList<class_3545> arrayList5 = new ArrayList<class_3545>();
-            class_2378.field_11145.forEach(arg_0 -> this.lambda$initWidgets$7(arrayList5, arg_0));
+            ArrayList<Pair> arrayList5 = new ArrayList<Pair>();
+            Registry.ENTITY_TYPE.forEach(arg_0 -> this.lambda$initWidgets$7(arrayList5, arg_0));
             arrayList5.sort(Comparator.comparingInt(EntityTypeListSettingScreen::lambda$initWidgets$8));
-            for (class_3545 class_35452 : arrayList5) {
-                consumer.accept((class_1299)class_35452.method_15442());
+            for (Pair Pair2 : arrayList5) {
+                consumer.accept((EntityType)Pair2.getLeft());
             }
         }
         if (this.animalsT.cells.size() == 0) {
@@ -292,15 +292,15 @@ extends WindowScreen {
         return this.list.add(w);
     }
 
-    private void addEntityType(WTable wTable, WCheckbox wCheckbox, class_1299<?> class_12992) {
-        wTable.add(this.theme.label(Names.get(class_12992)));
-        WCheckbox wCheckbox2 = wTable.add(this.theme.checkbox(((Object2BooleanMap)this.setting.get()).getBoolean(class_12992))).expandCellX().right().widget();
-        wCheckbox2.action = () -> this.lambda$addEntityType$9(wCheckbox2, class_12992, wCheckbox);
+    private void addEntityType(WTable wTable, WCheckbox wCheckbox, EntityType<?> EntityType2) {
+        wTable.add(this.theme.label(Names.get(EntityType2)));
+        WCheckbox wCheckbox2 = wTable.add(this.theme.checkbox(((Object2BooleanMap)this.setting.get()).getBoolean(EntityType2))).expandCellX().right().widget();
+        wCheckbox2.action = () -> this.lambda$addEntityType$9(wCheckbox2, EntityType2, wCheckbox);
         wTable.row();
     }
 
-    private static int lambda$initWidgets$8(class_3545 class_35452) {
-        return -((Integer)class_35452.method_15441()).intValue();
+    private static int lambda$initWidgets$8(Pair Pair2) {
+        return -((Integer)Pair2.getRight()).intValue();
     }
 
     private void lambda$initWidgets$1(List list, WCheckbox wCheckbox) {
@@ -335,15 +335,15 @@ extends WindowScreen {
         this.initWidgets();
     }
 
-    private void tableChecked(List<class_1299<?>> list, boolean bl) {
+    private void tableChecked(List<EntityType<?>> list, boolean bl) {
         boolean bl2 = false;
-        for (class_1299<?> class_12992 : list) {
+        for (EntityType<?> EntityType2 : list) {
             if (bl) {
-                ((Object2BooleanMap)this.setting.get()).put(class_12992, true);
+                ((Object2BooleanMap)this.setting.get()).put(EntityType2, true);
                 bl2 = true;
                 continue;
             }
-            if (!((Object2BooleanMap)this.setting.get()).removeBoolean(class_12992)) continue;
+            if (!((Object2BooleanMap)this.setting.get()).removeBoolean(EntityType2)) continue;
             bl2 = true;
         }
         if (bl2) {

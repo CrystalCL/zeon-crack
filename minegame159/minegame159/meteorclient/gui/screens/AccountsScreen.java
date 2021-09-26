@@ -18,12 +18,12 @@ import minegame159.meteorclient.systems.accounts.Account;
 import minegame159.meteorclient.systems.accounts.Accounts;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 
 public class AccountsScreen
 extends WindowScreen {
     private void lambda$initWidgets$1() {
-        Utils.mc.method_1507((class_437)new AddCrackedAccountScreen(this.theme));
+        Utils.mc.openScreen((Screen)new AddCrackedAccountScreen(this.theme));
     }
 
     private void initWidgets() {
@@ -38,14 +38,14 @@ extends WindowScreen {
     }
 
     @Override
-    protected void method_25426() {
-        super.method_25426();
+    protected void init() {
+        super.init();
         this.clear();
         this.initWidgets();
     }
 
     private void lambda$initWidgets$3() {
-        Utils.mc.method_1507((class_437)new AddAlteningAccountScreen(this.theme));
+        Utils.mc.openScreen((Screen)new AddAlteningAccountScreen(this.theme));
     }
 
     public AccountsScreen(GuiTheme guiTheme) {
@@ -59,7 +59,7 @@ extends WindowScreen {
     }
 
     private void lambda$initWidgets$2() {
-        Utils.mc.method_1507((class_437)new AddPremiumAccountScreen(this.theme));
+        Utils.mc.openScreen((Screen)new AddPremiumAccountScreen(this.theme));
     }
 
     private void addButton(WContainer wContainer, String string, Runnable runnable) {
@@ -76,7 +76,7 @@ extends WindowScreen {
         if (account.fetchInfo() && account.fetchHead()) {
             Accounts.get().add(account);
             widgetScreen.locked = false;
-            widgetScreen.method_25419();
+            widgetScreen.onClose();
         }
         wButton.set("Add");
         widgetScreen.locked = false;

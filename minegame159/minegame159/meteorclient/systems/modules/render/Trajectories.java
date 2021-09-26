@@ -20,19 +20,19 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.Pool;
 import minegame159.meteorclient.utils.misc.Vec3;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1297;
-import net.minecraft.class_1753;
-import net.minecraft.class_1764;
-import net.minecraft.class_1787;
-import net.minecraft.class_1792;
-import net.minecraft.class_1811;
-import net.minecraft.class_1812;
-import net.minecraft.class_1835;
-import net.minecraft.class_2350;
-import net.minecraft.class_239;
-import net.minecraft.class_243;
-import net.minecraft.class_3959;
-import net.minecraft.class_3965;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.BowItem;
+import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.FishingRodItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.RangedWeaponItem;
+import net.minecraft.item.PotionItem;
+import net.minecraft.item.TridentItem;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class Trajectories
 extends Module {
@@ -48,21 +48,21 @@ extends Module {
     private final Setting<ShapeMode> shapeMode;
     private final SettingGroup sgGeneral;
     private boolean hitQuad;
-    private final class_243 vec3d;
+    private final Vec3d vec3d;
     private double hitQuadZ2;
     private final List<Vec3> path;
 
-    private double getProjectileGravity(class_1792 class_17922) {
-        if (class_17922 instanceof class_1753 || class_17922 instanceof class_1764) {
+    private double getProjectileGravity(Item Item2) {
+        if (Item2 instanceof BowItem || Item2 instanceof CrossbowItem) {
             return 0.05;
         }
-        if (class_17922 instanceof class_1812) {
+        if (Item2 instanceof PotionItem) {
             return 0.4;
         }
-        if (class_17922 instanceof class_1787) {
+        if (Item2 instanceof FishingRodItem) {
             return 0.15;
         }
-        if (class_17922 instanceof class_1835) {
+        if (Item2 instanceof TridentItem) {
             return 0.015;
         }
         return 0.03;
@@ -77,11 +77,11 @@ extends Module {
 
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
-        class_1792 class_17922 = this.mc.field_1724.method_6047().method_7909();
-        if (!Utils.isThrowable(class_17922) && !Utils.isThrowable(class_17922 = this.mc.field_1724.method_6079().method_7909())) {
+        Item Item2 = this.mc.player.getMainHandStack().getItem();
+        if (!Utils.isThrowable(Item2) && !Utils.isThrowable(Item2 = this.mc.player.getOffHandStack().getItem())) {
             return;
         }
-        this.calculatePath(renderEvent.tickDelta, class_17922);
+        this.calculatePath(renderEvent.tickDelta, Item2);
         Vec3 vec3 = null;
         for (Vec3 vec32 : this.path) {
             if (vec3 != null) {
@@ -98,19 +98,19 @@ extends Module {
         }
     }
 
-    private void calculatePath(float f, class_1792 class_17922) {
+    private void calculatePath(float f, Item Item2) {
         Vec3 vec3;
-        class_3959 class_39592;
+        RaycastContext RaycastContext2;
         for (Vec3 vec32 : this.path) {
             this.vec3s.free(vec32);
         }
         this.path.clear();
-        double d = this.mc.field_1724.field_6038 + (this.mc.field_1724.method_23317() - this.mc.field_1724.field_6038) * (double)f - Math.cos(Math.toRadians(this.mc.field_1724.field_6031)) * 0.16;
-        double d2 = this.mc.field_1724.field_5971 + (this.mc.field_1724.method_23318() - this.mc.field_1724.field_5971) * (double)f + (double)this.mc.field_1724.method_5751() - 0.1;
-        double d3 = this.mc.field_1724.field_5989 + (this.mc.field_1724.method_23321() - this.mc.field_1724.field_5989) * (double)f - Math.sin(Math.toRadians(this.mc.field_1724.field_6031)) * 0.16;
-        double d4 = class_17922 instanceof class_1811 ? 1.0 : 0.4;
-        double d5 = Math.toRadians(this.mc.field_1724.field_6031);
-        double d6 = Math.toRadians(this.mc.field_1724.field_5965);
+        double d = this.mc.player.lastRenderX + (this.mc.player.getX() - this.mc.player.lastRenderX) * (double)f - Math.cos(Math.toRadians(this.mc.player.yaw)) * 0.16;
+        double d2 = this.mc.player.lastRenderY + (this.mc.player.getY() - this.mc.player.lastRenderY) * (double)f + (double)this.mc.player.getStandingEyeHeight() - 0.1;
+        double d3 = this.mc.player.lastRenderZ + (this.mc.player.getZ() - this.mc.player.lastRenderZ) * (double)f - Math.sin(Math.toRadians(this.mc.player.yaw)) * 0.16;
+        double d4 = Item2 instanceof RangedWeaponItem ? 1.0 : 0.4;
+        double d5 = Math.toRadians(this.mc.player.yaw);
+        double d6 = Math.toRadians(this.mc.player.pitch);
         double d7 = -Math.sin(d5) * Math.cos(d6) * d4;
         double d8 = -Math.sin(d6) * d4;
         double d9 = Math.cos(d5) * Math.cos(d6) * d4;
@@ -118,8 +118,8 @@ extends Module {
         d7 /= d10;
         d8 /= d10;
         d9 /= d10;
-        if (class_17922 instanceof class_1811) {
-            float f2 = (float)(72000 - this.mc.field_1724.method_6014()) / 20.0f;
+        if (Item2 instanceof RangedWeaponItem) {
+            float f2 = (float)(72000 - this.mc.player.getItemUseTimeLeft()) / 20.0f;
             if ((f2 = (f2 * f2 + f2 * 2.0f) / 3.0f) > 1.0f || f2 <= 0.1f) {
                 f2 = 1.0f;
             }
@@ -131,9 +131,9 @@ extends Module {
             d8 *= 1.5;
             d9 *= 1.5;
         }
-        double d11 = this.getProjectileGravity(class_17922);
-        class_243 class_2432 = this.mc.field_1724.method_19538().method_1031(0.0, (double)this.mc.field_1724.method_18381(this.mc.field_1724.method_18376()), 0.0);
-        class_3965 class_39652 = null;
+        double d11 = this.getProjectileGravity(Item2);
+        Vec3d Vec3d2 = this.mc.player.getPos().add(0.0, (double)this.mc.player.getEyeHeight(this.mc.player.getPose()), 0.0);
+        BlockHitResult BlockHitResult2 = null;
         do {
             vec3 = this.addToPath(d, d2, d3);
             d += d7 * 0.1;
@@ -145,25 +145,25 @@ extends Module {
             d8 -= d11 * 0.1;
             int n = (int)(d / 16.0);
             int n2 = (int)(d3 / 16.0);
-            if (!this.mc.field_1687.method_2935().method_12123(n, n2)) break;
+            if (!this.mc.world.getChunkManager().isChunkLoaded(n, n2)) break;
             ((IVec3d)this.vec3d).set(vec3);
-        } while ((class_39652 = this.mc.field_1687.method_17742(class_39592 = new class_3959(class_2432, this.vec3d, class_3959.class_3960.field_17558, class_3959.class_242.field_1348, (class_1297)this.mc.field_1724))).method_17783() == class_239.class_240.field_1333);
-        if (class_39652 != null && class_39652.method_17783() == class_239.class_240.field_1332) {
-            vec3 = class_39652;
+        } while ((BlockHitResult2 = this.mc.world.raycast(RaycastContext2 = new RaycastContext(Vec3d2, this.vec3d, RaycastContext.class_3960.COLLIDER, RaycastContext.class_242.NONE, (Entity)this.mc.player))).getType() == HitResult.class_240.MISS);
+        if (BlockHitResult2 != null && BlockHitResult2.getType() == HitResult.class_240.BLOCK) {
+            vec3 = BlockHitResult2;
             this.hitQuad = true;
-            this.hitQuadX1 = vec3.method_17784().field_1352;
-            this.hitQuadY1 = vec3.method_17784().field_1351;
-            this.hitQuadZ1 = vec3.method_17784().field_1350;
-            this.hitQuadX2 = vec3.method_17784().field_1352;
-            this.hitQuadY2 = vec3.method_17784().field_1351;
-            this.hitQuadZ2 = vec3.method_17784().field_1350;
-            if (vec3.method_17780() == class_2350.field_11036 || vec3.method_17780() == class_2350.field_11033) {
+            this.hitQuadX1 = vec3.getPos().x;
+            this.hitQuadY1 = vec3.getPos().y;
+            this.hitQuadZ1 = vec3.getPos().z;
+            this.hitQuadX2 = vec3.getPos().x;
+            this.hitQuadY2 = vec3.getPos().y;
+            this.hitQuadZ2 = vec3.getPos().z;
+            if (vec3.getSide() == Direction.UP || vec3.getSide() == Direction.DOWN) {
                 this.hitQuadHorizontal = true;
                 this.hitQuadX1 -= 0.25;
                 this.hitQuadZ1 -= 0.25;
                 this.hitQuadX2 += 0.25;
                 this.hitQuadZ2 += 0.25;
-            } else if (vec3.method_17780() == class_2350.field_11043 || vec3.method_17780() == class_2350.field_11035) {
+            } else if (vec3.getSide() == Direction.NORTH || vec3.getSide() == Direction.SOUTH) {
                 this.hitQuadHorizontal = false;
                 this.hitQuadX1 -= 0.25;
                 this.hitQuadY1 -= 0.25;
@@ -187,7 +187,7 @@ extends Module {
         this.shapeMode = this.sgGeneral.add(new EnumSetting.Builder().name("shape-mode").description("How the shapes are rendered.").defaultValue(ShapeMode.Both).build());
         this.sideColor = this.sgGeneral.add(new ColorSetting.Builder().name("side-color").description("The side color.").defaultValue(new SettingColor(255, 150, 0, 35)).build());
         this.lineColor = this.sgGeneral.add(new ColorSetting.Builder().name("line-color").description("The line color.").defaultValue(new SettingColor(255, 150, 0)).build());
-        this.vec3d = new class_243(0.0, 0.0, 0.0);
+        this.vec3d = new Vec3d(0.0, 0.0, 0.0);
         this.vec3s = new Pool<Vec3>(Vec3::new);
         this.path = new ArrayList<Vec3>();
     }

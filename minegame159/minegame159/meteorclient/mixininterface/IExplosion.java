@@ -3,9 +3,9 @@
  */
 package minegame159.meteorclient.mixininterface;
 
-import net.minecraft.class_243;
+import net.minecraft.util.math.Vec3d;
 
 public interface IExplosion {
-    public void set(class_243 var1, float var2, boolean var3);
+    public void set(Vec3d var1, float var2, boolean var3);
 }
 

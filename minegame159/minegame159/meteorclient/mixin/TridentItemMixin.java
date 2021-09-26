@@ -4,28 +4,28 @@
 package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1309;
-import net.minecraft.class_1799;
-import net.minecraft.class_1835;
-import net.minecraft.class_1937;
-import net.minecraft.class_310;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.TridentItem;
+import net.minecraft.world.World;
+import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_1835.class})
+@Mixin(value={TridentItem.class})
 public class TridentItemMixin {
     @Inject(method={"onStoppedUsing"}, at={@At(value="HEAD")})
-    private void onStoppedUsingHead(class_1799 class_17992, class_1937 class_19372, class_1309 class_13092, int n, CallbackInfo callbackInfo) {
-        if (class_13092 == class_310.method_1551().field_1724) {
+    private void onStoppedUsingHead(ItemStack ItemStack2, World World2, LivingEntity LivingEntity2, int n, CallbackInfo callbackInfo) {
+        if (LivingEntity2 == MinecraftClient.getInstance().player) {
             Utils.isReleasingTrident = true;
         }
     }
 
     @Inject(method={"onStoppedUsing"}, at={@At(value="TAIL")})
-    private void onStoppedUsingTail(class_1799 class_17992, class_1937 class_19372, class_1309 class_13092, int n, CallbackInfo callbackInfo) {
-        if (class_13092 == class_310.method_1551().field_1724) {
+    private void onStoppedUsingTail(ItemStack ItemStack2, World World2, LivingEntity LivingEntity2, int n, CallbackInfo callbackInfo) {
+        if (LivingEntity2 == MinecraftClient.getInstance().player) {
             Utils.isReleasingTrident = false;
         }
     }

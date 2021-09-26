@@ -12,13 +12,13 @@ import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.systems.config.Config;
 import minegame159.meteorclient.utils.entity.Target;
 import minegame159.meteorclient.utils.misc.Pool;
-import net.minecraft.class_1297;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
-import net.minecraft.class_310;
-import net.minecraft.class_3532;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.MathHelper;
 
 public class Rotations {
     private static float preYaw;
@@ -28,13 +28,13 @@ public class Rotations {
     private static int i;
     private static boolean sentLastRotation;
     private static int lastRotationTimer;
-    private static final class_310 mc;
+    private static final MinecraftClient mc;
     public static float serverPitch;
     private static float prePitch;
     private static Rotation lastRotation;
     public static int rotationTimer;
 
-    static class_310 access$000() {
+    static MinecraftClient access$000() {
         return mc;
     }
 
@@ -45,7 +45,7 @@ public class Rotations {
 
     @EventHandler
     private static void onSendMovementPacketsPre(SendMovementPacketsEvent.Pre pre) {
-        if (Rotations.mc.field_1719 != Rotations.mc.field_1724) {
+        if (Rotations.mc.cameraEntity != Rotations.mc.player) {
             return;
         }
         sentLastRotation = false;
@@ -68,13 +68,13 @@ public class Rotations {
         }
     }
 
-    public static double getYaw(class_1297 class_12972) {
-        return Rotations.mc.field_1724.field_6031 + class_3532.method_15393((float)((float)Math.toDegrees(Math.atan2(class_12972.method_23321() - Rotations.mc.field_1724.method_23321(), class_12972.method_23317() - Rotations.mc.field_1724.method_23317())) - 90.0f - Rotations.mc.field_1724.field_6031));
+    public static double getYaw(Entity Entity2) {
+        return Rotations.mc.player.yaw + MathHelper.wrapDegrees((float)((float)Math.toDegrees(Math.atan2(Entity2.getZ() - Rotations.mc.player.getZ(), Entity2.getX() - Rotations.mc.player.getX())) - 90.0f - Rotations.mc.player.yaw));
     }
 
     private static void resetPreRotation() {
-        Rotations.mc.field_1724.field_6031 = preYaw;
-        Rotations.mc.field_1724.field_5965 = prePitch;
+        Rotations.mc.player.yaw = preYaw;
+        Rotations.mc.player.pitch = prePitch;
     }
 
     private static void setupMovementPacketRotation(Rotation rotation) {
@@ -83,10 +83,10 @@ public class Rotations {
     }
 
     private static void setClientRotation(Rotation rotation) {
-        preYaw = Rotations.mc.field_1724.field_6031;
-        prePitch = Rotations.mc.field_1724.field_5965;
-        Rotations.mc.field_1724.field_6031 = (float)rotation.yaw;
-        Rotations.mc.field_1724.field_5965 = (float)rotation.pitch;
+        preYaw = Rotations.mc.player.yaw;
+        prePitch = Rotations.mc.player.pitch;
+        Rotations.mc.player.yaw = (float)rotation.yaw;
+        Rotations.mc.player.pitch = (float)rotation.pitch;
     }
 
     private static Rotation lambda$static$0() {
@@ -102,7 +102,7 @@ public class Rotations {
     @EventHandler
     private static void onSendMovementPacketsPost(SendMovementPacketsEvent.Post post) {
         if (!rotations.isEmpty()) {
-            if (Rotations.mc.field_1719 == Rotations.mc.field_1724) {
+            if (Rotations.mc.cameraEntity == Rotations.mc.player) {
                 rotations.get(i - 1).runCallback();
                 if (rotations.size() == 1) {
                     lastRotation = rotations.get(i - 1);
@@ -132,28 +132,28 @@ public class Rotations {
         }
     }
 
-    public static double getPitch(class_243 class_2432) {
-        double d = class_2432.method_10216() - Rotations.mc.field_1724.method_23317();
-        double d2 = class_2432.method_10214() - (Rotations.mc.field_1724.method_23318() + (double)Rotations.mc.field_1724.method_18381(Rotations.mc.field_1724.method_18376()));
-        double d3 = class_2432.method_10215() - Rotations.mc.field_1724.method_23321();
+    public static double getPitch(Vec3d Vec3d2) {
+        double d = Vec3d2.getX() - Rotations.mc.player.getX();
+        double d2 = Vec3d2.getY() - (Rotations.mc.player.getY() + (double)Rotations.mc.player.getEyeHeight(Rotations.mc.player.getPose()));
+        double d3 = Vec3d2.getZ() - Rotations.mc.player.getZ();
         double d4 = Math.sqrt(d * d + d3 * d3);
-        return Rotations.mc.field_1724.field_5965 + class_3532.method_15393((float)((float)(-Math.toDegrees(Math.atan2(d2, d4))) - Rotations.mc.field_1724.field_5965));
+        return Rotations.mc.player.pitch + MathHelper.wrapDegrees((float)((float)(-Math.toDegrees(Math.atan2(d2, d4))) - Rotations.mc.player.pitch));
     }
 
-    public static double getYaw(class_2338 class_23382) {
-        return Rotations.mc.field_1724.field_6031 + class_3532.method_15393((float)((float)Math.toDegrees(Math.atan2((double)class_23382.method_10260() + 0.5 - Rotations.mc.field_1724.method_23321(), (double)class_23382.method_10263() + 0.5 - Rotations.mc.field_1724.method_23317())) - 90.0f - Rotations.mc.field_1724.field_6031));
+    public static double getYaw(BlockPos BlockPos2) {
+        return Rotations.mc.player.yaw + MathHelper.wrapDegrees((float)((float)Math.toDegrees(Math.atan2((double)BlockPos2.getZ() + 0.5 - Rotations.mc.player.getZ(), (double)BlockPos2.getX() + 0.5 - Rotations.mc.player.getX())) - 90.0f - Rotations.mc.player.yaw));
     }
 
-    public static double getPitch(class_1297 class_12972) {
-        return Rotations.getPitch(class_12972, Target.Body);
+    public static double getPitch(Entity Entity2) {
+        return Rotations.getPitch(Entity2, Target.Body);
     }
 
-    public static double getPitch(class_2338 class_23382) {
-        double d = (double)class_23382.method_10263() + 0.5 - Rotations.mc.field_1724.method_23317();
-        double d2 = (double)class_23382.method_10264() + 0.5 - (Rotations.mc.field_1724.method_23318() + (double)Rotations.mc.field_1724.method_18381(Rotations.mc.field_1724.method_18376()));
-        double d3 = (double)class_23382.method_10260() + 0.5 - Rotations.mc.field_1724.method_23321();
+    public static double getPitch(BlockPos BlockPos2) {
+        double d = (double)BlockPos2.getX() + 0.5 - Rotations.mc.player.getX();
+        double d2 = (double)BlockPos2.getY() + 0.5 - (Rotations.mc.player.getY() + (double)Rotations.mc.player.getEyeHeight(Rotations.mc.player.getPose()));
+        double d3 = (double)BlockPos2.getZ() + 0.5 - Rotations.mc.player.getZ();
         double d4 = Math.sqrt(d * d + d3 * d3);
-        return Rotations.mc.field_1724.field_5965 + class_3532.method_15393((float)((float)(-Math.toDegrees(Math.atan2(d2, d4))) - Rotations.mc.field_1724.field_5965));
+        return Rotations.mc.player.pitch + MathHelper.wrapDegrees((float)((float)(-Math.toDegrees(Math.atan2(d2, d4))) - Rotations.mc.player.pitch));
     }
 
     public static void rotate(double d, double d2, int n, boolean bl, Runnable runnable) {
@@ -171,8 +171,8 @@ public class Rotations {
         Rotations.rotate(d, d2, 0, null);
     }
 
-    public static double getYaw(class_243 class_2432) {
-        return Rotations.mc.field_1724.field_6031 + class_3532.method_15393((float)((float)Math.toDegrees(Math.atan2(class_2432.method_10215() - Rotations.mc.field_1724.method_23321(), class_2432.method_10216() - Rotations.mc.field_1724.method_23317())) - 90.0f - Rotations.mc.field_1724.field_6031));
+    public static double getYaw(Vec3d Vec3d2) {
+        return Rotations.mc.player.yaw + MathHelper.wrapDegrees((float)((float)Math.toDegrees(Math.atan2(Vec3d2.getZ() - Rotations.mc.player.getZ(), Vec3d2.getX() - Rotations.mc.player.getX())) - 90.0f - Rotations.mc.player.yaw));
     }
 
     public static void init() {
@@ -180,7 +180,7 @@ public class Rotations {
     }
 
     static {
-        mc = class_310.method_1551();
+        mc = MinecraftClient.getInstance();
         rotationPool = new Pool<Rotation>(Rotations::lambda$static$0);
         rotations = new ArrayList<Rotation>();
         i = 0;
@@ -202,13 +202,13 @@ public class Rotations {
         Rotations.rotate(d, d2, 0, runnable);
     }
 
-    public static double getPitch(class_1297 class_12972, Target target) {
-        double d = target == Target.Head ? class_12972.method_23320() : (target == Target.Body ? class_12972.method_23318() + (double)(class_12972.method_17682() / 2.0f) : class_12972.method_23318());
-        double d2 = class_12972.method_23317() - Rotations.mc.field_1724.method_23317();
-        double d3 = d - (Rotations.mc.field_1724.method_23318() + (double)Rotations.mc.field_1724.method_18381(Rotations.mc.field_1724.method_18376()));
-        double d4 = class_12972.method_23321() - Rotations.mc.field_1724.method_23321();
+    public static double getPitch(Entity Entity2, Target target) {
+        double d = target == Target.Head ? Entity2.getEyeY() : (target == Target.Body ? Entity2.getY() + (double)(Entity2.getHeight() / 2.0f) : Entity2.getY());
+        double d2 = Entity2.getX() - Rotations.mc.player.getX();
+        double d3 = d - (Rotations.mc.player.getY() + (double)Rotations.mc.player.getEyeHeight(Rotations.mc.player.getPose()));
+        double d4 = Entity2.getZ() - Rotations.mc.player.getZ();
         double d5 = Math.sqrt(d2 * d2 + d4 * d4);
-        return Rotations.mc.field_1724.field_5965 + class_3532.method_15393((float)((float)(-Math.toDegrees(Math.atan2(d3, d5))) - Rotations.mc.field_1724.field_5965));
+        return Rotations.mc.player.pitch + MathHelper.wrapDegrees((float)((float)(-Math.toDegrees(Math.atan2(d3, d5))) - Rotations.mc.player.pitch));
     }
 
     private static class Rotation {
@@ -236,7 +236,7 @@ public class Rotations {
         }
 
         public void sendPacket() {
-            Rotations.access$000().method_1562().method_2883((class_2596)new class_2828.class_2831((float)this.yaw, (float)this.pitch, Rotations.access$000().field_1724.method_24828()));
+            Rotations.access$000().getNetworkHandler().sendPacket((Packet)new PlayerMoveC2SPacket.class_2831((float)this.yaw, (float)this.pitch, Rotations.access$000().player.isOnGround()));
             this.runCallback();
         }
 

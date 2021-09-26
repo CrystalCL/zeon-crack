@@ -5,25 +5,25 @@ package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.Fullbright;
-import net.minecraft.class_1291;
-import net.minecraft.class_1309;
-import net.minecraft.class_746;
-import net.minecraft.class_757;
-import net.minecraft.class_765;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(value={class_765.class})
+@Mixin(value={LightmapTextureManager.class})
 public class LightmapTextureManagerMixin {
     @Redirect(method={"update"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/network/ClientPlayerEntity;hasStatusEffect(Lnet/minecraft/entity/effect/StatusEffect;)Z", ordinal=0))
-    private boolean updateHasStatusEffectProxy(class_746 class_7462, class_1291 class_12912) {
-        return Modules.get().isActive(Fullbright.class) || class_7462.method_6059(class_12912);
+    private boolean updateHasStatusEffectProxy(ClientPlayerEntity ClientPlayerEntity2, StatusEffect StatusEffect2) {
+        return Modules.get().isActive(Fullbright.class) || ClientPlayerEntity2.hasStatusEffect(StatusEffect2);
     }
 
     @Redirect(method={"update"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/render/GameRenderer;getNightVisionStrength(Lnet/minecraft/entity/LivingEntity;F)F"))
-    private float updateGetNightVisionStrengthProxy(class_1309 class_13092, float f) {
-        return Modules.get().isActive(Fullbright.class) ? 1.0f : class_757.method_3174((class_1309)class_13092, (float)f);
+    private float updateGetNightVisionStrengthProxy(LivingEntity LivingEntity2, float f) {
+        return Modules.get().isActive(Fullbright.class) ? 1.0f : GameRenderer.getNightVisionStrength((LivingEntity)LivingEntity2, (float)f);
     }
 }
 

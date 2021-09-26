@@ -30,24 +30,24 @@ import minegame159.meteorclient.systems.modules.combat.OffhandExtra;
 import minegame159.meteorclient.systems.modules.misc.OffhandCrash;
 import minegame159.meteorclient.systems.modules.player.AutoMend;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_1706;
-import net.minecraft.class_1707;
-import net.minecraft.class_1713;
-import net.minecraft.class_1714;
-import net.minecraft.class_1733;
-import net.minecraft.class_1735;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1935;
-import net.minecraft.class_1937;
-import net.minecraft.class_2663;
-import net.minecraft.class_437;
-import net.minecraft.class_471;
-import net.minecraft.class_476;
-import net.minecraft.class_479;
-import net.minecraft.class_495;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.screen.AnvilScreenHandler;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.screen.CraftingScreenHandler;
+import net.minecraft.screen.ShulkerBoxScreenHandler;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.ItemConvertible;
+import net.minecraft.world.World;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.AnvilScreen;
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
+import net.minecraft.client.gui.screen.ingame.CraftingScreen;
+import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen;
 import org.apache.commons.io.FileUtils;
 
 public class CustomAutoTotem
@@ -64,15 +64,15 @@ extends Module {
             Object object;
             this.ticks = 0;
             if (this.takeTotemMode.get() == Mode.ForAntiCheat) {
-                object = this.mc.field_1755;
-                InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(class_1802.field_8288);
+                object = this.mc.currentScreen;
+                InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(Items.TOTEM_OF_UNDYING);
                 if (findItemResult.count > 0) {
                     int n = Ezz.invIndexToSlotId(findItemResult.slot);
                     this.MOVE_TOTEM(n);
                 }
             }
             if (this.takeTotemMode.get() == Mode.NoAntiCheat) {
-                object = InvUtils.findItemWithCount(class_1802.field_8288);
+                object = InvUtils.findItemWithCount(Items.TOTEM_OF_UNDYING);
                 if (object.count > 0) {
                     int n = Ezz.invIndexToSlotId(object.slot);
                     this.MOVE_TOTEM(n);
@@ -84,29 +84,29 @@ extends Module {
     }
 
     private void SET_TOTEM_COUNT() {
-        InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(class_1802.field_8288);
+        InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(Items.TOTEM_OF_UNDYING);
         this.totemCountString = Integer.toString(findItemResult.count);
     }
 
     @EventHandler(priority=0x7FFFFFFE)
     private void onTick(TickEvent.Pre pre) {
-        class_437 class_4372 = this.mc.field_1755;
-        if (this.mc.field_1724 == null || this.mc.field_1687 == null) {
+        Screen Screen2 = this.mc.currentScreen;
+        if (this.mc.player == null || this.mc.world == null) {
             return;
         }
         this.SET_TOTEM_COUNT();
-        if (this.mc.field_1724.method_6079().method_7909() == class_1802.field_8288) {
+        if (this.mc.player.getOffHandStack().getItem() == Items.TOTEM_OF_UNDYING) {
             return;
         }
-        if (class_4372 instanceof class_476) {
+        if (Screen2 instanceof GenericContainerScreen) {
             this.CHTotem();
             return;
         }
-        if (class_4372 instanceof class_495) {
+        if (Screen2 instanceof ShulkerBoxScreen) {
             this.SHTotem();
             return;
         }
-        if (class_4372 instanceof class_479) {
+        if (Screen2 instanceof CraftingScreen) {
             this.CRTotem();
             return;
         }
@@ -124,19 +124,19 @@ extends Module {
     }
 
     private void ATotem() {
-        class_1706 class_17062 = (class_1706)((class_471)this.mc.field_1755).method_17577();
-        if (class_17062 == null) {
+        AnvilScreenHandler AnvilScreenHandler2 = (AnvilScreenHandler)((AnvilScreen)this.mc.currentScreen).getScreenHandler();
+        if (AnvilScreenHandler2 == null) {
             return;
         }
         int n = -1;
-        for (int i = 0; i < class_17062.field_7761.size(); ++i) {
-            if (((class_1735)class_17062.field_7761.get(i)).method_7677().method_7909() != class_1802.field_8288) continue;
+        for (int i = 0; i < AnvilScreenHandler2.slots.size(); ++i) {
+            if (((Slot)AnvilScreenHandler2.slots.get(i)).getStack().getItem() != Items.TOTEM_OF_UNDYING) continue;
             n = i;
             break;
         }
         if (n > -1) {
             this.MOVE_TOTEM(n);
-            ((class_1735)class_17062.field_7761.get(n)).method_7673(new class_1799((class_1935)class_1802.field_8162));
+            ((Slot)AnvilScreenHandler2.slots.get(n)).setStack(new ItemStack((ItemConvertible)Items.AIR));
         }
     }
 
@@ -200,83 +200,83 @@ extends Module {
     }
 
     private void CHTotem() {
-        class_1707 class_17072 = (class_1707)((class_476)this.mc.field_1755).method_17577();
-        if (class_17072 == null) {
+        GenericContainerScreenHandler GenericContainerScreenHandler2 = (GenericContainerScreenHandler)((GenericContainerScreen)this.mc.currentScreen).getScreenHandler();
+        if (GenericContainerScreenHandler2 == null) {
             return;
         }
         int n = -1;
-        for (int i = 0; i < class_17072.field_7761.size(); ++i) {
-            if (((class_1735)class_17072.field_7761.get(i)).method_7677().method_7909() != class_1802.field_8288) continue;
+        for (int i = 0; i < GenericContainerScreenHandler2.slots.size(); ++i) {
+            if (((Slot)GenericContainerScreenHandler2.slots.get(i)).getStack().getItem() != Items.TOTEM_OF_UNDYING) continue;
             n = i;
             break;
         }
         if (n > -1) {
             this.MOVE_TOTEM(n);
-            ((class_1735)class_17072.field_7761.get(n)).method_7673(new class_1799((class_1935)class_1802.field_8162));
+            ((Slot)GenericContainerScreenHandler2.slots.get(n)).setStack(new ItemStack((ItemConvertible)Items.AIR));
         }
     }
 
     private void MOVE_TOTEM(int n) {
-        this.mc.field_1761.method_2906(this.mc.field_1724.field_7512.field_7763, n, 40, class_1713.field_7791, (class_1657)this.mc.field_1724);
+        this.mc.interactionManager.clickSlot(this.mc.player.currentScreenHandler.syncId, n, 40, SlotActionType.SWAP, (PlayerEntity)this.mc.player);
     }
 
     private void CRTotem() {
-        class_1714 class_17142 = (class_1714)((class_479)this.mc.field_1755).method_17577();
-        if (class_17142 == null) {
+        CraftingScreenHandler CraftingScreenHandler2 = (CraftingScreenHandler)((CraftingScreen)this.mc.currentScreen).getScreenHandler();
+        if (CraftingScreenHandler2 == null) {
             return;
         }
         int n = -1;
-        for (int i = 0; i < class_17142.field_7761.size(); ++i) {
-            if (((class_1735)class_17142.field_7761.get(i)).method_7677().method_7909() != class_1802.field_8288) continue;
+        for (int i = 0; i < CraftingScreenHandler2.slots.size(); ++i) {
+            if (((Slot)CraftingScreenHandler2.slots.get(i)).getStack().getItem() != Items.TOTEM_OF_UNDYING) continue;
             n = i;
             break;
         }
         if (n > -1) {
             this.MOVE_TOTEM(n);
-            ((class_1735)class_17142.field_7761.get(n)).method_7673(new class_1799((class_1935)class_1802.field_8162));
+            ((Slot)CraftingScreenHandler2.slots.get(n)).setStack(new ItemStack((ItemConvertible)Items.AIR));
         }
     }
 
     @EventHandler(priority=0x7FFFFFFF)
     private void POPS(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2663) {
-            class_2663 class_26632 = (class_2663)receive.packet;
-            if (class_26632.method_11470() != 35) {
+        if (receive.packet instanceof EntityStatusS2CPacket) {
+            EntityStatusS2CPacket EntityStatusS2CPacket2 = (EntityStatusS2CPacket)receive.packet;
+            if (EntityStatusS2CPacket2.getStatus() != 35) {
                 return;
             }
-            class_1297 class_12972 = class_26632.method_11469((class_1937)this.mc.field_1687);
-            if (class_12972 == null || !class_12972.equals((Object)this.mc.field_1724)) {
+            Entity Entity2 = EntityStatusS2CPacket2.getEntity((World)this.mc.world);
+            if (Entity2 == null || !Entity2.equals((Object)this.mc.player)) {
                 return;
             }
-            if (this.mc.field_1755 instanceof class_476) {
+            if (this.mc.currentScreen instanceof GenericContainerScreen) {
                 this.CHTotem();
             }
-            if (this.mc.field_1755 instanceof class_495) {
+            if (this.mc.currentScreen instanceof ShulkerBoxScreen) {
                 this.SHTotem();
             }
-            if (this.mc.field_1755 instanceof class_479) {
+            if (this.mc.currentScreen instanceof CraftingScreen) {
                 this.CRTotem();
             }
-            if (this.mc.field_1755 instanceof class_471) {
+            if (this.mc.currentScreen instanceof AnvilScreen) {
                 this.ATotem();
             }
         }
     }
 
     private void SHTotem() {
-        class_1733 class_17332 = (class_1733)((class_495)this.mc.field_1755).method_17577();
-        if (class_17332 == null) {
+        ShulkerBoxScreenHandler ShulkerBoxScreenHandler2 = (ShulkerBoxScreenHandler)((ShulkerBoxScreen)this.mc.currentScreen).getScreenHandler();
+        if (ShulkerBoxScreenHandler2 == null) {
             return;
         }
         int n = -1;
-        for (int i = 0; i < class_17332.field_7761.size(); ++i) {
-            if (((class_1735)class_17332.field_7761.get(i)).method_7677().method_7909() != class_1802.field_8288) continue;
+        for (int i = 0; i < ShulkerBoxScreenHandler2.slots.size(); ++i) {
+            if (((Slot)ShulkerBoxScreenHandler2.slots.get(i)).getStack().getItem() != Items.TOTEM_OF_UNDYING) continue;
             n = i;
             break;
         }
         if (n > -1) {
             this.MOVE_TOTEM(n);
-            ((class_1735)class_17332.field_7761.get(n)).method_7673(new class_1799((class_1935)class_1802.field_8162));
+            ((Slot)ShulkerBoxScreenHandler2.slots.get(n)).setStack(new ItemStack((ItemConvertible)Items.AIR));
         }
     }
 

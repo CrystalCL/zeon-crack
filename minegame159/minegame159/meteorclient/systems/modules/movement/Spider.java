@@ -10,7 +10,7 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_243;
+import net.minecraft.util.math.Vec3d;
 
 public class Spider
 extends Module {
@@ -19,14 +19,14 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (!this.mc.field_1724.field_5976) {
+        if (!this.mc.player.horizontalCollision) {
             return;
         }
-        class_243 class_2432 = this.mc.field_1724.method_18798();
-        if (class_2432.field_1351 >= 0.2) {
+        Vec3d Vec3d2 = this.mc.player.getVelocity();
+        if (Vec3d2.y >= 0.2) {
             return;
         }
-        this.mc.field_1724.method_18800(class_2432.field_1352, this.speed.get().doubleValue(), class_2432.field_1350);
+        this.mc.player.setVelocity(Vec3d2.x, this.speed.get().doubleValue(), Vec3d2.z);
     }
 
     public Spider() {

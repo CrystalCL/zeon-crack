@@ -7,8 +7,8 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.render.AlignmentX;
 import minegame159.meteorclient.utils.render.AlignmentY;
-import net.minecraft.class_2487;
-import net.minecraft.class_2514;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.AbstractNbtNumber;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -49,16 +49,16 @@ implements ISerializable<BoundingBox> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public BoundingBox fromTag(class_2487 class_24872) {
-        this.x = AlignmentX.valueOf(class_24872.method_10558("x"));
-        this.y = AlignmentY.valueOf(class_24872.method_10558("y"));
-        this.xOffset = ((class_2514)class_24872.method_10580("xOffset")).method_10697();
-        this.yOffset = ((class_2514)class_24872.method_10580("yOffset")).method_10697();
+    public BoundingBox fromTag(NbtCompound NbtCompound2) {
+        this.x = AlignmentX.valueOf(NbtCompound2.getString("x"));
+        this.y = AlignmentY.valueOf(NbtCompound2.getString("y"));
+        this.xOffset = ((AbstractNbtNumber)NbtCompound2.get("xOffset")).doubleValue();
+        this.yOffset = ((AbstractNbtNumber)NbtCompound2.get("yOffset")).doubleValue();
         return this;
     }
 
@@ -80,13 +80,13 @@ implements ISerializable<BoundingBox> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("x", this.x.name());
-        class_24872.method_10582("y", this.y.name());
-        class_24872.method_10549("xOffset", this.xOffset);
-        class_24872.method_10549("yOffset", this.yOffset);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("x", this.x.name());
+        NbtCompound2.putString("y", this.y.name());
+        NbtCompound2.putDouble("xOffset", this.xOffset);
+        NbtCompound2.putDouble("yOffset", this.yOffset);
+        return NbtCompound2;
     }
 
     public void addPos(double d, double d2) {

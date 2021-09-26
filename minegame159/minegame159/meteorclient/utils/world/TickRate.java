@@ -9,7 +9,7 @@ import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.events.game.GameJoinedEvent;
 import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_2761;
+import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 
 public class TickRate {
     private final float[] tickRates = new float[20];
@@ -39,7 +39,7 @@ public class TickRate {
 
     @EventHandler
     private void onReceivePacket(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2761) {
+        if (receive.packet instanceof WorldTimeUpdateS2CPacket) {
             if (this.timeLastTimeUpdate != -1L) {
                 float f = (float)(System.currentTimeMillis() - this.timeLastTimeUpdate) / 1000.0f;
                 this.tickRates[this.nextIndex % this.tickRates.length] = Utils.clamp(20.0f / f, 0.0f, 20.0f);

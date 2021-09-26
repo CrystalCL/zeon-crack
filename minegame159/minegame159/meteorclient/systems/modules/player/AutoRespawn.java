@@ -7,7 +7,7 @@ import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.events.game.OpenScreenEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_418;
+import net.minecraft.client.gui.screen.DeathScreen;
 
 public class AutoRespawn
 extends Module {
@@ -17,10 +17,10 @@ extends Module {
 
     @EventHandler
     private void onOpenScreenEvent(OpenScreenEvent openScreenEvent) {
-        if (!(openScreenEvent.screen instanceof class_418)) {
+        if (!(openScreenEvent.screen instanceof DeathScreen)) {
             return;
         }
-        this.mc.field_1724.method_7331();
+        this.mc.player.requestRespawn();
         openScreenEvent.cancel();
     }
 }

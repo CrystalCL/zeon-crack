@@ -12,7 +12,7 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1802;
+import net.minecraft.item.Items;
 
 public class SevilaMode
 extends Module {
@@ -23,7 +23,7 @@ extends Module {
 
     @EventHandler
     public void onTick(TickEvent.Post post) {
-        if (this.pause.get().booleanValue() && (this.mc.field_1724.method_6047().method_7909() == class_1802.field_8287 || this.mc.field_1724.method_6047().method_7909() == class_1802.field_8634 || this.mc.field_1724.method_6079().method_7909() == class_1802.field_8287 || this.mc.field_1724.method_6079().method_7909() == class_1802.field_8634)) {
+        if (this.pause.get().booleanValue() && (this.mc.player.getMainHandStack().getItem() == Items.EXPERIENCE_BOTTLE || this.mc.player.getMainHandStack().getItem() == Items.ENDER_PEARL || this.mc.player.getOffHandStack().getItem() == Items.EXPERIENCE_BOTTLE || this.mc.player.getOffHandStack().getItem() == Items.ENDER_PEARL)) {
             return;
         }
         this.count = (short)(this.count + this.speed.get());

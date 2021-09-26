@@ -11,18 +11,18 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1452;
-import net.minecraft.class_1495;
-import net.minecraft.class_1498;
-import net.minecraft.class_1500;
-import net.minecraft.class_1501;
-import net.minecraft.class_1506;
-import net.minecraft.class_1657;
-import net.minecraft.class_1690;
-import net.minecraft.class_1695;
-import net.minecraft.class_1826;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.entity.passive.DonkeyEntity;
+import net.minecraft.entity.passive.HorseEntity;
+import net.minecraft.entity.passive.MuleEntity;
+import net.minecraft.entity.passive.LlamaEntity;
+import net.minecraft.entity.mob.SkeletonHorseEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.item.SpawnEggItem;
 
 public class AutoMount
 extends Module {
@@ -55,58 +55,58 @@ extends Module {
         this.minecarts = this.sgMount.add(new BoolSetting.Builder().name("minecart").description("Minecart").defaultValue(false).build());
     }
 
-    private void interact(class_1297 class_12972) {
+    private void interact(Entity Entity2) {
         if (this.rotate.get().booleanValue()) {
-            Rotations.rotate(Rotations.getYaw(class_12972), Rotations.getPitch(class_12972), -100, () -> this.lambda$interact$0(class_12972));
+            Rotations.rotate(Rotations.getYaw(Entity2), Rotations.getPitch(Entity2), -100, () -> this.lambda$interact$0(Entity2));
         } else {
-            this.mc.field_1761.method_2905((class_1657)this.mc.field_1724, class_12972, class_1268.field_5808);
+            this.mc.interactionManager.interactEntity((PlayerEntity)this.mc.player, Entity2, Hand.MAIN_HAND);
         }
     }
 
-    private void lambda$interact$0(class_1297 class_12972) {
-        this.mc.field_1761.method_2905((class_1657)this.mc.field_1724, class_12972, class_1268.field_5808);
+    private void lambda$interact$0(Entity Entity2) {
+        this.mc.interactionManager.interactEntity((PlayerEntity)this.mc.player, Entity2, Hand.MAIN_HAND);
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (this.mc.field_1724.method_5765()) {
+        if (this.mc.player.hasVehicle()) {
             return;
         }
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (this.mc.field_1724.method_5739(class_12972) > 4.0f) continue;
-            if (this.mc.field_1724.method_6047().method_7909() instanceof class_1826) {
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (this.mc.player.distanceTo(Entity2) > 4.0f) continue;
+            if (this.mc.player.getMainHandStack().getItem() instanceof SpawnEggItem) {
                 return;
             }
-            if (this.donkeys.get().booleanValue() && class_12972 instanceof class_1495 && (!this.checkSaddle.get().booleanValue() || ((class_1495)class_12972).method_6725())) {
-                this.interact(class_12972);
+            if (this.donkeys.get().booleanValue() && Entity2 instanceof DonkeyEntity && (!this.checkSaddle.get().booleanValue() || ((DonkeyEntity)Entity2).isSaddled())) {
+                this.interact(Entity2);
                 continue;
             }
-            if (this.llamas.get().booleanValue() && class_12972 instanceof class_1501) {
-                this.interact(class_12972);
+            if (this.llamas.get().booleanValue() && Entity2 instanceof LlamaEntity) {
+                this.interact(Entity2);
                 continue;
             }
-            if (this.boats.get().booleanValue() && class_12972 instanceof class_1690) {
-                this.interact(class_12972);
+            if (this.boats.get().booleanValue() && Entity2 instanceof BoatEntity) {
+                this.interact(Entity2);
                 continue;
             }
-            if (this.minecarts.get().booleanValue() && class_12972 instanceof class_1695) {
-                this.interact(class_12972);
+            if (this.minecarts.get().booleanValue() && Entity2 instanceof MinecartEntity) {
+                this.interact(Entity2);
                 continue;
             }
-            if (this.horses.get().booleanValue() && class_12972 instanceof class_1498 && (!this.checkSaddle.get().booleanValue() || ((class_1498)class_12972).method_6725())) {
-                this.interact(class_12972);
+            if (this.horses.get().booleanValue() && Entity2 instanceof HorseEntity && (!this.checkSaddle.get().booleanValue() || ((HorseEntity)Entity2).isSaddled())) {
+                this.interact(Entity2);
                 continue;
             }
-            if (this.pigs.get().booleanValue() && class_12972 instanceof class_1452 && ((class_1452)class_12972).method_6725()) {
-                this.interact(class_12972);
+            if (this.pigs.get().booleanValue() && Entity2 instanceof PigEntity && ((PigEntity)Entity2).isSaddled()) {
+                this.interact(Entity2);
                 continue;
             }
-            if (this.mules.get().booleanValue() && class_12972 instanceof class_1500 && (!this.checkSaddle.get().booleanValue() || ((class_1500)class_12972).method_6725())) {
-                this.interact(class_12972);
+            if (this.mules.get().booleanValue() && Entity2 instanceof MuleEntity && (!this.checkSaddle.get().booleanValue() || ((MuleEntity)Entity2).isSaddled())) {
+                this.interact(Entity2);
                 continue;
             }
-            if (!this.skeletonHorse.get().booleanValue() || !(class_12972 instanceof class_1506) || this.checkSaddle.get().booleanValue() && !((class_1506)class_12972).method_6725()) continue;
-            this.interact(class_12972);
+            if (!this.skeletonHorse.get().booleanValue() || !(Entity2 instanceof SkeletonHorseEntity) || this.checkSaddle.get().booleanValue() && !((SkeletonHorseEntity)Entity2).isSaddled()) continue;
+            this.interact(Entity2);
         }
     }
 }

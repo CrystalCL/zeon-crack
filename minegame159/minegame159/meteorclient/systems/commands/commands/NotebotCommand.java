@@ -21,9 +21,9 @@ import minegame159.meteorclient.systems.commands.Command;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.misc.Notebot;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2172;
-import net.minecraft.class_2767;
-import net.minecraft.class_3417;
+import net.minecraft.command.CommandSource;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.sound.SoundEvents;
 
 public class NotebotCommand
 extends Command {
@@ -84,7 +84,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.then(NotebotCommand.literal("status").executes(NotebotCommand::lambda$build$0));
         literalArgumentBuilder.then(NotebotCommand.literal("pause").executes(NotebotCommand::lambda$build$1));
         literalArgumentBuilder.then(NotebotCommand.literal("resume").executes(NotebotCommand::lambda$build$2));
@@ -156,12 +156,12 @@ extends Command {
 
     @EventHandler
     public void onReadPacket(PacketEvent.Receive receive) {
-        class_2767 class_27672;
-        if (receive.packet instanceof class_2767 && (class_27672 = (class_2767)receive.packet).method_11894() == class_3417.field_15114) {
+        PlaySoundS2CPacket PlaySoundS2CPacket2;
+        if (receive.packet instanceof PlaySoundS2CPacket && (PlaySoundS2CPacket2 = (PlaySoundS2CPacket)receive.packet).getSound() == SoundEvents.BLOCK_NOTE_BLOCK_HARP) {
             if (this.ticks == -1) {
                 this.ticks = 0;
             }
-            this.song.add(Arrays.asList(this.ticks, this.getNote(class_27672.method_11892())));
+            this.song.add(Arrays.asList(this.ticks, this.getNote(PlaySoundS2CPacket2.getPitch())));
         }
     }
 

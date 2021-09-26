@@ -4,19 +4,19 @@
 package minegame159.meteorclient.events.entity.player;
 
 import minegame159.meteorclient.events.Cancellable;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 public class StartBreakingBlockEvent
 extends Cancellable {
-    public class_2350 direction;
+    public Direction direction;
     private static final StartBreakingBlockEvent INSTANCE = new StartBreakingBlockEvent();
-    public class_2338 blockPos;
+    public BlockPos blockPos;
 
-    public static StartBreakingBlockEvent get(class_2338 class_23382, class_2350 class_23502) {
+    public static StartBreakingBlockEvent get(BlockPos BlockPos2, Direction Direction2) {
         INSTANCE.setCancelled(false);
-        StartBreakingBlockEvent.INSTANCE.blockPos = class_23382;
-        StartBreakingBlockEvent.INSTANCE.direction = class_23502;
+        StartBreakingBlockEvent.INSTANCE.blockPos = BlockPos2;
+        StartBreakingBlockEvent.INSTANCE.direction = Direction2;
         return INSTANCE;
     }
 }

@@ -22,13 +22,13 @@ extends Module {
     private final SettingGroup sgYaw;
 
     private void setYawAngle(float f) {
-        this.mc.field_1724.field_6031 = f;
-        this.mc.field_1724.field_6241 = f;
-        this.mc.field_1724.field_6283 = f;
+        this.mc.player.yaw = f;
+        this.mc.player.headYaw = f;
+        this.mc.player.bodyYaw = f;
     }
 
     private float getSmartPitchDirection() {
-        return (float)Math.round((this.mc.field_1724.field_5965 + 1.0f) / 30.0f) * 30.0f;
+        return (float)Math.round((this.mc.player.pitch + 1.0f) / 30.0f) * 30.0f;
     }
 
     @EventHandler
@@ -44,11 +44,11 @@ extends Module {
         }
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$player$Rotation$LockMode[this.pitchLockMode.get().ordinal()]) {
             case 1: {
-                this.mc.field_1724.field_5965 = this.pitchAngle.get().floatValue();
+                this.mc.player.pitch = this.pitchAngle.get().floatValue();
                 break;
             }
             case 2: {
-                this.mc.field_1724.field_5965 = this.getSmartPitchDirection();
+                this.mc.player.pitch = this.getSmartPitchDirection();
             }
         }
     }
@@ -59,7 +59,7 @@ extends Module {
     }
 
     private float getSmartYawDirection() {
-        return (float)Math.round((this.mc.field_1724.field_6031 + 1.0f) / 45.0f) * 45.0f;
+        return (float)Math.round((this.mc.player.yaw + 1.0f) / 45.0f) * 45.0f;
     }
 
     public Rotation() {

@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixininterface;
 
-import net.minecraft.class_243;
+import net.minecraft.util.math.Vec3d;
 
 public interface IItemEntity {
-    public class_243 getRotation();
+    public Vec3d getRotation();
 
-    public void setRotation(class_243 var1);
+    public void setRotation(Vec3d var1);
 }
 

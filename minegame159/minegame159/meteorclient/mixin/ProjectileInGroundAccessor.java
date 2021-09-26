@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_1665;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_1665.class})
+@Mixin(value={PersistentProjectileEntity.class})
 public interface ProjectileInGroundAccessor {
     @Accessor(value="inGround")
     public boolean getInGround();

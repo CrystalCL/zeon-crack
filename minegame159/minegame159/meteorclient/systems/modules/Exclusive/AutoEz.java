@@ -29,14 +29,14 @@ import minegame159.meteorclient.systems.friends.Friends;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1304;
-import net.minecraft.class_1511;
-import net.minecraft.class_1657;
-import net.minecraft.class_1802;
-import net.minecraft.class_1937;
-import net.minecraft.class_2663;
-import net.minecraft.class_742;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.world.World;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import org.apache.commons.io.FileUtils;
 
 public class AutoEz
@@ -69,26 +69,26 @@ extends Module {
         this.players = new HashMap<Integer, Integer>();
     }
 
-    private void lambda$AttackEntity$0(AttackEntityEvent attackEntityEvent, class_742 class_7422) {
-        if (this.checkTarget((class_1297)class_7422) && class_7422.method_5739(attackEntityEvent.entity) < 12.0f) {
-            this.add(class_7422.method_5628());
+    private void lambda$AttackEntity$0(AttackEntityEvent attackEntityEvent, AbstractClientPlayerEntity AbstractClientPlayerEntity2) {
+        if (this.checkTarget((Entity)AbstractClientPlayerEntity2) && AbstractClientPlayerEntity2.distanceTo(attackEntityEvent.entity) < 12.0f) {
+            this.add(AbstractClientPlayerEntity2.getEntityId());
         }
     }
 
-    private void ezz(class_1297 class_12972) {
-        int n = class_12972.method_5628();
+    private void ezz(Entity Entity2) {
+        int n = Entity2.getEntityId();
         if (this.b.get() == Mode.Message) {
             if (this.players.get(n) == 0) {
-                this.mc.field_1724.method_3142(this.format.get().replace("{name}", class_12972.method_5477().method_10851()));
+                this.mc.player.sendChatMessage(this.format.get().replace("{name}", Entity2.getName().asString()));
             } else {
-                this.mc.field_1724.method_3142(this.formatTOTEM.get().replace("{name}", class_12972.method_5477().method_10851()).replace("{totem}", String.valueOf(this.players.get(n))));
+                this.mc.player.sendChatMessage(this.formatTOTEM.get().replace("{name}", Entity2.getName().asString()).replace("{totem}", String.valueOf(this.players.get(n))));
             }
             this.players.remove(n);
         } else if (this.b.get() == Mode.Client) {
             if (this.players.get(n) == 0) {
-                ChatUtils.info(this.format.get().replace("{name}", class_12972.method_5477().method_10851()), new Object[0]);
+                ChatUtils.info(this.format.get().replace("{name}", Entity2.getName().asString()), new Object[0]);
             } else {
-                ChatUtils.info(this.formatTOTEM.get().replace("{name}", class_12972.method_5477().method_10851()).replace("{totem}", String.valueOf(this.players.get(n))), new Object[0]);
+                ChatUtils.info(this.formatTOTEM.get().replace("{name}", Entity2.getName().asString()).replace("{totem}", String.valueOf(this.players.get(n))), new Object[0]);
             }
             this.players.remove(n);
         } else if (this.b.get() == Mode.None) {
@@ -96,29 +96,29 @@ extends Module {
         }
     }
 
-    private boolean checkTarget(class_1297 class_12972) {
-        class_1657 class_16572 = (class_1657)class_12972;
-        return !class_16572.method_7325() && !class_16572.method_7337() && !class_16572.method_5655() && !this.mc.field_1724.equals((Object)class_16572) && !this.checkArmor(class_16572) && !this.checkFriend(class_16572);
+    private boolean checkTarget(Entity Entity2) {
+        PlayerEntity PlayerEntity2 = (PlayerEntity)Entity2;
+        return !PlayerEntity2.isSpectator() && !PlayerEntity2.isCreative() && !PlayerEntity2.isInvulnerable() && !this.mc.player.equals((Object)PlayerEntity2) && !this.checkArmor(PlayerEntity2) && !this.checkFriend(PlayerEntity2);
     }
 
     @EventHandler
     private void AttackEntity(AttackEntityEvent attackEntityEvent) {
-        if (attackEntityEvent.entity instanceof class_1511) {
-            this.mc.field_1687.method_18456().forEach(arg_0 -> this.lambda$AttackEntity$0(attackEntityEvent, arg_0));
-        } else if (attackEntityEvent.entity instanceof class_1657 && this.checkTarget(attackEntityEvent.entity)) {
-            this.add(attackEntityEvent.entity.method_5628());
+        if (attackEntityEvent.entity instanceof EndCrystalEntity) {
+            this.mc.world.getPlayers().forEach(arg_0 -> this.lambda$AttackEntity$0(attackEntityEvent, arg_0));
+        } else if (attackEntityEvent.entity instanceof PlayerEntity && this.checkTarget(attackEntityEvent.entity)) {
+            this.add(attackEntityEvent.entity.getEntityId());
         }
     }
 
     @EventHandler
     private void PacketEvent(PacketEvent.Receive receive) {
-        class_2663 class_26632;
-        if (receive.packet instanceof class_2663 && (class_26632 = (class_2663)receive.packet).method_11469((class_1937)this.mc.field_1687) instanceof class_1657 && this.checkTarget(class_26632.method_11469((class_1937)this.mc.field_1687)) && this.players.containsKey(class_26632.method_11469((class_1937)this.mc.field_1687).method_5628())) {
-            if (class_26632.method_11470() == 3) {
-                this.ezz(class_26632.method_11469((class_1937)this.mc.field_1687));
+        EntityStatusS2CPacket EntityStatusS2CPacket2;
+        if (receive.packet instanceof EntityStatusS2CPacket && (EntityStatusS2CPacket2 = (EntityStatusS2CPacket)receive.packet).getEntity((World)this.mc.world) instanceof PlayerEntity && this.checkTarget(EntityStatusS2CPacket2.getEntity((World)this.mc.world)) && this.players.containsKey(EntityStatusS2CPacket2.getEntity((World)this.mc.world).getEntityId())) {
+            if (EntityStatusS2CPacket2.getStatus() == 3) {
+                this.ezz(EntityStatusS2CPacket2.getEntity((World)this.mc.world));
             }
-            if (class_26632.method_11470() == 35) {
-                int n = class_26632.method_11469((class_1937)this.mc.field_1687).method_5628();
+            if (EntityStatusS2CPacket2.getStatus() == 35) {
+                int n = EntityStatusS2CPacket2.getEntity((World)this.mc.world).getEntityId();
                 if (this.players.get(n) == null) {
                     this.players.put(n, 1);
                 } else {
@@ -175,14 +175,14 @@ extends Module {
         }
     }
 
-    private boolean checkFriend(class_1657 class_16572) {
-        return this.ignoreFriends.get() != false && Friends.get().get(class_16572.method_5477().method_10851()) != null;
+    private boolean checkFriend(PlayerEntity PlayerEntity2) {
+        return this.ignoreFriends.get() != false && Friends.get().get(PlayerEntity2.getName().asString()) != null;
     }
 
-    private boolean checkArmor(class_1657 class_16572) {
+    private boolean checkArmor(PlayerEntity PlayerEntity2) {
         int n = 0;
-        for (class_1304 class_13042 : new class_1304[]{class_1304.field_6169, class_1304.field_6174, class_1304.field_6172, class_1304.field_6166}) {
-            if (class_16572.method_6118(class_13042).method_7909() == class_1802.field_8162) continue;
+        for (EquipmentSlot EquipmentSlot2 : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+            if (PlayerEntity2.getEquippedStack(EquipmentSlot2).getItem() == Items.AIR) continue;
             ++n;
             if (true) continue;
             return false;

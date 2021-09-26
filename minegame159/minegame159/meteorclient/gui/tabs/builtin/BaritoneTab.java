@@ -21,7 +21,7 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.settings.Settings;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 
 public class BaritoneTab
 extends Tab {
@@ -126,8 +126,8 @@ extends Tab {
     }
 
     @Override
-    public boolean isScreen(class_437 class_4372) {
-        return class_4372 instanceof BaritoneScreen;
+    public boolean isScreen(Screen Screen2) {
+        return Screen2 instanceof BaritoneScreen;
     }
 
     private static void lambda$getSettings$2(Settings.Setting setting, Double d) {

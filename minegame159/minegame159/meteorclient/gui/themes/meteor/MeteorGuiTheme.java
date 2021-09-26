@@ -110,8 +110,8 @@ extends GuiTheme {
     }
 
     private static void lambda$new$0(Double d) {
-        if (Utils.mc.field_1755 instanceof WidgetScreen) {
-            ((WidgetScreen)Utils.mc.field_1755).invalidate();
+        if (Utils.mc.currentScreen instanceof WidgetScreen) {
+            ((WidgetScreen)Utils.mc.currentScreen).invalidate();
         }
     }
 

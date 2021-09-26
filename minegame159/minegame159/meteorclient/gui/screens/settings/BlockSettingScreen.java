@@ -10,8 +10,8 @@ import minegame159.meteorclient.gui.widgets.containers.WTable;
 import minegame159.meteorclient.gui.widgets.input.WTextBox;
 import minegame159.meteorclient.gui.widgets.pressable.WButton;
 import minegame159.meteorclient.settings.BlockSetting;
-import net.minecraft.class_2248;
-import net.minecraft.class_2378;
+import net.minecraft.block.Block;
+import net.minecraft.util.registry.Registry;
 import org.apache.commons.lang3.StringUtils;
 
 public class BlockSettingScreen
@@ -38,19 +38,19 @@ extends WindowScreen {
     }
 
     private void initWidgets() {
-        for (class_2248 class_22482 : class_2378.field_11146) {
-            WItemWithLabel wItemWithLabel = this.theme.itemWithLabel(class_22482.method_8389().method_7854());
+        for (Block Block2 : Registry.BLOCK) {
+            WItemWithLabel wItemWithLabel = this.theme.itemWithLabel(Block2.asItem().getDefaultStack());
             if (!this.filterText.isEmpty() && !StringUtils.containsIgnoreCase((CharSequence)wItemWithLabel.getLabelText(), (CharSequence)this.filterText)) continue;
             this.table.add(wItemWithLabel);
             WButton wButton = this.table.add(this.theme.button("Select")).expandCellX().right().widget();
-            wButton.action = () -> this.lambda$initWidgets$1(class_22482);
+            wButton.action = () -> this.lambda$initWidgets$1(Block2);
             this.table.row();
         }
     }
 
-    private void lambda$initWidgets$1(class_2248 class_22482) {
-        this.setting.set(class_22482);
-        this.method_25419();
+    private void lambda$initWidgets$1(Block Block2) {
+        this.setting.set(Block2);
+        this.onClose();
     }
 }
 

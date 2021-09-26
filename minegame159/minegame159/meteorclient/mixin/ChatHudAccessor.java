@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_2561;
-import net.minecraft.class_338;
+import net.minecraft.text.Text;
+import net.minecraft.client.gui.hud.ChatHud;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(value={class_338.class})
+@Mixin(value={ChatHud.class})
 public interface ChatHudAccessor {
     @Invoker(value="addMessage")
-    public void add(class_2561 var1, int var2);
+    public void add(Text var1, int var2);
 }
 

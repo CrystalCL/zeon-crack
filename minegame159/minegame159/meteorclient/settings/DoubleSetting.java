@@ -5,7 +5,7 @@ package minegame159.meteorclient.settings;
 
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -20,10 +20,10 @@ extends Setting<Double> {
     public final Double min;
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_24872.method_10549("value", ((Double)this.get()).doubleValue());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound2.putDouble("value", ((Double)this.get()).doubleValue());
+        return NbtCompound2;
     }
 
     @Override
@@ -46,8 +46,8 @@ extends Setting<Double> {
     }
 
     @Override
-    public Double fromTag(class_2487 class_24872) {
-        this.set(class_24872.method_10574("value"));
+    public Double fromTag(NbtCompound NbtCompound2) {
+        this.set(NbtCompound2.getDouble("value"));
         return (Double)this.get();
     }
 
@@ -76,8 +76,8 @@ extends Setting<Double> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public double getSliderMin() {

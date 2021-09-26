@@ -22,8 +22,8 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2338;
-import net.minecraft.class_2620;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket;
 import org.apache.commons.io.FileUtils;
 
 public class BreakInfo
@@ -92,30 +92,30 @@ extends Module {
 
     @EventHandler
     private void a(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2620) {
-            class_2620 class_26202 = (class_2620)receive.packet;
-            if (class_26202.method_11278() != 0) {
+        if (receive.packet instanceof BlockBreakingProgressS2CPacket) {
+            BlockBreakingProgressS2CPacket BlockBreakingProgressS2CPacket2 = (BlockBreakingProgressS2CPacket)receive.packet;
+            if (BlockBreakingProgressS2CPacket2.getProgress() != 0) {
                 return;
             }
-            String string = this.mc.field_1687.method_8469(class_26202.method_11280()).method_5477().method_10851();
-            class_2338 class_23382 = this.mc.field_1724.method_24515();
-            class_2338 class_23383 = class_26202.method_11277();
+            String string = this.mc.world.getEntityById(BlockBreakingProgressS2CPacket2.getEntityId()).getName().asString();
+            BlockPos BlockPos2 = this.mc.player.getBlockPos();
+            BlockPos BlockPos3 = BlockBreakingProgressS2CPacket2.getPos();
             if (this.legs.get().booleanValue()) {
-                for (class_2338 class_23384 : new class_2338[]{class_23382.method_10078(), class_23382.method_10067(), class_23382.method_10072(), class_23382.method_10095()}) {
-                    if (class_23384.equals((Object)class_23383)) {
+                for (BlockPos BlockPos4 : new BlockPos[]{BlockPos2.east(), BlockPos2.west(), BlockPos2.south(), BlockPos2.north()}) {
+                    if (BlockPos4.equals((Object)BlockPos3)) {
                         ChatUtils.moduleInfo(this, String.valueOf(new StringBuilder().append(string).append(this.m).append("legs")), new Object[0]);
                     }
                 }
             }
             if (this.face.get().booleanValue()) {
-                for (class_2338 class_23384 : new class_2338[]{class_23382.method_10084().method_10078(), class_23382.method_10084().method_10067(), class_23382.method_10084().method_10072(), class_23382.method_10084().method_10095()}) {
-                    if (!class_23384.equals((Object)class_23383)) continue;
+                for (BlockPos BlockPos4 : new BlockPos[]{BlockPos2.up().east(), BlockPos2.up().west(), BlockPos2.up().south(), BlockPos2.up().north()}) {
+                    if (!BlockPos4.equals((Object)BlockPos3)) continue;
                     ChatUtils.moduleInfo(this, String.valueOf(new StringBuilder().append(string).append(this.m).append("face")), new Object[0]);
                     if (!false) continue;
                     return;
                 }
             }
-            if (this.head.get().booleanValue() && class_23382.method_10086(2).equals((Object)class_23383)) {
+            if (this.head.get().booleanValue() && BlockPos2.up(2).equals((Object)BlockPos3)) {
                 ChatUtils.moduleInfo(this, String.valueOf(new StringBuilder().append(string).append(this.m).append("head")), new Object[0]);
             }
         }

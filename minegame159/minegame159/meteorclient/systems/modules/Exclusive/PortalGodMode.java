@@ -18,7 +18,7 @@ import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2793;
+import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import org.apache.commons.io.FileUtils;
 
 public class PortalGodMode
@@ -77,7 +77,7 @@ extends Module {
 
     @EventHandler
     private void POPS(PacketEvent.Send send) {
-        if (send.packet instanceof class_2793) {
+        if (send.packet instanceof TeleportConfirmC2SPacket) {
             send.cancel();
         }
     }

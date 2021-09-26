@@ -29,23 +29,23 @@ import minegame159.meteorclient.utils.misc.FakeClientPlayer;
 import minegame159.meteorclient.utils.render.RenderUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1297;
-import net.minecraft.class_1309;
-import net.minecraft.class_1657;
-import net.minecraft.class_1748;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1829;
-import net.minecraft.class_1887;
-import net.minecraft.class_1890;
-import net.minecraft.class_2378;
-import net.minecraft.class_290;
-import net.minecraft.class_3532;
-import net.minecraft.class_490;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BedItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.SwordItem;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 
 public class CombatHud
 extends HudElement {
-    private class_1657 playerEntity;
+    private PlayerEntity playerEntity;
     private static final Color BLACK;
     private final Setting<Boolean> displayPing;
     private final Setting<SettingColor> distColor3;
@@ -58,7 +58,7 @@ extends HudElement {
     private final Setting<SettingColor> healthColor3;
     private final Setting<SettingColor> pingColor1;
     private final Setting<SettingColor> distColor2;
-    private final Setting<List<class_1887>> displayedEnchantments;
+    private final Setting<List<Enchantment>> displayedEnchantments;
     private final Setting<SettingColor> distColor1;
     private final Setting<SettingColor> healthColor2;
     private final Setting<Double> scale;
@@ -101,10 +101,10 @@ extends HudElement {
         this.box.setSize(175.0 * this.scale.get(), 95.0 * this.scale.get());
     }
 
-    public static List<class_1887> getDefaultEnchantments() {
-        ArrayList<class_1887> arrayList = new ArrayList<class_1887>();
-        for (class_1887 class_18872 : class_2378.field_11160) {
-            arrayList.add(class_18872);
+    public static List<Enchantment> getDefaultEnchantments() {
+        ArrayList<Enchantment> arrayList = new ArrayList<Enchantment>();
+        for (Enchantment Enchantment2 : Registry.ENCHANTMENT) {
+            arrayList.add(Enchantment2);
         }
         return arrayList;
     }
@@ -121,21 +121,21 @@ extends HudElement {
         if (this.playerEntity == null) {
             return;
         }
-        Renderer.NORMAL.begin(null, DrawMode.Triangles, class_290.field_1576);
+        Renderer.NORMAL.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
         Renderer.NORMAL.quad(d, d2, this.box.width, this.box.height, this.backgroundColor.get());
         Renderer.NORMAL.end();
-        class_490.method_2486((int)((int)(d + 25.0 * this.scale.get())), (int)((int)(d2 + 66.0 * this.scale.get())), (int)((int)(30.0 * this.scale.get())), (float)(-class_3532.method_15393((float)(this.playerEntity.field_5982 + (this.playerEntity.field_6031 - this.playerEntity.field_5982) * this.mc.method_1488()))), (float)(-this.playerEntity.field_5965), (class_1309)this.playerEntity);
+        InventoryScreen.drawEntity((int)((int)(d + 25.0 * this.scale.get())), (int)((int)(d2 + 66.0 * this.scale.get())), (int)((int)(30.0 * this.scale.get())), (float)(-MathHelper.wrapDegrees((float)(this.playerEntity.prevYaw + (this.playerEntity.yaw - this.playerEntity.prevYaw) * this.mc.getTickDelta()))), (float)(-this.playerEntity.pitch), (LivingEntity)this.playerEntity);
         d += 50.0 * this.scale.get();
         d2 += 5.0 * this.scale.get();
         String string = " | ";
-        String string2 = this.playerEntity.method_7334().getName();
+        String string2 = this.playerEntity.getGameProfile().getName();
         Color color = Friends.get().getFriendColor(this.playerEntity);
         int n = EntityUtils.getPing(this.playerEntity);
         String string3 = String.valueOf(new StringBuilder().append(n).append("ms"));
         Color color2 = n <= 75 ? (Color)this.pingColor1.get() : (n <= 200 ? (Color)this.pingColor2.get() : (Color)this.pingColor3.get());
         double d3 = 0.0;
         if (!this.isInEditor()) {
-            d3 = (double)Math.round((double)this.mc.field_1724.method_5739((class_1297)this.playerEntity) * 100.0) / 100.0;
+            d3 = (double)Math.round((double)this.mc.player.distanceTo((Entity)this.playerEntity) * 100.0) / 100.0;
         }
         String string4 = String.valueOf(new StringBuilder().append(d3).append("m"));
         Color color3 = d3 <= 10.0 ? (Color)this.distColor1.get() : (d3 <= 50.0 ? (Color)this.distColor2.get() : (Color)this.distColor3.get());
@@ -149,8 +149,8 @@ extends HudElement {
             int n2;
             boolean bl = true;
             for (n2 = 3; n2 >= 0; --n2) {
-                class_1799 class_17992 = this.getItem(n2);
-                if (class_17992.method_7960()) continue;
+                ItemStack ItemStack2 = this.getItem(n2);
+                if (ItemStack2.isEmpty()) continue;
                 bl = false;
                 if (null == null) continue;
                 return;
@@ -161,8 +161,8 @@ extends HudElement {
             } else {
                 n2 = 0;
                 for (int i = 5; i >= 0; --i) {
-                    class_1799 class_17993 = this.getItem(i);
-                    if (class_17993.method_7909() != class_1802.field_8301 && !(class_17993.method_7909() instanceof class_1829) && class_17993.method_7909() != class_1802.field_23141 && !(class_17993.method_7909() instanceof class_1748)) continue;
+                    ItemStack ItemStack3 = this.getItem(i);
+                    if (ItemStack3.getItem() != Items.END_CRYSTAL && !(ItemStack3.getItem() instanceof SwordItem) && ItemStack3.getItem() != Items.RESPAWN_ANCHOR && !(ItemStack3.getItem() instanceof BedItem)) continue;
                     n2 = 1;
                     if (null == null) continue;
                     return;
@@ -201,19 +201,19 @@ extends HudElement {
         for (int i = 0; i < 6; ++i) {
             double d7 = d + (double)(i * 20);
             double d8 = d2;
-            class_1799 class_17994 = this.getItem(n3);
-            RenderUtils.drawItem(class_17994, (int)d7, (int)d8, true);
+            ItemStack ItemStack4 = this.getItem(n3);
+            RenderUtils.drawItem(ItemStack4, (int)d7, (int)d8, true);
             d8 += 18.0;
-            Map map = class_1890.method_8222((class_1799)class_17994);
-            HashMap<class_1887, Integer> hashMap = new HashMap<class_1887, Integer>();
-            for (class_1887 class_18872 : this.displayedEnchantments.get()) {
-                if (!map.containsKey(class_18872)) continue;
-                hashMap.put(class_18872, (Integer)map.get(class_18872));
+            Map map = EnchantmentHelper.get((ItemStack)ItemStack4);
+            HashMap<Enchantment, Integer> hashMap = new HashMap<Enchantment, Integer>();
+            for (Enchantment Enchantment2 : this.displayedEnchantments.get()) {
+                if (!map.containsKey(Enchantment2)) continue;
+                hashMap.put(Enchantment2, (Integer)map.get(Enchantment2));
             }
-            for (class_1887 class_18872 : hashMap.keySet()) {
-                String string6 = String.valueOf(new StringBuilder().append(Utils.getEnchantSimpleName(class_18872, 3)).append(" ").append(hashMap.get(class_18872)));
+            for (Enchantment Enchantment2 : hashMap.keySet()) {
+                String string6 = String.valueOf(new StringBuilder().append(Utils.getEnchantSimpleName(Enchantment2, 3)).append(" ").append(hashMap.get(Enchantment2)));
                 double d9 = d7 + 8.0 - TextRenderer.get().getWidth(string6) / 2.0;
-                TextRenderer.get().render(string6, d9, d8, class_18872.method_8195() ? RED : (Color)this.enchantmentTextColor.get());
+                TextRenderer.get().render(string6, d9, d8, Enchantment2.isCursed() ? RED : (Color)this.enchantmentTextColor.get());
                 d8 += TextRenderer.get().getHeight();
             }
             --n3;
@@ -226,22 +226,22 @@ extends HudElement {
         RenderSystem.scaled((double)this.scale.get(), (double)this.scale.get(), (double)1.0);
         d /= this.scale.get().doubleValue();
         d2 /= this.scale.get().doubleValue();
-        Renderer.LINES.begin(null, DrawMode.Lines, class_290.field_1576);
+        Renderer.LINES.begin(null, DrawMode.Lines, VertexFormats.POSITION_COLOR);
         Renderer.LINES.boxEdges(d += 5.0, d2 += 5.0, 165.0, 11.0, BLACK);
         Renderer.LINES.end();
-        float f = this.playerEntity.method_6063();
+        float f = this.playerEntity.getMaxHealth();
         int n4 = 16;
         int n5 = (int)(f + (float)n4);
         int n6 = (int)(161.0f * f / (float)n5);
         int n7 = 161 * n4 / n5;
-        float f2 = this.playerEntity.method_6032();
-        float f3 = this.playerEntity.method_6067();
+        float f2 = this.playerEntity.getHealth();
+        float f3 = this.playerEntity.getAbsorptionAmount();
         float f4 = f2 + f3;
         double d10 = f2 / f;
         double d11 = f3 / (float)n4;
         int n8 = (int)((double)n6 * d10);
         int n9 = (int)((double)n7 * d11);
-        Renderer.NORMAL.begin(null, DrawMode.Triangles, class_290.field_1576);
+        Renderer.NORMAL.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
         Renderer.NORMAL.gradientQuad(d += 2.0, d2 += 2.0, n8, 7.0, this.healthColor1.get(), this.healthColor2.get());
         Renderer.NORMAL.gradientQuad(d + (double)n8, d2, n9, 7.0, this.healthColor2.get(), this.healthColor3.get());
         Renderer.NORMAL.end();
@@ -252,39 +252,39 @@ extends HudElement {
         RenderSystem.popMatrix();
     }
 
-    private class_1799 getItem(int n) {
+    private ItemStack getItem(int n) {
         if (this.isInEditor()) {
             switch (n) {
                 case 0: {
-                    return class_1802.field_8301.method_7854();
+                    return Items.END_CRYSTAL.getDefaultStack();
                 }
                 case 1: {
-                    return class_1802.field_22030.method_7854();
+                    return Items.NETHERITE_BOOTS.getDefaultStack();
                 }
                 case 2: {
-                    return class_1802.field_22029.method_7854();
+                    return Items.NETHERITE_LEGGINGS.getDefaultStack();
                 }
                 case 3: {
-                    return class_1802.field_22028.method_7854();
+                    return Items.NETHERITE_CHESTPLATE.getDefaultStack();
                 }
                 case 4: {
-                    return class_1802.field_22027.method_7854();
+                    return Items.NETHERITE_HELMET.getDefaultStack();
                 }
                 case 5: {
-                    return class_1802.field_8288.method_7854();
+                    return Items.TOTEM_OF_UNDYING.getDefaultStack();
                 }
             }
         }
         if (this.playerEntity == null) {
-            return class_1799.field_8037;
+            return ItemStack.EMPTY;
         }
         if (n == 5) {
-            return this.playerEntity.method_6047();
+            return this.playerEntity.getMainHandStack();
         }
         if (n == 4) {
-            return this.playerEntity.method_6079();
+            return this.playerEntity.getOffHandStack();
         }
-        return this.playerEntity.field_7514.method_7372(n);
+        return this.playerEntity.inventory.getArmorStack(n);
     }
 }
 

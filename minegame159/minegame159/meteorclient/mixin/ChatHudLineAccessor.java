@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_303;
+import net.minecraft.client.gui.hud.ChatHudLine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_303.class})
+@Mixin(value={ChatHudLine.class})
 public interface ChatHudLineAccessor<T> {
     @Accessor(value="creationTick")
     public void setTimestamp(int var1);

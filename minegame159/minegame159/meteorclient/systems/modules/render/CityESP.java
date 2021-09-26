@@ -16,7 +16,7 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.CityUtils;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_2338;
+import net.minecraft.util.math.BlockPos;
 
 public class CityESP
 extends Module {
@@ -29,11 +29,11 @@ extends Module {
 
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
-        class_2338 class_23382 = CityUtils.getTargetBlock(CityUtils.getPlayerTarget(this.range.get()));
-        if (class_23382 == null) {
+        BlockPos BlockPos2 = CityUtils.getTargetBlock(CityUtils.getPlayerTarget(this.range.get()));
+        if (BlockPos2 == null) {
             return;
         }
-        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, class_23382, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
+        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, BlockPos2, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
     }
 
     public CityESP() {

@@ -19,20 +19,20 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.world.MountBypass;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1492;
-import net.minecraft.class_1501;
-import net.minecraft.class_1747;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_2480;
-import net.minecraft.class_2596;
-import net.minecraft.class_2824;
-import net.minecraft.class_2828;
-import net.minecraft.class_2848;
-import net.minecraft.class_491;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.AbstractDonkeyEntity;
+import net.minecraft.entity.passive.LlamaEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.client.gui.screen.ingame.HorseScreen;
 import org.lwjgl.glfw.GLFW;
 
 public class AutoMountBypassDupe
@@ -41,33 +41,33 @@ extends Module {
     private int timer;
     private final List<Integer> slotsToThrow;
     private final Setting<Boolean> shulkersOnly;
-    private class_1492 entity;
+    private AbstractDonkeyEntity entity;
     private boolean sneak;
     private final List<Integer> slotsToMove;
     private final Setting<Boolean> faceDown;
     private final Setting<Integer> delay;
     private final SettingGroup sgGeneral;
 
-    private int getInvSize(class_1297 class_12972) {
-        if (!(class_12972 instanceof class_1492)) {
+    private int getInvSize(Entity Entity2) {
+        if (!(Entity2 instanceof AbstractDonkeyEntity)) {
             return -1;
         }
-        if (!((class_1492)class_12972).method_6703()) {
+        if (!((AbstractDonkeyEntity)Entity2).hasChest()) {
             return 0;
         }
-        if (class_12972 instanceof class_1501) {
-            return 3 * ((class_1501)class_12972).method_6803();
+        if (Entity2 instanceof LlamaEntity) {
+            return 3 * ((LlamaEntity)Entity2).getStrength();
         }
         return 15;
     }
 
     private boolean isDupeTime() {
-        if (this.mc.field_1724.method_5854() != this.entity || this.entity.method_6703() || this.mc.field_1724.field_7512.method_7602().size() == 46) {
+        if (this.mc.player.getVehicle() != this.entity || this.entity.hasChest() || this.mc.player.currentScreenHandler.getStacks().size() == 46) {
             return false;
         }
-        if (this.mc.field_1724.field_7512.method_7602().size() > 38) {
+        if (this.mc.player.currentScreenHandler.getStacks().size() > 38) {
             for (int i = 2; i < this.getDupeSize() + 1; ++i) {
-                if (!this.mc.field_1724.field_7512.method_7611(i).method_7681()) continue;
+                if (!this.mc.player.currentScreenHandler.getSlot(i).hasStack()) continue;
                 return true;
             }
         }
@@ -89,9 +89,9 @@ extends Module {
     @EventHandler
     private void onTick(TickEvent.Post post) {
         Iterator<Object> iterator;
-        if (GLFW.glfwGetKey((long)this.mc.method_22683().method_4490(), (int)256) == 1) {
+        if (GLFW.glfwGetKey((long)this.mc.getWindow().getHandle(), (int)256) == 1) {
             this.toggle();
-            this.mc.field_1724.method_7346();
+            this.mc.player.closeHandledScreen();
             return;
         }
         if (this.timer > 0) {
@@ -99,27 +99,27 @@ extends Module {
             return;
         }
         this.timer = this.delay.get();
-        int n = this.getInvSize(this.mc.field_1724.method_5854());
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972.method_5739((class_1297)this.mc.field_1724) < 5.0f) || !(class_12972 instanceof class_1492) || !((class_1492)class_12972).method_6727()) continue;
-            this.entity = (class_1492)class_12972;
+        int n = this.getInvSize(this.mc.player.getVehicle());
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2.distanceTo((Entity)this.mc.player) < 5.0f) || !(Entity2 instanceof AbstractDonkeyEntity) || !((AbstractDonkeyEntity)Entity2).isTame()) continue;
+            this.entity = (AbstractDonkeyEntity)Entity2;
         }
         if (this.entity == null) {
             return;
         }
         if (this.sneak) {
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2848((class_1297)this.mc.field_1724, class_2848.class_2849.field_12984));
-            this.mc.field_1724.method_5660(false);
+            this.mc.player.networkHandler.sendPacket((Packet)new ClientCommandC2SPacket((Entity)this.mc.player, ClientCommandC2SPacket.class_2849.RELEASE_SHIFT_KEY));
+            this.mc.player.setSneaking(false);
             this.sneak = false;
             return;
         }
         if (n == -1) {
-            if (this.entity.method_6703() || this.mc.field_1724.method_6047().method_7909() == class_1802.field_8106) {
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2824((class_1297)this.entity, class_1268.field_5808, this.mc.field_1724.method_5715()));
+            if (this.entity.hasChest() || this.mc.player.getMainHandStack().getItem() == Items.CHEST) {
+                this.mc.player.networkHandler.sendPacket((Packet)new PlayerInteractEntityC2SPacket((Entity)this.entity, Hand.MAIN_HAND, this.mc.player.isSneaking()));
             } else {
-                int n2 = InvUtils.findItemWithCount((class_1792)class_1802.field_8106).slot;
+                int n2 = InvUtils.findItemWithCount((Item)Items.CHEST).slot;
                 if (n2 != -1 && n2 < 9) {
-                    this.mc.field_1724.field_7514.field_7545 = n2;
+                    this.mc.player.inventory.selectedSlot = n2;
                 } else {
                     ChatUtils.moduleError(this, "Cannot find chest in your hotbar... disabling.", new Object[0]);
                     this.toggle();
@@ -129,7 +129,7 @@ extends Module {
             if (this.isDupeTime()) {
                 if (!this.slotsToThrow.isEmpty()) {
                     if (this.faceDown.get().booleanValue()) {
-                        this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2831(this.mc.field_1724.field_6031, 90.0f, this.mc.field_1724.method_24828()));
+                        this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2831(this.mc.player.yaw, 90.0f, this.mc.player.isOnGround()));
                     }
                     iterator = this.slotsToThrow.iterator();
                     while (iterator.hasNext()) {
@@ -145,25 +145,25 @@ extends Module {
                     }
                 }
             } else {
-                this.mc.field_1724.method_7346();
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2848((class_1297)this.mc.field_1724, class_2848.class_2849.field_12979));
-                this.mc.field_1724.method_5660(true);
+                this.mc.player.closeHandledScreen();
+                this.mc.player.networkHandler.sendPacket((Packet)new ClientCommandC2SPacket((Entity)this.mc.player, ClientCommandC2SPacket.class_2849.PRESS_SHIFT_KEY));
+                this.mc.player.setSneaking(true);
                 this.sneak = true;
             }
-        } else if (!(this.mc.field_1755 instanceof class_491)) {
-            this.mc.field_1724.method_3132();
+        } else if (!(this.mc.currentScreen instanceof HorseScreen)) {
+            this.mc.player.openRidingInventory();
         } else if (n > 0) {
             if (this.slotsToMove.isEmpty()) {
                 int n4;
                 boolean bl = true;
                 for (n4 = 2; n4 <= n; ++n4) {
-                    if (((class_1799)this.mc.field_1724.field_7512.method_7602().get(n4)).method_7960()) continue;
+                    if (((ItemStack)this.mc.player.currentScreenHandler.getStacks().get(n4)).isEmpty()) continue;
                     bl = false;
                     break;
                 }
                 if (bl) {
-                    for (n4 = n + 2; n4 < this.mc.field_1724.field_7512.method_7602().size(); ++n4) {
-                        if (((class_1799)this.mc.field_1724.field_7512.method_7602().get(n4)).method_7960() || this.mc.field_1724.field_7512.method_7611(n4).method_7677().method_7909() == class_1802.field_8106 || (!(this.mc.field_1724.field_7512.method_7611(n4).method_7677().method_7909() instanceof class_1747) || !(((class_1747)this.mc.field_1724.field_7512.method_7611(n4).method_7677().method_7909()).method_7711() instanceof class_2480)) && this.shulkersOnly.get().booleanValue()) continue;
+                    for (n4 = n + 2; n4 < this.mc.player.currentScreenHandler.getStacks().size(); ++n4) {
+                        if (((ItemStack)this.mc.player.currentScreenHandler.getStacks().get(n4)).isEmpty() || this.mc.player.currentScreenHandler.getSlot(n4).getStack().getItem() == Items.CHEST || (!(this.mc.player.currentScreenHandler.getSlot(n4).getStack().getItem() instanceof BlockItem) || !(((BlockItem)this.mc.player.currentScreenHandler.getSlot(n4).getStack().getItem()).getBlock() instanceof ShulkerBoxBlock)) && this.shulkersOnly.get().booleanValue()) continue;
                         this.slotsToMove.add(n4);
                         if (this.slotsToMove.size() < n) {
                             if (-1 < 0) continue;
@@ -173,7 +173,7 @@ extends Module {
                     }
                 } else {
                     this.noCancel = true;
-                    this.mc.field_1724.field_3944.method_2883((class_2596)new class_2824((class_1297)this.entity, class_1268.field_5808, this.entity.method_19538().method_1031((double)(this.entity.method_17681() / 2.0f), (double)(this.entity.method_17682() / 2.0f), (double)(this.entity.method_17681() / 2.0f)), this.mc.field_1724.method_5715()));
+                    this.mc.player.networkHandler.sendPacket((Packet)new PlayerInteractEntityC2SPacket((Entity)this.entity, Hand.MAIN_HAND, this.entity.getPos().add((double)(this.entity.getWidth() / 2.0f), (double)(this.entity.getHeight() / 2.0f), (double)(this.entity.getWidth() / 2.0f)), this.mc.player.isSneaking()));
                     this.noCancel = false;
                     return;
                 }
@@ -198,10 +198,10 @@ extends Module {
     }
 
     private int getDupeSize() {
-        if (this.mc.field_1724.method_5854() != this.entity || this.entity.method_6703() || this.mc.field_1724.field_7512.method_7602().size() == 46) {
+        if (this.mc.player.getVehicle() != this.entity || this.entity.hasChest() || this.mc.player.currentScreenHandler.getStacks().size() == 46) {
             return 0;
         }
-        return this.mc.field_1724.field_7512.method_7602().size() - 38;
+        return this.mc.player.currentScreenHandler.getStacks().size() - 38;
     }
 
     @Override

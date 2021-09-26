@@ -8,8 +8,8 @@ import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1297;
-import net.minecraft.class_238;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Box;
 
 public class Parkour
 extends Module {
@@ -19,19 +19,19 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (!this.mc.field_1724.method_24828() || this.mc.field_1690.field_1903.method_1434()) {
+        if (!this.mc.player.isOnGround() || this.mc.options.keyJump.isPressed()) {
             return;
         }
-        if (this.mc.field_1724.method_5715() || this.mc.field_1690.field_1832.method_1434()) {
+        if (this.mc.player.isSneaking() || this.mc.options.keySneak.isPressed()) {
             return;
         }
-        class_238 class_2383 = this.mc.field_1724.method_5829();
-        class_238 class_2384 = class_2383.method_989(0.0, -0.5, 0.0).method_1009(-0.001, 0.0, -0.001);
-        Stream stream = this.mc.field_1687.method_20812((class_1297)this.mc.field_1724, class_2384);
+        Box Box3 = this.mc.player.getBoundingBox();
+        Box Box4 = Box3.offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001);
+        Stream stream = this.mc.world.getBlockCollisions((Entity)this.mc.player, Box4);
         if (stream.findAny().isPresent()) {
             return;
         }
-        this.mc.field_1724.method_6043();
+        this.mc.player.jump();
     }
 }
 

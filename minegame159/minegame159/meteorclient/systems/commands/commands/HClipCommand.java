@@ -8,23 +8,23 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import minegame159.meteorclient.systems.commands.Command;
-import net.minecraft.class_2172;
-import net.minecraft.class_243;
-import net.minecraft.class_310;
-import net.minecraft.class_746;
+import net.minecraft.command.CommandSource;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 
 public class HClipCommand
 extends Command {
     static final boolean $assertionsDisabled = !HClipCommand.class.desiredAssertionStatus();
 
     private static int lambda$build$0(CommandContext commandContext) throws CommandSyntaxException {
-        class_746 class_7462 = class_310.method_1551().field_1724;
-        if (!$assertionsDisabled && class_7462 == null) {
+        ClientPlayerEntity ClientPlayerEntity2 = MinecraftClient.getInstance().player;
+        if (!$assertionsDisabled && ClientPlayerEntity2 == null) {
             throw new AssertionError();
         }
         double d = (Double)commandContext.getArgument("blocks", Double.class);
-        class_243 class_2432 = class_243.method_1030((float)0.0f, (float)class_7462.field_6031).method_1029();
-        class_7462.method_5814(class_7462.method_23317() + class_2432.field_1352 * d, class_7462.method_23318(), class_7462.method_23321() + class_2432.field_1350 * d);
+        Vec3d Vec3d2 = Vec3d.fromPolar((float)0.0f, (float)ClientPlayerEntity2.yaw).normalize();
+        ClientPlayerEntity2.setPosition(ClientPlayerEntity2.getX() + Vec3d2.x * d, ClientPlayerEntity2.getY(), ClientPlayerEntity2.getZ() + Vec3d2.z * d);
         return 1;
     }
 
@@ -33,7 +33,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.then(HClipCommand.argument("blocks", DoubleArgumentType.doubleArg()).executes(HClipCommand::lambda$build$0));
     }
 }

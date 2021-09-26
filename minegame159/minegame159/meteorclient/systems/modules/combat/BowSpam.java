@@ -12,9 +12,9 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1657;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 
 public class BowSpam
 extends Module {
@@ -34,7 +34,7 @@ extends Module {
     }
 
     private void setPressed(boolean bl) {
-        this.mc.field_1690.field_1904.method_23481(bl);
+        this.mc.options.keyUse.setPressed(bl);
     }
 
     @Override
@@ -50,12 +50,12 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (InvUtils.findItemWithCount((class_1792)class_1802.field_8107).slot == -1) {
+        if (InvUtils.findItemWithCount((Item)Items.ARROW).slot == -1) {
             return;
         }
-        if (!this.onlyWhenHoldingRightClick.get().booleanValue() || this.mc.field_1690.field_1904.method_1434()) {
+        if (!this.onlyWhenHoldingRightClick.get().booleanValue() || this.mc.options.keyUse.isPressed()) {
             boolean bl;
-            boolean bl2 = bl = this.mc.field_1724.method_6047().method_7909() == class_1802.field_8102;
+            boolean bl2 = bl = this.mc.player.getMainHandStack().getItem() == Items.BOW;
             if (!bl && this.wasBow) {
                 this.setPressed(false);
             }
@@ -63,13 +63,13 @@ extends Module {
             if (!bl) {
                 return;
             }
-            if (this.mc.field_1724.method_6048() >= this.charge.get()) {
-                this.mc.field_1724.method_6075();
-                this.mc.field_1761.method_2897((class_1657)this.mc.field_1724);
+            if (this.mc.player.getItemUseTime() >= this.charge.get()) {
+                this.mc.player.stopUsingItem();
+                this.mc.interactionManager.stopUsingItem((PlayerEntity)this.mc.player);
             } else {
                 this.setPressed(true);
             }
-            this.wasHoldingRightClick = this.mc.field_1690.field_1904.method_1434();
+            this.wasHoldingRightClick = this.mc.options.keyUse.isPressed();
         } else if (this.wasHoldingRightClick) {
             this.setPressed(false);
             this.wasHoldingRightClick = false;

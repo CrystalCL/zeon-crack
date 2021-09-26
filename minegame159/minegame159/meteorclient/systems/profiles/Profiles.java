@@ -15,8 +15,8 @@ import minegame159.meteorclient.systems.Systems;
 import minegame159.meteorclient.systems.profiles.Profile;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.NbtUtils;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -43,15 +43,15 @@ implements Iterable<Profile> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10566("profiles", (class_2520)NbtUtils.listToTag(this.profiles));
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.put("profiles", (NbtElement)NbtUtils.listToTag(this.profiles));
+        return NbtCompound2;
     }
 
     public List<Profile> getAll() {
@@ -59,8 +59,8 @@ implements Iterable<Profile> {
     }
 
     @Override
-    public Profiles fromTag(class_2487 class_24872) {
-        this.profiles = NbtUtils.listFromTag(class_24872.method_10554("profiles", 10), Profiles::lambda$fromTag$0);
+    public Profiles fromTag(NbtCompound NbtCompound2) {
+        this.profiles = NbtUtils.listFromTag(NbtCompound2.getList("profiles", 10), Profiles::lambda$fromTag$0);
         return this;
     }
 
@@ -78,8 +78,8 @@ implements Iterable<Profile> {
         return new File(FOLDER, "profiles.nbt");
     }
 
-    private static Profile lambda$fromTag$0(class_2520 class_25202) {
-        return new Profile().fromTag((class_2487)class_25202);
+    private static Profile lambda$fromTag$0(NbtElement NbtElement2) {
+        return new Profile().fromTag((NbtCompound)NbtElement2);
     }
 
     public Profile get(String string) {

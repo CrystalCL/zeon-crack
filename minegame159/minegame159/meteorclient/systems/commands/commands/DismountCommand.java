@@ -7,9 +7,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import minegame159.meteorclient.systems.commands.Command;
-import net.minecraft.class_2172;
-import net.minecraft.class_2596;
-import net.minecraft.class_2851;
+import net.minecraft.command.CommandSource;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 
 public class DismountCommand
 extends Command {
@@ -18,12 +18,12 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.executes(DismountCommand::lambda$build$0);
     }
 
     private static int lambda$build$0(CommandContext commandContext) throws CommandSyntaxException {
-        mc.method_1562().method_2883((class_2596)new class_2851(0.0f, 0.0f, false, true));
+        mc.getNetworkHandler().sendPacket((Packet)new PlayerInputC2SPacket(0.0f, 0.0f, false, true));
         return 1;
     }
 }

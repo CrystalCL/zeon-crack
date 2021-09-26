@@ -10,10 +10,10 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import java.util.concurrent.CompletableFuture;
 import minegame159.meteorclient.systems.commands.Commands;
 import minegame159.meteorclient.systems.config.Config;
-import net.minecraft.class_2172;
-import net.minecraft.class_310;
-import net.minecraft.class_342;
-import net.minecraft.class_4717;
+import net.minecraft.command.CommandSource;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.screen.CommandSuggestor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,26 +22,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(value={class_4717.class})
+@Mixin(value={CommandSuggestor.class})
 public abstract class MixinCommandSuggestor {
     @Shadow
-    private ParseResults<class_2172> field_21610;
+    private ParseResults<CommandSource> parse;
     @Shadow
     @Final
-    private class_342 field_21599;
+    private TextFieldWidget textField;
     @Shadow
     @Final
-    private class_310 field_21597;
+    private MinecraftClient client;
     @Shadow
-    private boolean field_21614;
+    private boolean completingSuggestions;
     @Shadow
-    private CompletableFuture<Suggestions> field_21611;
+    private CompletableFuture<Suggestions> pendingSuggestions;
     @Shadow
-    private class_4717.class_464 field_21612;
+    private SuggestionWindow window;
     static final boolean $assertionsDisabled = !MixinCommandSuggestor.class.desiredAssertionStatus();
 
     @Shadow
-    protected abstract void method_23937();
+    protected abstract void show();
 
     @Inject(method={"refresh"}, at={@At(value="INVOKE", target="Lcom/mojang/brigadier/StringReader;canRead()Z", remap=false)}, cancellable=true, locals=LocalCapture.CAPTURE_FAILHARD)
     public void onRefresh(CallbackInfo callbackInfo, String string, StringReader stringReader) {
@@ -50,24 +50,24 @@ public abstract class MixinCommandSuggestor {
         if (stringReader.canRead(n) && stringReader.getString().startsWith(string2, stringReader.getCursor())) {
             int n2;
             stringReader.setCursor(stringReader.getCursor() + n);
-            if (!$assertionsDisabled && this.field_21597.field_1724 == null) {
+            if (!$assertionsDisabled && this.client.player == null) {
                 throw new AssertionError();
             }
-            CommandDispatcher<class_2172> commandDispatcher = Commands.get().getDispatcher();
-            if (this.field_21610 == null) {
-                this.field_21610 = commandDispatcher.parse(stringReader, (Object)Commands.get().getCommandSource());
+            CommandDispatcher<CommandSource> commandDispatcher = Commands.get().getDispatcher();
+            if (this.parse == null) {
+                this.parse = commandDispatcher.parse(stringReader, (Object)Commands.get().getCommandSource());
             }
-            if (!((n2 = this.field_21599.method_1881()) < 1 || this.field_21612 != null && this.field_21614)) {
-                this.field_21611 = commandDispatcher.getCompletionSuggestions(this.field_21610, n2);
-                this.field_21611.thenRun(this::lambda$onRefresh$0);
+            if (!((n2 = this.textField.getCursor()) < 1 || this.window != null && this.completingSuggestions)) {
+                this.pendingSuggestions = commandDispatcher.getCompletionSuggestions(this.parse, n2);
+                this.pendingSuggestions.thenRun(this::lambda$onRefresh$0);
             }
             callbackInfo.cancel();
         }
     }
 
     private void lambda$onRefresh$0() {
-        if (this.field_21611.isDone()) {
-            this.method_23937();
+        if (this.pendingSuggestions.isDone()) {
+            this.show();
         }
     }
 }

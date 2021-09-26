@@ -19,18 +19,18 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.entity.EntityUtils;
 import minegame159.meteorclient.utils.player.DamageCalcUtils;
 import minegame159.meteorclient.utils.world.Dimension;
-import net.minecraft.class_1297;
-import net.minecraft.class_1309;
-import net.minecraft.class_1511;
-import net.minecraft.class_1657;
-import net.minecraft.class_1829;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_2587;
-import net.minecraft.class_2661;
-import net.minecraft.class_310;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.SwordItem;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.block.entity.BedBlockEntity;
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
+import net.minecraft.client.MinecraftClient;
 
 public class AutoLog
 extends Module {
@@ -48,23 +48,23 @@ extends Module {
     private double getHealthReduction() {
         double d;
         double d2 = 0.0;
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (class_12972 instanceof class_1511 && d2 < DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_12972.method_19538())) {
-                d2 = DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_12972.method_19538());
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (Entity2 instanceof EndCrystalEntity && d2 < DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Entity2.getPos())) {
+                d2 = DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Entity2.getPos());
                 continue;
             }
-            if (!(class_12972 instanceof class_1657) || !(d2 < DamageCalcUtils.getSwordDamage((class_1657)class_12972, true)) || !Friends.get().notTrusted((class_1657)class_12972) || !(this.mc.field_1724.method_19538().method_1022(class_12972.method_19538()) < 5.0) || !(((class_1657)class_12972).method_6030().method_7909() instanceof class_1829)) continue;
-            d2 = DamageCalcUtils.getSwordDamage((class_1657)class_12972, true);
+            if (!(Entity2 instanceof PlayerEntity) || !(d2 < DamageCalcUtils.getSwordDamage((PlayerEntity)Entity2, true)) || !Friends.get().notTrusted((PlayerEntity)Entity2) || !(this.mc.player.getPos().distanceTo(Entity2.getPos()) < 5.0) || !(((PlayerEntity)Entity2).getActiveItem().getItem() instanceof SwordItem)) continue;
+            d2 = DamageCalcUtils.getSwordDamage((PlayerEntity)Entity2, true);
         }
-        if (!Modules.get().isActive(NoFall.class) && this.mc.field_1724.field_6017 > 3.0f && (d = (double)this.mc.field_1724.field_6017 * 0.5) > d2 && !EntityUtils.isAboveWater((class_1297)this.mc.field_1724)) {
+        if (!Modules.get().isActive(NoFall.class) && this.mc.player.fallDistance > 3.0f && (d = (double)this.mc.player.fallDistance * 0.5) > d2 && !EntityUtils.isAboveWater((Entity)this.mc.player)) {
             d2 = d;
         }
         if (Utils.getDimension() != Dimension.Overworld) {
-            for (class_1297 class_12972 : this.mc.field_1687.field_9231) {
-                class_2338 class_23382 = class_12972.method_11016();
-                class_243 class_2432 = new class_243((double)class_23382.method_10263(), (double)class_23382.method_10264(), (double)class_23382.method_10260());
-                if (!(class_12972 instanceof class_2587) || !(d2 < DamageCalcUtils.bedDamage((class_1309)this.mc.field_1724, class_2432))) continue;
-                d2 = DamageCalcUtils.bedDamage((class_1309)this.mc.field_1724, class_2432);
+            for (Entity Entity2 : this.mc.world.blockEntities) {
+                BlockPos BlockPos2 = Entity2.getPos();
+                Vec3d Vec3d2 = new Vec3d((double)BlockPos2.getX(), (double)BlockPos2.getY(), (double)BlockPos2.getZ());
+                if (!(Entity2 instanceof BedBlockEntity) || !(d2 < DamageCalcUtils.bedDamage((LivingEntity)this.mc.player, Vec3d2))) continue;
+                d2 = DamageCalcUtils.bedDamage((LivingEntity)this.mc.player, Vec3d2);
             }
         }
         return d2;
@@ -94,40 +94,40 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1724.method_6032() <= 0.0f) {
+        if (this.mc.player.getHealth() <= 0.0f) {
             this.toggle();
             return;
         }
-        if (this.mc.field_1724.method_6032() <= (float)this.health.get().intValue()) {
-            this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585(String.valueOf(new StringBuilder().append("[AutoLog] Health was lower than ").append(this.health.get()).append(".")))));
+        if (this.mc.player.getHealth() <= (float)this.health.get().intValue()) {
+            this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText(String.valueOf(new StringBuilder().append("[AutoLog] Health was lower than ").append(this.health.get()).append(".")))));
             if (this.smartToggle.get().booleanValue()) {
                 this.toggle();
                 this.enableHealthListener();
             }
         }
-        if (this.smart.get().booleanValue() && (double)(this.mc.field_1724.method_6032() + this.mc.field_1724.method_6067()) - this.getHealthReduction() < (double)this.health.get().intValue()) {
-            this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585(String.valueOf(new StringBuilder().append("[AutoLog] Health was going to be lower than ").append(this.health.get()).append(".")))));
+        if (this.smart.get().booleanValue() && (double)(this.mc.player.getHealth() + this.mc.player.getAbsorptionAmount()) - this.getHealthReduction() < (double)this.health.get().intValue()) {
+            this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText(String.valueOf(new StringBuilder().append("[AutoLog] Health was going to be lower than ").append(this.health.get()).append(".")))));
             if (this.toggleOff.get().booleanValue()) {
                 this.toggle();
             }
         }
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (class_12972 instanceof class_1657 && class_12972.method_5667() != this.mc.field_1724.method_5667()) {
-                if (this.onlyTrusted.get().booleanValue() && class_12972 != this.mc.field_1724 && Friends.get().notTrusted((class_1657)class_12972)) {
-                    this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585("[AutoLog] A non-trusted player appeared in your render distance.")));
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (Entity2 instanceof PlayerEntity && Entity2.getUuid() != this.mc.player.getUuid()) {
+                if (this.onlyTrusted.get().booleanValue() && Entity2 != this.mc.player && Friends.get().notTrusted((PlayerEntity)Entity2)) {
+                    this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText("[AutoLog] A non-trusted player appeared in your render distance.")));
                     if (!this.toggleOff.get().booleanValue()) break;
                     this.toggle();
                     break;
                 }
-                if (this.mc.field_1724.method_5739(class_12972) < 8.0f && this.instantDeath.get().booleanValue() && DamageCalcUtils.getSwordDamage((class_1657)class_12972, true) > (double)(this.mc.field_1724.method_6032() + this.mc.field_1724.method_6067())) {
-                    this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585("[AutoLog] Anti-32k measures.")));
+                if (this.mc.player.distanceTo(Entity2) < 8.0f && this.instantDeath.get().booleanValue() && DamageCalcUtils.getSwordDamage((PlayerEntity)Entity2, true) > (double)(this.mc.player.getHealth() + this.mc.player.getAbsorptionAmount())) {
+                    this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText("[AutoLog] Anti-32k measures.")));
                     if (!this.toggleOff.get().booleanValue()) break;
                     this.toggle();
                     break;
                 }
             }
-            if (!(class_12972 instanceof class_1511) || !(this.mc.field_1724.method_5739(class_12972) < (float)this.range.get().intValue()) || !this.crystalLog.get().booleanValue()) continue;
-            this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585("[AutoLog] End Crystal appeared within specified range.")));
+            if (!(Entity2 instanceof EndCrystalEntity) || !(this.mc.player.distanceTo(Entity2) < (float)this.range.get().intValue()) || !this.crystalLog.get().booleanValue()) continue;
+            this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText("[AutoLog] End Crystal appeared within specified range.")));
             if (!this.toggleOff.get().booleanValue()) continue;
             this.toggle();
         }
@@ -141,11 +141,11 @@ extends Module {
         autoLog.disableHealthListener();
     }
 
-    static class_310 access$100(AutoLog autoLog) {
+    static MinecraftClient access$100(AutoLog autoLog) {
         return autoLog.mc;
     }
 
-    static class_310 access$200(AutoLog autoLog) {
+    static MinecraftClient access$200(AutoLog autoLog) {
         return autoLog.mc;
     }
 
@@ -160,7 +160,7 @@ extends Module {
         private void healthListener(TickEvent.Post post) {
             if (this.this$0.isActive()) {
                 AutoLog.access$000(this.this$0);
-            } else if (Utils.canUpdate() && !AutoLog.access$100((AutoLog)this.this$0).field_1724.method_29504() && AutoLog.access$200((AutoLog)this.this$0).field_1724.method_6032() >= (float)((Integer)AutoLog.access$300(this.this$0).get()).intValue()) {
+            } else if (Utils.canUpdate() && !AutoLog.access$100((AutoLog)this.this$0).player.isDead() && AutoLog.access$200((AutoLog)this.this$0).player.getHealth() >= (float)((Integer)AutoLog.access$300(this.this$0).get()).intValue()) {
                 this.this$0.toggle();
                 AutoLog.access$000(this.this$0);
             }

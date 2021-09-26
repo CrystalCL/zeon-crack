@@ -14,8 +14,8 @@ extends DoubleTextHudElement {
 
     @Override
     protected String getRight() {
-        float f = this.mc.field_1773.method_19418().method_19330() % 360.0f;
-        float f2 = this.mc.field_1773.method_19418().method_19329() % 360.0f;
+        float f = this.mc.gameRenderer.getCamera().getYaw() % 360.0f;
+        float f2 = this.mc.gameRenderer.getCamera().getPitch() % 360.0f;
         if (f < 0.0f) {
             f += 360.0f;
         }

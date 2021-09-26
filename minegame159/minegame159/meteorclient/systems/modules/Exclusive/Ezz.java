@@ -10,60 +10,60 @@ import minegame159.meteorclient.systems.friends.Friends;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_1713;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2382;
-import net.minecraft.class_243;
-import net.minecraft.class_310;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class Ezz {
-    private static final class_310 mc = class_310.method_1551();
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public static boolean BlockPlace(int n, int n2, int n3, int n4, boolean bl) {
-        return Ezz.BlockPlace(new class_2338(n, n2, n3), n4, bl);
+        return Ezz.BlockPlace(new BlockPos(n, n2, n3), n4, bl);
     }
 
-    public static void attackEntity(class_1297 class_12972) {
-        Ezz.mc.field_1761.method_2918((class_1657)Ezz.mc.field_1724, class_12972);
+    public static void attackEntity(Entity Entity2) {
+        Ezz.mc.interactionManager.attackEntity((PlayerEntity)Ezz.mc.player, Entity2);
     }
 
-    public static void clickSlot(int n, int n2, class_1713 class_17132) {
-        Ezz.mc.field_1761.method_2906(Ezz.mc.field_1724.field_7512.field_7763, n, n2, class_17132, (class_1657)Ezz.mc.field_1724);
+    public static void clickSlot(int n, int n2, SlotActionType SlotActionType2) {
+        Ezz.mc.interactionManager.clickSlot(Ezz.mc.player.currentScreenHandler.syncId, n, n2, SlotActionType2, (PlayerEntity)Ezz.mc.player);
     }
 
-    public static void interact(class_2338 class_23382, int n, class_2350 class_23502) {
-        int n2 = Ezz.mc.field_1724.field_7514.field_7545;
+    public static void interact(BlockPos BlockPos2, int n, Direction Direction2) {
+        int n2 = Ezz.mc.player.inventory.selectedSlot;
         Ezz.swap(n);
-        Ezz.mc.field_1761.method_2896(Ezz.mc.field_1724, Ezz.mc.field_1687, class_1268.field_5808, new class_3965(Ezz.mc.field_1724.method_19538(), class_23502, class_23382, true));
+        Ezz.mc.interactionManager.interactBlock(Ezz.mc.player, Ezz.mc.world, Hand.MAIN_HAND, new BlockHitResult(Ezz.mc.player.getPos(), Direction2, BlockPos2, true));
         Ezz.swap(n2);
     }
 
-    public static boolean equalsBlockPos(class_2338 class_23382, class_2338 class_23383) {
-        if (!(class_23382 instanceof class_2382) || !(class_23382 instanceof class_2382)) {
+    public static boolean equalsBlockPos(BlockPos BlockPos2, BlockPos BlockPos3) {
+        if (!(BlockPos2 instanceof Vec3i) || !(BlockPos2 instanceof Vec3i)) {
             return false;
         }
-        if (class_23382 == null || class_23383 == null) {
+        if (BlockPos2 == null || BlockPos3 == null) {
             return false;
         }
-        if (class_23382.method_10263() != class_23383.method_10263()) {
+        if (BlockPos2.getX() != BlockPos3.getX()) {
             return false;
         }
-        if (class_23382.method_10264() != class_23383.method_10264()) {
+        if (BlockPos2.getY() != BlockPos3.getY()) {
             return false;
         }
-        return class_23382.method_10260() == class_23383.method_10260();
+        return BlockPos2.getZ() == BlockPos3.getZ();
     }
 
-    public static boolean isFriend(class_1657 class_16572) {
-        if (class_16572 == null) {
+    public static boolean isFriend(PlayerEntity PlayerEntity2) {
+        if (PlayerEntity2 == null) {
             return false;
         }
-        return Ezz.isFriend(class_16572.method_5477().method_10851());
+        return Ezz.isFriend(PlayerEntity2.getName().asString());
     }
 
     public static double DistanceTo(int n, double d, double d2) {
@@ -73,38 +73,38 @@ public class Ezz {
         d3 = d3 >= 0.0 ? (d3 += 0.5) : (d3 -= 0.5);
         d4 = d4 >= 0.0 ? (d4 += 0.5) : (d4 -= 0.5);
         d5 = d5 >= 0.0 ? (d5 += 0.5) : (d5 -= 0.5);
-        double d6 = Ezz.mc.field_1724.method_23317() - d3;
-        double d7 = Ezz.mc.field_1724.method_23318() - d4;
-        double d8 = Ezz.mc.field_1724.method_23321() - d5;
+        double d6 = Ezz.mc.player.getX() - d3;
+        double d7 = Ezz.mc.player.getY() - d4;
+        double d8 = Ezz.mc.player.getZ() - d5;
         return Math.sqrt(d6 * d6 + d7 * d7 + d8 * d8);
     }
 
-    public static boolean BlockPlace(class_2338 class_23382, int n, boolean bl) {
+    public static boolean BlockPlace(BlockPos BlockPos2, int n, boolean bl) {
         if (n == -1) {
             return false;
         }
-        if (!BlockUtils.canPlace(class_23382, true)) {
+        if (!BlockUtils.canPlace(BlockPos2, true)) {
             return false;
         }
-        int n2 = Ezz.mc.field_1724.field_7514.field_7545;
+        int n2 = Ezz.mc.player.inventory.selectedSlot;
         Ezz.swap(n);
         if (bl) {
-            class_243 class_2432 = new class_243(0.0, 0.0, 0.0);
-            ((IVec3d)class_2432).set((double)class_23382.method_10263() + 0.5, (double)class_23382.method_10264() + 0.5, (double)class_23382.method_10260() + 0.5);
-            Rotations.rotate(Rotations.getYaw(class_2432), Rotations.getPitch(class_2432));
+            Vec3d Vec3d2 = new Vec3d(0.0, 0.0, 0.0);
+            ((IVec3d)Vec3d2).set((double)BlockPos2.getX() + 0.5, (double)BlockPos2.getY() + 0.5, (double)BlockPos2.getZ() + 0.5);
+            Rotations.rotate(Rotations.getYaw(Vec3d2), Rotations.getPitch(Vec3d2));
         }
-        Ezz.mc.field_1761.method_2896(Ezz.mc.field_1724, Ezz.mc.field_1687, class_1268.field_5808, new class_3965(Ezz.mc.field_1724.method_19538(), class_2350.field_11033, class_23382, true));
+        Ezz.mc.interactionManager.interactBlock(Ezz.mc.player, Ezz.mc.world, Hand.MAIN_HAND, new BlockHitResult(Ezz.mc.player.getPos(), Direction.DOWN, BlockPos2, true));
         Ezz.swap(n2);
         return true;
     }
 
-    public static double distanceToBlockAnge(class_2338 class_23382) {
-        double d = Ezz.mc.field_1724.method_23317();
-        double d2 = Ezz.mc.field_1724.method_23318() + 1.0;
-        double d3 = Ezz.mc.field_1724.method_23321();
-        double d4 = class_23382.method_10263();
-        double d5 = class_23382.method_10264();
-        double d6 = class_23382.method_10260();
+    public static double distanceToBlockAnge(BlockPos BlockPos2) {
+        double d = Ezz.mc.player.getX();
+        double d2 = Ezz.mc.player.getY() + 1.0;
+        double d3 = Ezz.mc.player.getZ();
+        double d4 = BlockPos2.getX();
+        double d5 = BlockPos2.getY();
+        double d6 = BlockPos2.getZ();
         if (d5 == Ezz.floor(d2)) {
             d5 = d2;
         }
@@ -135,8 +135,8 @@ public class Ezz {
         return Math.sqrt(d7 * d7 + d8 * d8 + d9 * d9);
     }
 
-    public static class_2338 SetRelative(int n, int n2, int n3) {
-        return new class_2338(Ezz.mc.field_1724.method_23317() + (double)n, Ezz.mc.field_1724.method_23318() + (double)n2, Ezz.mc.field_1724.method_23321() + (double)n3);
+    public static BlockPos SetRelative(int n, int n2, int n3) {
+        return new BlockPos(Ezz.mc.player.getX() + (double)n, Ezz.mc.player.getY() + (double)n2, Ezz.mc.player.getZ() + (double)n3);
     }
 
     public static boolean isFriend(String string) {
@@ -144,13 +144,13 @@ public class Ezz {
     }
 
     public static void swap(int n) {
-        if (n != Ezz.mc.field_1724.field_7514.field_7545 && n >= 0 && n < 9) {
-            Ezz.mc.field_1724.field_7514.field_7545 = n;
+        if (n != Ezz.mc.player.inventory.selectedSlot && n >= 0 && n < 9) {
+            Ezz.mc.player.inventory.selectedSlot = n;
         }
     }
 
-    public static double DistanceTo(class_2338 class_23382) {
-        return Ezz.DistanceTo(class_23382.method_10263(), class_23382.method_10264(), class_23382.method_10260());
+    public static double DistanceTo(BlockPos BlockPos2) {
+        return Ezz.DistanceTo(BlockPos2.getX(), BlockPos2.getY(), BlockPos2.getZ());
     }
 
     public static Modules get() {

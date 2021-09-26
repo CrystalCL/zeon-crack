@@ -4,19 +4,19 @@
 package minegame159.meteorclient.mixin;
 
 import java.net.Proxy;
-import net.minecraft.class_310;
-import net.minecraft.class_320;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.Session;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(value={class_310.class})
+@Mixin(value={MinecraftClient.class})
 public interface MinecraftClientAccessor {
     @Accessor(value="currentFps")
     public int getFps();
 
     @Accessor(value="session")
-    public void setSession(class_320 var1);
+    public void setSession(Session var1);
 
     @Accessor(value="netProxy")
     public Proxy getProxy();

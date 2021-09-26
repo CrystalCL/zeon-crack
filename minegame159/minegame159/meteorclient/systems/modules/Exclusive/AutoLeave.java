@@ -25,18 +25,18 @@ import minegame159.meteorclient.settings.StringSetting;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_2661;
-import net.minecraft.class_310;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
+import net.minecraft.client.MinecraftClient;
 import org.apache.commons.io.FileUtils;
 
 public class AutoLeave
 extends Module {
     private final SettingGroup sgGeneral;
-    private final class_310 mc;
+    private final MinecraftClient mc;
     private final Setting<Boolean> autoDisable;
     private final Setting<Mode> b;
     private final Setting<String> c;
@@ -50,7 +50,7 @@ extends Module {
         this.b = this.sgGeneral.add(new EnumSetting.Builder().name("Mode").description("The mode.").defaultValue(Mode.MessageAndLeave).build());
         this.c = this.sgGeneral.add(new StringSetting.Builder().name("message").description("Send a chat message .").defaultValue("Buy ArtikHack https://discord.gg/DZTyBunvgS!").build());
         this.autoDisable = this.sgGeneral.add(new BoolSetting.Builder().name("auto-disable").description("Disable module after leave.").defaultValue(true).build());
-        this.mc = class_310.method_1551();
+        this.mc = MinecraftClient.getInstance();
     }
 
     @Override
@@ -101,19 +101,19 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        int n = InvUtils.findItemWithCount((class_1792)class_1802.field_8288).count;
+        int n = InvUtils.findItemWithCount((Item)Items.TOTEM_OF_UNDYING).count;
         if (n <= this.a.get() && this.b.get() == Mode.MessageAndLeave && this.autoDisable.get().booleanValue()) {
-            this.mc.field_1724.method_3142(this.c.get());
-            this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
+            this.mc.player.sendChatMessage(this.c.get());
+            this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
             this.toggle();
         } else if (n <= this.a.get() && this.b.get() == Mode.NoneAndLeave && this.autoDisable.get().booleanValue()) {
-            this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
+            this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
             this.toggle();
         } else if (n <= this.a.get() && this.b.get() == Mode.MessageAndLeave) {
-            this.mc.field_1724.method_3142(this.c.get());
-            this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
+            this.mc.player.sendChatMessage(this.c.get());
+            this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
         } else if (n <= this.a.get() && this.b.get() == Mode.NoneAndLeave) {
-            this.mc.field_1724.field_3944.method_11083(new class_2661((class_2561)new class_2585(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
+            this.mc.player.networkHandler.onDisconnect(new DisconnectS2CPacket((Text)new LiteralText(String.valueOf(new StringBuilder().append("\u00a77\u00a7l\uff3b\u00a76\u00a7lAutoLeave\u00a77\u00a7l\uff3d \u00a7c Your totem's count <= ").append(this.a)))));
         }
     }
 

@@ -5,7 +5,7 @@ package minegame159.meteorclient.systems.modules.render.hud.modules;
 
 import minegame159.meteorclient.systems.modules.render.hud.HUD;
 import minegame159.meteorclient.systems.modules.render.hud.modules.DoubleTextHudElement;
-import net.minecraft.class_640;
+import net.minecraft.client.network.PlayerListEntry;
 
 public class PingHud
 extends DoubleTextHudElement {
@@ -18,9 +18,9 @@ extends DoubleTextHudElement {
         if (this.isInEditor()) {
             return "0";
         }
-        class_640 class_6402 = this.mc.method_1562().method_2871(this.mc.field_1724.method_5667());
-        if (class_6402 != null) {
-            return Integer.toString(class_6402.method_2959());
+        PlayerListEntry PlayerListEntry2 = this.mc.getNetworkHandler().getPlayerListEntry(this.mc.player.getUuid());
+        if (PlayerListEntry2 != null) {
+            return Integer.toString(PlayerListEntry2.getLatency());
         }
         return "0";
     }

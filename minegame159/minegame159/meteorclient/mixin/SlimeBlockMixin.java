@@ -5,21 +5,21 @@ package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.movement.NoSlow;
-import net.minecraft.class_1297;
-import net.minecraft.class_1937;
-import net.minecraft.class_2338;
-import net.minecraft.class_2490;
-import net.minecraft.class_310;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.SlimeBlock;
+import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_2490.class})
+@Mixin(value={SlimeBlock.class})
 public class SlimeBlockMixin {
     @Inject(method={"onSteppedOn"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onSteppedOn(class_1937 class_19372, class_2338 class_23382, class_1297 class_12972, CallbackInfo callbackInfo) {
-        if (Modules.get().get(NoSlow.class).slimeBlock() && class_12972 == class_310.method_1551().field_1724) {
+    private void onSteppedOn(World World2, BlockPos BlockPos2, Entity Entity2, CallbackInfo callbackInfo) {
+        if (Modules.get().get(NoSlow.class).slimeBlock() && Entity2 == MinecraftClient.getInstance().player) {
             callbackInfo.cancel();
         }
     }

@@ -17,17 +17,17 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1747;
-import net.minecraft.class_2338;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.item.BlockItem;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class AirPlace
 extends Module {
     private final Setting<ShapeMode> shapeMode;
     private final Setting<SettingColor> lineColor;
     private final SettingGroup sgGeneral;
-    private class_2338 target;
+    private BlockPos target;
     private final Setting<Place> placeWhen;
     private final SettingGroup sgRender;
     private final Setting<Boolean> render;
@@ -35,7 +35,7 @@ extends Module {
 
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
-        if (!(this.mc.field_1765 instanceof class_3965 && this.mc.field_1687.method_8320(this.target).method_26215() && this.mc.field_1724.method_6047().method_7909() instanceof class_1747 && this.render.get().booleanValue())) {
+        if (!(this.mc.crosshairTarget instanceof BlockHitResult && this.mc.world.getBlockState(this.target).isAir() && this.mc.player.getMainHandStack().getItem() instanceof BlockItem && this.render.get().booleanValue())) {
             return;
         }
         Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, this.target, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
@@ -54,21 +54,21 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (!(this.mc.field_1765 instanceof class_3965) || !(this.mc.field_1724.method_6047().method_7909() instanceof class_1747)) {
+        if (!(this.mc.crosshairTarget instanceof BlockHitResult) || !(this.mc.player.getMainHandStack().getItem() instanceof BlockItem)) {
             return;
         }
-        this.target = ((class_3965)this.mc.field_1765).method_17777();
-        if (!this.mc.field_1687.method_8320(this.target).method_26215()) {
+        this.target = ((BlockHitResult)this.mc.crosshairTarget).getBlockPos();
+        if (!this.mc.world.getBlockState(this.target).isAir()) {
             return;
         }
-        if (this.placeWhen.get() == Place.Always || this.placeWhen.get() == Place.OnClick && (this.mc.field_1690.field_1904.method_1436() || this.mc.field_1690.field_1904.method_1434())) {
-            BlockUtils.place(this.target, class_1268.field_5808, 0, false, 0, true, true, false, false);
+        if (this.placeWhen.get() == Place.Always || this.placeWhen.get() == Place.OnClick && (this.mc.options.keyUse.wasPressed() || this.mc.options.keyUse.isPressed())) {
+            BlockUtils.place(this.target, Hand.MAIN_HAND, 0, false, 0, true, true, false, false);
         }
     }
 
     @Override
     public void onActivate() {
-        this.target = this.mc.field_1724.method_24515().method_10069(4, 2, 0);
+        this.target = this.mc.player.getBlockPos().add(4, 2, 0);
     }
 
     public static final class Place

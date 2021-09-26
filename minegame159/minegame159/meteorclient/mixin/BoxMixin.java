@@ -4,48 +4,48 @@
 package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.mixininterface.IBox;
-import net.minecraft.class_238;
+import net.minecraft.util.math.Box;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value={class_238.class})
+@Mixin(value={Box.class})
 public class BoxMixin
 implements IBox {
     @Shadow
     @Final
     @Mutable
-    public double field_1323;
+    public double minX;
     @Shadow
     @Final
     @Mutable
-    public double field_1322;
+    public double minY;
     @Shadow
     @Final
     @Mutable
-    public double field_1321;
+    public double minZ;
     @Shadow
     @Final
     @Mutable
-    public double field_1320;
+    public double maxX;
     @Shadow
     @Final
     @Mutable
-    public double field_1325;
+    public double maxY;
     @Shadow
     @Final
     @Mutable
-    public double field_1324;
+    public double maxZ;
 
     @Override
     public void expand(double d) {
-        this.field_1323 -= d;
-        this.field_1322 -= d;
-        this.field_1321 -= d;
-        this.field_1320 += d;
-        this.field_1325 += d;
-        this.field_1324 += d;
+        this.minX -= d;
+        this.minY -= d;
+        this.minZ -= d;
+        this.maxX += d;
+        this.maxY += d;
+        this.maxZ += d;
     }
 }
 

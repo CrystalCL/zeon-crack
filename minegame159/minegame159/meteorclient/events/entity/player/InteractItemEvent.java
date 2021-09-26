@@ -3,16 +3,16 @@
  */
 package minegame159.meteorclient.events.entity.player;
 
-import net.minecraft.class_1268;
-import net.minecraft.class_1269;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ActionResult;
 
 public class InteractItemEvent {
-    public class_1268 hand;
+    public Hand hand;
     private static final InteractItemEvent INSTANCE = new InteractItemEvent();
-    public class_1269 toReturn;
+    public ActionResult toReturn;
 
-    public static InteractItemEvent get(class_1268 class_12682) {
-        InteractItemEvent.INSTANCE.hand = class_12682;
+    public static InteractItemEvent get(Hand Hand2) {
+        InteractItemEvent.INSTANCE.hand = Hand2;
         InteractItemEvent.INSTANCE.toReturn = null;
         return INSTANCE;
     }

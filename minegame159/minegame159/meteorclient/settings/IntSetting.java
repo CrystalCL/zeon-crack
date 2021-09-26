@@ -5,7 +5,7 @@ package minegame159.meteorclient.settings;
 
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -33,8 +33,8 @@ extends Setting<Integer> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public int getSliderMax() {
@@ -51,10 +51,10 @@ extends Setting<Integer> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_24872.method_10569("value", ((Integer)this.get()).intValue());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound2.putInt("value", ((Integer)this.get()).intValue());
+        return NbtCompound2;
     }
 
     public int getSliderMin() {
@@ -62,8 +62,8 @@ extends Setting<Integer> {
     }
 
     @Override
-    public Integer fromTag(class_2487 class_24872) {
-        this.set(class_24872.method_10550("value"));
+    public Integer fromTag(NbtCompound NbtCompound2) {
+        this.set(NbtCompound2.getInt("value"));
         return (Integer)this.get();
     }
 

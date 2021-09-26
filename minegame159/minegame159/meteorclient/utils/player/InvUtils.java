@@ -6,45 +6,45 @@ package minegame159.meteorclient.utils.player;
 import java.util.function.Predicate;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.player.SlotUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1657;
-import net.minecraft.class_1713;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public class InvUtils {
     private static final Action ACTION = new Action(null);
     private static final FindItemResult findItemResult = new FindItemResult();
 
     public static Action quickMove() {
-        Action.access$102(ACTION, class_1713.field_7794);
+        Action.access$102(ACTION, SlotActionType.QUICK_MOVE);
         return ACTION;
     }
 
-    public static int findItemInMain(class_1792 class_17922) {
-        return InvUtils.findItemInHotbar(class_17922, InvUtils::lambda$findItemInMain$2);
+    public static int findItemInMain(Item Item2) {
+        return InvUtils.findItemInHotbar(Item2, InvUtils::lambda$findItemInMain$2);
     }
 
-    public static int findItemInMain(class_1792 class_17922, Predicate<class_1799> predicate) {
-        return InvUtils.findItem(class_17922, predicate, Utils.mc.field_1724.field_7514.field_7547.size());
+    public static int findItemInMain(Item Item2, Predicate<ItemStack> predicate) {
+        return InvUtils.findItem(Item2, predicate, Utils.mc.player.inventory.main.size());
     }
 
-    public static int findItemInAll(class_1792 class_17922) {
-        return InvUtils.findItemInHotbar(class_17922, InvUtils::lambda$findItemInAll$0);
+    public static int findItemInAll(Item Item2) {
+        return InvUtils.findItemInHotbar(Item2, InvUtils::lambda$findItemInAll$0);
     }
 
-    public static class_1268 getHand(Predicate<class_1799> predicate) {
-        class_1268 class_12682 = null;
-        if (predicate.test(Utils.mc.field_1724.method_6047())) {
-            class_12682 = class_1268.field_5808;
-        } else if (predicate.test(Utils.mc.field_1724.method_6079())) {
-            class_12682 = class_1268.field_5810;
+    public static Hand getHand(Predicate<ItemStack> predicate) {
+        Hand Hand2 = null;
+        if (predicate.test(Utils.mc.player.getMainHandStack())) {
+            Hand2 = Hand.MAIN_HAND;
+        } else if (predicate.test(Utils.mc.player.getOffHandStack())) {
+            Hand2 = Hand.OFF_HAND;
         }
-        return class_12682;
+        return Hand2;
     }
 
-    public static int findItemInHotbar(class_1792 class_17922, Predicate<class_1799> predicate) {
-        return InvUtils.findItem(class_17922, predicate, 9);
+    public static int findItemInHotbar(Item Item2, Predicate<ItemStack> predicate) {
+        return InvUtils.findItem(Item2, predicate, 9);
     }
 
     public static int invIndexToSlotId(int n) {
@@ -54,89 +54,89 @@ public class InvUtils {
         return n;
     }
 
-    private static boolean lambda$findItemInAll$0(class_1799 class_17992) {
+    private static boolean lambda$findItemInAll$0(ItemStack ItemStack2) {
         return true;
     }
 
-    public static class_1268 getHand(class_1792 class_17922) {
-        class_1268 class_12682 = class_1268.field_5808;
-        if (Utils.mc.field_1724.method_6079().method_7909() == class_17922) {
-            class_12682 = class_1268.field_5810;
+    public static Hand getHand(Item Item2) {
+        Hand Hand2 = Hand.MAIN_HAND;
+        if (Utils.mc.player.getOffHandStack().getItem() == Item2) {
+            Hand2 = Hand.OFF_HAND;
         }
-        return class_12682;
+        return Hand2;
     }
 
     public static Action click() {
-        Action.access$102(ACTION, class_1713.field_7790);
+        Action.access$102(ACTION, SlotActionType.PICKUP);
         return ACTION;
     }
 
-    public static int findItemInHotbar(class_1792 class_17922) {
-        return InvUtils.findItemInHotbar(class_17922, InvUtils::lambda$findItemInHotbar$1);
+    public static int findItemInHotbar(Item Item2) {
+        return InvUtils.findItemInHotbar(Item2, InvUtils::lambda$findItemInHotbar$1);
     }
 
-    public static int findItemInAll(class_1792 class_17922, Predicate<class_1799> predicate) {
-        return InvUtils.findItem(class_17922, predicate, Utils.mc.field_1724.field_7514.method_5439());
+    public static int findItemInAll(Item Item2, Predicate<ItemStack> predicate) {
+        return InvUtils.findItem(Item2, predicate, Utils.mc.player.inventory.size());
     }
 
     public static Action move() {
-        Action.access$102(ACTION, class_1713.field_7790);
+        Action.access$102(ACTION, SlotActionType.PICKUP);
         Action.access$202(ACTION, true);
         return ACTION;
     }
 
-    public static int findItemInAll(Predicate<class_1799> predicate) {
-        return InvUtils.findItem(null, predicate, Utils.mc.field_1724.field_7514.method_5439());
+    public static int findItemInAll(Predicate<ItemStack> predicate) {
+        return InvUtils.findItem(null, predicate, Utils.mc.player.inventory.size());
     }
 
-    private static int findItem(class_1792 class_17922, Predicate<class_1799> predicate, int n) {
+    private static int findItem(Item Item2, Predicate<ItemStack> predicate, int n) {
         for (int i = 0; i < n; ++i) {
-            class_1799 class_17992 = Utils.mc.field_1724.field_7514.method_5438(i);
-            if (class_17922 != null && class_17992.method_7909() != class_17922 || !predicate.test(class_17992)) continue;
+            ItemStack ItemStack2 = Utils.mc.player.inventory.getStack(i);
+            if (Item2 != null && ItemStack2.getItem() != Item2 || !predicate.test(ItemStack2)) continue;
             return i;
         }
         return -1;
     }
 
-    public static int findItemInMain(Predicate<class_1799> predicate) {
-        return InvUtils.findItem(null, predicate, Utils.mc.field_1724.field_7514.field_7547.size());
+    public static int findItemInMain(Predicate<ItemStack> predicate) {
+        return InvUtils.findItem(null, predicate, Utils.mc.player.inventory.main.size());
     }
 
-    public static void clickSlot(int n, int n2, class_1713 class_17132) {
-        Utils.mc.field_1761.method_2906(Utils.mc.field_1724.field_7512.field_7763, n, n2, class_17132, (class_1657)Utils.mc.field_1724);
+    public static void clickSlot(int n, int n2, SlotActionType SlotActionType2) {
+        Utils.mc.interactionManager.clickSlot(Utils.mc.player.currentScreenHandler.syncId, n, n2, SlotActionType2, (PlayerEntity)Utils.mc.player);
     }
 
     public static Action drop() {
-        Action.access$102(ACTION, class_1713.field_7795);
+        Action.access$102(ACTION, SlotActionType.THROW);
         Action.access$302(ACTION, 1);
         return ACTION;
     }
 
-    private static boolean lambda$findItemInMain$2(class_1799 class_17992) {
+    private static boolean lambda$findItemInMain$2(ItemStack ItemStack2) {
         return true;
     }
 
-    public static FindItemResult findItemWithCount(class_1792 class_17922) {
+    public static FindItemResult findItemWithCount(Item Item2) {
         InvUtils.findItemResult.slot = -1;
         InvUtils.findItemResult.count = 0;
-        for (int i = 0; i < Utils.mc.field_1724.field_7514.method_5439(); ++i) {
-            class_1799 class_17992 = Utils.mc.field_1724.field_7514.method_5438(i);
-            if (class_17992.method_7909() != class_17922) continue;
+        for (int i = 0; i < Utils.mc.player.inventory.size(); ++i) {
+            ItemStack ItemStack2 = Utils.mc.player.inventory.getStack(i);
+            if (ItemStack2.getItem() != Item2) continue;
             if (!findItemResult.found()) {
                 InvUtils.findItemResult.slot = i;
             }
-            InvUtils.findItemResult.count += class_17992.method_7947();
+            InvUtils.findItemResult.count += ItemStack2.getCount();
             if (!false) continue;
             return null;
         }
         return findItemResult;
     }
 
-    private static boolean lambda$findItemInHotbar$1(class_1799 class_17992) {
+    private static boolean lambda$findItemInHotbar$1(ItemStack ItemStack2) {
         return true;
     }
 
-    public static int findItemInHotbar(Predicate<class_1799> predicate) {
+    public static int findItemInHotbar(Predicate<ItemStack> predicate) {
         return InvUtils.findItem(null, predicate, 9);
     }
 
@@ -150,7 +150,7 @@ public class InvUtils {
     }
 
     public static class Action {
-        private class_1713 type = null;
+        private SlotActionType type = null;
         private int data = 0;
         private boolean two = false;
         private int from = -1;
@@ -224,14 +224,14 @@ public class InvUtils {
         }
 
         private void run() {
-            boolean bl = Utils.mc.field_1724.field_7514.method_7399().method_7960();
+            boolean bl = Utils.mc.player.inventory.getCursorStack().isEmpty();
             if (this.type != null && this.from != -1 && this.to != -1) {
                 this.click(this.from);
                 if (this.two) {
                     this.click(this.to);
                 }
             }
-            class_1713 class_17132 = this.type;
+            SlotActionType SlotActionType2 = this.type;
             boolean bl2 = this.two;
             int n = this.from;
             int n2 = this.to;
@@ -240,7 +240,7 @@ public class InvUtils {
             this.from = -1;
             this.to = -1;
             this.data = 0;
-            if (!this.isRecursive && bl && class_17132 == class_1713.field_7790 && bl2 && n != -1 && n2 != -1 && !Utils.mc.field_1724.field_7514.method_7399().method_7960()) {
+            if (!this.isRecursive && bl && SlotActionType2 == SlotActionType.PICKUP && bl2 && n != -1 && n2 != -1 && !Utils.mc.player.inventory.getCursorStack().isEmpty()) {
                 this.isRecursive = true;
                 InvUtils.click().slotId(n);
                 this.isRecursive = false;
@@ -270,13 +270,13 @@ public class InvUtils {
             return this.fromId(SlotUtils.indexToId(n));
         }
 
-        static class_1713 access$102(Action action, class_1713 class_17132) {
-            action.type = class_17132;
-            return class_17132;
+        static SlotActionType access$102(Action action, SlotActionType SlotActionType2) {
+            action.type = SlotActionType2;
+            return SlotActionType2;
         }
 
         private void click(int n) {
-            Utils.mc.field_1761.method_2906(Utils.mc.field_1724.field_7512.field_7763, n, this.data, this.type, (class_1657)Utils.mc.field_1724);
+            Utils.mc.interactionManager.clickSlot(Utils.mc.player.currentScreenHandler.syncId, n, this.data, this.type, (PlayerEntity)Utils.mc.player);
         }
 
         public Action fromHotbar(int n) {

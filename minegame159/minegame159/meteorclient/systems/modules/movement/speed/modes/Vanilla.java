@@ -11,8 +11,8 @@ import minegame159.meteorclient.systems.modules.movement.AutoJump;
 import minegame159.meteorclient.systems.modules.movement.speed.SpeedMode;
 import minegame159.meteorclient.systems.modules.movement.speed.SpeedModes;
 import minegame159.meteorclient.utils.player.PlayerUtils;
-import net.minecraft.class_1294;
-import net.minecraft.class_243;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.util.math.Vec3d;
 
 public class Vanilla
 extends SpeedMode {
@@ -23,11 +23,11 @@ extends SpeedMode {
     @Override
     public void onMove(PlayerMoveEvent playerMoveEvent) {
         Anchor anchor;
-        class_243 class_2432 = PlayerUtils.getHorizontalVelocity(this.settings.speed.get());
-        double d = class_2432.method_10216();
-        double d2 = class_2432.method_10215();
-        if (this.settings.applySpeedPotions.get().booleanValue() && this.mc.field_1724.method_6059(class_1294.field_5904)) {
-            double d3 = (double)(this.mc.field_1724.method_6112(class_1294.field_5904).method_5578() + 1) * 0.205;
+        Vec3d Vec3d2 = PlayerUtils.getHorizontalVelocity(this.settings.speed.get());
+        double d = Vec3d2.getX();
+        double d2 = Vec3d2.getZ();
+        if (this.settings.applySpeedPotions.get().booleanValue() && this.mc.player.hasStatusEffect(StatusEffects.SPEED)) {
+            double d3 = (double)(this.mc.player.getStatusEffect(StatusEffects.SPEED).getAmplifier() + 1) * 0.205;
             d += d * d3;
             d2 += d2 * d3;
         }
@@ -35,19 +35,19 @@ extends SpeedMode {
             d = anchor.deltaX;
             d2 = anchor.deltaZ;
         }
-        ((IVec3d)playerMoveEvent.movement).set(d, playerMoveEvent.movement.field_1351, d2);
+        ((IVec3d)playerMoveEvent.movement).set(d, playerMoveEvent.movement.y, d2);
     }
 
     @Override
     public void onTick() {
         if (this.settings.jump.get().booleanValue()) {
-            if (!this.mc.field_1724.method_24828() || this.mc.field_1724.method_5715() || !this.jump()) {
+            if (!this.mc.player.isOnGround() || this.mc.player.isSneaking() || !this.jump()) {
                 return;
             }
             if (this.settings.jumpMode.get() == AutoJump.Mode.Jump) {
-                this.mc.field_1724.method_6043();
+                this.mc.player.jump();
             } else {
-                ((IVec3d)this.mc.field_1724.method_18798()).setY(this.settings.hopHeight.get());
+                ((IVec3d)this.mc.player.getVelocity()).setY(this.settings.hopHeight.get());
             }
         }
     }

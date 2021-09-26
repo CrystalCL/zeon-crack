@@ -9,48 +9,48 @@ import minegame159.meteorclient.gui.screens.settings.LeftRightListSettingScreen;
 import minegame159.meteorclient.gui.widgets.WWidget;
 import minegame159.meteorclient.settings.ItemListSetting;
 import minegame159.meteorclient.utils.misc.Names;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2378;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.util.registry.Registry;
 
 public class ItemListSettingScreen
-extends LeftRightListSettingScreen<class_1792> {
+extends LeftRightListSettingScreen<Item> {
     @Override
     protected String getValueName(Object object) {
-        return this.getValueName((class_1792)object);
+        return this.getValueName((Item)object);
     }
 
     @Override
-    protected String getValueName(class_1792 class_17922) {
-        return Names.get(class_17922);
+    protected String getValueName(Item Item2) {
+        return Names.get(Item2);
     }
 
     public ItemListSettingScreen(GuiTheme guiTheme, ItemListSetting itemListSetting) {
-        super(guiTheme, "Select items", itemListSetting, class_2378.field_11142);
+        super(guiTheme, "Select items", itemListSetting, Registry.ITEM);
     }
 
     @Override
     protected boolean includeValue(Object object) {
-        return this.includeValue((class_1792)object);
+        return this.includeValue((Item)object);
     }
 
     @Override
-    protected WWidget getValueWidget(class_1792 class_17922) {
-        return this.theme.itemWithLabel(class_17922.method_7854());
+    protected WWidget getValueWidget(Item Item2) {
+        return this.theme.itemWithLabel(Item2.getDefaultStack());
     }
 
     @Override
     protected WWidget getValueWidget(Object object) {
-        return this.getValueWidget((class_1792)object);
+        return this.getValueWidget((Item)object);
     }
 
     @Override
-    protected boolean includeValue(class_1792 class_17922) {
-        Predicate<class_1792> predicate = ((ItemListSetting)this.setting).filter;
-        if (predicate != null && !predicate.test(class_17922)) {
+    protected boolean includeValue(Item Item2) {
+        Predicate<Item> predicate = ((ItemListSetting)this.setting).filter;
+        if (predicate != null && !predicate.test(Item2)) {
             return false;
         }
-        return class_17922 != class_1802.field_8162;
+        return Item2 != Items.AIR;
     }
 }
 

@@ -8,8 +8,8 @@ import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.mixin.CloseHandledScreenC2SPacketAccessor;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2596;
-import net.minecraft.class_2815;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
 
 public class XCarry
 extends Module {
@@ -22,16 +22,16 @@ extends Module {
     @Override
     public void onDeactivate() {
         if (this.invOpened) {
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2815(this.mc.field_1724.field_7498.field_7763));
+            this.mc.player.networkHandler.sendPacket((Packet)new CloseHandledScreenC2SPacket(this.mc.player.playerScreenHandler.syncId));
         }
     }
 
     @EventHandler
     private void onSendPacket(PacketEvent.Send send) {
-        if (!(send.packet instanceof class_2815)) {
+        if (!(send.packet instanceof CloseHandledScreenC2SPacket)) {
             return;
         }
-        if (((CloseHandledScreenC2SPacketAccessor)send.packet).getSyncId() == this.mc.field_1724.field_7498.field_7763) {
+        if (((CloseHandledScreenC2SPacketAccessor)send.packet).getSyncId() == this.mc.player.playerScreenHandler.syncId) {
             this.invOpened = true;
             send.cancel();
         }

@@ -27,12 +27,12 @@ import minegame159.meteorclient.utils.network.MeteorExecutor;
 import minegame159.meteorclient.utils.network.UuidNameHistoryResponseItem;
 import minegame159.meteorclient.utils.render.NametagUtils;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_1297;
-import net.minecraft.class_1321;
-import net.minecraft.class_1496;
-import net.minecraft.class_1657;
-import net.minecraft.class_1676;
-import net.minecraft.class_290;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.client.render.VertexFormats;
 
 public class EntityOwner
 extends Module {
@@ -65,7 +65,7 @@ extends Module {
         double d = textRenderer.getWidth(string);
         double d2 = -d / 2.0;
         double d3 = -textRenderer.getHeight();
-        MB.begin(null, DrawMode.Triangles, class_290.field_1576);
+        MB.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
         MB.quad(d2 - 1.0, d3 - 1.0, d + 2.0, textRenderer.getHeight() + 2.0, BACKGROUND);
         MB.end();
         textRenderer.render(string, d2, d3, TEXT);
@@ -74,9 +74,9 @@ extends Module {
     }
 
     private String getOwnerName(UUID uUID) {
-        class_1657 class_16572 = this.mc.field_1687.method_18470(uUID);
-        if (class_16572 != null) {
-            return class_16572.method_7334().getName();
+        PlayerEntity PlayerEntity2 = this.mc.world.getPlayerByUuid(uUID);
+        if (PlayerEntity2 != null) {
+            return PlayerEntity2.getGameProfile().getName();
         }
         String string = this.uuidToName.get(uUID);
         if (string != null) {
@@ -112,19 +112,19 @@ extends Module {
 
     @EventHandler
     private void onRender2D(Render2DEvent render2DEvent) {
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
+        for (Entity Entity2 : this.mc.world.getEntities()) {
             UUID uUID;
-            if (class_12972 instanceof class_1321) {
-                uUID = ((class_1321)class_12972).method_6139();
-            } else if (class_12972 instanceof class_1496) {
-                uUID = ((class_1496)class_12972).method_6768();
+            if (Entity2 instanceof TameableEntity) {
+                uUID = ((TameableEntity)Entity2).getOwnerUuid();
+            } else if (Entity2 instanceof HorseBaseEntity) {
+                uUID = ((HorseBaseEntity)Entity2).getOwnerUuid();
             } else {
-                if (!(class_12972 instanceof class_1676) || !this.projectiles.get().booleanValue()) continue;
-                uUID = ((ProjectileEntityAccessor)class_12972).getOwnerUuid();
+                if (!(Entity2 instanceof ProjectileEntity) || !this.projectiles.get().booleanValue()) continue;
+                uUID = ((ProjectileEntityAccessor)Entity2).getOwnerUuid();
             }
             if (uUID == null) continue;
-            this.pos.set(class_12972, render2DEvent.tickDelta);
-            this.pos.add(0.0, (double)class_12972.method_18381(class_12972.method_18376()) + 0.75, 0.0);
+            this.pos.set(Entity2, render2DEvent.tickDelta);
+            this.pos.add(0.0, (double)Entity2.getEyeHeight(Entity2.getPose()) + 0.75, 0.0);
             if (!NametagUtils.to2D(this.pos, this.scale.get())) continue;
             this.renderNametag(this.getOwnerName(uUID));
         }

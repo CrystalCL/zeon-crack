@@ -8,18 +8,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2960;
-import net.minecraft.class_3414;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.Identifier;
+import net.minecraft.sound.SoundEvent;
 
 public class SoundEventListSetting
-extends Setting<List<class_3414>> {
+extends Setting<List<SoundEvent>> {
     @Override
-    protected boolean isValueValid(List<class_3414> list) {
+    protected boolean isValueValid(List<SoundEvent> list) {
         return true;
     }
 
@@ -29,13 +29,13 @@ extends Setting<List<class_3414>> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public Iterable<class_2960> getIdentifierSuggestions() {
-        return class_2378.field_11156.method_10235();
+    public Iterable<Identifier> getIdentifierSuggestions() {
+        return Registry.SOUND_EVENT.getIds();
     }
 
     @Override
@@ -47,14 +47,14 @@ extends Setting<List<class_3414>> {
     }
 
     @Override
-    protected List<class_3414> parseImpl(String string) {
+    protected List<SoundEvent> parseImpl(String string) {
         String[] stringArray = string.split(",");
-        ArrayList<class_3414> arrayList = new ArrayList<class_3414>(stringArray.length);
+        ArrayList<SoundEvent> arrayList = new ArrayList<SoundEvent>(stringArray.length);
         try {
             for (String string2 : stringArray) {
-                class_3414 class_34142 = (class_3414)SoundEventListSetting.parseId(class_2378.field_11156, string2);
-                if (class_34142 == null) continue;
-                arrayList.add(class_34142);
+                SoundEvent SoundEvent2 = (SoundEvent)SoundEventListSetting.parseId(Registry.SOUND_EVENT, string2);
+                if (SoundEvent2 == null) continue;
+                arrayList.add(SoundEvent2);
                 if (null == null) continue;
                 return null;
             }
@@ -66,22 +66,22 @@ extends Setting<List<class_3414>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2499 class_24992 = new class_2499();
-        for (class_3414 class_34142 : (List)this.get()) {
-            class_24992.add((Object)class_2519.method_23256((String)class_2378.field_11156.method_10221((Object)class_34142).toString()));
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtList NbtList2 = new NbtList();
+        for (SoundEvent SoundEvent2 : (List)this.get()) {
+            NbtList2.add((Object)NbtString.of((String)Registry.SOUND_EVENT.getId((Object)SoundEvent2).toString()));
         }
-        class_24872.method_10566("value", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     @Override
-    public List<class_3414> fromTag(class_2487 class_24872) {
+    public List<SoundEvent> fromTag(NbtCompound NbtCompound2) {
         ((List)this.get()).clear();
-        class_2499 class_24992 = class_24872.method_10554("value", 8);
-        for (class_2520 class_25202 : class_24992) {
-            ((List)this.get()).add((class_3414)class_2378.field_11156.method_10223(new class_2960(class_25202.method_10714())));
+        NbtList NbtList2 = NbtCompound2.getList("value", 8);
+        for (NbtElement NbtElement2 : NbtList2) {
+            ((List)this.get()).add((SoundEvent)Registry.SOUND_EVENT.get(new Identifier(NbtElement2.asString())));
         }
         this.changed();
         return (List)this.get();
@@ -92,29 +92,29 @@ extends Setting<List<class_3414>> {
         return this.isValueValid((List)object);
     }
 
-    public SoundEventListSetting(String string, String string2, List<class_3414> list, Consumer<List<class_3414>> consumer, Consumer<Setting<List<class_3414>>> consumer2) {
+    public SoundEventListSetting(String string, String string2, List<SoundEvent> list, Consumer<List<SoundEvent>> consumer, Consumer<Setting<List<SoundEvent>>> consumer2) {
         super(string, string2, list, consumer, consumer2);
-        this.value = new ArrayList<class_3414>(list);
+        this.value = new ArrayList<SoundEvent>(list);
     }
 
     public static class Builder {
-        private Consumer<List<class_3414>> onChanged;
-        private List<class_3414> defaultValue;
-        private Consumer<Setting<List<class_3414>>> onModuleActivated;
+        private Consumer<List<SoundEvent>> onChanged;
+        private List<SoundEvent> defaultValue;
+        private Consumer<Setting<List<SoundEvent>>> onModuleActivated;
         private String name = "undefined";
         private String description = "";
 
-        public Builder onModuleActivated(Consumer<Setting<List<class_3414>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<List<SoundEvent>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
 
-        public Builder defaultValue(List<class_3414> list) {
+        public Builder defaultValue(List<SoundEvent> list) {
             this.defaultValue = list;
             return this;
         }
 
-        public Builder onChanged(Consumer<List<class_3414>> consumer) {
+        public Builder onChanged(Consumer<List<SoundEvent>> consumer) {
             this.onChanged = consumer;
             return this;
         }

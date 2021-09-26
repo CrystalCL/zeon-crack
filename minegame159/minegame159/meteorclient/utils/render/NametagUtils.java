@@ -7,22 +7,22 @@ import minegame159.meteorclient.mixininterface.IMatrix4f;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.Vec3;
 import minegame159.meteorclient.utils.misc.Vec4;
-import net.minecraft.class_1159;
-import net.minecraft.class_310;
-import net.minecraft.class_4587;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
 
 public class NametagUtils {
-    private static final class_310 mc = class_310.method_1551();
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
     private static final Vec3 cameraNegated;
     private static double windowScale;
-    private static class_1159 model;
+    private static Matrix4f model;
     private static final Vec4 mmMat4;
     private static final Vec3 camera;
     private static final Vec4 vec4;
     private static double scale;
     private static final Vec4 pmMat4;
-    private static class_1159 projection;
+    private static Matrix4f projection;
 
     private static double getScale(Vec3 vec3) {
         double d = camera.distanceTo(vec3);
@@ -33,13 +33,13 @@ public class NametagUtils {
         GL11.glPopMatrix();
     }
 
-    public static void onRender(class_4587 class_45872, class_1159 class_11592) {
-        model = class_45872.method_23760().method_23761().method_22673();
-        projection = class_11592;
-        camera.set(NametagUtils.mc.field_1773.method_19418().method_19326());
+    public static void onRender(MatrixStack MatrixStack2, Matrix4f Matrix4f2) {
+        model = MatrixStack2.peek().getModel().copy();
+        projection = Matrix4f2;
+        camera.set(NametagUtils.mc.gameRenderer.getCamera().getPos());
         cameraNegated.set(camera);
         cameraNegated.negate();
-        windowScale = mc.method_22683().method_4476(1, mc.method_1573());
+        windowScale = mc.getWindow().calculateScaleFactor(1, mc.forcesUnicodeFont());
     }
 
     static {
@@ -65,12 +65,12 @@ public class NametagUtils {
             return false;
         }
         pmMat4.toScreen();
-        double d2 = NametagUtils.pmMat4.x * (double)mc.method_22683().method_4489();
-        double d3 = NametagUtils.pmMat4.y * (double)mc.method_22683().method_4506();
+        double d2 = NametagUtils.pmMat4.x * (double)mc.getWindow().getFramebufferWidth();
+        double d3 = NametagUtils.pmMat4.y * (double)mc.getWindow().getFramebufferHeight();
         if (Double.isInfinite(d2) || Double.isInfinite(d3)) {
             return false;
         }
-        vec3.set(d2 / windowScale, (double)mc.method_22683().method_4506() - d3 / windowScale, NametagUtils.pmMat4.z);
+        vec3.set(d2 / windowScale, (double)mc.getWindow().getFramebufferHeight() - d3 / windowScale, NametagUtils.pmMat4.z);
         return true;
     }
 }

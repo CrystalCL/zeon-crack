@@ -9,17 +9,17 @@ import minegame159.meteorclient.events.entity.player.ClipAtLedgeEvent;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.movement.Anchor;
 import minegame159.meteorclient.systems.modules.player.SpeedMine;
-import net.minecraft.class_1542;
-import net.minecraft.class_1657;
-import net.minecraft.class_1799;
-import net.minecraft.class_2680;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={class_1657.class})
+@Mixin(value={PlayerEntity.class})
 public class PlayerEntityMixin {
     @Inject(method={"clipAtLedge"}, at={@At(value="HEAD")}, cancellable=true)
     protected void clipAtLedge(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
@@ -30,12 +30,12 @@ public class PlayerEntityMixin {
     }
 
     @Inject(method={"dropItem(Lnet/minecraft/item/ItemStack;ZZ)Lnet/minecraft/entity/ItemEntity;"}, at={@At(value="HEAD")})
-    private void onDropItem(class_1799 class_17992, boolean bl, boolean bl2, CallbackInfoReturnable<class_1542> callbackInfoReturnable) {
-        MeteorClient.EVENT_BUS.post(DropItemsEvent.get(class_17992));
+    private void onDropItem(ItemStack ItemStack2, boolean bl, boolean bl2, CallbackInfoReturnable<ItemEntity> callbackInfoReturnable) {
+        MeteorClient.EVENT_BUS.post(DropItemsEvent.get(ItemStack2));
     }
 
     @Inject(method={"getBlockBreakingSpeed"}, at={@At(value="RETURN")}, cancellable=true)
-    public void onGetBlockBreakingSpeed(class_2680 class_26802, CallbackInfoReturnable<Float> callbackInfoReturnable) {
+    public void onGetBlockBreakingSpeed(BlockState BlockState2, CallbackInfoReturnable<Float> callbackInfoReturnable) {
         SpeedMine speedMine = Modules.get().get(SpeedMine.class);
         if (!speedMine.isActive() || speedMine.mode.get() != SpeedMine.Mode.Normal) {
             return;

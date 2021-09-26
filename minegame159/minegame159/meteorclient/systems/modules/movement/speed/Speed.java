@@ -22,8 +22,8 @@ import minegame159.meteorclient.systems.modules.movement.speed.modes.NCP;
 import minegame159.meteorclient.systems.modules.movement.speed.modes.Vanilla;
 import minegame159.meteorclient.systems.modules.world.Timer;
 import minegame159.meteorclient.utils.player.PlayerUtils;
-import net.minecraft.class_1313;
-import net.minecraft.class_2708;
+import net.minecraft.entity.MovementType;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 
 public class Speed
 extends Module {
@@ -47,7 +47,7 @@ extends Module {
 
     @EventHandler
     private void onPreTick(TickEvent.Pre pre) {
-        if (this.mc.field_1724.method_6128() || this.mc.field_1724.method_6101() || this.mc.field_1724.method_5854() != null || this.whenSneaking.get() == false && this.mc.field_1724.method_5715() || this.onlyOnGround.get() != false && !this.mc.field_1724.method_24828() || !this.inLiquids.get().booleanValue() && (this.mc.field_1724.method_5799() || this.mc.field_1724.method_5771())) {
+        if (this.mc.player.isFallFlying() || this.mc.player.isClimbing() || this.mc.player.getVehicle() != null || this.whenSneaking.get() == false && this.mc.player.isSneaking() || this.onlyOnGround.get() != false && !this.mc.player.isOnGround() || !this.inLiquids.get().booleanValue() && (this.mc.player.isTouchingWater() || this.mc.player.isInLava())) {
             return;
         }
         this.currentMode.onTick();
@@ -90,16 +90,16 @@ extends Module {
 
     @EventHandler
     private void onPlayerMove(PlayerMoveEvent playerMoveEvent) {
-        if (playerMoveEvent.type != class_1313.field_6308 || this.mc.field_1724.method_6128() || this.mc.field_1724.method_6101() || this.mc.field_1724.method_5854() != null) {
+        if (playerMoveEvent.type != MovementType.SELF || this.mc.player.isFallFlying() || this.mc.player.isClimbing() || this.mc.player.getVehicle() != null) {
             return;
         }
-        if (!this.whenSneaking.get().booleanValue() && this.mc.field_1724.method_5715()) {
+        if (!this.whenSneaking.get().booleanValue() && this.mc.player.isSneaking()) {
             return;
         }
-        if (this.onlyOnGround.get().booleanValue() && !this.mc.field_1724.method_24828()) {
+        if (this.onlyOnGround.get().booleanValue() && !this.mc.player.isOnGround()) {
             return;
         }
-        if (!this.inLiquids.get().booleanValue() && (this.mc.field_1724.method_5799() || this.mc.field_1724.method_5771())) {
+        if (!this.inLiquids.get().booleanValue() && (this.mc.player.isTouchingWater() || this.mc.player.isInLava())) {
             return;
         }
         Modules.get().get(Timer.class).setOverride(PlayerUtils.isMoving() ? this.timer.get() : 1.0);
@@ -120,7 +120,7 @@ extends Module {
 
     @EventHandler
     private void onPacketRecieve(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2708) {
+        if (receive.packet instanceof PlayerPositionLookS2CPacket) {
             this.currentMode.onRubberband();
         }
     }

@@ -6,8 +6,8 @@ package minegame159.meteorclient.systems.friends;
 import java.util.Objects;
 import minegame159.meteorclient.utils.entity.FriendType;
 import minegame159.meteorclient.utils.misc.ISerializable;
-import net.minecraft.class_1657;
-import net.minecraft.class_2487;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -32,32 +32,32 @@ implements ISerializable<Friend> {
         return Objects.equals(this.name, friend.name);
     }
 
-    public Friend(class_1657 class_16572) {
-        this(class_16572.method_7334().getName());
+    public Friend(PlayerEntity PlayerEntity2) {
+        this(PlayerEntity2.getGameProfile().getName());
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10582("type", this.type.name());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.putString("type", this.type.name());
+        return NbtCompound2;
     }
 
-    public Friend(class_2487 class_24872) {
-        this.fromTag(class_24872);
-    }
-
-    @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Friend(NbtCompound NbtCompound2) {
+        this.fromTag(NbtCompound2);
     }
 
     @Override
-    public Friend fromTag(class_2487 class_24872) {
-        this.name = class_24872.method_10558("name");
-        if (class_24872.method_10545("type")) {
-            this.type = FriendType.valueOf(class_24872.method_10558("type"));
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
+    }
+
+    @Override
+    public Friend fromTag(NbtCompound NbtCompound2) {
+        this.name = NbtCompound2.getString("name");
+        if (NbtCompound2.contains("type")) {
+            this.type = FriendType.valueOf(NbtCompound2.getString("type"));
         }
         return this;
     }

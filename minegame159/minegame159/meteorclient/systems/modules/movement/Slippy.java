@@ -11,12 +11,12 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2248;
+import net.minecraft.block.Block;
 
 public class Slippy
 extends Module {
     private final SettingGroup sgGeneral;
-    public final Setting<List<class_2248>> blocks;
+    public final Setting<List<Block>> blocks;
     public final Setting<Double> slippness;
 
     public Slippy() {

@@ -4,15 +4,15 @@
 package minegame159.meteorclient.utils.player;
 
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
-import net.minecraft.class_310;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.client.MinecraftClient;
 
 public class RotationUtils {
-    public static class_310 mc = class_310.method_1551();
+    public static MinecraftClient mc = MinecraftClient.getInstance();
 
     public static void packetRotate(float f, float f2) {
-        RotationUtils.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2831(f, f2, RotationUtils.mc.field_1724.method_24828()));
+        RotationUtils.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2831(f, f2, RotationUtils.mc.player.isOnGround()));
         Rotations.setCamRotation(f, f2);
     }
 }

@@ -4,16 +4,16 @@
 package minegame159.meteorclient.events.world;
 
 import minegame159.meteorclient.events.Cancellable;
-import net.minecraft.class_1113;
+import net.minecraft.client.sound.SoundInstance;
 
 public class PlaySoundEvent
 extends Cancellable {
-    public class_1113 sound;
+    public SoundInstance sound;
     private static final PlaySoundEvent INSTANCE = new PlaySoundEvent();
 
-    public static PlaySoundEvent get(class_1113 class_11132) {
+    public static PlaySoundEvent get(SoundInstance SoundInstance2) {
         INSTANCE.setCancelled(false);
-        PlaySoundEvent.INSTANCE.sound = class_11132;
+        PlaySoundEvent.INSTANCE.sound = SoundInstance2;
         return INSTANCE;
     }
 }

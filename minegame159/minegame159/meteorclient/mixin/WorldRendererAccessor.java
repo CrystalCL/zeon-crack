@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_276;
-import net.minecraft.class_761;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_761.class})
+@Mixin(value={WorldRenderer.class})
 public interface WorldRendererAccessor {
     @Accessor
-    public void setEntityOutlinesFramebuffer(class_276 var1);
+    public void setEntityOutlinesFramebuffer(Framebuffer var1);
 }
 

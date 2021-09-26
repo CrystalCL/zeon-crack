@@ -4,11 +4,11 @@
 package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.mixininterface.IPlayerMoveC2SPacket;
-import net.minecraft.class_2828;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(value={class_2828.class})
+@Mixin(value={PlayerMoveC2SPacket.class})
 public class PlayerMoveC2SPacketMixin
 implements IPlayerMoveC2SPacket {
     @Unique

@@ -12,11 +12,11 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_471;
+import net.minecraft.util.Hand;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 
 public class SelfAnvil
 extends Module {
@@ -31,7 +31,7 @@ extends Module {
 
     @EventHandler
     private void onOpenScreen(OpenScreenEvent openScreenEvent) {
-        if (openScreenEvent.screen instanceof class_471) {
+        if (openScreenEvent.screen instanceof AnvilScreen) {
             openScreenEvent.cancel();
         }
     }
@@ -42,16 +42,16 @@ extends Module {
         if (n == -1) {
             return;
         }
-        class_2338 class_23382 = this.mc.field_1724.method_24515().method_10069(0, 2, 0);
-        if (BlockUtils.place(class_23382, class_1268.field_5808, n, this.rotate.get(), 0, true)) {
+        BlockPos BlockPos2 = this.mc.player.getBlockPos().add(0, 2, 0);
+        if (BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n, this.rotate.get(), 0, true)) {
             this.toggle();
         }
     }
 
     private int findSlot() {
         for (int i = 0; i < 9; ++i) {
-            class_1792 class_17922 = this.mc.field_1724.field_7514.method_5438(i).method_7909();
-            if (class_17922 != class_1802.field_8782 && class_17922 != class_1802.field_8750 && class_17922 != class_1802.field_8427) continue;
+            Item Item2 = this.mc.player.inventory.getStack(i).getItem();
+            if (Item2 != Items.ANVIL && Item2 != Items.CHIPPED_ANVIL && Item2 != Items.DAMAGED_ANVIL) continue;
             return i;
         }
         return -1;

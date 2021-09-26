@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_481;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_481.class})
+@Mixin(value={CreativeInventoryScreen.class})
 public interface CreativeInventoryScreenAccessor {
     @Accessor(value="selectedTab")
     public int getSelectedTab();

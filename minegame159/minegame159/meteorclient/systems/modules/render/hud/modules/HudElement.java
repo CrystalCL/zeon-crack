@@ -11,9 +11,9 @@ import minegame159.meteorclient.systems.modules.render.hud.HUD;
 import minegame159.meteorclient.systems.modules.render.hud.HudRenderer;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.ISerializable;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
-import net.minecraft.class_310;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.client.MinecraftClient;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -23,27 +23,27 @@ implements ISerializable<HudElement> {
     public final String name;
     public final Settings settings = new Settings();
     public boolean active = true;
-    protected final class_310 mc;
+    protected final MinecraftClient mc;
     protected final HUD hud;
     public final BoundingBox box = new BoundingBox();
     public final String description;
     public final String title;
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public abstract void update(HudRenderer var1);
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10556("active", this.active);
-        class_24872.method_10566("settings", (class_2520)this.settings.toTag());
-        class_24872.method_10566("box", (class_2520)this.box.toTag());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.putBoolean("active", this.active);
+        NbtCompound2.put("settings", (NbtElement)this.settings.toTag());
+        NbtCompound2.put("box", (NbtElement)this.box.toTag());
+        return NbtCompound2;
     }
 
     public void toggle() {
@@ -55,23 +55,23 @@ implements ISerializable<HudElement> {
         this.name = string;
         this.title = Utils.nameToTitle(string);
         this.description = string2;
-        this.mc = class_310.method_1551();
+        this.mc = MinecraftClient.getInstance();
     }
 
     public abstract void render(HudRenderer var1);
 
     @Override
-    public HudElement fromTag(class_2487 class_24872) {
-        this.active = class_24872.method_10577("active");
-        if (class_24872.method_10545("settings")) {
-            this.settings.fromTag(class_24872.method_10562("settings"));
+    public HudElement fromTag(NbtCompound NbtCompound2) {
+        this.active = NbtCompound2.getBoolean("active");
+        if (NbtCompound2.contains("settings")) {
+            this.settings.fromTag(NbtCompound2.getCompound("settings"));
         }
-        this.box.fromTag(class_24872.method_10562("box"));
+        this.box.fromTag(NbtCompound2.getCompound("box"));
         return this;
     }
 
     protected boolean isInEditor() {
-        return HudTab.INSTANCE.isScreen(this.mc.field_1755) || this.mc.field_1755 instanceof HudElementScreen || !Utils.canUpdate();
+        return HudTab.INSTANCE.isScreen(this.mc.currentScreen) || this.mc.currentScreen instanceof HudElementScreen || !Utils.canUpdate();
     }
 }
 

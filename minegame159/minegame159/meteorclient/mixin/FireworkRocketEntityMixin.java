@@ -5,44 +5,44 @@ package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.movement.ElytraBoost;
-import net.minecraft.class_1671;
-import net.minecraft.class_3965;
-import net.minecraft.class_3966;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_1671.class})
+@Mixin(value={FireworkRocketEntity.class})
 public abstract class FireworkRocketEntityMixin {
     @Shadow
-    private int field_7613;
+    private int life;
     @Shadow
-    private int field_7612;
+    private int lifeTime;
 
     @Shadow
-    protected abstract void method_16830();
+    protected abstract void explodeAndRemove();
 
     @Inject(method={"tick"}, at={@At(value="TAIL")})
     private void onTick(CallbackInfo callbackInfo) {
-        if (Modules.get().get(ElytraBoost.class).isFirework((class_1671)this) && this.field_7613 > this.field_7612) {
-            this.method_16830();
+        if (Modules.get().get(ElytraBoost.class).isFirework((FireworkRocketEntity)this) && this.life > this.lifeTime) {
+            this.explodeAndRemove();
         }
     }
 
     @Inject(method={"onEntityHit"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onEntityHit(class_3966 class_39662, CallbackInfo callbackInfo) {
-        if (Modules.get().get(ElytraBoost.class).isFirework((class_1671)this)) {
-            this.method_16830();
+    private void onEntityHit(EntityHitResult EntityHitResult2, CallbackInfo callbackInfo) {
+        if (Modules.get().get(ElytraBoost.class).isFirework((FireworkRocketEntity)this)) {
+            this.explodeAndRemove();
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"onBlockHit"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onBlockHit(class_3965 class_39652, CallbackInfo callbackInfo) {
-        if (Modules.get().get(ElytraBoost.class).isFirework((class_1671)this)) {
-            this.method_16830();
+    private void onBlockHit(BlockHitResult BlockHitResult2, CallbackInfo callbackInfo) {
+        if (Modules.get().get(ElytraBoost.class).isFirework((FireworkRocketEntity)this)) {
+            this.explodeAndRemove();
             callbackInfo.cancel();
         }
     }

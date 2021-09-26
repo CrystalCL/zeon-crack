@@ -29,13 +29,13 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.Dimension;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_290;
-import net.minecraft.class_308;
-import net.minecraft.class_310;
-import net.minecraft.class_4184;
-import net.minecraft.class_640;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.network.PlayerListEntry;
 
 public class LogoutSpots
 extends Module {
@@ -44,12 +44,12 @@ extends Module {
     private static final Color ORANGE;
     private final Setting<ShapeMode> shapeMode;
     private final Setting<SettingColor> nameColor;
-    private final List<class_640> lastPlayerList;
+    private final List<PlayerListEntry> lastPlayerList;
     private static final MeshBuilder MB;
     private static final Color RED;
     private final SettingGroup sgRender;
     private final List<Entry> players;
-    private final List<class_1657> lastPlayers;
+    private final List<PlayerEntity> lastPlayers;
     private final SettingGroup sgGeneral;
     private final Setting<Boolean> fullHeight;
     private final Setting<SettingColor> lineColor;
@@ -64,30 +64,30 @@ extends Module {
         this.lastPlayerList.clear();
     }
 
-    private static boolean lambda$onTick$0(class_640 class_6402, class_640 class_6403) {
-        return class_6403.method_2966().equals((Object)class_6402.method_2966());
+    private static boolean lambda$onTick$0(PlayerListEntry PlayerListEntry2, PlayerListEntry PlayerListEntry3) {
+        return PlayerListEntry3.getProfile().equals((Object)PlayerListEntry2.getProfile());
     }
 
     static MeshBuilder access$1000() {
         return MB;
     }
 
-    static class_310 access$200(LogoutSpots logoutSpots) {
+    static MinecraftClient access$200(LogoutSpots logoutSpots) {
         return logoutSpots.mc;
     }
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.method_1562().method_2880().size() != this.lastPlayerList.size()) {
-            for (class_640 class_6402 : this.lastPlayerList) {
-                if (this.mc.method_1562().method_2880().stream().anyMatch(arg_0 -> LogoutSpots.lambda$onTick$0(class_6402, arg_0))) continue;
-                for (class_1657 class_16572 : this.lastPlayers) {
-                    if (!class_16572.method_5667().equals(class_6402.method_2966().getId())) continue;
-                    this.add(new Entry(this, class_16572));
+        if (this.mc.getNetworkHandler().getPlayerList().size() != this.lastPlayerList.size()) {
+            for (PlayerListEntry PlayerListEntry2 : this.lastPlayerList) {
+                if (this.mc.getNetworkHandler().getPlayerList().stream().anyMatch(arg_0 -> LogoutSpots.lambda$onTick$0(PlayerListEntry2, arg_0))) continue;
+                for (PlayerEntity PlayerEntity2 : this.lastPlayers) {
+                    if (!PlayerEntity2.getUuid().equals(PlayerListEntry2.getProfile().getId())) continue;
+                    this.add(new Entry(this, PlayerEntity2));
                 }
             }
             this.lastPlayerList.clear();
-            this.lastPlayerList.addAll(this.mc.method_1562().method_2880());
+            this.lastPlayerList.addAll(this.mc.getNetworkHandler().getPlayerList());
             this.updateLastPlayers();
         }
         if (this.timer <= 0) {
@@ -119,14 +119,14 @@ extends Module {
         this.nameColor = this.sgRender.add(new ColorSetting.Builder().name("name-color").description("The name color.").defaultValue(new SettingColor(255, 255, 255)).build());
         this.nameBackgroundColor = this.sgRender.add(new ColorSetting.Builder().name("name-background-color").description("The name background color.").defaultValue(new SettingColor(0, 0, 0, 75)).build());
         this.players = new ArrayList<Entry>();
-        this.lastPlayerList = new ArrayList<class_640>();
-        this.lastPlayers = new ArrayList<class_1657>();
+        this.lastPlayerList = new ArrayList<PlayerListEntry>();
+        this.lastPlayers = new ArrayList<PlayerEntity>();
         this.lineColor.changed();
     }
 
     @Override
     public void onActivate() {
-        this.lastPlayerList.addAll(this.mc.method_1562().method_2880());
+        this.lastPlayerList.addAll(this.mc.getNetworkHandler().getPlayerList());
         this.updateLastPlayers();
         this.timer = 10;
         this.lastDimension = Utils.getDimension();
@@ -139,7 +139,7 @@ extends Module {
         }
         RenderSystem.disableDepthTest();
         RenderSystem.disableTexture();
-        class_308.method_1450();
+        DiffuseLighting.disable();
         RenderSystem.enableBlend();
     }
 
@@ -157,9 +157,9 @@ extends Module {
 
     private void updateLastPlayers() {
         this.lastPlayers.clear();
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972 instanceof class_1657)) continue;
-            this.lastPlayers.add((class_1657)class_12972);
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2 instanceof PlayerEntity)) continue;
+            this.lastPlayers.add((PlayerEntity)Entity2);
         }
     }
 
@@ -184,7 +184,7 @@ extends Module {
         return logoutSpots.shapeMode;
     }
 
-    static class_310 access$000(LogoutSpots logoutSpots) {
+    static MinecraftClient access$000(LogoutSpots logoutSpots) {
         return logoutSpots.mc;
     }
 
@@ -201,10 +201,10 @@ extends Module {
 
     @EventHandler
     private void onEntityAdded(EntityAddedEvent entityAddedEvent) {
-        if (entityAddedEvent.entity instanceof class_1657) {
+        if (entityAddedEvent.entity instanceof PlayerEntity) {
             int n = -1;
             for (int i = 0; i < this.players.size(); ++i) {
-                if (!this.players.get((int)i).uuid.equals(entityAddedEvent.entity.method_5667())) continue;
+                if (!this.players.get((int)i).uuid.equals(entityAddedEvent.entity.getUuid())) continue;
                 n = i;
                 break;
             }
@@ -241,29 +241,29 @@ extends Module {
         public final UUID uuid;
         public final double y;
 
-        public Entry(LogoutSpots logoutSpots, class_1657 class_16572) {
+        public Entry(LogoutSpots logoutSpots, PlayerEntity PlayerEntity2) {
             this.this$0 = logoutSpots;
-            this.x = class_16572.method_23317();
-            this.y = class_16572.method_23318();
-            this.z = class_16572.method_23321();
-            this.xWidth = class_16572.method_5829().method_17939();
-            this.zWidth = class_16572.method_5829().method_17941();
-            this.height = class_16572.method_5829().method_17940();
-            this.uuid = class_16572.method_5667();
-            this.name = class_16572.method_7334().getName();
-            this.health = Math.round(class_16572.method_6032() + class_16572.method_6067());
-            this.maxHealth = Math.round(class_16572.method_6063() + class_16572.method_6067());
+            this.x = PlayerEntity2.getX();
+            this.y = PlayerEntity2.getY();
+            this.z = PlayerEntity2.getZ();
+            this.xWidth = PlayerEntity2.getBoundingBox().getXLength();
+            this.zWidth = PlayerEntity2.getBoundingBox().getZLength();
+            this.height = PlayerEntity2.getBoundingBox().getYLength();
+            this.uuid = PlayerEntity2.getUuid();
+            this.name = PlayerEntity2.getGameProfile().getName();
+            this.health = Math.round(PlayerEntity2.getHealth() + PlayerEntity2.getAbsorptionAmount());
+            this.maxHealth = Math.round(PlayerEntity2.getMaxHealth() + PlayerEntity2.getAbsorptionAmount());
             this.healthText = String.valueOf(new StringBuilder().append(" ").append(this.health));
         }
 
         public void render(RenderEvent renderEvent) {
-            class_4184 class_41842 = LogoutSpots.access$000((LogoutSpots)this.this$0).field_1773.method_19418();
+            Camera Camera2 = LogoutSpots.access$000((LogoutSpots)this.this$0).gameRenderer.getCamera();
             double d = 0.025;
             double d2 = Utils.distanceToCamera(this.x, this.y, this.z);
             if (d2 > 8.0) {
                 d *= d2 / 8.0 * (Double)LogoutSpots.access$100(this.this$0).get();
             }
-            if (d2 > (double)(LogoutSpots.access$200((LogoutSpots)this.this$0).field_1690.field_1870 * 16)) {
+            if (d2 > (double)(LogoutSpots.access$200((LogoutSpots)this.this$0).options.viewDistance * 16)) {
                 return;
             }
             double d3 = (double)this.health / (double)this.maxHealth;
@@ -275,11 +275,11 @@ extends Module {
             Color color = d3 <= 0.333 ? LogoutSpots.access$700() : (d3 <= 0.666 ? LogoutSpots.access$800() : LogoutSpots.access$900());
             Matrices.push();
             Matrices.translate(this.x + this.xWidth / 2.0 - renderEvent.offsetX, this.y + ((Boolean)LogoutSpots.access$300(this.this$0).get() != false ? this.height + 0.5 : 0.5) - renderEvent.offsetY, this.z + this.zWidth / 2.0 - renderEvent.offsetZ);
-            Matrices.rotate(-class_41842.method_19330(), 0.0, 1.0, 0.0);
-            Matrices.rotate(class_41842.method_19329(), 1.0, 0.0, 0.0);
+            Matrices.rotate(-Camera2.getYaw(), 0.0, 1.0, 0.0);
+            Matrices.rotate(Camera2.getPitch(), 1.0, 0.0, 0.0);
             Matrices.scale(-d, -d, d);
             double d4 = TextRenderer.get().getWidth(this.name) / 2.0 + TextRenderer.get().getWidth(this.healthText) / 2.0;
-            LogoutSpots.access$1000().begin(null, DrawMode.Triangles, class_290.field_1576);
+            LogoutSpots.access$1000().begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
             LogoutSpots.access$1000().quad(-d4 - 1.0, -1.0, 0.0, -d4 - 1.0, 8.0, 0.0, d4 + 1.0, 8.0, 0.0, d4 + 1.0, -1.0, 0.0, (Color)LogoutSpots.access$1100(this.this$0).get());
             LogoutSpots.access$1000().end();
             TextRenderer.get().begin(1.0, false, true);

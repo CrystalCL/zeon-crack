@@ -13,26 +13,26 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2591;
-import net.minecraft.class_2960;
-import net.minecraft.class_5321;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.RegistryKey;
 import org.apache.logging.log4j.core.util.ObjectArrayIterator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class StorageBlockListSetting
-extends Setting<List<class_2591<?>>> {
-    public static final class_2378<class_2591<?>> REGISTRY;
-    public static final class_2591<?>[] STORAGE_BLOCKS;
+extends Setting<List<BlockEntityType<?>>> {
+    public static final Registry<BlockEntityType<?>> REGISTRY;
+    public static final BlockEntityType<?>[] STORAGE_BLOCKS;
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
@@ -41,26 +41,26 @@ extends Setting<List<class_2591<?>>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2499 class_24992 = new class_2499();
-        for (class_2591 class_25912 : (List)this.get()) {
-            class_2960 class_29602 = class_2378.field_11137.method_10221((Object)class_25912);
-            if (class_29602 == null) continue;
-            class_24992.add((Object)class_2519.method_23256((String)class_29602.toString()));
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtList NbtList2 = new NbtList();
+        for (BlockEntityType BlockEntityType2 : (List)this.get()) {
+            Identifier Identifier2 = Registry.BLOCK_ENTITY_TYPE.getId((Object)BlockEntityType2);
+            if (Identifier2 == null) continue;
+            NbtList2.add((Object)NbtString.of((String)Identifier2.toString()));
         }
-        class_24872.method_10566("value", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
-    public StorageBlockListSetting(String string, String string2, List<class_2591<?>> list, Consumer<List<class_2591<?>>> consumer, Consumer<Setting<List<class_2591<?>>>> consumer2) {
+    public StorageBlockListSetting(String string, String string2, List<BlockEntityType<?>> list, Consumer<List<BlockEntityType<?>>> consumer, Consumer<Setting<List<BlockEntityType<?>>>> consumer2) {
         super(string, string2, list, consumer, consumer2);
         this.value = new ArrayList(list);
     }
 
     @Override
-    public Iterable<class_2960> getIdentifierSuggestions() {
-        return class_2378.field_11137.method_10235();
+    public Iterable<Identifier> getIdentifierSuggestions() {
+        return Registry.BLOCK_ENTITY_TYPE.getIds();
     }
 
     @Override
@@ -77,32 +77,32 @@ extends Setting<List<class_2591<?>>> {
     }
 
     @Override
-    public List<class_2591<?>> fromTag(class_2487 class_24872) {
+    public List<BlockEntityType<?>> fromTag(NbtCompound NbtCompound2) {
         ((List)this.get()).clear();
-        class_2499 class_24992 = class_24872.method_10554("value", 8);
-        for (class_2520 class_25202 : class_24992) {
-            class_2591 class_25912 = (class_2591)class_2378.field_11137.method_10223(new class_2960(class_25202.method_10714()));
-            if (class_25912 == null) continue;
-            ((List)this.get()).add(class_25912);
+        NbtList NbtList2 = NbtCompound2.getList("value", 8);
+        for (NbtElement NbtElement2 : NbtList2) {
+            BlockEntityType BlockEntityType2 = (BlockEntityType)Registry.BLOCK_ENTITY_TYPE.get(new Identifier(NbtElement2.asString()));
+            if (BlockEntityType2 == null) continue;
+            ((List)this.get()).add(BlockEntityType2);
         }
         this.changed();
         return (List)this.get();
     }
 
     static {
-        STORAGE_BLOCKS = new class_2591[]{class_2591.field_11903, class_2591.field_11914, class_2591.field_11891, class_2591.field_11901, class_2591.field_11887, class_2591.field_11899, class_2591.field_11888, class_2591.field_11896, class_2591.field_16411, class_2591.field_16414, class_2591.field_16415};
+        STORAGE_BLOCKS = new BlockEntityType[]{BlockEntityType.FURNACE, BlockEntityType.CHEST, BlockEntityType.TRAPPED_CHEST, BlockEntityType.ENDER_CHEST, BlockEntityType.DISPENSER, BlockEntityType.DROPPER, BlockEntityType.HOPPER, BlockEntityType.SHULKER_BOX, BlockEntityType.BARREL, BlockEntityType.SMOKER, BlockEntityType.BLAST_FURNACE};
         REGISTRY = new SRegistry();
     }
 
     @Override
-    protected List<class_2591<?>> parseImpl(String string) {
+    protected List<BlockEntityType<?>> parseImpl(String string) {
         String[] stringArray = string.split(",");
         ArrayList arrayList = new ArrayList(stringArray.length);
         try {
             for (String string2 : stringArray) {
-                class_2591 class_25912 = (class_2591)StorageBlockListSetting.parseId(class_2378.field_11137, string2);
-                if (class_25912 == null) continue;
-                arrayList.add(class_25912);
+                BlockEntityType BlockEntityType2 = (BlockEntityType)StorageBlockListSetting.parseId(Registry.BLOCK_ENTITY_TYPE, string2);
+                if (BlockEntityType2 == null) continue;
+                arrayList.add(BlockEntityType2);
                 if (null == null) continue;
                 return null;
             }
@@ -114,108 +114,108 @@ extends Setting<List<class_2591<?>>> {
     }
 
     @Override
-    protected boolean isValueValid(List<class_2591<?>> list) {
+    protected boolean isValueValid(List<BlockEntityType<?>> list) {
         return true;
     }
 
     private static class SRegistry
-    extends class_2378<class_2591<?>> {
+    extends Registry<BlockEntityType<?>> {
         @Nullable
-        public Object method_29107(@Nullable class_5321 class_53212) {
-            return this.get(class_53212);
+        public Object get(@Nullable RegistryKey RegistryKey2) {
+            return this.get(RegistryKey2);
         }
 
-        public int getRawId(@Nullable class_2591<?> class_25912) {
+        public int getRawId(@Nullable BlockEntityType<?> BlockEntityType2) {
             return 0;
         }
 
-        public Set<class_2960> method_10235() {
+        public Set<Identifier> getIds() {
             return null;
         }
 
-        public int method_10206(@Nullable Object object) {
-            return this.getRawId((class_2591)object);
+        public int getRawId(@Nullable Object object) {
+            return this.getRawId((BlockEntityType)object);
         }
 
         @Nullable
-        public class_2591<?> get(@Nullable class_2960 class_29602) {
+        public BlockEntityType<?> get(@Nullable Identifier Identifier2) {
             return null;
         }
 
         @Nullable
-        public Object method_10200(int n) {
+        public Object get(int n) {
             return this.get(n);
         }
 
         public SRegistry() {
-            super(class_5321.method_29180((class_2960)new class_2960("meteor-client", "storage-blocks")), Lifecycle.stable());
+            super(RegistryKey.ofRegistry((Identifier)new Identifier("meteor-client", "storage-blocks")), Lifecycle.stable());
         }
 
-        protected Lifecycle getEntryLifecycle(class_2591<?> class_25912) {
+        protected Lifecycle getEntryLifecycle(BlockEntityType<?> BlockEntityType2) {
             return null;
         }
 
-        public boolean method_10250(class_2960 class_29602) {
+        public boolean containsId(Identifier Identifier2) {
             return false;
         }
 
-        public Lifecycle method_31138() {
+        public Lifecycle getLifecycle() {
             return null;
         }
 
-        public Set<Map.Entry<class_5321<class_2591<?>>, class_2591<?>>> method_29722() {
+        public Set<Map.Entry<RegistryKey<BlockEntityType<?>>, BlockEntityType<?>>> getEntries() {
             return null;
         }
 
         @Nullable
-        public class_2960 method_10221(Object object) {
-            return this.getId((class_2591)object);
+        public Identifier getId(Object object) {
+            return this.getId((BlockEntityType)object);
         }
 
         @Nullable
-        public class_2960 getId(class_2591<?> class_25912) {
+        public Identifier getId(BlockEntityType<?> BlockEntityType2) {
             return null;
         }
 
         @NotNull
-        public Iterator<class_2591<?>> iterator() {
+        public Iterator<BlockEntityType<?>> iterator() {
             return new ObjectArrayIterator((Object[])STORAGE_BLOCKS);
         }
 
         @Nullable
-        public Object method_10223(@Nullable class_2960 class_29602) {
-            return this.get(class_29602);
+        public Object get(@Nullable Identifier Identifier2) {
+            return this.get(Identifier2);
         }
 
-        protected Lifecycle method_31139(Object object) {
-            return this.getEntryLifecycle((class_2591)object);
+        protected Lifecycle getEntryLifecycle(Object object) {
+            return this.getEntryLifecycle((BlockEntityType)object);
         }
 
         @Nullable
-        public class_2591<?> get(int n) {
+        public BlockEntityType<?> get(int n) {
             return null;
         }
 
-        public Optional<class_5321<class_2591<?>>> getKey(class_2591<?> class_25912) {
+        public Optional<RegistryKey<BlockEntityType<?>>> getKey(BlockEntityType<?> BlockEntityType2) {
             return Optional.empty();
         }
 
         @Nullable
-        public class_2591<?> get(@Nullable class_5321<class_2591<?>> class_53212) {
+        public BlockEntityType<?> get(@Nullable RegistryKey<BlockEntityType<?>> RegistryKey2) {
             return null;
         }
 
-        public Optional method_29113(Object object) {
-            return this.getKey((class_2591)object);
+        public Optional getKey(Object object) {
+            return this.getKey((BlockEntityType)object);
         }
     }
 
     public static class Builder {
         private String description = "";
-        private List<class_2591<?>> defaultValue;
+        private List<BlockEntityType<?>> defaultValue;
         private String name = "undefined";
-        private Consumer<Setting<List<class_2591<?>>>> onModuleActivated;
-        private Consumer<List<class_2591<?>>> onChanged;
+        private Consumer<Setting<List<BlockEntityType<?>>>> onModuleActivated;
+        private Consumer<List<BlockEntityType<?>>> onChanged;
 
         public Builder description(String string) {
             this.description = string;
@@ -227,17 +227,17 @@ extends Setting<List<class_2591<?>>> {
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<List<class_2591<?>>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<List<BlockEntityType<?>>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
 
-        public Builder onChanged(Consumer<List<class_2591<?>>> consumer) {
+        public Builder onChanged(Consumer<List<BlockEntityType<?>>> consumer) {
             this.onChanged = consumer;
             return this;
         }
 
-        public Builder defaultValue(List<class_2591<?>> list) {
+        public Builder defaultValue(List<BlockEntityType<?>> list) {
             this.defaultValue = list;
             return this;
         }

@@ -19,27 +19,27 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1743;
-import net.minecraft.class_1792;
-import net.minecraft.class_1794;
-import net.minecraft.class_1799;
-import net.minecraft.class_1810;
-import net.minecraft.class_1821;
-import net.minecraft.class_1829;
-import net.minecraft.class_1831;
-import net.minecraft.class_1887;
-import net.minecraft.class_1890;
-import net.minecraft.class_1893;
-import net.minecraft.class_1922;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2680;
-import net.minecraft.class_3614;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.HoeItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.item.SwordItem;
+import net.minecraft.item.ToolItem;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.world.BlockView;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Material;
 
 public class AutoTool
 extends Module {
     private final Setting<Boolean> preferMending;
-    private static final Set<class_3614> EMPTY_MATERIALS = new HashSet<class_3614>(0);
+    private static final Set<Material> EMPTY_MATERIALS = new HashSet<Material>(0);
     private int prevSlot;
     private final Setting<Boolean> silkTouchForEnderChest;
     private final SettingGroup sgGeneral;
@@ -47,37 +47,37 @@ extends Module {
     private final Setting<Boolean> antiBreak;
     private final Setting<Integer> breakDurability;
     private final Setting<EnchantPreference> prefer;
-    private static final Set<class_2248> EMPTY_BLOCKS = new HashSet<class_2248>(0);
+    private static final Set<Block> EMPTY_BLOCKS = new HashSet<Block>(0);
     private final Setting<Boolean> switchBack;
 
-    private boolean shouldStopUsing(class_1799 class_17992) {
-        return this.antiBreak.get() != false && class_17992.method_7936() - class_17992.method_7919() < this.breakDurability.get();
+    private boolean shouldStopUsing(ItemStack ItemStack2) {
+        return this.antiBreak.get() != false && ItemStack2.getMaxDamage() - ItemStack2.getDamage() < this.breakDurability.get();
     }
 
     @EventHandler(priority=100)
     private void onStartBreakingBlock(StartBreakingBlockEvent startBreakingBlockEvent) {
-        class_1799 class_17992;
-        class_2680 class_26802 = this.mc.field_1687.method_8320(startBreakingBlockEvent.blockPos);
+        ItemStack ItemStack2;
+        BlockState BlockState2 = this.mc.world.getBlockState(startBreakingBlockEvent.blockPos);
         int n = -1;
         int n2 = 0;
         int n3 = -1;
-        if (class_26802.method_26214((class_1922)this.mc.field_1687, startBreakingBlockEvent.blockPos) < 0.0f || class_26802.method_26215()) {
+        if (BlockState2.getHardness((BlockView)this.mc.world, startBreakingBlockEvent.blockPos) < 0.0f || BlockState2.isAir()) {
             return;
         }
         for (int i = 0; i < 9; ++i) {
-            class_1799 class_17993 = this.mc.field_1724.field_7514.method_5438(i);
-            if (!this.isEffectiveOn(class_17993.method_7909(), class_26802) || this.shouldStopUsing(class_17993) || !(class_17993.method_7909() instanceof class_1831) || this.silkTouchForEnderChest.get().booleanValue() && class_26802.method_26204() == class_2246.field_10443 && class_1890.method_8225((class_1887)class_1893.field_9099, (class_1799)class_17993) == 0) continue;
-            n2 += Math.round(class_17993.method_7924(class_26802));
-            n2 += class_1890.method_8225((class_1887)class_1893.field_9119, (class_1799)class_17993);
-            n2 += class_1890.method_8225((class_1887)class_1893.field_9131, (class_1799)class_17993);
+            ItemStack ItemStack3 = this.mc.player.inventory.getStack(i);
+            if (!this.isEffectiveOn(ItemStack3.getItem(), BlockState2) || this.shouldStopUsing(ItemStack3) || !(ItemStack3.getItem() instanceof ToolItem) || this.silkTouchForEnderChest.get().booleanValue() && BlockState2.getBlock() == Blocks.ENDER_CHEST && EnchantmentHelper.getLevel((Enchantment)Enchantments.SILK_TOUCH, (ItemStack)ItemStack3) == 0) continue;
+            n2 += Math.round(ItemStack3.getMiningSpeedMultiplier(BlockState2));
+            n2 += EnchantmentHelper.getLevel((Enchantment)Enchantments.UNBREAKING, (ItemStack)ItemStack3);
+            n2 += EnchantmentHelper.getLevel((Enchantment)Enchantments.EFFICIENCY, (ItemStack)ItemStack3);
             if (this.preferMending.get().booleanValue()) {
-                n2 += class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)class_17993);
+                n2 += EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)ItemStack3);
             }
             if (this.prefer.get() == EnchantPreference.Fortune) {
-                n2 += class_1890.method_8225((class_1887)class_1893.field_9130, (class_1799)class_17993);
+                n2 += EnchantmentHelper.getLevel((Enchantment)Enchantments.FORTUNE, (ItemStack)ItemStack3);
             }
             if (this.prefer.get() == EnchantPreference.SilkTouch) {
-                n2 += class_1890.method_8225((class_1887)class_1893.field_9099, (class_1799)class_17993);
+                n2 += EnchantmentHelper.getLevel((Enchantment)Enchantments.SILK_TOUCH, (ItemStack)ItemStack3);
             }
             if (n2 <= n) continue;
             n = n2;
@@ -85,12 +85,12 @@ extends Module {
         }
         if (n3 != -1) {
             if (this.prevSlot == -1) {
-                this.prevSlot = this.mc.field_1724.field_7514.field_7545;
+                this.prevSlot = this.mc.player.inventory.selectedSlot;
             }
-            this.mc.field_1724.field_7514.field_7545 = n3;
+            this.mc.player.inventory.selectedSlot = n3;
         }
-        if (this.shouldStopUsing(class_17992 = this.mc.field_1724.field_7514.method_5438(this.mc.field_1724.field_7514.field_7545)) && class_17992.method_7909() instanceof class_1831) {
-            this.mc.field_1690.field_1886.method_23481(false);
+        if (this.shouldStopUsing(ItemStack2 = this.mc.player.inventory.getStack(this.mc.player.inventory.selectedSlot)) && ItemStack2.getItem() instanceof ToolItem) {
+            this.mc.options.keyAttack.setPressed(false);
             startBreakingBlockEvent.setCancelled(true);
         }
     }
@@ -106,40 +106,40 @@ extends Module {
         this.switchBack = this.sgGeneral.add(new BoolSetting.Builder().name("switch-back").description("Switches your hand to whatever was selected when releasing your attack key.").defaultValue(false).build());
     }
 
-    public boolean isEffectiveOn(class_1792 class_17922, class_2680 class_26802) {
-        Set<class_2248> set;
-        Set<class_3614> set2;
-        if (class_17922.method_7856(class_26802)) {
+    public boolean isEffectiveOn(Item Item2, BlockState BlockState2) {
+        Set<Block> set;
+        Set<Material> set2;
+        if (Item2.isSuitableFor(BlockState2)) {
             return true;
         }
-        if (class_17922 instanceof class_1810) {
+        if (Item2 instanceof PickaxeItem) {
             set2 = EMPTY_MATERIALS;
             set = PickaxeItemAccessor.getEffectiveBlocks();
-        } else if (class_17922 instanceof class_1743) {
+        } else if (Item2 instanceof AxeItem) {
             set2 = AxeItemAccessor.getEffectiveMaterials();
             set = AxeItemAccessor.getEffectiveBlocks();
-        } else if (class_17922 instanceof class_1821) {
+        } else if (Item2 instanceof ShovelItem) {
             set2 = EMPTY_MATERIALS;
             set = ShovelItemAccessor.getEffectiveBlocks();
-        } else if (class_17922 instanceof class_1794) {
+        } else if (Item2 instanceof HoeItem) {
             set2 = EMPTY_MATERIALS;
             set = HoeItemAccessor.getEffectiveBlocks();
-        } else if (class_17922 instanceof class_1829) {
+        } else if (Item2 instanceof SwordItem) {
             set2 = EMPTY_MATERIALS;
             set = EMPTY_BLOCKS;
         } else {
             return false;
         }
-        return set2.contains(class_26802.method_26207()) || set.contains(class_26802.method_26204());
+        return set2.contains(BlockState2.getMaterial()) || set.contains(BlockState2.getBlock());
     }
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.switchBack.get().booleanValue() && !this.mc.field_1690.field_1886.method_1434() && this.wasPressed && this.prevSlot != -1) {
-            this.mc.field_1724.field_7514.field_7545 = this.prevSlot;
+        if (this.switchBack.get().booleanValue() && !this.mc.options.keyAttack.isPressed() && this.wasPressed && this.prevSlot != -1) {
+            this.mc.player.inventory.selectedSlot = this.prevSlot;
             this.prevSlot = -1;
         }
-        this.wasPressed = this.mc.field_1690.field_1886.method_1434();
+        this.wasPressed = this.mc.options.keyAttack.isPressed();
     }
 
     public static final class EnchantPreference

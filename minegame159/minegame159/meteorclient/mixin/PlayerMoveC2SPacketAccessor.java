@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_2828;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_2828.class})
+@Mixin(value={PlayerMoveC2SPacket.class})
 public interface PlayerMoveC2SPacketAccessor {
     @Accessor(value="y")
     public void setY(double var1);

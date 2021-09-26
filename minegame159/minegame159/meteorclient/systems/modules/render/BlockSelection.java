@@ -15,13 +15,13 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1922;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_238;
-import net.minecraft.class_265;
-import net.minecraft.class_2680;
-import net.minecraft.class_3965;
+import net.minecraft.world.BlockView;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class BlockSelection
 extends Module {
@@ -32,8 +32,8 @@ extends Module {
     private final Setting<SettingColor> lineColor;
     private final Setting<Boolean> oneSide;
 
-    private void render(class_2338 class_23382, class_238 class_2383) {
-        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (double)class_23382.method_10263() + class_2383.field_1323, (double)class_23382.method_10264() + class_2383.field_1322, (double)class_23382.method_10260() + class_2383.field_1321, (double)class_23382.method_10263() + class_2383.field_1320, (double)class_23382.method_10264() + class_2383.field_1325, (double)class_23382.method_10260() + class_2383.field_1324, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
+    private void render(BlockPos BlockPos2, Box Box3) {
+        Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (double)BlockPos2.getX() + Box3.minX, (double)BlockPos2.getY() + Box3.minY, (double)BlockPos2.getZ() + Box3.minZ, (double)BlockPos2.getX() + Box3.maxX, (double)BlockPos2.getY() + Box3.maxY, (double)BlockPos2.getZ() + Box3.maxZ, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
     }
 
     public BlockSelection() {
@@ -48,34 +48,34 @@ extends Module {
 
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
-        if (this.mc.field_1765 == null || !(this.mc.field_1765 instanceof class_3965)) {
+        if (this.mc.crosshairTarget == null || !(this.mc.crosshairTarget instanceof BlockHitResult)) {
             return;
         }
-        class_3965 class_39652 = (class_3965)this.mc.field_1765;
-        class_2338 class_23382 = class_39652.method_17777();
-        class_2350 class_23502 = class_39652.method_17780();
-        class_2680 class_26802 = this.mc.field_1687.method_8320(class_23382);
-        class_265 class_2652 = class_26802.method_26218((class_1922)this.mc.field_1687, class_23382);
-        if (class_2652.method_1110()) {
+        BlockHitResult BlockHitResult2 = (BlockHitResult)this.mc.crosshairTarget;
+        BlockPos BlockPos2 = BlockHitResult2.getBlockPos();
+        Direction Direction2 = BlockHitResult2.getSide();
+        BlockState BlockState2 = this.mc.world.getBlockState(BlockPos2);
+        VoxelShape VoxelShape2 = BlockState2.getOutlineShape((BlockView)this.mc.world, BlockPos2);
+        if (VoxelShape2.isEmpty()) {
             return;
         }
-        class_238 class_2383 = class_2652.method_1107();
+        Box Box3 = VoxelShape2.getBoundingBox();
         if (this.oneSide.get().booleanValue()) {
-            if (class_23502 == class_2350.field_11036 || class_23502 == class_2350.field_11033) {
-                Renderer.quadWithLinesHorizontal(Renderer.NORMAL, Renderer.LINES, (double)class_23382.method_10263() + class_2383.field_1323, (double)class_23382.method_10264() + (class_23502 == class_2350.field_11033 ? class_2383.field_1322 : class_2383.field_1325), (double)class_23382.method_10260() + class_2383.field_1321, (double)class_23382.method_10263() + class_2383.field_1320, (double)class_23382.method_10260() + class_2383.field_1324, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get());
-            } else if (class_23502 == class_2350.field_11035 || class_23502 == class_2350.field_11043) {
-                double d = class_23502 == class_2350.field_11043 ? class_2383.field_1321 : class_2383.field_1324;
-                Renderer.quadWithLinesVertical(Renderer.NORMAL, Renderer.LINES, (double)class_23382.method_10263() + class_2383.field_1323, (double)class_23382.method_10264() + class_2383.field_1322, (double)class_23382.method_10260() + d, (double)class_23382.method_10263() + class_2383.field_1320, (double)class_23382.method_10264() + class_2383.field_1325, (double)class_23382.method_10260() + d, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get());
+            if (Direction2 == Direction.UP || Direction2 == Direction.DOWN) {
+                Renderer.quadWithLinesHorizontal(Renderer.NORMAL, Renderer.LINES, (double)BlockPos2.getX() + Box3.minX, (double)BlockPos2.getY() + (Direction2 == Direction.DOWN ? Box3.minY : Box3.maxY), (double)BlockPos2.getZ() + Box3.minZ, (double)BlockPos2.getX() + Box3.maxX, (double)BlockPos2.getZ() + Box3.maxZ, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get());
+            } else if (Direction2 == Direction.SOUTH || Direction2 == Direction.NORTH) {
+                double d = Direction2 == Direction.NORTH ? Box3.minZ : Box3.maxZ;
+                Renderer.quadWithLinesVertical(Renderer.NORMAL, Renderer.LINES, (double)BlockPos2.getX() + Box3.minX, (double)BlockPos2.getY() + Box3.minY, (double)BlockPos2.getZ() + d, (double)BlockPos2.getX() + Box3.maxX, (double)BlockPos2.getY() + Box3.maxY, (double)BlockPos2.getZ() + d, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get());
             } else {
-                double d = class_23502 == class_2350.field_11039 ? class_2383.field_1323 : class_2383.field_1320;
-                Renderer.quadWithLinesVertical(Renderer.NORMAL, Renderer.LINES, (double)class_23382.method_10263() + d, (double)class_23382.method_10264() + class_2383.field_1322, (double)class_23382.method_10260() + class_2383.field_1321, (double)class_23382.method_10263() + d, (double)class_23382.method_10264() + class_2383.field_1325, (double)class_23382.method_10260() + class_2383.field_1324, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get());
+                double d = Direction2 == Direction.WEST ? Box3.minX : Box3.maxX;
+                Renderer.quadWithLinesVertical(Renderer.NORMAL, Renderer.LINES, (double)BlockPos2.getX() + d, (double)BlockPos2.getY() + Box3.minY, (double)BlockPos2.getZ() + Box3.minZ, (double)BlockPos2.getX() + d, (double)BlockPos2.getY() + Box3.maxY, (double)BlockPos2.getZ() + Box3.maxZ, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get());
             }
         } else if (this.advanced.get().booleanValue()) {
-            for (class_238 class_2384 : class_2652.method_1090()) {
-                this.render(class_23382, class_2384);
+            for (Box Box4 : VoxelShape2.getBoundingBoxes()) {
+                this.render(BlockPos2, Box4);
             }
         } else {
-            this.render(class_23382, class_2383);
+            this.render(BlockPos2, Box3);
         }
     }
 }

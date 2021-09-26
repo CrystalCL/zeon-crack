@@ -4,16 +4,16 @@
 package minegame159.meteorclient.events.render;
 
 import minegame159.meteorclient.events.Cancellable;
-import net.minecraft.class_2586;
+import net.minecraft.block.entity.BlockEntity;
 
 public class RenderBlockEntityEvent
 extends Cancellable {
-    public class_2586 blockEntity;
+    public BlockEntity blockEntity;
     private static final RenderBlockEntityEvent INSTANCE = new RenderBlockEntityEvent();
 
-    public static RenderBlockEntityEvent get(class_2586 class_25862) {
+    public static RenderBlockEntityEvent get(BlockEntity BlockEntity2) {
         INSTANCE.setCancelled(false);
-        RenderBlockEntityEvent.INSTANCE.blockEntity = class_25862;
+        RenderBlockEntityEvent.INSTANCE.blockEntity = BlockEntity2;
         return INSTANCE;
     }
 }

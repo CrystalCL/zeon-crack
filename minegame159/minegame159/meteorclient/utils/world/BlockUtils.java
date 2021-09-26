@@ -5,114 +5,114 @@ package minegame159.meteorclient.utils.world;
 
 import minegame159.meteorclient.mixininterface.IVec3d;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1268;
-import net.minecraft.class_1937;
-import net.minecraft.class_2199;
-import net.minecraft.class_2231;
-import net.minecraft.class_2237;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2269;
-import net.minecraft.class_2304;
-import net.minecraft.class_2323;
-import net.minecraft.class_2338;
-import net.minecraft.class_2349;
-import net.minecraft.class_2350;
-import net.minecraft.class_2428;
-import net.minecraft.class_243;
-import net.minecraft.class_2533;
-import net.minecraft.class_2596;
-import net.minecraft.class_2680;
-import net.minecraft.class_2879;
-import net.minecraft.class_310;
-import net.minecraft.class_3726;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.world.World;
+import net.minecraft.block.AnvilBlock;
+import net.minecraft.block.AbstractPressurePlateBlock;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.block.AbstractButtonBlock;
+import net.minecraft.block.CraftingTableBlock;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.FenceGateBlock;
+import net.minecraft.util.math.Direction;
+import net.minecraft.block.NoteBlock;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.TrapdoorBlock;
+import net.minecraft.network.Packet;
+import net.minecraft.block.BlockState;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class BlockUtils {
-    private static final class_310 mc = class_310.method_1551();
-    private static final class_243 hitPos = new class_243(0.0, 0.0, 0.0);
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
+    private static final Vec3d hitPos = new Vec3d(0.0, 0.0, 0.0);
 
-    public static boolean place(class_2338 class_23382, class_1268 class_12682, int n, boolean bl, int n2, boolean bl2, boolean bl3, boolean bl4, boolean bl5) {
-        class_2338 class_23383;
-        class_243 class_2432;
-        if (n == -1 || !BlockUtils.canPlace(class_23382, bl3)) {
+    public static boolean place(BlockPos BlockPos2, Hand Hand2, int n, boolean bl, int n2, boolean bl2, boolean bl3, boolean bl4, boolean bl5) {
+        BlockPos BlockPos3;
+        Vec3d Vec3d2;
+        if (n == -1 || !BlockUtils.canPlace(BlockPos2, bl3)) {
             return false;
         }
-        class_2350 class_23502 = BlockUtils.getPlaceSide(class_23382);
-        class_243 class_2433 = class_2432 = bl ? new class_243(0.0, 0.0, 0.0) : hitPos;
-        if (class_23502 == null) {
-            class_23502 = class_2350.field_11036;
-            class_23383 = class_23382;
-            ((IVec3d)class_2432).set((double)class_23382.method_10263() + 0.5, (double)class_23382.method_10264() + 0.5, (double)class_23382.method_10260() + 0.5);
+        Direction Direction2 = BlockUtils.getPlaceSide(BlockPos2);
+        Vec3d Vec3d3 = Vec3d2 = bl ? new Vec3d(0.0, 0.0, 0.0) : hitPos;
+        if (Direction2 == null) {
+            Direction2 = Direction.UP;
+            BlockPos3 = BlockPos2;
+            ((IVec3d)Vec3d2).set((double)BlockPos2.getX() + 0.5, (double)BlockPos2.getY() + 0.5, (double)BlockPos2.getZ() + 0.5);
         } else {
-            class_23383 = class_23382.method_10093(class_23502.method_10153());
-            ((IVec3d)class_2432).set((double)class_23383.method_10263() + 0.5 + (double)class_23502.method_10148() * 0.5, (double)class_23383.method_10264() + 0.6 + (double)class_23502.method_10164() * 0.5, (double)class_23383.method_10260() + 0.5 + (double)class_23502.method_10165() * 0.5);
+            BlockPos3 = BlockPos2.offset(Direction2.getOpposite());
+            ((IVec3d)Vec3d2).set((double)BlockPos3.getX() + 0.5 + (double)Direction2.getOffsetX() * 0.5, (double)BlockPos3.getY() + 0.6 + (double)Direction2.getOffsetY() * 0.5, (double)BlockPos3.getZ() + 0.5 + (double)Direction2.getOffsetZ() * 0.5);
         }
         if (bl) {
-            class_2350 class_23503 = class_23502;
-            Rotations.rotate(Rotations.getYaw(class_2432), Rotations.getPitch(class_2432), n2, () -> BlockUtils.lambda$place$0(n, class_2432, class_12682, class_23503, class_23383, bl2, bl4, bl5));
+            Direction Direction3 = Direction2;
+            Rotations.rotate(Rotations.getYaw(Vec3d2), Rotations.getPitch(Vec3d2), n2, () -> BlockUtils.lambda$place$0(n, Vec3d2, Hand2, Direction3, BlockPos3, bl2, bl4, bl5));
         } else {
-            BlockUtils.place(n, class_2432, class_12682, class_23502, class_23383, bl2, bl4, bl5);
+            BlockUtils.place(n, Vec3d2, Hand2, Direction2, BlockPos3, bl2, bl4, bl5);
         }
         return true;
     }
 
-    public static boolean place(class_2338 class_23382, class_1268 class_12682, int n, boolean bl, int n2, boolean bl2) {
-        return BlockUtils.place(class_23382, class_12682, n, bl, n2, true, bl2, true, true);
+    public static boolean place(BlockPos BlockPos2, Hand Hand2, int n, boolean bl, int n2, boolean bl2) {
+        return BlockUtils.place(BlockPos2, Hand2, n, bl, n2, true, bl2, true, true);
     }
 
-    public static boolean canPlace(class_2338 class_23382, boolean bl) {
-        if (class_23382 == null) {
+    public static boolean canPlace(BlockPos BlockPos2, boolean bl) {
+        if (BlockPos2 == null) {
             return false;
         }
-        if (class_1937.method_8518((class_2338)class_23382)) {
+        if (World.isOutOfBuildLimitVertically((BlockPos)BlockPos2)) {
             return false;
         }
-        if (!BlockUtils.mc.field_1687.method_8320(class_23382).method_26207().method_15800()) {
+        if (!BlockUtils.mc.world.getBlockState(BlockPos2).getMaterial().isReplaceable()) {
             return false;
         }
-        return !bl || BlockUtils.mc.field_1687.method_8628(class_2246.field_10340.method_9564(), class_23382, class_3726.method_16194());
+        return !bl || BlockUtils.mc.world.canPlace(Blocks.STONE.getDefaultState(), BlockPos2, ShapeContext.absent());
     }
 
-    public static boolean isClickable(class_2248 class_22482) {
-        boolean bl = class_22482 instanceof class_2304 || class_22482 instanceof class_2199 || class_22482 instanceof class_2269 || class_22482 instanceof class_2231 || class_22482 instanceof class_2237 || class_22482 instanceof class_2349 || class_22482 instanceof class_2323 || class_22482 instanceof class_2428 || class_22482 instanceof class_2533;
+    public static boolean isClickable(Block Block2) {
+        boolean bl = Block2 instanceof CraftingTableBlock || Block2 instanceof AnvilBlock || Block2 instanceof AbstractButtonBlock || Block2 instanceof AbstractPressurePlateBlock || Block2 instanceof BlockWithEntity || Block2 instanceof FenceGateBlock || Block2 instanceof DoorBlock || Block2 instanceof NoteBlock || Block2 instanceof TrapdoorBlock;
         return bl;
     }
 
-    private static void lambda$place$0(int n, class_243 class_2432, class_1268 class_12682, class_2350 class_23502, class_2338 class_23382, boolean bl, boolean bl2, boolean bl3) {
-        BlockUtils.place(n, class_2432, class_12682, class_23502, class_23382, bl, bl2, bl3);
+    private static void lambda$place$0(int n, Vec3d Vec3d2, Hand Hand2, Direction Direction2, BlockPos BlockPos2, boolean bl, boolean bl2, boolean bl3) {
+        BlockUtils.place(n, Vec3d2, Hand2, Direction2, BlockPos2, bl, bl2, bl3);
     }
 
-    public static boolean canPlace(class_2338 class_23382) {
-        return BlockUtils.canPlace(class_23382, true);
+    public static boolean canPlace(BlockPos BlockPos2) {
+        return BlockUtils.canPlace(BlockPos2, true);
     }
 
-    private static void place(int n, class_243 class_2432, class_1268 class_12682, class_2350 class_23502, class_2338 class_23382, boolean bl, boolean bl2, boolean bl3) {
-        int n2 = BlockUtils.mc.field_1724.field_7514.field_7545;
+    private static void place(int n, Vec3d Vec3d2, Hand Hand2, Direction Direction2, BlockPos BlockPos2, boolean bl, boolean bl2, boolean bl3) {
+        int n2 = BlockUtils.mc.player.inventory.selectedSlot;
         if (bl2) {
-            BlockUtils.mc.field_1724.field_7514.field_7545 = n;
+            BlockUtils.mc.player.inventory.selectedSlot = n;
         }
-        boolean bl4 = BlockUtils.mc.field_1724.field_3913.field_3903;
-        BlockUtils.mc.field_1724.field_3913.field_3903 = false;
-        BlockUtils.mc.field_1761.method_2896(BlockUtils.mc.field_1724, BlockUtils.mc.field_1687, class_12682, new class_3965(class_2432, class_23502, class_23382, false));
+        boolean bl4 = BlockUtils.mc.player.input.sneaking;
+        BlockUtils.mc.player.input.sneaking = false;
+        BlockUtils.mc.interactionManager.interactBlock(BlockUtils.mc.player, BlockUtils.mc.world, Hand2, new BlockHitResult(Vec3d2, Direction2, BlockPos2, false));
         if (bl) {
-            BlockUtils.mc.field_1724.method_6104(class_12682);
+            BlockUtils.mc.player.swingHand(Hand2);
         } else {
-            mc.method_1562().method_2883((class_2596)new class_2879(class_12682));
+            mc.getNetworkHandler().sendPacket((Packet)new HandSwingC2SPacket(Hand2));
         }
-        BlockUtils.mc.field_1724.field_3913.field_3903 = bl4;
+        BlockUtils.mc.player.input.sneaking = bl4;
         if (bl3) {
-            BlockUtils.mc.field_1724.field_7514.field_7545 = n2;
+            BlockUtils.mc.player.inventory.selectedSlot = n2;
         }
     }
 
-    private static class_2350 getPlaceSide(class_2338 class_23382) {
-        for (class_2350 class_23502 : class_2350.values()) {
-            class_2338 class_23383 = class_23382.method_10093(class_23502);
-            class_2350 class_23503 = class_23502.method_10153();
-            class_2680 class_26802 = BlockUtils.mc.field_1687.method_8320(class_23383);
-            if (class_26802.method_26215() || BlockUtils.isClickable(class_26802.method_26204()) || !class_26802.method_26227().method_15769()) continue;
-            return class_23503;
+    private static Direction getPlaceSide(BlockPos BlockPos2) {
+        for (Direction Direction2 : Direction.values()) {
+            BlockPos BlockPos3 = BlockPos2.offset(Direction2);
+            Direction Direction3 = Direction2.getOpposite();
+            BlockState BlockState2 = BlockUtils.mc.world.getBlockState(BlockPos3);
+            if (BlockState2.isAir() || BlockUtils.isClickable(BlockState2.getBlock()) || !BlockState2.getFluidState().isEmpty()) continue;
+            return Direction3;
         }
         return null;
     }

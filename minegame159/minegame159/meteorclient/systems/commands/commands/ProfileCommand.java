@@ -20,13 +20,13 @@ import minegame159.meteorclient.systems.commands.Command;
 import minegame159.meteorclient.systems.profiles.Profile;
 import minegame159.meteorclient.systems.profiles.Profiles;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2172;
-import net.minecraft.class_2585;
+import net.minecraft.command.CommandSource;
+import net.minecraft.text.LiteralText;
 
 public class ProfileCommand
 extends Command {
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.then(((RequiredArgumentBuilder)((RequiredArgumentBuilder)ProfileCommand.argument("profile", ProfileArgumentType.profile()).then(ProfileCommand.literal("load").executes(ProfileCommand::lambda$build$0))).then(ProfileCommand.literal("save").executes(ProfileCommand::lambda$build$1))).then(ProfileCommand.literal("delete").executes(ProfileCommand::lambda$build$2)));
     }
 
@@ -85,7 +85,7 @@ extends Command {
         }
 
         private static Message lambda$static$0(Object object) {
-            return new class_2585(String.valueOf(new StringBuilder().append("Profile with name ").append(object).append(" doesn't exist.")));
+            return new LiteralText(String.valueOf(new StringBuilder().append("Profile with name ").append(object).append(" doesn't exist.")));
         }
 
         public static ProfileArgumentType profile() {
@@ -93,7 +93,7 @@ extends Command {
         }
 
         public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder suggestionsBuilder) {
-            return class_2172.method_9265(this.getExamples(), (SuggestionsBuilder)suggestionsBuilder);
+            return CommandSource.suggestMatching(this.getExamples(), (SuggestionsBuilder)suggestionsBuilder);
         }
 
         public Collection<String> getExamples() {

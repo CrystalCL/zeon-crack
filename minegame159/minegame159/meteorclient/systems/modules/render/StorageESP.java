@@ -23,21 +23,21 @@ import minegame159.meteorclient.utils.render.RenderUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.Dir;
-import net.minecraft.class_2246;
-import net.minecraft.class_2281;
-import net.minecraft.class_2586;
-import net.minecraft.class_2591;
-import net.minecraft.class_2595;
-import net.minecraft.class_2601;
-import net.minecraft.class_2611;
-import net.minecraft.class_2614;
-import net.minecraft.class_2627;
-import net.minecraft.class_2646;
-import net.minecraft.class_2680;
-import net.minecraft.class_2745;
-import net.minecraft.class_2769;
-import net.minecraft.class_3719;
-import net.minecraft.class_3866;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.ChestBlock;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.entity.DispenserBlockEntity;
+import net.minecraft.block.entity.EnderChestBlockEntity;
+import net.minecraft.block.entity.HopperBlockEntity;
+import net.minecraft.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.block.entity.TrappedChestBlockEntity;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.enums.ChestType;
+import net.minecraft.state.property.Property;
+import net.minecraft.block.entity.BarrelBlockEntity;
+import net.minecraft.block.entity.FurnaceBlockEntity;
 
 public class StorageESP
 extends Module {
@@ -45,7 +45,7 @@ extends Module {
     private final Setting<Boolean> tracers;
     private final Setting<ShapeMode> shapeMode;
     private final Setting<SettingColor> enderChest;
-    private final Setting<List<class_2591<?>>> storageBlocks;
+    private final Setting<List<BlockEntityType<?>>> storageBlocks;
     private final SettingGroup sgGeneral;
     private final Setting<SettingColor> other;
     private final Setting<SettingColor> shulker;
@@ -57,22 +57,22 @@ extends Module {
     private int count;
     private final Setting<Double> fadeDistance;
 
-    private void getTileEntityColor(class_2586 class_25862) {
+    private void getTileEntityColor(BlockEntity BlockEntity2) {
         this.render = false;
-        if (!this.storageBlocks.get().contains(class_25862.method_11017())) {
+        if (!this.storageBlocks.get().contains(BlockEntity2.getType())) {
             return;
         }
-        if (class_25862 instanceof class_2646) {
+        if (BlockEntity2 instanceof TrappedChestBlockEntity) {
             this.lineColor.set(this.trappedChest.get());
-        } else if (class_25862 instanceof class_2595) {
+        } else if (BlockEntity2 instanceof ChestBlockEntity) {
             this.lineColor.set(this.chest.get());
-        } else if (class_25862 instanceof class_3719) {
+        } else if (BlockEntity2 instanceof BarrelBlockEntity) {
             this.lineColor.set(this.barrel.get());
-        } else if (class_25862 instanceof class_2627) {
+        } else if (BlockEntity2 instanceof ShulkerBoxBlockEntity) {
             this.lineColor.set(this.shulker.get());
-        } else if (class_25862 instanceof class_2611) {
+        } else if (BlockEntity2 instanceof EnderChestBlockEntity) {
             this.lineColor.set(this.enderChest.get());
-        } else if (class_25862 instanceof class_3866 || class_25862 instanceof class_2601 || class_25862 instanceof class_2614) {
+        } else if (BlockEntity2 instanceof FurnaceBlockEntity || BlockEntity2 instanceof DispenserBlockEntity || BlockEntity2 instanceof HopperBlockEntity) {
             this.lineColor.set(this.other.get());
         } else {
             return;
@@ -90,22 +90,22 @@ extends Module {
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
         this.count = 0;
-        for (class_2586 class_25862 : this.mc.field_1687.field_9231) {
-            class_2680 class_26802;
-            if (class_25862.method_11015() || !EntityUtils.isInRenderDistance(class_25862)) continue;
-            this.getTileEntityColor(class_25862);
+        for (BlockEntity BlockEntity2 : this.mc.world.blockEntities) {
+            BlockState BlockState2;
+            if (BlockEntity2.isRemoved() || !EntityUtils.isInRenderDistance(BlockEntity2)) continue;
+            this.getTileEntityColor(BlockEntity2);
             if (!this.render) continue;
-            double d = class_25862.method_11016().method_10263();
-            double d2 = class_25862.method_11016().method_10264();
-            double d3 = class_25862.method_11016().method_10260();
-            double d4 = class_25862.method_11016().method_10263() + 1;
-            double d5 = class_25862.method_11016().method_10264() + 1;
-            double d6 = class_25862.method_11016().method_10260() + 1;
+            double d = BlockEntity2.getPos().getX();
+            double d2 = BlockEntity2.getPos().getY();
+            double d3 = BlockEntity2.getPos().getZ();
+            double d4 = BlockEntity2.getPos().getX() + 1;
+            double d5 = BlockEntity2.getPos().getY() + 1;
+            double d6 = BlockEntity2.getPos().getZ() + 1;
             int n = 0;
-            if (class_25862 instanceof class_2595 && ((class_26802 = this.mc.field_1687.method_8320(class_25862.method_11016())).method_26204() == class_2246.field_10034 || class_26802.method_26204() == class_2246.field_10380) && class_26802.method_11654((class_2769)class_2281.field_10770) != class_2745.field_12569) {
-                n = Dir.get(class_2281.method_9758((class_2680)class_26802));
+            if (BlockEntity2 instanceof ChestBlockEntity && ((BlockState2 = this.mc.world.getBlockState(BlockEntity2.getPos())).getBlock() == Blocks.CHEST || BlockState2.getBlock() == Blocks.TRAPPED_CHEST) && BlockState2.get((Property)ChestBlock.CHEST_TYPE) != ChestType.SINGLE) {
+                n = Dir.get(ChestBlock.getFacing((BlockState)BlockState2));
             }
-            if (class_25862 instanceof class_2595 || class_25862 instanceof class_2611) {
+            if (BlockEntity2 instanceof ChestBlockEntity || BlockEntity2 instanceof EnderChestBlockEntity) {
                 double d7 = 0.0625;
                 if (Dir.is(n, (byte)32)) {
                     d += d7;
@@ -121,7 +121,7 @@ extends Module {
                     d6 -= d7;
                 }
             }
-            double d8 = this.mc.field_1724.method_5649((double)class_25862.method_11016().method_10263() + 0.5, (double)class_25862.method_11016().method_10264() + 0.5, (double)class_25862.method_11016().method_10260() + 0.5);
+            double d8 = this.mc.player.squaredDistanceTo((double)BlockEntity2.getPos().getX() + 0.5, (double)BlockEntity2.getPos().getY() + 0.5, (double)BlockEntity2.getPos().getZ() + 0.5);
             double d9 = 1.0;
             if (d8 <= this.fadeDistance.get() * this.fadeDistance.get()) {
                 d9 = d8 / (this.fadeDistance.get() * this.fadeDistance.get());
@@ -134,7 +134,7 @@ extends Module {
                 Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, d, d2, d3, d4, d5, d6, this.sideColor, this.lineColor, this.shapeMode.get(), n);
             }
             if (this.tracers.get().booleanValue()) {
-                RenderUtils.drawTracerToBlockEntity(class_25862, this.lineColor, renderEvent);
+                RenderUtils.drawTracerToBlockEntity(BlockEntity2, this.lineColor, renderEvent);
             }
             this.lineColor.a = n2;
             this.sideColor.a = n3;

@@ -4,16 +4,16 @@
 package minegame159.meteorclient.events.entity.player;
 
 import minegame159.meteorclient.events.Cancellable;
-import net.minecraft.class_1297;
+import net.minecraft.entity.Entity;
 
 public class AttackEntityEvent
 extends Cancellable {
-    public class_1297 entity;
+    public Entity entity;
     private static final AttackEntityEvent INSTANCE = new AttackEntityEvent();
 
-    public static AttackEntityEvent get(class_1297 class_12972) {
+    public static AttackEntityEvent get(Entity Entity2) {
         INSTANCE.setCancelled(false);
-        AttackEntityEvent.INSTANCE.entity = class_12972;
+        AttackEntityEvent.INSTANCE.entity = Entity2;
         return INSTANCE;
     }
 }

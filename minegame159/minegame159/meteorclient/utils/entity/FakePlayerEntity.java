@@ -4,67 +4,67 @@
 package minegame159.meteorclient.utils.entity;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_2945;
-import net.minecraft.class_310;
-import net.minecraft.class_638;
-import net.minecraft.class_745;
-import net.minecraft.class_746;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.network.OtherClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayerEntity;
 
 public class FakePlayerEntity
-extends class_745 {
-    private final class_638 world;
-    private final class_746 player;
-    private static final class_310 mc = class_310.method_1551();
+extends OtherClientPlayerEntity {
+    private final ClientWorld world;
+    private final ClientPlayerEntity player;
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public void despawn() {
-        this.field_5988 = true;
+        this.removed = true;
     }
 
     private void spawn() {
-        this.world.method_2942(this.method_5628(), (class_1297)this);
+        this.world.addEntity(this.getEntityId(), (Entity)this);
     }
 
-    private void copyPlayerModel(class_1297 class_12972, class_1297 class_12973) {
-        class_2945 class_29452 = class_12972.method_5841();
-        class_2945 class_29453 = class_12973.method_5841();
-        Byte by = (Byte)class_29452.method_12789(class_1657.field_7518);
-        class_29453.method_12778(class_1657.field_7518, (Object)by);
+    private void copyPlayerModel(Entity Entity2, Entity Entity3) {
+        DataTracker DataTracker2 = Entity2.getDataTracker();
+        DataTracker DataTracker3 = Entity3.getDataTracker();
+        Byte by = (Byte)DataTracker2.get(PlayerEntity.PLAYER_MODEL_PARTS);
+        DataTracker3.set(PlayerEntity.PLAYER_MODEL_PARTS, (Object)by);
     }
 
     private void copyRotation() {
-        this.field_6241 = this.player.field_6241;
-        this.field_6283 = this.player.field_6283;
+        this.headYaw = this.player.headYaw;
+        this.bodyYaw = this.player.bodyYaw;
     }
 
     private void copyAttributes() {
-        this.method_6127().method_26846(this.player.method_6127());
+        this.getAttributes().setFrom(this.player.getAttributes());
     }
 
     public FakePlayerEntity(String string, boolean bl, boolean bl2, float f) {
-        super(FakePlayerEntity.mc.field_1687, new GameProfile(FakePlayerEntity.mc.field_1724.method_5667(), string));
-        this.player = FakePlayerEntity.mc.field_1724;
-        this.world = FakePlayerEntity.mc.field_1687;
-        this.method_5719((class_1297)this.player);
-        this.copyPlayerModel((class_1297)this.player, (class_1297)this);
+        super(FakePlayerEntity.mc.world, new GameProfile(FakePlayerEntity.mc.player.getUuid(), string));
+        this.player = FakePlayerEntity.mc.player;
+        this.world = FakePlayerEntity.mc.world;
+        this.copyPositionAndRotation((Entity)this.player);
+        this.copyPlayerModel((Entity)this.player, (Entity)this);
         this.copyRotation();
         this.copyAttributes();
         this.resetCapeMovement();
-        this.method_6033(f);
+        this.setHealth(f);
         if (bl) {
-            this.field_7514.method_7377(FakePlayerEntity.mc.field_1724.field_7514);
+            this.inventory.clone(FakePlayerEntity.mc.player.inventory);
         }
         if (bl2) {
-            this.method_5834(true);
+            this.setGlowing(true);
         }
         this.spawn();
     }
 
     private void resetCapeMovement() {
-        this.field_7500 = this.method_23317();
-        this.field_7521 = this.method_23318();
-        this.field_7499 = this.method_23321();
+        this.capeX = this.getX();
+        this.capeY = this.getY();
+        this.capeZ = this.getZ();
     }
 }
 

@@ -8,7 +8,7 @@ import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.mixin.PlayerPositionLookS2CPacketAccessor;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2708;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 
 public class NoRotate
 extends Module {
@@ -18,9 +18,9 @@ extends Module {
 
     @EventHandler
     private void onReceivePacket(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2708) {
-            ((PlayerPositionLookS2CPacketAccessor)receive.packet).setPitch(this.mc.field_1724.field_5965);
-            ((PlayerPositionLookS2CPacketAccessor)receive.packet).setYaw(this.mc.field_1724.field_6031);
+        if (receive.packet instanceof PlayerPositionLookS2CPacket) {
+            ((PlayerPositionLookS2CPacketAccessor)receive.packet).setPitch(this.mc.player.pitch);
+            ((PlayerPositionLookS2CPacketAccessor)receive.packet).setYaw(this.mc.player.yaw);
         }
     }
 }

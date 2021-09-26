@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.events.entity.player;
 
-import net.minecraft.class_1799;
+import net.minecraft.item.ItemStack;
 
 public class FinishUsingItem {
     private static final FinishUsingItem INSTANCE = new FinishUsingItem();
-    public class_1799 itemStack;
+    public ItemStack itemStack;
 
-    public static FinishUsingItem get(class_1799 class_17992) {
-        FinishUsingItem.INSTANCE.itemStack = class_17992;
+    public static FinishUsingItem get(ItemStack ItemStack2) {
+        FinishUsingItem.INSTANCE.itemStack = ItemStack2;
         return INSTANCE;
     }
 }

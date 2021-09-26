@@ -7,7 +7,7 @@ import minegame159.meteorclient.gui.GuiTheme;
 import minegame159.meteorclient.gui.GuiThemes;
 import minegame159.meteorclient.gui.tabs.Tab;
 import minegame159.meteorclient.gui.tabs.TabScreen;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 
 public class ModulesTab
 extends Tab {
@@ -21,8 +21,8 @@ extends Tab {
     }
 
     @Override
-    public boolean isScreen(class_437 class_4372) {
-        return GuiThemes.get().isModulesScreen(class_4372);
+    public boolean isScreen(Screen Screen2) {
+        return GuiThemes.get().isModulesScreen(Screen2);
     }
 }
 

@@ -11,7 +11,7 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2761;
+import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 
 public class TimeChanger
 extends Module {
@@ -21,7 +21,7 @@ extends Module {
 
     @Override
     public void onDeactivate() {
-        this.mc.field_1687.method_8435(this.oldTime);
+        this.mc.world.setTimeOfDay(this.oldTime);
     }
 
     public TimeChanger() {
@@ -32,18 +32,18 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        this.mc.field_1687.method_8435(this.time.get().longValue());
+        this.mc.world.setTimeOfDay(this.time.get().longValue());
     }
 
     @Override
     public void onActivate() {
-        this.oldTime = this.mc.field_1687.method_8510();
+        this.oldTime = this.mc.world.getTime();
     }
 
     @EventHandler
     private void onPacketReceive(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2761) {
-            this.oldTime = ((class_2761)receive.packet).method_11871();
+        if (receive.packet instanceof WorldTimeUpdateS2CPacket) {
+            this.oldTime = ((WorldTimeUpdateS2CPacket)receive.packet).getTime();
             receive.setCancelled(true);
         }
     }

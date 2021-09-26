@@ -9,12 +9,12 @@ import minegame159.meteorclient.events.render.Render2DEvent;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.NoRender;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1297;
-import net.minecraft.class_266;
-import net.minecraft.class_310;
-import net.minecraft.class_329;
-import net.minecraft.class_4493;
-import net.minecraft.class_4587;
+import net.minecraft.entity.Entity;
+import net.minecraft.scoreboard.ScoreboardObjective;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.InGameHud;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,34 +23,34 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_329.class})
+@Mixin(value={InGameHud.class})
 public abstract class InGameHudMixin {
     @Shadow
-    private int field_2011;
+    private int scaledWidth;
     @Shadow
-    private int field_2029;
+    private int scaledHeight;
     @Shadow
     @Final
-    private class_310 field_2035;
+    private MinecraftClient client;
 
     @Shadow
-    public abstract void method_1747();
+    public abstract void clear();
 
     @Inject(method={"render"}, at={@At(value="INVOKE", target="Lnet/minecraft/entity/player/PlayerInventory;getArmorStack(I)Lnet/minecraft/item/ItemStack;")})
-    private void onRender(class_4587 class_45872, float f, CallbackInfo callbackInfo) {
-        this.field_2035.method_16011().method_15396("meteor-client_render_2d");
+    private void onRender(MatrixStack MatrixStack2, float f, CallbackInfo callbackInfo) {
+        this.client.getProfiler().push("meteor-client_render_2d");
         RenderSystem.pushMatrix();
         Utils.unscaledProjection();
         RenderSystem.enableBlend();
-        RenderSystem.blendFunc((class_4493.class_4535)class_4493.class_4535.field_22541, (class_4493.class_4534)class_4493.class_4534.field_22523);
+        RenderSystem.blendFunc((GlStateManager.class_4535)GlStateManager.class_4535.SRC_ALPHA, (GlStateManager.class_4534)GlStateManager.class_4534.ONE_MINUS_SRC_ALPHA);
         RenderSystem.lineWidth((float)1.0f);
         GL11.glEnable((int)2848);
-        MeteorClient.EVENT_BUS.post(Render2DEvent.get(this.field_2011, this.field_2029, f));
+        MeteorClient.EVENT_BUS.post(Render2DEvent.get(this.scaledWidth, this.scaledHeight, f));
         GL11.glDisable((int)2848);
         RenderSystem.lineWidth((float)1.0f);
         Utils.scaledProjection();
         RenderSystem.popMatrix();
-        this.field_2035.method_16011().method_15407();
+        this.client.getProfiler().pop();
     }
 
     @Inject(method={"renderStatusEffectOverlay"}, at={@At(value="HEAD")}, cancellable=true)
@@ -75,21 +75,21 @@ public abstract class InGameHudMixin {
     }
 
     @Inject(method={"renderVignetteOverlay"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onRenderVignetteOverlay(class_1297 class_12972, CallbackInfo callbackInfo) {
+    private void onRenderVignetteOverlay(Entity Entity2, CallbackInfo callbackInfo) {
         if (Modules.get().get(NoRender.class).noVignette()) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"renderScoreboardSidebar"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onRenderScoreboardSidebar(class_4587 class_45872, class_266 class_2662, CallbackInfo callbackInfo) {
+    private void onRenderScoreboardSidebar(MatrixStack MatrixStack2, ScoreboardObjective ScoreboardObjective2, CallbackInfo callbackInfo) {
         if (Modules.get().get(NoRender.class).noScoreboard()) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"renderCrosshair"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onRenderCrosshair(class_4587 class_45872, CallbackInfo callbackInfo) {
+    private void onRenderCrosshair(MatrixStack MatrixStack2, CallbackInfo callbackInfo) {
         if (Modules.get().get(NoRender.class).noCrosshair()) {
             callbackInfo.cancel();
         }

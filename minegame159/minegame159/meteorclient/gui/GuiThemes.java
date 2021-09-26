@@ -11,8 +11,8 @@ import java.util.List;
 import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.gui.GuiTheme;
 import minegame159.meteorclient.gui.themes.meteor.MeteorGuiTheme;
-import net.minecraft.class_2487;
-import net.minecraft.class_2507;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIo;
 
 public class GuiThemes {
     private static final File FOLDER = new File(MeteorClient.FOLDER, "gui");
@@ -33,9 +33,9 @@ public class GuiThemes {
     public static void postInit() {
         if (FILE.exists()) {
             try {
-                class_2487 class_24872 = class_2507.method_10633((File)FILE);
-                if (class_24872 != null) {
-                    GuiThemes.select(class_24872.method_10558("currentTheme"));
+                NbtCompound NbtCompound2 = NbtIo.read((File)FILE);
+                if (NbtCompound2 != null) {
+                    GuiThemes.select(NbtCompound2.getString("currentTheme"));
                 }
             }
             catch (IOException iOException) {
@@ -71,9 +71,9 @@ public class GuiThemes {
     private static void saveTheme() {
         if (GuiThemes.get() != null) {
             try {
-                class_2487 class_24872 = GuiThemes.get().toTag();
+                NbtCompound NbtCompound2 = GuiThemes.get().toTag();
                 THEMES_FOLDER.mkdirs();
-                class_2507.method_10630((class_2487)class_24872, (File)new File(THEMES_FOLDER, String.valueOf(new StringBuilder().append(GuiThemes.get().name).append(".nbt"))));
+                NbtIo.write((NbtCompound)NbtCompound2, (File)new File(THEMES_FOLDER, String.valueOf(new StringBuilder().append(GuiThemes.get().name).append(".nbt"))));
             }
             catch (IOException iOException) {
                 iOException.printStackTrace();
@@ -93,10 +93,10 @@ public class GuiThemes {
 
     private static void saveGlobal() {
         try {
-            class_2487 class_24872 = new class_2487();
-            class_24872.method_10582("currentTheme", GuiThemes.get().name);
+            NbtCompound NbtCompound2 = new NbtCompound();
+            NbtCompound2.putString("currentTheme", GuiThemes.get().name);
             FOLDER.mkdirs();
-            class_2507.method_10630((class_2487)class_24872, (File)FILE);
+            NbtIo.write((NbtCompound)NbtCompound2, (File)FILE);
         }
         catch (IOException iOException) {
             iOException.printStackTrace();
@@ -116,8 +116,8 @@ public class GuiThemes {
             try {
                 GuiTheme guiTheme2;
                 File file = new File(THEMES_FOLDER, String.valueOf(new StringBuilder().append(GuiThemes.get().name).append(".nbt")));
-                if (file.exists() && (guiTheme2 = class_2507.method_10633((File)file)) != null) {
-                    GuiThemes.get().fromTag((class_2487)guiTheme2);
+                if (file.exists() && (guiTheme2 = NbtIo.read((File)file)) != null) {
+                    GuiThemes.get().fromTag((NbtCompound)guiTheme2);
                 }
             }
             catch (IOException iOException) {

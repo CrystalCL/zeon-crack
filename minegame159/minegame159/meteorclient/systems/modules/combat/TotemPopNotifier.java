@@ -19,10 +19,10 @@ import minegame159.meteorclient.systems.friends.Friends;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_1937;
-import net.minecraft.class_2663;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.World;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 
 public class TotemPopNotifier
 extends Module {
@@ -34,8 +34,8 @@ extends Module {
     private final Setting<Boolean> others;
     private final SettingGroup sgGeneral;
 
-    private int getChatId(class_1297 class_12972) {
-        return this.chatIds.computeIntIfAbsent((Object)class_12972.method_5667(), this::lambda$getChatId$0);
+    private int getChatId(Entity Entity2) {
+        return this.chatIds.computeIntIfAbsent((Object)Entity2.getUuid(), this::lambda$getChatId$0);
     }
 
     @EventHandler
@@ -51,29 +51,29 @@ extends Module {
      */
     @EventHandler
     private void onReceivePacket(PacketEvent.Receive receive) {
-        if (!(receive.packet instanceof class_2663)) {
+        if (!(receive.packet instanceof EntityStatusS2CPacket)) {
             return;
         }
-        class_2663 class_26632 = (class_2663)receive.packet;
-        if (class_26632.method_11470() != 35) {
+        EntityStatusS2CPacket EntityStatusS2CPacket2 = (EntityStatusS2CPacket)receive.packet;
+        if (EntityStatusS2CPacket2.getStatus() != 35) {
             return;
         }
-        class_1297 class_12972 = class_26632.method_11469((class_1937)this.mc.field_1687);
-        if (class_12972 == null) return;
-        if (class_12972.equals((Object)this.mc.field_1724)) {
+        Entity Entity2 = EntityStatusS2CPacket2.getEntity((World)this.mc.world);
+        if (Entity2 == null) return;
+        if (Entity2.equals((Object)this.mc.player)) {
             if (this.own.get() == false) return;
         }
-        if (Friends.get().attack((class_1657)class_12972)) {
+        if (Friends.get().attack((PlayerEntity)Entity2)) {
             if (this.others.get() == false) return;
         }
-        if (!Friends.get().attack((class_1657)class_12972) && !this.friends.get().booleanValue()) {
+        if (!Friends.get().attack((PlayerEntity)Entity2) && !this.friends.get().booleanValue()) {
             return;
         }
         Object2IntMap<UUID> object2IntMap = this.totemPops;
         synchronized (object2IntMap) {
-            int n = this.totemPops.getOrDefault((Object)class_12972.method_5667(), 0);
-            this.totemPops.put((Object)class_12972.method_5667(), ++n);
-            ChatUtils.info(this.getChatId(class_12972), "(highlight)%s (default)popped (highlight)%d (default)%s.", ((class_1657)class_12972).method_7334().getName(), n, n == 1 ? "totem" : "totems");
+            int n = this.totemPops.getOrDefault((Object)Entity2.getUuid(), 0);
+            this.totemPops.put((Object)Entity2.getUuid(), ++n);
+            ChatUtils.info(this.getChatId(Entity2), "(highlight)%s (default)popped (highlight)%d (default)%s.", ((PlayerEntity)Entity2).getGameProfile().getName(), n, n == 1 ? "totem" : "totems");
             return;
         }
     }
@@ -87,13 +87,13 @@ extends Module {
     private void onTick(TickEvent.Post post) {
         Object2IntMap<UUID> object2IntMap = this.totemPops;
         synchronized (object2IntMap) {
-            Iterator iterator = this.mc.field_1687.method_18456().iterator();
+            Iterator iterator = this.mc.world.getPlayers().iterator();
             while (iterator.hasNext()) {
-                class_1657 class_16572 = (class_1657)iterator.next();
-                if (!this.totemPops.containsKey((Object)class_16572.method_5667()) || class_16572.field_6213 <= 0 && !(class_16572.method_6032() <= 0.0f)) continue;
-                int n = this.totemPops.removeInt((Object)class_16572.method_5667());
-                ChatUtils.info(this.getChatId((class_1297)class_16572), "(highlight)%s (default)died after popping (highlight)%d (default)%s.", class_16572.method_7334().getName(), n, n == 1 ? "totem" : "totems");
-                this.chatIds.removeInt((Object)class_16572.method_5667());
+                PlayerEntity PlayerEntity2 = (PlayerEntity)iterator.next();
+                if (!this.totemPops.containsKey((Object)PlayerEntity2.getUuid()) || PlayerEntity2.deathTime <= 0 && !(PlayerEntity2.getHealth() <= 0.0f)) continue;
+                int n = this.totemPops.removeInt((Object)PlayerEntity2.getUuid());
+                ChatUtils.info(this.getChatId((Entity)PlayerEntity2), "(highlight)%s (default)died after popping (highlight)%d (default)%s.", PlayerEntity2.getGameProfile().getName(), n, n == 1 ? "totem" : "totems");
+                this.chatIds.removeInt((Object)PlayerEntity2.getUuid());
             }
             return;
         }

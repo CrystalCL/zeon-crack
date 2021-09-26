@@ -5,31 +5,31 @@ package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.events.world.FluidCollisionShapeEvent;
-import net.minecraft.class_1922;
-import net.minecraft.class_2248;
-import net.minecraft.class_2263;
-import net.minecraft.class_2338;
-import net.minecraft.class_2404;
-import net.minecraft.class_265;
-import net.minecraft.class_2680;
-import net.minecraft.class_3726;
-import net.minecraft.class_4970;
+import net.minecraft.world.BlockView;
+import net.minecraft.block.Block;
+import net.minecraft.block.FluidDrainable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.FluidBlock;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.AbstractBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={class_2404.class})
+@Mixin(value={FluidBlock.class})
 public abstract class FluidBlockMixin
-extends class_2248
-implements class_2263 {
-    public FluidBlockMixin(class_4970.class_2251 class_22512) {
+extends Block
+implements FluidDrainable {
+    public FluidBlockMixin(Settings class_22512) {
         super(class_22512);
     }
 
     @Inject(method={"getCollisionShape"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onGetCollisionShape(class_2680 class_26802, class_1922 class_19222, class_2338 class_23382, class_3726 class_37262, CallbackInfoReturnable<class_265> callbackInfoReturnable) {
-        FluidCollisionShapeEvent fluidCollisionShapeEvent = MeteorClient.EVENT_BUS.post(FluidCollisionShapeEvent.get(class_26802));
+    private void onGetCollisionShape(BlockState BlockState2, BlockView BlockView2, BlockPos BlockPos2, ShapeContext ShapeContext2, CallbackInfoReturnable<VoxelShape> callbackInfoReturnable) {
+        FluidCollisionShapeEvent fluidCollisionShapeEvent = MeteorClient.EVENT_BUS.post(FluidCollisionShapeEvent.get(BlockState2));
         if (fluidCollisionShapeEvent.shape != null) {
             callbackInfoReturnable.setReturnValue((Object)fluidCollisionShapeEvent.shape);
         }

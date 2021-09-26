@@ -18,8 +18,8 @@ extends DoubleTextHudElement {
             return "159";
         }
         Integer n = null;
-        if (!this.mc.field_1724.method_6047().method_7960() && this.mc.field_1724.method_6047().method_7963()) {
-            n = this.mc.field_1724.method_6047().method_7936() - this.mc.field_1724.method_6047().method_7919();
+        if (!this.mc.player.getMainHandStack().isEmpty() && this.mc.player.getMainHandStack().isDamageable()) {
+            n = this.mc.player.getMainHandStack().getMaxDamage() - this.mc.player.getMainHandStack().getDamage();
         }
         return n == null ? "" : n.toString();
     }

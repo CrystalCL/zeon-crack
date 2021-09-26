@@ -12,15 +12,15 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.movement.NoFall;
 import minegame159.meteorclient.systems.modules.player.AntiHunger;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2172;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
+import net.minecraft.command.CommandSource;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
 public class DamageCommand
 extends Command {
     private void sendPosistionPacket(double d, double d2, double d3, boolean bl) {
-        DamageCommand.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(d, d2, d3, bl));
+        DamageCommand.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(d, d2, d3, bl));
     }
 
     public DamageCommand() {
@@ -29,7 +29,7 @@ extends Command {
 
     private int lambda$build$0(CommandContext commandContext) throws CommandSyntaxException {
         int n = (Integer)commandContext.getArgument("damage", Integer.class);
-        if (DamageCommand.mc.field_1724.field_7503.field_7480) {
+        if (DamageCommand.mc.player.abilities.invulnerable) {
             ChatUtils.error("You are in invulnerable.", new Object[0]);
             return 1;
         }
@@ -46,14 +46,14 @@ extends Command {
         if (bl = Modules.get().isActive(AntiHunger.class)) {
             Modules.get().get(AntiHunger.class).toggle();
         }
-        class_243 class_2432 = DamageCommand.mc.field_1724.method_19538();
+        Vec3d Vec3d2 = DamageCommand.mc.player.getPos();
         for (int i = 0; i < 80; ++i) {
-            this.sendPosistionPacket(class_2432.field_1352, class_2432.field_1351 + (double)n + 2.1, class_2432.field_1350, false);
-            this.sendPosistionPacket(class_2432.field_1352, class_2432.field_1351 + 0.05, class_2432.field_1350, false);
+            this.sendPosistionPacket(Vec3d2.x, Vec3d2.y + (double)n + 2.1, Vec3d2.z, false);
+            this.sendPosistionPacket(Vec3d2.x, Vec3d2.y + 0.05, Vec3d2.z, false);
             if (4 > 3) continue;
             return;
         }
-        this.sendPosistionPacket(class_2432.field_1352, class_2432.field_1351, class_2432.field_1350, true);
+        this.sendPosistionPacket(Vec3d2.x, Vec3d2.y, Vec3d2.z, true);
         if (bl2) {
             Modules.get().get(NoFall.class).toggle();
         }
@@ -63,7 +63,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.then(DamageCommand.argument("damage", IntegerArgumentType.integer((int)1, (int)7)).executes(this::lambda$build$0));
     }
 }

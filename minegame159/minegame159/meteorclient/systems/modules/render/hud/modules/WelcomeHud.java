@@ -26,7 +26,7 @@ extends DoubleTextHudElement {
 
     @Override
     protected String getRight() {
-        return String.valueOf(new StringBuilder().append(Modules.get().get(NameProtect.class).getName(this.mc.method_1548().method_1676())).append("!"));
+        return String.valueOf(new StringBuilder().append(Modules.get().get(NameProtect.class).getName(this.mc.getSession().getUsername())).append("!"));
     }
 }
 

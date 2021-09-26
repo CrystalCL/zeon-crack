@@ -12,8 +12,8 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1747;
-import net.minecraft.class_1802;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Items;
 
 public class FastUse
 extends Module {
@@ -38,7 +38,7 @@ extends Module {
                 break;
             }
             case 2: {
-                if ((!this.exp.get().booleanValue() || this.mc.field_1724.method_6047().method_7909() != class_1802.field_8287 && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8287) && (!this.blocks.get().booleanValue() || !(this.mc.field_1724.method_6047().method_7909() instanceof class_1747)) && !(this.mc.field_1724.method_6079().method_7909() instanceof class_1747)) break;
+                if ((!this.exp.get().booleanValue() || this.mc.player.getMainHandStack().getItem() != Items.EXPERIENCE_BOTTLE && this.mc.player.getOffHandStack().getItem() != Items.EXPERIENCE_BOTTLE) && (!this.blocks.get().booleanValue() || !(this.mc.player.getMainHandStack().getItem() instanceof BlockItem)) && !(this.mc.player.getOffHandStack().getItem() instanceof BlockItem)) break;
                 ((MinecraftClientAccessor)this.mc).setItemUseCooldown(0);
             }
         }

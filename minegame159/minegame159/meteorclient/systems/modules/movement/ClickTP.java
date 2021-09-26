@@ -10,15 +10,15 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1268;
-import net.minecraft.class_1269;
-import net.minecraft.class_1657;
-import net.minecraft.class_1937;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_239;
-import net.minecraft.class_3965;
-import net.minecraft.class_3966;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ActionResult;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.World;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 
 public class ClickTP
 extends Module {
@@ -27,21 +27,21 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1724.method_6115()) {
+        if (this.mc.player.isUsingItem()) {
             return;
         }
-        if (this.mc.field_1690.field_1904.method_1434()) {
-            class_239 class_2392 = this.mc.field_1724.method_5745(this.maxDistance.get().doubleValue(), 0.05f, false);
-            if (class_2392.method_17783() == class_239.class_240.field_1331 && this.mc.field_1724.method_7287(((class_3966)class_2392).method_17782(), class_1268.field_5808) != class_1269.field_5811) {
+        if (this.mc.options.keyUse.isPressed()) {
+            HitResult HitResult2 = this.mc.player.raycast(this.maxDistance.get().doubleValue(), 0.05f, false);
+            if (HitResult2.getType() == HitResult.class_240.ENTITY && this.mc.player.interact(((EntityHitResult)HitResult2).getEntity(), Hand.MAIN_HAND) != ActionResult.PASS) {
                 return;
             }
-            if (class_2392.method_17783() == class_239.class_240.field_1332) {
-                class_2338 class_23382 = ((class_3965)class_2392).method_17777();
-                class_2350 class_23502 = ((class_3965)class_2392).method_17780();
-                if (this.mc.field_1687.method_8320(class_23382).method_26174((class_1937)this.mc.field_1687, (class_1657)this.mc.field_1724, class_1268.field_5808, (class_3965)class_2392) != class_1269.field_5811) {
+            if (HitResult2.getType() == HitResult.class_240.BLOCK) {
+                BlockPos BlockPos2 = ((BlockHitResult)HitResult2).getBlockPos();
+                Direction Direction2 = ((BlockHitResult)HitResult2).getSide();
+                if (this.mc.world.getBlockState(BlockPos2).onUse((World)this.mc.world, (PlayerEntity)this.mc.player, Hand.MAIN_HAND, (BlockHitResult)HitResult2) != ActionResult.PASS) {
                     return;
                 }
-                this.mc.field_1724.method_5814((double)class_23382.method_10263() + 0.5 + (double)class_23502.method_10148(), (double)(class_23382.method_10264() + class_23502.method_10164()), (double)class_23382.method_10260() + 0.5 + (double)class_23502.method_10165());
+                this.mc.player.setPosition((double)BlockPos2.getX() + 0.5 + (double)Direction2.getOffsetX(), (double)(BlockPos2.getY() + Direction2.getOffsetY()), (double)BlockPos2.getZ() + 0.5 + (double)Direction2.getOffsetZ());
             }
         }
     }

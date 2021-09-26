@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_1496;
-import net.minecraft.class_1724;
+import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.screen.HorseScreenHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_1724.class})
+@Mixin(value={HorseScreenHandler.class})
 public interface HorseScreenHandlerAccessor {
     @Accessor(value="entity")
-    public class_1496 getEntity();
+    public HorseBaseEntity getEntity();
 }
 

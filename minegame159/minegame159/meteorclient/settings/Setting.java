@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.Lazy;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2960;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class Setting<T>
@@ -88,7 +88,7 @@ ISerializable<T> {
         }
     }
 
-    public Iterable<class_2960> getIdentifierSuggestions() {
+    public Iterable<Identifier> getIdentifierSuggestions() {
         return null;
     }
 
@@ -109,18 +109,18 @@ ISerializable<T> {
         this.onModuleActivated = consumer2;
     }
 
-    public static <T> T parseId(class_2378<T> class_23782, String string) {
-        class_2960 class_29602 = (string = string.trim()).contains(":") ? new class_2960(string) : new class_2960("minecraft", string);
-        if (class_23782.method_10250(class_29602)) {
-            return (T)class_23782.method_10223(class_29602);
+    public static <T> T parseId(Registry<T> Registry2, String string) {
+        Identifier Identifier2 = (string = string.trim()).contains(":") ? new Identifier(string) : new Identifier("minecraft", string);
+        if (Registry2.containsId(Identifier2)) {
+            return (T)Registry2.get(Identifier2);
         }
         return null;
     }
 
-    protected class_2487 saveGeneral() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        return class_24872;
+    protected NbtCompound saveGeneral() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        return NbtCompound2;
     }
 
     public List<String> getSuggestions() {

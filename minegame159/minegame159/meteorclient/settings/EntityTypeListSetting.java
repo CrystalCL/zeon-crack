@@ -8,16 +8,16 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.entity.EntityUtils;
-import net.minecraft.class_1299;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2960;
+import net.minecraft.entity.EntityType;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.Identifier;
 
 public class EntityTypeListSetting
-extends Setting<Object2BooleanMap<class_1299<?>>> {
+extends Setting<Object2BooleanMap<EntityType<?>>> {
     public final boolean onlyAttackable;
 
     @Override
@@ -26,18 +26,18 @@ extends Setting<Object2BooleanMap<class_1299<?>>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2499 class_24992 = new class_2499();
-        for (class_1299 class_12992 : ((Object2BooleanMap)this.get()).keySet()) {
-            if (!((Object2BooleanMap)this.get()).getBoolean((Object)class_12992)) continue;
-            class_24992.add((Object)class_2519.method_23256((String)class_2378.field_11145.method_10221((Object)class_12992).toString()));
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtList NbtList2 = new NbtList();
+        for (EntityType EntityType2 : ((Object2BooleanMap)this.get()).keySet()) {
+            if (!((Object2BooleanMap)this.get()).getBoolean((Object)EntityType2)) continue;
+            NbtList2.add((Object)NbtString.of((String)Registry.ENTITY_TYPE.getId((Object)EntityType2).toString()));
         }
-        class_24872.method_10566("value", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
-    public EntityTypeListSetting(String string, String string2, Object2BooleanMap<class_1299<?>> object2BooleanMap, Consumer<Object2BooleanMap<class_1299<?>>> consumer, Consumer<Setting<Object2BooleanMap<class_1299<?>>>> consumer2, boolean bl) {
+    public EntityTypeListSetting(String string, String string2, Object2BooleanMap<EntityType<?>> object2BooleanMap, Consumer<Object2BooleanMap<EntityType<?>>> consumer, Consumer<Setting<Object2BooleanMap<EntityType<?>>>> consumer2, boolean bl) {
         super(string, string2, object2BooleanMap, consumer, consumer2);
         this.onlyAttackable = bl;
         this.value = new Object2BooleanOpenHashMap(object2BooleanMap);
@@ -57,42 +57,42 @@ extends Setting<Object2BooleanMap<class_1299<?>>> {
     }
 
     @Override
-    protected boolean isValueValid(Object2BooleanMap<class_1299<?>> object2BooleanMap) {
+    protected boolean isValueValid(Object2BooleanMap<EntityType<?>> object2BooleanMap) {
         return true;
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public Object2BooleanMap<class_1299<?>> fromTag(class_2487 class_24872) {
+    public Object2BooleanMap<EntityType<?>> fromTag(NbtCompound NbtCompound2) {
         ((Object2BooleanMap)this.get()).clear();
-        class_2499 class_24992 = class_24872.method_10554("value", 8);
-        for (class_2520 class_25202 : class_24992) {
-            class_1299 class_12992 = (class_1299)class_2378.field_11145.method_10223(new class_2960(class_25202.method_10714()));
-            if (this.onlyAttackable && !EntityUtils.isAttackable(class_12992)) continue;
-            ((Object2BooleanMap)this.get()).put((Object)class_12992, true);
+        NbtList NbtList2 = NbtCompound2.getList("value", 8);
+        for (NbtElement NbtElement2 : NbtList2) {
+            EntityType EntityType2 = (EntityType)Registry.ENTITY_TYPE.get(new Identifier(NbtElement2.asString()));
+            if (this.onlyAttackable && !EntityUtils.isAttackable(EntityType2)) continue;
+            ((Object2BooleanMap)this.get()).put((Object)EntityType2, true);
         }
         this.changed();
         return (Object2BooleanMap)this.get();
     }
 
     @Override
-    public Iterable<class_2960> getIdentifierSuggestions() {
-        return class_2378.field_11145.method_10235();
+    public Iterable<Identifier> getIdentifierSuggestions() {
+        return Registry.ENTITY_TYPE.getIds();
     }
 
     @Override
-    protected Object2BooleanMap<class_1299<?>> parseImpl(String string) {
+    protected Object2BooleanMap<EntityType<?>> parseImpl(String string) {
         String[] stringArray = string.split(",");
         Object2BooleanOpenHashMap object2BooleanOpenHashMap = new Object2BooleanOpenHashMap(stringArray.length);
         try {
             for (String string2 : stringArray) {
-                class_1299 class_12992 = (class_1299)EntityTypeListSetting.parseId(class_2378.field_11145, string2);
-                if (class_12992 == null) continue;
-                object2BooleanOpenHashMap.put((Object)class_12992, true);
+                EntityType EntityType2 = (EntityType)EntityTypeListSetting.parseId(Registry.ENTITY_TYPE, string2);
+                if (EntityType2 == null) continue;
+                object2BooleanOpenHashMap.put((Object)EntityType2, true);
             }
         }
         catch (Exception exception) {
@@ -103,23 +103,23 @@ extends Setting<Object2BooleanMap<class_1299<?>>> {
 
     public static class Builder {
         private String name = "undefined";
-        private Object2BooleanMap<class_1299<?>> defaultValue;
+        private Object2BooleanMap<EntityType<?>> defaultValue;
         private boolean onlyAttackable = false;
-        private Consumer<Setting<Object2BooleanMap<class_1299<?>>>> onModuleActivated;
+        private Consumer<Setting<Object2BooleanMap<EntityType<?>>>> onModuleActivated;
         private String description = "";
-        private Consumer<Object2BooleanMap<class_1299<?>>> onChanged;
+        private Consumer<Object2BooleanMap<EntityType<?>>> onChanged;
 
         public Builder onlyAttackable() {
             this.onlyAttackable = true;
             return this;
         }
 
-        public Builder onChanged(Consumer<Object2BooleanMap<class_1299<?>>> consumer) {
+        public Builder onChanged(Consumer<Object2BooleanMap<EntityType<?>>> consumer) {
             this.onChanged = consumer;
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<Object2BooleanMap<class_1299<?>>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<Object2BooleanMap<EntityType<?>>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
@@ -138,7 +138,7 @@ extends Setting<Object2BooleanMap<class_1299<?>>> {
             return this;
         }
 
-        public Builder defaultValue(Object2BooleanMap<class_1299<?>> object2BooleanMap) {
+        public Builder defaultValue(Object2BooleanMap<EntityType<?>> object2BooleanMap) {
             this.defaultValue = object2BooleanMap;
             return this;
         }

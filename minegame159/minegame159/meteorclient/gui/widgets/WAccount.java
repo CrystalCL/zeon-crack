@@ -60,7 +60,7 @@ extends WHorizontalList {
     public void init() {
         this.add(this.theme.texture(32.0, 32.0, 90.0, this.account.getCache().getHeadTexture()));
         WLabel wLabel = this.add(this.theme.label(this.account.getUsername())).widget();
-        if (Utils.mc.method_1548().method_1676().equalsIgnoreCase(this.account.getUsername())) {
+        if (Utils.mc.getSession().getUsername().equalsIgnoreCase(this.account.getUsername())) {
             wLabel.color = this.loggedInColor();
         }
         WLabel wLabel2 = this.add(this.theme.label(String.valueOf(new StringBuilder().append("(").append((Object)this.account.getType()).append(")")))).expandCellX().right().widget();

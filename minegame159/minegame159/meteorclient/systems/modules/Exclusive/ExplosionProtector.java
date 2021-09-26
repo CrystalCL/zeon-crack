@@ -26,22 +26,22 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1511;
-import net.minecraft.class_1657;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_243;
-import net.minecraft.class_2530;
-import net.minecraft.class_2596;
-import net.minecraft.class_2620;
-import net.minecraft.class_2626;
-import net.minecraft.class_2846;
-import net.minecraft.class_2868;
-import net.minecraft.class_2885;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.TntBlock;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.util.hit.BlockHitResult;
 import org.apache.commons.io.FileUtils;
 
 public class ExplosionProtector
@@ -100,90 +100,90 @@ extends Module {
 
     @EventHandler
     private void a(PacketEvent.Receive receive) {
-        List<class_2338> list;
-        class_2338 class_23382;
-        class_2620 class_26202;
+        List<BlockPos> list;
+        BlockPos BlockPos2;
+        BlockBreakingProgressS2CPacket BlockBreakingProgressS2CPacket2;
         if (!this.online()) {
             return;
         }
-        if (this.crystalHead.get().booleanValue() && receive.packet instanceof class_2620) {
-            class_26202 = (class_2620)receive.packet;
-            class_23382 = this.mc.field_1724.method_24515();
-            list = Arrays.asList(class_23382.method_10084(), class_23382.method_10086(2), class_23382.method_10086(3));
-            if (list.contains(class_26202.method_11277())) {
+        if (this.crystalHead.get().booleanValue() && receive.packet instanceof BlockBreakingProgressS2CPacket) {
+            BlockBreakingProgressS2CPacket2 = (BlockBreakingProgressS2CPacket)receive.packet;
+            BlockPos2 = this.mc.player.getBlockPos();
+            list = Arrays.asList(BlockPos2.up(), BlockPos2.up(2), BlockPos2.up(3));
+            if (list.contains(BlockBreakingProgressS2CPacket2.getPos())) {
                 list.forEach(this::lambda$a$0);
-                this.mc.field_1687.method_18112().forEach(arg_0 -> this.lambda$a$1(list, arg_0));
+                this.mc.world.getEntities().forEach(arg_0 -> this.lambda$a$1(list, arg_0));
             }
         }
-        if (this.tnt.get().booleanValue() && receive.packet instanceof class_2626) {
-            class_2338 class_23383;
-            class_26202 = (class_2626)receive.packet;
-            if (this.tnt.get().booleanValue() && class_26202.method_11308().method_26204() instanceof class_2530 && (list = Arrays.asList(class_23382 = this.mc.field_1724.method_24515(), class_23382.method_10074(), class_23382.method_10084(), class_23382.method_10086(2), class_23382.method_10086(3), class_23382.method_10078(), class_23382.method_10067(), class_23382.method_10095(), class_23382.method_10072(), class_23382.method_10084().method_10078(), class_23382.method_10084().method_10067(), class_23382.method_10084().method_10095(), class_23382.method_10084().method_10072(), class_23382.method_10086(2).method_10078(), class_23382.method_10086(2).method_10067(), class_23382.method_10086(2).method_10095(), class_23382.method_10086(2).method_10072())).contains(class_23383 = class_26202.method_11309())) {
-                this.look(class_23383);
-                this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12968, class_23383, class_2350.field_11036));
-                this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, class_23383, class_2350.field_11036));
-                this.place_obsidian(class_23383);
+        if (this.tnt.get().booleanValue() && receive.packet instanceof BlockUpdateS2CPacket) {
+            BlockPos BlockPos3;
+            BlockBreakingProgressS2CPacket2 = (BlockUpdateS2CPacket)receive.packet;
+            if (this.tnt.get().booleanValue() && BlockBreakingProgressS2CPacket2.getState().getBlock() instanceof TntBlock && (list = Arrays.asList(BlockPos2 = this.mc.player.getBlockPos(), BlockPos2.down(), BlockPos2.up(), BlockPos2.up(2), BlockPos2.up(3), BlockPos2.east(), BlockPos2.west(), BlockPos2.north(), BlockPos2.south(), BlockPos2.up().east(), BlockPos2.up().west(), BlockPos2.up().north(), BlockPos2.up().south(), BlockPos2.up(2).east(), BlockPos2.up(2).west(), BlockPos2.up(2).north(), BlockPos2.up(2).south())).contains(BlockPos3 = BlockBreakingProgressS2CPacket2.getPos())) {
+                this.look(BlockPos3);
+                this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.START_DESTROY_BLOCK, BlockPos3, Direction.UP));
+                this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, BlockPos3, Direction.UP));
+                this.place_obsidian(BlockPos3);
             }
         }
     }
 
     private boolean online() {
-        return this.mc.field_1687 != null && this.mc.field_1724 != null && this.mc.field_1687.method_18456().size() > 1;
+        return this.mc.world != null && this.mc.player != null && this.mc.world.getPlayers().size() > 1;
     }
 
-    private void lambda$a$0(class_2338 class_23382) {
-        this.place_obsidian(class_23382);
+    private void lambda$a$0(BlockPos BlockPos2) {
+        this.place_obsidian(BlockPos2);
     }
 
-    private void kill(class_1297 class_12972) {
-        this.look(class_12972.method_24515());
-        this.mc.field_1761.method_2918((class_1657)this.mc.field_1724, class_12972);
-        class_12972.method_5650();
+    private void kill(Entity Entity2) {
+        this.look(Entity2.getBlockPos());
+        this.mc.interactionManager.attackEntity((PlayerEntity)this.mc.player, Entity2);
+        Entity2.remove();
     }
 
-    private void place_obsidian(class_2338 class_23382) {
-        if (!BlockUtils.canPlace(class_23382)) {
+    private void place_obsidian(BlockPos BlockPos2) {
+        if (!BlockUtils.canPlace(BlockPos2)) {
             return;
         }
-        if (this.mc.field_1724.method_24515().method_10264() - class_23382.method_10264() > 2) {
+        if (this.mc.player.getBlockPos().getY() - BlockPos2.getY() > 2) {
             return;
         }
-        int n = InvUtils.findItemInHotbar(class_1802.field_8281);
+        int n = InvUtils.findItemInHotbar(Items.OBSIDIAN);
         if (n > -1) {
-            this.look(class_23382);
-            int n2 = this.mc.field_1724.field_7514.field_7545;
+            this.look(BlockPos2);
+            int n2 = this.mc.player.inventory.selectedSlot;
             this.swap(n);
-            this.mc.method_1562().method_2883((class_2596)new class_2885(class_1268.field_5808, new class_3965(this.mc.field_1724.method_19538(), class_2350.field_11033, class_23382, true)));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, new BlockHitResult(this.mc.player.getPos(), Direction.DOWN, BlockPos2, true)));
             this.swap(n2);
         }
     }
 
-    private void lambda$a$1(List list, class_1297 class_12972) {
-        if (class_12972 instanceof class_1511 && list.contains(class_12972.method_24515())) {
-            this.kill(class_12972);
+    private void lambda$a$1(List list, Entity Entity2) {
+        if (Entity2 instanceof EndCrystalEntity && list.contains(Entity2.getBlockPos())) {
+            this.kill(Entity2);
         }
     }
 
     private void swap(int n) {
-        if (n != this.mc.field_1724.field_7514.field_7545) {
-            this.mc.method_1562().method_2883((class_2596)new class_2868(n));
-            this.mc.field_1724.field_7514.field_7545 = n;
+        if (n != this.mc.player.inventory.selectedSlot) {
+            this.mc.getNetworkHandler().sendPacket((Packet)new UpdateSelectedSlotC2SPacket(n));
+            this.mc.player.inventory.selectedSlot = n;
         }
     }
 
     @EventHandler
     private void a(EntityAddedEvent entityAddedEvent) {
-        class_2338 class_23382;
-        if (!(this.online() && this.crystalHead.get().booleanValue() && entityAddedEvent.entity instanceof class_1511)) {
+        BlockPos BlockPos2;
+        if (!(this.online() && this.crystalHead.get().booleanValue() && entityAddedEvent.entity instanceof EndCrystalEntity)) {
             return;
         }
-        class_2338 class_23383 = this.mc.field_1724.method_24515();
-        List<class_2338> list = Arrays.asList(class_23383.method_10086(2), class_23383.method_10086(3), class_23383.method_10086(4), class_23383.method_10086(2).method_10078(), class_23383.method_10086(2).method_10067(), class_23383.method_10086(2).method_10095(), class_23383.method_10086(2).method_10072());
-        if (list.contains(class_23382 = entityAddedEvent.entity.method_24515())) {
-            this.place_obsidian(class_23382.method_10074());
+        BlockPos BlockPos3 = this.mc.player.getBlockPos();
+        List<BlockPos> list = Arrays.asList(BlockPos3.up(2), BlockPos3.up(3), BlockPos3.up(4), BlockPos3.up(2).east(), BlockPos3.up(2).west(), BlockPos3.up(2).north(), BlockPos3.up(2).south());
+        if (list.contains(BlockPos2 = entityAddedEvent.entity.getBlockPos())) {
+            this.place_obsidian(BlockPos2.down());
             this.kill(entityAddedEvent.entity);
-            this.place_obsidian(class_23382);
-            this.place_obsidian(class_23382.method_10084());
+            this.place_obsidian(BlockPos2);
+            this.place_obsidian(BlockPos2.up());
         }
     }
 
@@ -195,13 +195,13 @@ extends Module {
         this.rotate = this.sgGeneral.add(new BoolSetting.Builder().name("rotate").description("Look at block or crystal.").defaultValue(false).build());
     }
 
-    private void look(class_2338 class_23382) {
+    private void look(BlockPos BlockPos2) {
         if (!this.rotate.get().booleanValue()) {
             return;
         }
-        class_243 class_2432 = new class_243(0.0, 0.0, 0.0);
-        ((IVec3d)class_2432).set((double)class_23382.method_10263() + 0.5, (double)class_23382.method_10264() + 0.5, (double)class_23382.method_10260() + 0.5);
-        Rotations.rotate(Rotations.getYaw(class_2432), Rotations.getPitch(class_2432));
+        Vec3d Vec3d2 = new Vec3d(0.0, 0.0, 0.0);
+        ((IVec3d)Vec3d2).set((double)BlockPos2.getX() + 0.5, (double)BlockPos2.getY() + 0.5, (double)BlockPos2.getZ() + 0.5);
+        Rotations.rotate(Rotations.getYaw(Vec3d2), Rotations.getPitch(Vec3d2));
     }
 }
 

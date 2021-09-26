@@ -14,9 +14,9 @@ import minegame159.meteorclient.mixin.MinecraftClientAccessor;
 import minegame159.meteorclient.systems.accounts.Account;
 import minegame159.meteorclient.systems.accounts.AccountType;
 import minegame159.meteorclient.utils.misc.NbtException;
-import net.minecraft.class_2487;
-import net.minecraft.class_310;
-import net.minecraft.class_320;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.Session;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -51,7 +51,7 @@ extends Account<PremiumAccount> {
     }
 
     public YggdrasilUserAuthentication getAuth() {
-        YggdrasilUserAuthentication yggdrasilUserAuthentication = (YggdrasilUserAuthentication)new YggdrasilAuthenticationService(((MinecraftClientAccessor)class_310.method_1551()).getProxy(), "").createUserAuthentication(Agent.MINECRAFT);
+        YggdrasilUserAuthentication yggdrasilUserAuthentication = (YggdrasilUserAuthentication)new YggdrasilAuthenticationService(((MinecraftClientAccessor)MinecraftClient.getInstance()).getProxy(), "").createUserAuthentication(Agent.MINECRAFT);
         yggdrasilUserAuthentication.setUsername(this.name);
         yggdrasilUserAuthentication.setPassword(this.password);
         return yggdrasilUserAuthentication;
@@ -63,29 +63,29 @@ extends Account<PremiumAccount> {
     }
 
     @Override
-    public Account fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Account fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = super.toTag();
-        class_24872.method_10582("password", this.password);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = super.toTag();
+        NbtCompound2.putString("password", this.password);
+        return NbtCompound2;
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public PremiumAccount fromTag(class_2487 class_24872) {
-        super.fromTag(class_24872);
-        if (!class_24872.method_10545("password")) {
+    public PremiumAccount fromTag(NbtCompound NbtCompound2) {
+        super.fromTag(NbtCompound2);
+        if (!NbtCompound2.contains("password")) {
             throw new NbtException();
         }
-        this.password = class_24872.method_10558("password");
+        this.password = NbtCompound2.getString("password");
         return this;
     }
 
@@ -95,7 +95,7 @@ extends Account<PremiumAccount> {
         YggdrasilUserAuthentication yggdrasilUserAuthentication = this.getAuth();
         try {
             yggdrasilUserAuthentication.logIn();
-            this.setSession(new class_320(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang"));
+            this.setSession(new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang"));
             this.cache.username = yggdrasilUserAuthentication.getSelectedProfile().getName();
             return true;
         }

@@ -11,7 +11,7 @@ import minegame159.meteorclient.gui.widgets.containers.WHorizontalList;
 import minegame159.meteorclient.gui.widgets.pressable.WPressable;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 import org.lwjgl.glfw.GLFW;
 
 public abstract class WTopBar
@@ -38,12 +38,12 @@ extends WHorizontalList {
 
         @Override
         protected void onPressed(int n) {
-            class_437 class_4372 = Utils.mc.field_1755;
-            if (!(class_4372 instanceof TabScreen) || ((TabScreen)class_4372).tab != this.tab) {
-                double d = Utils.mc.field_1729.method_1603();
-                double d2 = Utils.mc.field_1729.method_1604();
+            Screen Screen2 = Utils.mc.currentScreen;
+            if (!(Screen2 instanceof TabScreen) || ((TabScreen)Screen2).tab != this.tab) {
+                double d = Utils.mc.mouse.getX();
+                double d2 = Utils.mc.mouse.getY();
                 this.tab.openScreen(this.theme);
-                GLFW.glfwSetCursorPos((long)Utils.mc.method_22683().method_4490(), (double)d, (double)d2);
+                GLFW.glfwSetCursorPos((long)Utils.mc.getWindow().getHandle(), (double)d, (double)d2);
             }
         }
 
@@ -62,7 +62,7 @@ extends WHorizontalList {
         @Override
         protected void onRender(GuiRenderer guiRenderer, double d, double d2, double d3) {
             double d4 = this.pad();
-            Color color = this.this$0.getButtonColor(this.pressed || Utils.mc.field_1755 instanceof TabScreen && ((TabScreen)Utils.mc.field_1755).tab == this.tab, this.mouseOver);
+            Color color = this.this$0.getButtonColor(this.pressed || Utils.mc.currentScreen instanceof TabScreen && ((TabScreen)Utils.mc.currentScreen).tab == this.tab, this.mouseOver);
             guiRenderer.quad(this.x, this.y, this.width, this.height, color);
             guiRenderer.text(this.tab.name, this.x + d4, this.y + d4, this.this$0.getNameColor(), false);
         }

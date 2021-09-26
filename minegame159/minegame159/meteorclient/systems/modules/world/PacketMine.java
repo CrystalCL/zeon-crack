@@ -24,16 +24,16 @@ import minegame159.meteorclient.utils.misc.Pool;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1268;
-import net.minecraft.class_1922;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2596;
-import net.minecraft.class_265;
-import net.minecraft.class_2846;
-import net.minecraft.class_2879;
-import net.minecraft.class_310;
+import net.minecraft.util.Hand;
+import net.minecraft.world.BlockView;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.network.Packet;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.client.MinecraftClient;
 
 public class PacketMine
 extends Module {
@@ -83,7 +83,7 @@ extends Module {
         }
     }
 
-    static class_310 access$900(PacketMine packetMine) {
+    static MinecraftClient access$900(PacketMine packetMine) {
         return packetMine.mc;
     }
 
@@ -91,14 +91,14 @@ extends Module {
         return packetMine.sideColor;
     }
 
-    static class_310 access$1000(PacketMine packetMine) {
+    static MinecraftClient access$1000(PacketMine packetMine) {
         return packetMine.mc;
     }
 
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent startBreakingBlockEvent) {
         startBreakingBlockEvent.cancel();
-        if (this.mc.field_1687.method_8320(startBreakingBlockEvent.blockPos).method_26214((class_1922)this.mc.field_1687, startBreakingBlockEvent.blockPos) < 0.0f) {
+        if (this.mc.world.getBlockState(startBreakingBlockEvent.blockPos).getHardness((BlockView)this.mc.world, startBreakingBlockEvent.blockPos) < 0.0f) {
             return;
         }
         if (!this.isMiningBlock(startBreakingBlockEvent.blockPos)) {
@@ -108,11 +108,11 @@ extends Module {
         }
     }
 
-    static class_310 access$1400(PacketMine packetMine) {
+    static MinecraftClient access$1400(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$300(PacketMine packetMine) {
+    static MinecraftClient access$300(PacketMine packetMine) {
         return packetMine.mc;
     }
 
@@ -124,35 +124,35 @@ extends Module {
         return packetMine.shapeMode;
     }
 
-    static class_310 access$1300(PacketMine packetMine) {
+    static MinecraftClient access$1300(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$600(PacketMine packetMine) {
+    static MinecraftClient access$600(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$200(PacketMine packetMine) {
+    static MinecraftClient access$200(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$400(PacketMine packetMine) {
+    static MinecraftClient access$400(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$700(PacketMine packetMine) {
+    static MinecraftClient access$700(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$000(PacketMine packetMine) {
+    static MinecraftClient access$000(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$1200(PacketMine packetMine) {
+    static MinecraftClient access$1200(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$500(PacketMine packetMine) {
+    static MinecraftClient access$500(PacketMine packetMine) {
         return packetMine.mc;
     }
 
@@ -164,19 +164,19 @@ extends Module {
         return packetMine.lineColor;
     }
 
-    private boolean isMiningBlock(class_2338 class_23382) {
+    private boolean isMiningBlock(BlockPos BlockPos2) {
         for (MyBlock myBlock : this.blocks) {
-            if (!myBlock.blockPos.equals((Object)class_23382)) continue;
+            if (!myBlock.blockPos.equals((Object)BlockPos2)) continue;
             return true;
         }
         return false;
     }
 
-    static class_310 access$800(PacketMine packetMine) {
+    static MinecraftClient access$800(PacketMine packetMine) {
         return packetMine.mc;
     }
 
-    static class_310 access$1500(PacketMine packetMine) {
+    static MinecraftClient access$1500(PacketMine packetMine) {
         return packetMine.mc;
     }
 
@@ -190,37 +190,37 @@ extends Module {
 
     private class MyBlock {
         final PacketMine this$0;
-        public class_2338 blockPos;
-        public class_2350 direction;
+        public BlockPos blockPos;
+        public Direction direction;
         public boolean mining;
-        public class_2248 originalBlock;
+        public Block originalBlock;
         public int timer;
 
         public void render() {
-            class_265 class_2652 = PacketMine.access$1500((PacketMine)this.this$0).field_1687.method_8320(this.blockPos).method_26218((class_1922)PacketMine.access$1400((PacketMine)this.this$0).field_1687, this.blockPos);
-            double d = this.blockPos.method_10263();
-            double d2 = this.blockPos.method_10264();
-            double d3 = this.blockPos.method_10260();
-            double d4 = this.blockPos.method_10263() + 1;
-            double d5 = this.blockPos.method_10264() + 1;
-            double d6 = this.blockPos.method_10260() + 1;
-            if (!class_2652.method_1110()) {
-                d = (double)this.blockPos.method_10263() + class_2652.method_1091(class_2350.class_2351.field_11048);
-                d2 = (double)this.blockPos.method_10264() + class_2652.method_1091(class_2350.class_2351.field_11052);
-                d3 = (double)this.blockPos.method_10260() + class_2652.method_1091(class_2350.class_2351.field_11051);
-                d4 = (double)this.blockPos.method_10263() + class_2652.method_1105(class_2350.class_2351.field_11048);
-                d5 = (double)this.blockPos.method_10264() + class_2652.method_1105(class_2350.class_2351.field_11052);
-                d6 = (double)this.blockPos.method_10260() + class_2652.method_1105(class_2350.class_2351.field_11051);
+            VoxelShape VoxelShape2 = PacketMine.access$1500((PacketMine)this.this$0).world.getBlockState(this.blockPos).getOutlineShape((BlockView)PacketMine.access$1400((PacketMine)this.this$0).world, this.blockPos);
+            double d = this.blockPos.getX();
+            double d2 = this.blockPos.getY();
+            double d3 = this.blockPos.getZ();
+            double d4 = this.blockPos.getX() + 1;
+            double d5 = this.blockPos.getY() + 1;
+            double d6 = this.blockPos.getZ() + 1;
+            if (!VoxelShape2.isEmpty()) {
+                d = (double)this.blockPos.getX() + VoxelShape2.getMin(Direction.class_2351.X);
+                d2 = (double)this.blockPos.getY() + VoxelShape2.getMin(Direction.class_2351.Y);
+                d3 = (double)this.blockPos.getZ() + VoxelShape2.getMin(Direction.class_2351.Z);
+                d4 = (double)this.blockPos.getX() + VoxelShape2.getMax(Direction.class_2351.X);
+                d5 = (double)this.blockPos.getY() + VoxelShape2.getMax(Direction.class_2351.Y);
+                d6 = (double)this.blockPos.getZ() + VoxelShape2.getMax(Direction.class_2351.Z);
             }
             Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, d, d2, d3, d4, d5, d6, (Color)PacketMine.access$1600(this.this$0).get(), (Color)PacketMine.access$1700(this.this$0).get(), (ShapeMode)((Object)PacketMine.access$1800(this.this$0).get()), 0);
         }
 
         public boolean shouldRemove() {
             boolean bl;
-            boolean bl2 = bl = PacketMine.access$200((PacketMine)this.this$0).field_1687.method_8320(this.blockPos).method_26204() != this.originalBlock || Utils.distance(PacketMine.access$300((PacketMine)this.this$0).field_1724.method_23317() - 0.5, PacketMine.access$400((PacketMine)this.this$0).field_1724.method_23318() + (double)PacketMine.access$600((PacketMine)this.this$0).field_1724.method_18381(PacketMine.access$500((PacketMine)this.this$0).field_1724.method_18376()), PacketMine.access$700((PacketMine)this.this$0).field_1724.method_23321() - 0.5, this.blockPos.method_10263() + this.direction.method_10148(), this.blockPos.method_10264() + this.direction.method_10164(), this.blockPos.method_10260() + this.direction.method_10165()) > (double)PacketMine.access$800((PacketMine)this.this$0).field_1761.method_2904();
+            boolean bl2 = bl = PacketMine.access$200((PacketMine)this.this$0).world.getBlockState(this.blockPos).getBlock() != this.originalBlock || Utils.distance(PacketMine.access$300((PacketMine)this.this$0).player.getX() - 0.5, PacketMine.access$400((PacketMine)this.this$0).player.getY() + (double)PacketMine.access$600((PacketMine)this.this$0).player.getEyeHeight(PacketMine.access$500((PacketMine)this.this$0).player.getPose()), PacketMine.access$700((PacketMine)this.this$0).player.getZ() - 0.5, this.blockPos.getX() + this.direction.getOffsetX(), this.blockPos.getY() + this.direction.getOffsetY(), this.blockPos.getZ() + this.direction.getOffsetZ()) > (double)PacketMine.access$800((PacketMine)this.this$0).interactionManager.getReachDistance();
             if (bl) {
-                PacketMine.access$900(this.this$0).method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12971, this.blockPos, this.direction));
-                PacketMine.access$1000(this.this$0).method_1562().method_2883((class_2596)new class_2879(class_1268.field_5808));
+                PacketMine.access$900(this.this$0).getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.ABORT_DESTROY_BLOCK, this.blockPos, this.direction));
+                PacketMine.access$1000(this.this$0).getNetworkHandler().sendPacket((Packet)new HandSwingC2SPacket(Hand.MAIN_HAND));
             }
             return bl;
         }
@@ -232,8 +232,8 @@ extends Module {
         private void sendMinePackets() {
             if (this.timer <= 0) {
                 if (!this.mining) {
-                    PacketMine.access$1200(this.this$0).method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12968, this.blockPos, this.direction));
-                    PacketMine.access$1300(this.this$0).method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, this.blockPos, this.direction));
+                    PacketMine.access$1200(this.this$0).getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.START_DESTROY_BLOCK, this.blockPos, this.direction));
+                    PacketMine.access$1300(this.this$0).getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, this.blockPos, this.direction));
                     this.mining = true;
                 }
             } else {
@@ -256,7 +256,7 @@ extends Module {
         public void set(StartBreakingBlockEvent startBreakingBlockEvent) {
             this.blockPos = startBreakingBlockEvent.blockPos;
             this.direction = startBreakingBlockEvent.direction;
-            this.originalBlock = PacketMine.access$000((PacketMine)this.this$0).field_1687.method_8320(this.blockPos).method_26204();
+            this.originalBlock = PacketMine.access$000((PacketMine)this.this$0).world.getBlockState(this.blockPos).getBlock();
             this.timer = (Integer)PacketMine.access$100(this.this$0).get();
             this.mining = false;
         }

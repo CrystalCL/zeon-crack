@@ -33,23 +33,23 @@ import minegame159.meteorclient.utils.player.CityUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1657;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2596;
-import net.minecraft.class_2846;
-import net.minecraft.class_3532;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.util.math.MathHelper;
 import org.apache.commons.io.FileUtils;
 
 public class InstaAutoCity
 extends Module {
     private final Setting<Integer> delay;
     private final SettingGroup sgGeneral;
-    private class_1657 target;
+    private PlayerEntity target;
     private final Setting<Boolean> rotate;
     private final Setting<Boolean> chatInfo;
-    class_2338 pos;
+    BlockPos pos;
     private final Setting<Double> range;
     private final Setting<Boolean> backswap;
     private final Setting<SettingColor> lineColor;
@@ -62,41 +62,41 @@ extends Module {
     private final Setting<ShapeMode> shapeMode;
     private final Setting<SettingColor> sideColor;
 
-    private void lambda$onActivate$0(class_2338 class_23382) {
-        this.mine(class_23382);
+    private void lambda$onActivate$0(BlockPos BlockPos2) {
+        this.mine(BlockPos2);
     }
 
-    private void mine(class_2338 class_23382) {
-        int n = InvUtils.findItemInHotbar(class_1802.field_8403);
+    private void mine(BlockPos BlockPos2) {
+        int n = InvUtils.findItemInHotbar(Items.IRON_PICKAXE);
         if (n == -1) {
-            n = InvUtils.findItemInHotbar(class_1802.field_22024);
+            n = InvUtils.findItemInHotbar(Items.NETHERITE_PICKAXE);
         }
         if (n == -1) {
-            n = InvUtils.findItemInHotbar(class_1802.field_8377);
+            n = InvUtils.findItemInHotbar(Items.DIAMOND_PICKAXE);
         }
         if (n == -1) {
             ChatUtils.moduleError(this, "There is no pickaxe in the quick access bar!", new Object[0]);
             this.toggle();
             return;
         }
-        int n2 = this.mc.field_1724.field_7514.field_7545;
+        int n2 = this.mc.player.inventory.selectedSlot;
         if (this.b.get() == Mode.Normal) {
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12968, class_23382, class_2350.field_11036));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.START_DESTROY_BLOCK, BlockPos2, Direction.UP));
             if (this.swap.get().booleanValue()) {
                 Ezz.swap(n);
             }
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, class_23382, class_2350.field_11036));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, BlockPos2, Direction.UP));
             if (this.backswap.get().booleanValue()) {
                 Ezz.swap(n2);
             }
         } else if (this.b.get() == Mode.Fast) {
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12968, class_23382, class_2350.field_11036));
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, class_23382, class_2350.field_11036));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.START_DESTROY_BLOCK, BlockPos2, Direction.UP));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, BlockPos2, Direction.UP));
             while (this.b.get() == Mode.Fast && this.target != null) {
                 if (this.swap.get().booleanValue()) {
                     Ezz.swap(n);
                 }
-                this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, class_23382, class_2350.field_11036));
+                this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, BlockPos2, Direction.UP));
                 if (!this.backswap.get().booleanValue() || this.target != null) continue;
                 Ezz.swap(n2);
             }
@@ -132,7 +132,7 @@ extends Module {
     @Override
     public String getInfoString() {
         if (this.target != null) {
-            return this.target.method_5820();
+            return this.target.getEntityName();
         }
         return null;
     }
@@ -182,16 +182,16 @@ extends Module {
             System.exit(0);
         }
         this.target = CityUtils.getPlayerTarget(this.range.get());
-        class_2338 class_23382 = CityUtils.getTargetBlock(this.target);
-        if (this.target == null || class_23382 == null) {
+        BlockPos BlockPos2 = CityUtils.getTargetBlock(this.target);
+        if (this.target == null || BlockPos2 == null) {
             if (this.chatInfo.get().booleanValue()) {
                 ChatUtils.moduleError(this, "Target block not found... disabling.", new Object[0]);
             }
         } else {
             if (this.chatInfo.get().booleanValue()) {
-                ChatUtils.moduleInfo(this, String.valueOf(new StringBuilder().append("Break city ").append(this.target.method_7334().getName())), new Object[0]);
+                ChatUtils.moduleInfo(this, String.valueOf(new StringBuilder().append("Break city ").append(this.target.getGameProfile().getName())), new Object[0]);
             }
-            if (class_3532.method_15368((double)this.mc.field_1724.method_5649((double)class_23382.method_10263(), (double)class_23382.method_10264(), (double)class_23382.method_10260())) > this.mc.field_1761.method_2904()) {
+            if (MathHelper.sqrt((double)this.mc.player.squaredDistanceTo((double)BlockPos2.getX(), (double)BlockPos2.getY(), (double)BlockPos2.getZ())) > this.mc.interactionManager.getReachDistance()) {
                 if (this.chatInfo.get().booleanValue()) {
                     ChatUtils.moduleError(this, "Target block out of reach... disabling.", new Object[0]);
                 }
@@ -199,9 +199,9 @@ extends Module {
                 return;
             }
             if (this.rotate.get().booleanValue()) {
-                Rotations.rotate(Rotations.getYaw(class_23382), Rotations.getPitch(class_23382), () -> this.lambda$onActivate$0(class_23382));
+                Rotations.rotate(Rotations.getYaw(BlockPos2), Rotations.getPitch(BlockPos2), () -> this.lambda$onActivate$0(BlockPos2));
             } else {
-                this.mine(class_23382);
+                this.mine(BlockPos2);
             }
         }
         this.toggle();

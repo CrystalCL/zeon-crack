@@ -21,22 +21,22 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.misc.Swarm;
 import minegame159.meteorclient.systems.modules.world.InfinityMiner;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_2172;
-import net.minecraft.class_2247;
-import net.minecraft.class_2257;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.BlockStateArgument;
+import net.minecraft.command.argument.BlockStateArgumentType;
 
 public class SwarmCommand
 extends Command {
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.then(SwarmCommand.literal("close").executes(SwarmCommand::lambda$build$0));
         literalArgumentBuilder.then(SwarmCommand.literal("escape").executes(SwarmCommand::lambda$build$1));
         literalArgumentBuilder.then(((LiteralArgumentBuilder)SwarmCommand.literal("follow").executes(SwarmCommand::lambda$build$2)).then(SwarmCommand.argument("name", PlayerArgumentType.player()).executes(SwarmCommand::lambda$build$4)));
         literalArgumentBuilder.then(SwarmCommand.literal("goto").then(SwarmCommand.argument("x", IntegerArgumentType.integer()).then(SwarmCommand.argument("z", IntegerArgumentType.integer()).executes(SwarmCommand::lambda$build$5))));
-        literalArgumentBuilder.then(((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)SwarmCommand.literal("im").executes(this::lambda$build$6)).then(((RequiredArgumentBuilder)SwarmCommand.argument("target", class_2257.method_9653()).executes(this::lambda$build$7)).then(SwarmCommand.argument("repair", class_2257.method_9653()).executes(this::lambda$build$8)))).then(SwarmCommand.literal("logout").then(SwarmCommand.argument("autologout", BoolArgumentType.bool()).executes(SwarmCommand::lambda$build$9)))).then(SwarmCommand.literal("walkhome").then(SwarmCommand.argument("walkhome", BoolArgumentType.bool()).executes(SwarmCommand::lambda$build$10))));
-        literalArgumentBuilder.then(SwarmCommand.literal("mine").then(SwarmCommand.argument("block", class_2257.method_9653()).executes(SwarmCommand::lambda$build$11)));
+        literalArgumentBuilder.then(((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)SwarmCommand.literal("im").executes(this::lambda$build$6)).then(((RequiredArgumentBuilder)SwarmCommand.argument("target", BlockStateArgumentType.blockState()).executes(this::lambda$build$7)).then(SwarmCommand.argument("repair", BlockStateArgumentType.blockState()).executes(this::lambda$build$8)))).then(SwarmCommand.literal("logout").then(SwarmCommand.argument("autologout", BoolArgumentType.bool()).executes(SwarmCommand::lambda$build$9)))).then(SwarmCommand.literal("walkhome").then(SwarmCommand.argument("walkhome", BoolArgumentType.bool()).executes(SwarmCommand::lambda$build$10))));
+        literalArgumentBuilder.then(SwarmCommand.literal("mine").then(SwarmCommand.argument("block", BlockStateArgumentType.blockState()).executes(SwarmCommand::lambda$build$11)));
         literalArgumentBuilder.then(SwarmCommand.literal("module").then(SwarmCommand.argument("m", ModuleArgumentType.module()).then(SwarmCommand.argument("bool", BoolArgumentType.bool()).executes(SwarmCommand::lambda$build$12))));
         literalArgumentBuilder.then(SwarmCommand.literal("queen").executes(SwarmCommand::lambda$build$13));
         literalArgumentBuilder.then(SwarmCommand.literal("release").executes(SwarmCommand::lambda$build$14));
@@ -73,12 +73,12 @@ extends Command {
     }
 
     private void scatter(int n) {
-        if (SwarmCommand.mc.field_1724 != null) {
+        if (SwarmCommand.mc.player != null) {
             Random random = new Random();
             double d = random.nextDouble() * 2.0 * Math.PI;
             double d2 = (double)n * Math.sqrt(random.nextDouble());
-            double d3 = SwarmCommand.mc.field_1724.method_23317() + d2 * Math.cos(d);
-            double d4 = SwarmCommand.mc.field_1724.method_23321() + d2 * Math.sin(d);
+            double d3 = SwarmCommand.mc.player.getX() + d2 * Math.cos(d);
+            double d4 = SwarmCommand.mc.player.getZ() + d2 * Math.sin(d);
             if (BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing()) {
                 BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
             }
@@ -92,7 +92,7 @@ extends Command {
             if (swarm.currentMode == Swarm.Mode.Queen) {
                 swarm.server.sendMessage(commandContext.getInput());
             } else {
-                Modules.get().get(InfinityMiner.class).targetBlock.set(((class_2247)commandContext.getArgument("target", class_2247.class)).method_9494().method_26204());
+                Modules.get().get(InfinityMiner.class).targetBlock.set(((BlockStateArgument)commandContext.getArgument("target", BlockStateArgument.class)).getBlockState().getBlock());
                 this.runInfinityMiner();
             }
         }
@@ -101,8 +101,8 @@ extends Command {
 
     private static int lambda$build$2(CommandContext commandContext) throws CommandSyntaxException {
         Swarm swarm = Modules.get().get(Swarm.class);
-        if (swarm.currentMode == Swarm.Mode.Queen && swarm.server != null && SwarmCommand.mc.field_1724 != null) {
-            swarm.server.sendMessage(String.valueOf(new StringBuilder().append(commandContext.getInput()).append(" ").append(SwarmCommand.mc.field_1724.method_5476().getString())));
+        if (swarm.currentMode == Swarm.Mode.Queen && swarm.server != null && SwarmCommand.mc.player != null) {
+            swarm.server.sendMessage(String.valueOf(new StringBuilder().append(commandContext.getInput()).append(" ").append(SwarmCommand.mc.player.getDisplayName().getString())));
         }
         return 1;
     }
@@ -142,12 +142,12 @@ extends Command {
     }
 
     private static int lambda$build$4(CommandContext commandContext) throws CommandSyntaxException {
-        class_1657 class_16572 = (class_1657)commandContext.getArgument("name", class_1657.class);
+        PlayerEntity PlayerEntity2 = (PlayerEntity)commandContext.getArgument("name", PlayerEntity.class);
         Swarm swarm = Modules.get().get(Swarm.class);
         if (swarm.currentMode == Swarm.Mode.Queen && swarm.server != null) {
             swarm.server.sendMessage(commandContext.getInput());
-        } else if (class_16572 != null) {
-            BaritoneAPI.getProvider().getPrimaryBaritone().getFollowProcess().follow(arg_0 -> SwarmCommand.lambda$build$3(class_16572, arg_0));
+        } else if (PlayerEntity2 != null) {
+            BaritoneAPI.getProvider().getPrimaryBaritone().getFollowProcess().follow(arg_0 -> SwarmCommand.lambda$build$3(PlayerEntity2, arg_0));
         }
         return 1;
     }
@@ -193,16 +193,16 @@ extends Command {
             if (swarm.currentMode == Swarm.Mode.Queen) {
                 swarm.server.sendMessage(commandContext.getInput());
             } else {
-                Modules.get().get(InfinityMiner.class).targetBlock.set(((class_2247)commandContext.getArgument("target", class_2247.class)).method_9494().method_26204());
-                Modules.get().get(InfinityMiner.class).repairBlock.set(((class_2247)commandContext.getArgument("repair", class_2247.class)).method_9494().method_26204());
+                Modules.get().get(InfinityMiner.class).targetBlock.set(((BlockStateArgument)commandContext.getArgument("target", BlockStateArgument.class)).getBlockState().getBlock());
+                Modules.get().get(InfinityMiner.class).repairBlock.set(((BlockStateArgument)commandContext.getArgument("repair", BlockStateArgument.class)).getBlockState().getBlock());
                 this.runInfinityMiner();
             }
         }
         return 1;
     }
 
-    private static boolean lambda$build$3(class_1657 class_16572, class_1297 class_12972) {
-        return class_12972.method_5476().method_10851().equalsIgnoreCase(class_16572.method_5476().method_10851());
+    private static boolean lambda$build$3(PlayerEntity PlayerEntity2, Entity Entity2) {
+        return Entity2.getDisplayName().asString().equalsIgnoreCase(PlayerEntity2.getDisplayName().asString());
     }
 
     private static int lambda$build$17(CommandContext commandContext) throws CommandSyntaxException {
@@ -221,7 +221,7 @@ extends Command {
                     swarm.server.sendMessage(commandContext.getInput());
                 }
                 if (swarm.currentMode != Swarm.Mode.Queen) {
-                    swarm.targetBlock = ((class_2247)commandContext.getArgument("block", class_2247.class)).method_9494();
+                    swarm.targetBlock = ((BlockStateArgument)commandContext.getArgument("block", BlockStateArgument.class)).getBlockState();
                 } else {
                     ChatUtils.moduleError(Modules.get().get(Swarm.class), "Null block", new Object[0]);
                 }

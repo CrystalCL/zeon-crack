@@ -6,7 +6,7 @@ package minegame159.meteorclient.utils.misc;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.input.Input;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -17,8 +17,8 @@ implements ISerializable<Keybind> {
     private boolean isKey;
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public void set(boolean bl, int n) {
@@ -31,9 +31,9 @@ implements ISerializable<Keybind> {
     }
 
     @Override
-    public Keybind fromTag(class_2487 class_24872) {
-        this.isKey = class_24872.method_10577("isKey");
-        this.value = class_24872.method_10550("value");
+    public Keybind fromTag(NbtCompound NbtCompound2) {
+        this.isKey = NbtCompound2.getBoolean("isKey");
+        this.value = NbtCompound2.getInt("value");
         return this;
     }
 
@@ -68,11 +68,11 @@ implements ISerializable<Keybind> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10556("isKey", this.isKey);
-        class_24872.method_10569("value", this.value);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putBoolean("isKey", this.isKey);
+        NbtCompound2.putInt("value", this.value);
+        return NbtCompound2;
     }
 
     public String toString() {

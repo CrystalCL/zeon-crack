@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import minegame159.meteorclient.gui.widgets.input.WDropdown;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 public class EnumSetting<T extends Enum<?>>
 extends Setting<T> {
@@ -18,8 +18,8 @@ extends Setting<T> {
     private T[] values;
 
     @Override
-    public T fromTag(class_2487 class_24872) {
-        this.parse(class_24872.method_10558("value"));
+    public T fromTag(NbtCompound NbtCompound2) {
+        this.parse(NbtCompound2.getString("value"));
         return (T)((Enum)this.get());
     }
 
@@ -45,15 +45,15 @@ extends Setting<T> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_24872.method_10582("value", ((Enum)this.get()).toString());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound2.putString("value", ((Enum)this.get()).toString());
+        return NbtCompound2;
     }
 
     @Override

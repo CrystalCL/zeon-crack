@@ -5,7 +5,7 @@ package minegame159.meteorclient.utils.misc;
 
 import java.util.Objects;
 import minegame159.meteorclient.utils.misc.ISerializable;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -21,11 +21,11 @@ implements ISerializable<Vector2> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10549("x", this.x);
-        class_24872.method_10549("y", this.y);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putDouble("x", this.x);
+        NbtCompound2.putDouble("y", this.y);
+        return NbtCompound2;
     }
 
     public Vector2(double d, double d2) {
@@ -53,8 +53,8 @@ implements ISerializable<Vector2> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public void set(double d, double d2) {
@@ -63,9 +63,9 @@ implements ISerializable<Vector2> {
     }
 
     @Override
-    public Vector2 fromTag(class_2487 class_24872) {
-        this.x = class_24872.method_10574("x");
-        this.y = class_24872.method_10574("y");
+    public Vector2 fromTag(NbtCompound NbtCompound2) {
+        this.x = NbtCompound2.getDouble("x");
+        this.y = NbtCompound2.getDouble("y");
         return this;
     }
 

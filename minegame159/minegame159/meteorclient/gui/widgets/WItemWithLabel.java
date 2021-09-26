@@ -7,44 +7,44 @@ import java.util.List;
 import minegame159.meteorclient.gui.widgets.WItem;
 import minegame159.meteorclient.gui.widgets.WLabel;
 import minegame159.meteorclient.gui.widgets.containers.WHorizontalList;
-import net.minecraft.class_1292;
-import net.minecraft.class_1293;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1844;
+import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.potion.PotionUtil;
 
 public class WItemWithLabel
 extends WHorizontalList {
     private final String name;
     private WLabel label;
     private WItem item;
-    private class_1799 itemStack;
+    private ItemStack itemStack;
 
-    public void set(class_1799 class_17992) {
-        this.itemStack = class_17992;
-        this.item.itemStack = class_17992;
-        this.label.set(String.valueOf(new StringBuilder().append(class_17992.method_7964().getString()).append(this.getStringToAppend())));
+    public void set(ItemStack ItemStack2) {
+        this.itemStack = ItemStack2;
+        this.item.itemStack = ItemStack2;
+        this.label.set(String.valueOf(new StringBuilder().append(ItemStack2.getName().getString()).append(this.getStringToAppend())));
     }
 
     public String getLabelText() {
         return this.label == null ? this.name : this.label.get();
     }
 
-    public WItemWithLabel(class_1799 class_17992, String string) {
-        this.itemStack = class_17992;
+    public WItemWithLabel(ItemStack ItemStack2, String string) {
+        this.itemStack = ItemStack2;
         this.name = string;
     }
 
     private String getStringToAppend() {
         List list;
         String string = "";
-        if (this.itemStack.method_7909() == class_1802.field_8574 && (list = class_1844.method_8063((class_1799)this.itemStack).method_8049()).size() > 0) {
+        if (this.itemStack.getItem() == Items.POTION && (list = PotionUtil.getPotion((ItemStack)this.itemStack).getEffects()).size() > 0) {
             string = String.valueOf(new StringBuilder().append(string).append(" "));
-            class_1293 class_12932 = (class_1293)list.get(0);
-            if (class_12932.method_5578() > 0) {
-                string = String.valueOf(new StringBuilder().append(string).append(class_12932.method_5578() + 1).append(" "));
+            StatusEffectInstance StatusEffectInstance2 = (StatusEffectInstance)list.get(0);
+            if (StatusEffectInstance2.getAmplifier() > 0) {
+                string = String.valueOf(new StringBuilder().append(string).append(StatusEffectInstance2.getAmplifier() + 1).append(" "));
             }
-            string = String.valueOf(new StringBuilder().append(string).append("(").append(class_1292.method_5577((class_1293)class_12932, (float)1.0f)).append(")"));
+            string = String.valueOf(new StringBuilder().append(string).append("(").append(StatusEffectUtil.durationToString((StatusEffectInstance)StatusEffectInstance2, (float)1.0f)).append(")"));
         }
         return string;
     }

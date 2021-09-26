@@ -5,45 +5,45 @@ package minegame159.meteorclient.settings;
 
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2248;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2960;
+import net.minecraft.block.Block;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
  */
 public class BlockSetting
-extends Setting<class_2248> {
+extends Setting<Block> {
     @Override
-    protected boolean isValueValid(class_2248 class_22482) {
+    protected boolean isValueValid(Block Block2) {
         return true;
     }
 
-    public BlockSetting(String string, String string2, class_2248 class_22482, Consumer<class_2248> consumer, Consumer<Setting<class_2248>> consumer2) {
-        super(string, string2, class_22482, consumer, consumer2);
+    public BlockSetting(String string, String string2, Block Block2, Consumer<Block> consumer, Consumer<Setting<Block>> consumer2) {
+        super(string, string2, Block2, consumer, consumer2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("value", class_2378.field_11146.method_10221((Object)((class_2248)this.get())).toString());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("value", Registry.BLOCK.getId((Object)((Block)this.get())).toString());
+        return NbtCompound2;
     }
 
     @Override
-    protected class_2248 parseImpl(String string) {
-        return (class_2248)BlockSetting.parseId(class_2378.field_11146, string);
+    protected Block parseImpl(String string) {
+        return (Block)BlockSetting.parseId(Registry.BLOCK, string);
     }
 
     @Override
-    public Iterable<class_2960> getIdentifierSuggestions() {
-        return class_2378.field_11146.method_10235();
+    public Iterable<Identifier> getIdentifierSuggestions() {
+        return Registry.BLOCK.getIds();
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
@@ -52,23 +52,23 @@ extends Setting<class_2248> {
     }
 
     @Override
-    public class_2248 fromTag(class_2487 class_24872) {
-        this.value = class_2378.field_11146.method_10223(new class_2960(class_24872.method_10558("value")));
+    public Block fromTag(NbtCompound NbtCompound2) {
+        this.value = Registry.BLOCK.get(new Identifier(NbtCompound2.getString("value")));
         this.changed();
-        return (class_2248)this.get();
+        return (Block)this.get();
     }
 
     @Override
     protected boolean isValueValid(Object object) {
-        return this.isValueValid((class_2248)object);
+        return this.isValueValid((Block)object);
     }
 
     public static class Builder {
-        private Consumer<Setting<class_2248>> onModuleActivated;
-        private class_2248 defaultValue;
+        private Consumer<Setting<Block>> onModuleActivated;
+        private Block defaultValue;
         private String name = "undefined";
         private String description = "";
-        private Consumer<class_2248> onChanged;
+        private Consumer<Block> onChanged;
 
         public Builder description(String string) {
             this.description = string;
@@ -80,17 +80,17 @@ extends Setting<class_2248> {
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<class_2248>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<Block>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
 
-        public Builder defaultValue(class_2248 class_22482) {
-            this.defaultValue = class_22482;
+        public Builder defaultValue(Block Block2) {
+            this.defaultValue = Block2;
             return this;
         }
 
-        public Builder onChanged(Consumer<class_2248> consumer) {
+        public Builder onChanged(Consumer<Block> consumer) {
             this.onChanged = consumer;
             return this;
         }

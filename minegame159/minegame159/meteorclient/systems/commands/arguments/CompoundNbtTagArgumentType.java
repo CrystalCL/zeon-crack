@@ -10,14 +10,14 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
-import net.minecraft.class_2487;
-import net.minecraft.class_2522;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
  */
 public class CompoundNbtTagArgumentType
-implements ArgumentType<class_2487> {
+implements ArgumentType<NbtCompound> {
     private static final Collection<String> EXAMPLES = Arrays.asList("{foo:bar}", "{foo:[aa, bb],bar:15}");
 
     public static CompoundNbtTagArgumentType nbtTag() {
@@ -32,10 +32,10 @@ implements ArgumentType<class_2487> {
         return this.parse(stringReader);
     }
 
-    public class_2487 parse(StringReader stringReader) throws CommandSyntaxException {
+    public NbtCompound parse(StringReader stringReader) throws CommandSyntaxException {
         stringReader.skipWhitespace();
         if (!stringReader.canRead()) {
-            throw class_2522.field_11605.createWithContext((ImmutableStringReader)stringReader);
+            throw StringNbtReader.EXPECTED_VALUE.createWithContext((ImmutableStringReader)stringReader);
         }
         StringBuilder stringBuilder = new StringBuilder();
         int n = 0;
@@ -53,11 +53,11 @@ implements ArgumentType<class_2487> {
         }
         stringReader.expect('}');
         stringBuilder.append('}');
-        return class_2522.method_10718((String)String.valueOf(stringBuilder).replace("$", "\u00a7").replace("\u00a7\u00a7", "$"));
+        return StringNbtReader.parse((String)String.valueOf(stringBuilder).replace("$", "\u00a7").replace("\u00a7\u00a7", "$"));
     }
 
-    public static class_2487 getTag(CommandContext<?> commandContext, String string) {
-        return (class_2487)commandContext.getArgument(string, class_2487.class);
+    public static NbtCompound getTag(CommandContext<?> commandContext, String string) {
+        return (NbtCompound)commandContext.getArgument(string, NbtCompound.class);
     }
 }
 

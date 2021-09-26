@@ -43,21 +43,21 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_1923;
-import net.minecraft.class_2586;
-import net.minecraft.class_2591;
-import net.minecraft.class_2595;
-import net.minecraft.class_2601;
-import net.minecraft.class_2609;
-import net.minecraft.class_2611;
-import net.minecraft.class_2614;
-import net.minecraft.class_2627;
-import net.minecraft.class_2960;
-import net.minecraft.class_368;
-import net.minecraft.class_3719;
-import net.minecraft.class_374;
-import net.minecraft.class_437;
-import net.minecraft.class_4587;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.entity.DispenserBlockEntity;
+import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.block.entity.EnderChestBlockEntity;
+import net.minecraft.block.entity.HopperBlockEntity;
+import net.minecraft.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.toast.Toast;
+import net.minecraft.block.entity.BarrelBlockEntity;
+import net.minecraft.client.toast.ToastManager;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class StashFinder
 extends Module {
@@ -65,7 +65,7 @@ extends Module {
     private final SettingGroup sgGeneral;
     private final Setting<Mode> mode;
     private final Setting<Boolean> sendNotifications;
-    private final Setting<List<class_2591<?>>> storageBlocks;
+    private final Setting<List<BlockEntityType<?>>> storageBlocks;
     private final Setting<Integer> minimumDistance;
     private final Setting<Integer> minimumStorageCount;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -134,7 +134,7 @@ extends Module {
                     ((BufferedReader)reader).readLine();
                     while ((object2 = ((BufferedReader)reader).readLine()) != null) {
                         object = ((String)object2).split(" ");
-                        Chunk chunk = new Chunk(new class_1923(Integer.parseInt((String)object[0]), Integer.parseInt((String)object[1])));
+                        Chunk chunk = new Chunk(new ChunkPos(Integer.parseInt((String)object[0]), Integer.parseInt((String)object[1])));
                         chunk.chests = Integer.parseInt((String)object[2]);
                         chunk.shulkers = Integer.parseInt((String)object[3]);
                         chunk.enderChests = Integer.parseInt((String)object[4]);
@@ -187,38 +187,38 @@ extends Module {
     @EventHandler
     private void onChunkData(ChunkDataEvent chunkDataEvent) {
         double d;
-        double d2 = Math.abs(chunkDataEvent.chunk.method_12004().field_9181 * 16);
-        if (Math.sqrt(d2 * d2 + (d = (double)Math.abs(chunkDataEvent.chunk.method_12004().field_9180 * 16)) * d) < (double)this.minimumDistance.get().intValue()) {
+        double d2 = Math.abs(chunkDataEvent.chunk.getPos().x * 16);
+        if (Math.sqrt(d2 * d2 + (d = (double)Math.abs(chunkDataEvent.chunk.getPos().z * 16)) * d) < (double)this.minimumDistance.get().intValue()) {
             return;
         }
-        Chunk chunk = new Chunk(chunkDataEvent.chunk.method_12004());
-        for (class_2586 class_25862 : chunkDataEvent.chunk.method_12214().values()) {
-            if (!this.storageBlocks.get().contains(class_25862.method_11017())) continue;
-            if (class_25862 instanceof class_2595) {
+        Chunk chunk = new Chunk(chunkDataEvent.chunk.getPos());
+        for (BlockEntity BlockEntity2 : chunkDataEvent.chunk.getBlockEntities().values()) {
+            if (!this.storageBlocks.get().contains(BlockEntity2.getType())) continue;
+            if (BlockEntity2 instanceof ChestBlockEntity) {
                 ++chunk.chests;
                 continue;
             }
-            if (class_25862 instanceof class_3719) {
+            if (BlockEntity2 instanceof BarrelBlockEntity) {
                 ++chunk.barrels;
                 continue;
             }
-            if (class_25862 instanceof class_2627) {
+            if (BlockEntity2 instanceof ShulkerBoxBlockEntity) {
                 ++chunk.shulkers;
                 continue;
             }
-            if (class_25862 instanceof class_2611) {
+            if (BlockEntity2 instanceof EnderChestBlockEntity) {
                 ++chunk.enderChests;
                 continue;
             }
-            if (class_25862 instanceof class_2609) {
+            if (BlockEntity2 instanceof AbstractFurnaceBlockEntity) {
                 ++chunk.furnaces;
                 continue;
             }
-            if (class_25862 instanceof class_2601) {
+            if (BlockEntity2 instanceof DispenserBlockEntity) {
                 ++chunk.dispensersDroppers;
                 continue;
             }
-            if (!(class_25862 instanceof class_2614)) continue;
+            if (!(BlockEntity2 instanceof HopperBlockEntity)) continue;
             ++chunk.hoppers;
         }
         if (chunk.getTotal() >= this.minimumStorageCount.get()) {
@@ -233,7 +233,7 @@ extends Module {
             this.saveCsv();
             if (!(!this.sendNotifications.get().booleanValue() || chunk.equals(object) && chunk.countsEqual((Chunk)object))) {
                 if (this.mode.get() == Mode.Toast) {
-                    this.mc.method_1566().method_1999(new class_368(this){
+                    this.mc.getToastManager().add(new Toast(this){
                         private long lastTime;
                         final StashFinder this$0;
                         private long timer;
@@ -242,17 +242,17 @@ extends Module {
                             this.lastTime = -1L;
                         }
 
-                        public class_368.class_369 method_1986(class_4587 class_45872, class_374 class_3742, long l) {
+                        public Visibility draw(MatrixStack MatrixStack2, ToastManager JigsawBlockScreen, long l) {
                             if (this.lastTime == -1L) {
                                 this.lastTime = l;
                             } else {
                                 this.timer += l - this.lastTime;
                             }
-                            class_3742.method_1995().method_1531().method_22813(new class_2960("textures/gui/toasts.png"));
+                            JigsawBlockScreen.getGame().getTextureManager().bindTexture(new Identifier("textures/gui/toasts.png"));
                             RenderSystem.color4f((float)1.0f, (float)1.0f, (float)1.0f, (float)255.0f);
-                            class_3742.method_25302(class_45872, 0, 0, 0, 32, 160, 32);
-                            class_3742.method_1995().field_1772.method_1729(class_45872, "StashRecorder found stash.", 12.0f, 12.0f, -11534256);
-                            return this.timer >= 32000L ? class_368.class_369.field_2209 : class_368.class_369.field_2210;
+                            JigsawBlockScreen.drawTexture(MatrixStack2, 0, 0, 0, 32, 160, 32);
+                            JigsawBlockScreen.getGame().textRenderer.draw(MatrixStack2, "StashRecorder found stash.", 12.0f, 12.0f, -11534256);
+                            return this.timer >= 32000L ? Visibility.HIDE : Visibility.SHOW;
                         }
                     });
                 } else {
@@ -300,7 +300,7 @@ extends Module {
     }
 
     private void lambda$fillTable$2(GuiTheme guiTheme, Chunk chunk) {
-        this.mc.method_1507((class_437)new ChunkScreen(guiTheme, chunk));
+        this.mc.openScreen((Screen)new ChunkScreen(guiTheme, chunk));
     }
 
     public StashFinder() {
@@ -352,7 +352,7 @@ extends Module {
         public int hoppers;
         public int chests;
         public int furnaces;
-        public class_1923 chunkPos;
+        public ChunkPos chunkPos;
         public int dispensersDroppers;
         public int barrels;
         public transient int z;
@@ -360,8 +360,8 @@ extends Module {
         public int shulkers;
         public int enderChests;
 
-        public Chunk(class_1923 class_19232) {
-            this.chunkPos = class_19232;
+        public Chunk(ChunkPos ChunkPos2) {
+            this.chunkPos = ChunkPos2;
             this.calculatePos();
         }
 
@@ -384,8 +384,8 @@ extends Module {
         }
 
         public void calculatePos() {
-            this.x = this.chunkPos.field_9181 * 16 + 8;
-            this.z = this.chunkPos.field_9180 * 16 + 8;
+            this.x = this.chunkPos.x * 16 + 8;
+            this.z = this.chunkPos.z * 16 + 8;
         }
 
         public int hashCode() {

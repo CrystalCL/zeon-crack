@@ -22,15 +22,15 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_124;
-import net.minecraft.class_2554;
-import net.minecraft.class_2558;
-import net.minecraft.class_2561;
-import net.minecraft.class_2568;
-import net.minecraft.class_2585;
-import net.minecraft.class_303;
-import net.minecraft.class_3544;
-import net.minecraft.class_5481;
+import net.minecraft.util.Formatting;
+import net.minecraft.text.BaseText;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.Text;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.client.gui.hud.ChatHudLine;
+import net.minecraft.util.ChatUtil;
+import net.minecraft.text.OrderedText;
 
 public class BetterChat
 extends Module {
@@ -74,22 +74,22 @@ extends Module {
         }
     }
 
-    private class_2554 getSendButton(String string, String string2) {
-        class_2585 class_25852 = new class_2585("[SEND ANYWAY]");
-        class_2585 class_25853 = new class_2585("");
-        class_2585 class_25854 = new class_2585(string2);
-        class_25854.method_10862(class_25853.method_10866().method_27706(class_124.field_1080));
-        class_25853.method_10852((class_2561)class_25854);
-        class_25853.method_10852((class_2561)new class_2585(String.valueOf(new StringBuilder().append('\n').append(string))));
-        class_25852.method_10862(class_25852.method_10866().method_27706(class_124.field_1079).method_10958(new class_2558(class_2558.class_2559.field_11750, Commands.get().get(SayCommand.class).toString(string))).method_10949(new class_2568(class_2568.class_5247.field_24342, (Object)class_25853)));
-        return class_25852;
+    private BaseText getSendButton(String string, String string2) {
+        LiteralText LiteralText2 = new LiteralText("[SEND ANYWAY]");
+        LiteralText LiteralText3 = new LiteralText("");
+        LiteralText LiteralText4 = new LiteralText(string2);
+        LiteralText4.setStyle(LiteralText3.getStyle().withFormatting(Formatting.GRAY));
+        LiteralText3.append((Text)LiteralText4);
+        LiteralText3.append((Text)new LiteralText(String.valueOf(new StringBuilder().append('\n').append(string))));
+        LiteralText2.setStyle(LiteralText2.getStyle().withFormatting(Formatting.DARK_RED).withClickEvent(new ClickEvent(ClickEvent.class_2559.RUN_COMMAND, Commands.get().get(SayCommand.class).toString(string))).withHoverEvent(new HoverEvent(HoverEvent.class_5247.SHOW_TEXT, (Object)LiteralText3)));
+        return LiteralText2;
     }
 
     public int getChatLength() {
         return this.longerChatLines.get();
     }
 
-    public boolean onMsg(String string, int n, int n2, List<class_303<class_2561>> list, List<class_303<class_5481>> list2) {
+    public boolean onMsg(String string, int n, int n2, List<ChatHudLine<Text>> list, List<ChatHudLine<OrderedText>> list2) {
         if (!this.isActive() || this.skipMessage) {
             return false;
         }
@@ -114,12 +114,12 @@ extends Module {
     }
 
     private void sendWarningMessage(String string, String string2, String string3) {
-        class_2585 class_25852 = new class_2585(string2);
+        LiteralText LiteralText2 = new LiteralText(string2);
         if (this.disableButton.get().booleanValue()) {
-            class_2554 class_25542 = this.getSendButton(string, string3);
-            class_25852.method_10852((class_2561)class_25542);
+            BaseText BaseText2 = this.getSendButton(string, string3);
+            LiteralText2.append((Text)BaseText2);
         }
-        ChatUtils.info("Warning", (class_2561)class_25852);
+        ChatUtils.info("Warning", (Text)LiteralText2);
     }
 
     public boolean isInfiniteChatBox() {
@@ -181,14 +181,14 @@ extends Module {
         this.sb = new StringBuilder();
     }
 
-    private boolean antiSpamOnMsg(String string, int n, int n2, List<class_303<class_2561>> list, List<class_303<class_5481>> list2) {
-        string = class_3544.method_15440((String)string);
+    private boolean antiSpamOnMsg(String string, int n, int n2, List<ChatHudLine<Text>> list, List<ChatHudLine<OrderedText>> list2) {
+        string = ChatUtil.stripTextFormat((String)string);
         for (int i = 0; i < this.antiSpamDepth.get(); ++i) {
             if (!this.antiSpamCheckMsg(list2, string, n2, n, i)) continue;
             if (this.antiSpamMoveToBottom.get().booleanValue() && i != 0) {
-                class_303<class_5481> class_3032 = list2.remove(i);
-                list2.add(0, class_3032);
-                list.add(0, class_3032);
+                ChatHudLine<OrderedText> ChatHudLine2 = list2.remove(i);
+                list2.add(0, ChatHudLine2);
+                list.add(0, ChatHudLine2);
             }
             return true;
         }
@@ -199,18 +199,18 @@ extends Module {
         return this.getAffix(this.prefixEnabled, this.prefixRandom, "(%03d) ", this.prefixText, this.prefixSmallCaps);
     }
 
-    private boolean antiSpamCheckMsg(List<class_303<class_5481>> list, String string, int n, int n2, int n3) {
-        class_303<class_5481> class_3032;
-        class_303<class_5481> class_3033 = class_3032 = list.size() > n3 ? list.get(n3) : null;
-        if (class_3032 == null) {
+    private boolean antiSpamCheckMsg(List<ChatHudLine<OrderedText>> list, String string, int n, int n2, int n3) {
+        ChatHudLine<OrderedText> ChatHudLine2;
+        ChatHudLine<OrderedText> ChatHudLine3 = ChatHudLine2 = list.size() > n3 ? list.get(n3) : null;
+        if (ChatHudLine2 == null) {
             return false;
         }
-        String string2 = ((class_5481)class_3032.method_1412()).toString();
-        if (class_3544.method_15440((String)string2).equals(string)) {
-            string2 = String.valueOf(new StringBuilder().append(string2).append(class_124.field_1080).append(" (2)"));
-            ((ChatHudLineAccessor)class_3032).setText(new class_2585(string2));
-            ((ChatHudLineAccessor)class_3032).setTimestamp(n);
-            ((ChatHudLineAccessor)class_3032).setId(n2);
+        String string2 = ((OrderedText)ChatHudLine2.getText()).toString();
+        if (ChatUtil.stripTextFormat((String)string2).equals(string)) {
+            string2 = String.valueOf(new StringBuilder().append(string2).append(Formatting.GRAY).append(" (2)"));
+            ((ChatHudLineAccessor)ChatHudLine2).setText(new LiteralText(string2));
+            ((ChatHudLineAccessor)ChatHudLine2).setTimestamp(n);
+            ((ChatHudLineAccessor)ChatHudLine2).setId(n2);
             return true;
         }
         Matcher matcher = Pattern.compile(".*(\\([0-9]+\\)$)").matcher(string2);
@@ -218,11 +218,11 @@ extends Module {
             String string3 = matcher.group(1);
             int n4 = Integer.parseInt(string3.substring(1, string3.length() - 1));
             int n5 = string2.lastIndexOf(string3);
-            if (class_3544.method_15440((String)(string2 = string2.substring(0, n5 - class_124.field_1080.toString().length() - 1))).equals(string)) {
-                string2 = String.valueOf(new StringBuilder().append(string2).append(class_124.field_1080).append(" (").append(n4 + 1).append(")"));
-                ((ChatHudLineAccessor)class_3032).setText(new class_2585(string2));
-                ((ChatHudLineAccessor)class_3032).setTimestamp(n);
-                ((ChatHudLineAccessor)class_3032).setId(n2);
+            if (ChatUtil.stripTextFormat((String)(string2 = string2.substring(0, n5 - Formatting.GRAY.toString().length() - 1))).equals(string)) {
+                string2 = String.valueOf(new StringBuilder().append(string2).append(Formatting.GRAY).append(" (").append(n4 + 1).append(")"));
+                ((ChatHudLineAccessor)ChatHudLine2).setText(new LiteralText(string2));
+                ((ChatHudLineAccessor)ChatHudLine2).setTimestamp(n);
+                ((ChatHudLineAccessor)ChatHudLine2).setId(n2);
                 return true;
             }
         }

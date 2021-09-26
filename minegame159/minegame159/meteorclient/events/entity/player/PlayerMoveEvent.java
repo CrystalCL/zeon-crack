@@ -3,17 +3,17 @@
  */
 package minegame159.meteorclient.events.entity.player;
 
-import net.minecraft.class_1313;
-import net.minecraft.class_243;
+import net.minecraft.entity.MovementType;
+import net.minecraft.util.math.Vec3d;
 
 public class PlayerMoveEvent {
     private static final PlayerMoveEvent INSTANCE = new PlayerMoveEvent();
-    public class_243 movement;
-    public class_1313 type;
+    public Vec3d movement;
+    public MovementType type;
 
-    public static PlayerMoveEvent get(class_1313 class_13132, class_243 class_2432) {
-        PlayerMoveEvent.INSTANCE.type = class_13132;
-        PlayerMoveEvent.INSTANCE.movement = class_2432;
+    public static PlayerMoveEvent get(MovementType MovementType2, Vec3d Vec3d2) {
+        PlayerMoveEvent.INSTANCE.type = MovementType2;
+        PlayerMoveEvent.INSTANCE.movement = Vec3d2;
         return INSTANCE;
     }
 }

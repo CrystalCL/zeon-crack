@@ -13,7 +13,7 @@ import minegame159.meteorclient.systems.modules.render.hud.HudRenderer;
 import minegame159.meteorclient.systems.modules.render.hud.modules.HudElement;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_3532;
+import net.minecraft.util.math.MathHelper;
 
 public class CompassHud
 extends HudElement {
@@ -26,9 +26,9 @@ extends HudElement {
     private double getPosOnCompass(Direction direction) {
         double d = 0.0;
         if (!this.isInEditor()) {
-            d = this.mc.field_1724.field_6031;
+            d = this.mc.player.yaw;
         }
-        return Math.toRadians(class_3532.method_15338((double)d)) + (double)direction.ordinal() * 1.5707963267948966;
+        return Math.toRadians(MathHelper.wrapDegrees((double)d)) + (double)direction.ordinal() * 1.5707963267948966;
     }
 
     public CompassHud(HUD hUD) {
@@ -43,9 +43,9 @@ extends HudElement {
     private double getY(double d) {
         double d2 = 0.0;
         if (!this.isInEditor()) {
-            d2 = this.mc.field_1724.field_5965;
+            d2 = this.mc.player.pitch;
         }
-        return Math.cos(d) * Math.sin(Math.toRadians(class_3532.method_15350((double)(d2 + 30.0), (double)-90.0, (double)90.0))) * (this.scale.get() * 40.0);
+        return Math.cos(d) * Math.sin(Math.toRadians(MathHelper.clamp((double)(d2 + 30.0), (double)-90.0, (double)90.0))) * (this.scale.get() * 40.0);
     }
 
     private double getX(double d) {

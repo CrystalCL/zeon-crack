@@ -15,8 +15,8 @@ import minegame159.meteorclient.mixin.MinecraftClientAccessor;
 import minegame159.meteorclient.systems.accounts.Account;
 import minegame159.meteorclient.systems.accounts.AccountType;
 import minegame159.meteorclient.systems.accounts.AccountUtils;
-import net.minecraft.class_310;
-import net.minecraft.class_320;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.Session;
 
 public class TheAlteningAccount
 extends Account<TheAlteningAccount> {
@@ -34,7 +34,7 @@ extends Account<TheAlteningAccount> {
     }
 
     private YggdrasilUserAuthentication getAuth() {
-        YggdrasilUserAuthentication yggdrasilUserAuthentication = (YggdrasilUserAuthentication)new YggdrasilAuthenticationService(((MinecraftClientAccessor)class_310.method_1551()).getProxy(), "", Environment.create((String)"http://authserver.thealtening.com", (String)"https://api.mojang.com", (String)"http://sessionserver.thealtening.com", (String)"https://api.minecraftservices.com", (String)"The Altening")).createUserAuthentication(Agent.MINECRAFT);
+        YggdrasilUserAuthentication yggdrasilUserAuthentication = (YggdrasilUserAuthentication)new YggdrasilAuthenticationService(((MinecraftClientAccessor)MinecraftClient.getInstance()).getProxy(), "", Environment.create((String)"http://authserver.thealtening.com", (String)"https://api.mojang.com", (String)"http://sessionserver.thealtening.com", (String)"https://api.minecraftservices.com", (String)"The Altening")).createUserAuthentication(Agent.MINECRAFT);
         yggdrasilUserAuthentication.setUsername(this.name);
         yggdrasilUserAuthentication.setPassword("Meteor on Crack!");
         return yggdrasilUserAuthentication;
@@ -66,14 +66,14 @@ extends Account<TheAlteningAccount> {
 
     @Override
     public boolean login() {
-        YggdrasilMinecraftSessionService yggdrasilMinecraftSessionService = (YggdrasilMinecraftSessionService)class_310.method_1551().method_1495();
+        YggdrasilMinecraftSessionService yggdrasilMinecraftSessionService = (YggdrasilMinecraftSessionService)MinecraftClient.getInstance().getSessionService();
         AccountUtils.setBaseUrl(yggdrasilMinecraftSessionService, "http://sessionserver.thealtening.com/session/minecraft/");
         AccountUtils.setJoinUrl(yggdrasilMinecraftSessionService, "http://sessionserver.thealtening.com/session/minecraft/join");
         AccountUtils.setCheckUrl(yggdrasilMinecraftSessionService, "http://sessionserver.thealtening.com/session/minecraft/hasJoined");
         YggdrasilUserAuthentication yggdrasilUserAuthentication = this.getAuth();
         try {
             yggdrasilUserAuthentication.logIn();
-            this.setSession(new class_320(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang"));
+            this.setSession(new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang"));
             this.cache.username = yggdrasilUserAuthentication.getSelectedProfile().getName();
             return true;
         }

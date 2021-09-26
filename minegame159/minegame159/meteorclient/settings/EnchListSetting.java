@@ -8,35 +8,35 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_1887;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2960;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.Identifier;
 
 public class EnchListSetting
-extends Setting<List<class_1887>> {
-    public EnchListSetting(String string, String string2, List<class_1887> list, Consumer<List<class_1887>> consumer, Consumer<Setting<List<class_1887>>> consumer2) {
+extends Setting<List<Enchantment>> {
+    public EnchListSetting(String string, String string2, List<Enchantment> list, Consumer<List<Enchantment>> consumer, Consumer<Setting<List<Enchantment>>> consumer2) {
         super(string, string2, list, consumer, consumer2);
-        this.value = new ArrayList<class_1887>(list);
+        this.value = new ArrayList<Enchantment>(list);
     }
 
     @Override
-    protected boolean isValueValid(List<class_1887> list) {
+    protected boolean isValueValid(List<Enchantment> list) {
         return true;
     }
 
     @Override
-    protected List<class_1887> parseImpl(String string) {
+    protected List<Enchantment> parseImpl(String string) {
         String[] stringArray = string.split(",");
-        ArrayList<class_1887> arrayList = new ArrayList<class_1887>(stringArray.length);
+        ArrayList<Enchantment> arrayList = new ArrayList<Enchantment>(stringArray.length);
         try {
             for (String string2 : stringArray) {
-                class_1887 class_18872 = (class_1887)EnchListSetting.parseId(class_2378.field_11160, string2);
-                if (class_18872 == null) continue;
-                arrayList.add(class_18872);
+                Enchantment Enchantment2 = (Enchantment)EnchListSetting.parseId(Registry.ENCHANTMENT, string2);
+                if (Enchantment2 == null) continue;
+                arrayList.add(Enchantment2);
                 if (null == null) continue;
                 return null;
             }
@@ -48,17 +48,17 @@ extends Setting<List<class_1887>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2499 class_24992 = new class_2499();
-        for (class_1887 class_18872 : (List)this.get()) {
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtList NbtList2 = new NbtList();
+        for (Enchantment Enchantment2 : (List)this.get()) {
             try {
-                class_24992.add((Object)class_2519.method_23256((String)class_2378.field_11160.method_10221((Object)class_18872).toString()));
+                NbtList2.add((Object)NbtString.of((String)Registry.ENCHANTMENT.getId((Object)Enchantment2).toString()));
             }
             catch (NullPointerException nullPointerException) {}
         }
-        class_24872.method_10566("value", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     @Override
@@ -67,8 +67,8 @@ extends Setting<List<class_1887>> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
@@ -80,11 +80,11 @@ extends Setting<List<class_1887>> {
     }
 
     @Override
-    public List<class_1887> fromTag(class_2487 class_24872) {
+    public List<Enchantment> fromTag(NbtCompound NbtCompound2) {
         ((List)this.get()).clear();
-        class_2499 class_24992 = class_24872.method_10554("value", 8);
-        for (class_2520 class_25202 : class_24992) {
-            ((List)this.get()).add((class_1887)class_2378.field_11160.method_10223(new class_2960(class_25202.method_10714())));
+        NbtList NbtList2 = NbtCompound2.getList("value", 8);
+        for (NbtElement NbtElement2 : NbtList2) {
+            ((List)this.get()).add((Enchantment)Registry.ENCHANTMENT.get(new Identifier(NbtElement2.asString())));
         }
         this.changed();
         return (List)this.get();
@@ -96,16 +96,16 @@ extends Setting<List<class_1887>> {
     }
 
     @Override
-    public Iterable<class_2960> getIdentifierSuggestions() {
-        return class_2378.field_11160.method_10235();
+    public Iterable<Identifier> getIdentifierSuggestions() {
+        return Registry.ENCHANTMENT.getIds();
     }
 
     public static class Builder {
         private String name = "undefined";
         private String description = "";
-        private Consumer<List<class_1887>> onChanged;
-        private Consumer<Setting<List<class_1887>>> onModuleActivated;
-        private List<class_1887> defaultValue;
+        private Consumer<List<Enchantment>> onChanged;
+        private Consumer<Setting<List<Enchantment>>> onModuleActivated;
+        private List<Enchantment> defaultValue;
 
         public EnchListSetting build() {
             return new EnchListSetting(this.name, this.description, this.defaultValue, this.onChanged, this.onModuleActivated);
@@ -116,7 +116,7 @@ extends Setting<List<class_1887>> {
             return this;
         }
 
-        public Builder defaultValue(List<class_1887> list) {
+        public Builder defaultValue(List<Enchantment> list) {
             this.defaultValue = list;
             return this;
         }
@@ -126,12 +126,12 @@ extends Setting<List<class_1887>> {
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<List<class_1887>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<List<Enchantment>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
 
-        public Builder onChanged(Consumer<List<class_1887>> consumer) {
+        public Builder onChanged(Consumer<List<Enchantment>> consumer) {
             this.onChanged = consumer;
             return this;
         }

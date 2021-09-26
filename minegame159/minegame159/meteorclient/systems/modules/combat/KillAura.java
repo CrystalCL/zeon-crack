@@ -26,21 +26,21 @@ import minegame159.meteorclient.utils.entity.Target;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.PlayerUtils;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1299;
-import net.minecraft.class_1309;
-import net.minecraft.class_1429;
-import net.minecraft.class_1657;
-import net.minecraft.class_1743;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1829;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
 
 public class KillAura
 extends Module {
-    private final Setting<Object2BooleanMap<class_1299<?>>> entities;
-    private final List<class_1297> entityList;
+    private final Setting<Object2BooleanMap<EntityType<?>>> entities;
+    private final List<Entity> entityList;
     private final Setting<RotationMode> rotationMode;
     private final Setting<Boolean> randomDelayEnabled;
     private boolean canAttack;
@@ -53,7 +53,7 @@ extends Module {
     private final Setting<Boolean> targetMultiple;
     private final SettingGroup sgGeneral;
     private final Setting<Boolean> babies;
-    private class_1297 target;
+    private Entity target;
     private final Setting<Boolean> pauseOnCombat;
     private final Setting<Boolean> ignoreWalls;
     private final Setting<Double> range;
@@ -67,39 +67,39 @@ extends Module {
     private final Setting<Target> rotationDirection;
     private final Setting<Integer> hitDelay;
 
-    private boolean lambda$onTick$0(class_1297 class_12972) {
-        if (class_12972 == this.mc.field_1724 || class_12972 == this.mc.field_1719) {
+    private boolean lambda$onTick$0(Entity Entity2) {
+        if (Entity2 == this.mc.player || Entity2 == this.mc.cameraEntity) {
             return false;
         }
-        if (class_12972 instanceof class_1309 && ((class_1309)class_12972).method_29504() || !class_12972.method_5805()) {
+        if (Entity2 instanceof LivingEntity && ((LivingEntity)Entity2).isDead() || !Entity2.isAlive()) {
             return false;
         }
-        if ((double)class_12972.method_5739((class_1297)this.mc.field_1724) > this.range.get()) {
+        if ((double)Entity2.distanceTo((Entity)this.mc.player) > this.range.get()) {
             return false;
         }
-        if (!this.entities.get().getBoolean((Object)class_12972.method_5864())) {
+        if (!this.entities.get().getBoolean((Object)Entity2.getType())) {
             return false;
         }
-        if (!this.nametagged.get().booleanValue() && class_12972.method_16914()) {
+        if (!this.nametagged.get().booleanValue() && Entity2.hasCustomName()) {
             return false;
         }
-        if (!this.ignoreWalls.get().booleanValue() && !PlayerUtils.canSeeEntity(class_12972)) {
+        if (!this.ignoreWalls.get().booleanValue() && !PlayerUtils.canSeeEntity(Entity2)) {
             return false;
         }
-        if (class_12972 instanceof class_1657) {
-            if (((class_1657)class_12972).method_7337()) {
+        if (Entity2 instanceof PlayerEntity) {
+            if (((PlayerEntity)Entity2).isCreative()) {
                 return false;
             }
-            if (!this.friends.get().booleanValue() && !Friends.get().attack((class_1657)class_12972)) {
+            if (!this.friends.get().booleanValue() && !Friends.get().attack((PlayerEntity)Entity2)) {
                 return false;
             }
         }
-        return !(class_12972 instanceof class_1429) || this.babies.get() != false || !((class_1429)class_12972).method_6109();
+        return !(Entity2 instanceof AnimalEntity) || this.babies.get() != false || !((AnimalEntity)Entity2).isBaby();
     }
 
-    private boolean lambda$hitEntity$2(class_1799 class_17992) {
-        class_1792 class_17922 = class_17992.method_7909();
-        return (class_17922 instanceof class_1829 || class_17922 instanceof class_1743) && this.autoSwitch.get() != false;
+    private boolean lambda$hitEntity$2(ItemStack ItemStack2) {
+        Item Item2 = ItemStack2.getItem();
+        return (Item2 instanceof SwordItem || Item2 instanceof AxeItem) && this.autoSwitch.get() != false;
     }
 
     @Override
@@ -113,28 +113,28 @@ extends Module {
     private boolean itemInHand() {
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$combat$KillAura$OnlyWith[this.onlyWith.get().ordinal()]) {
             case 1: {
-                return this.mc.field_1724.method_6047().method_7909() instanceof class_1743;
+                return this.mc.player.getMainHandStack().getItem() instanceof AxeItem;
             }
             case 2: {
-                return this.mc.field_1724.method_6047().method_7909() instanceof class_1829;
+                return this.mc.player.getMainHandStack().getItem() instanceof SwordItem;
             }
             case 3: {
-                return this.mc.field_1724.method_6047().method_7909() instanceof class_1743 || this.mc.field_1724.method_6047().method_7909() instanceof class_1829;
+                return this.mc.player.getMainHandStack().getItem() instanceof AxeItem || this.mc.player.getMainHandStack().getItem() instanceof SwordItem;
             }
         }
         return true;
     }
 
-    private boolean attack(class_1297 class_12972) {
+    private boolean attack(Entity Entity2) {
         this.canAttack = false;
-        this.target = class_12972;
+        this.target = Entity2;
         if (Math.random() > this.hitChance.get() / 100.0) {
             return false;
         }
         if (this.rotationMode.get() == RotationMode.None || this.rotationMode.get() == RotationMode.Always) {
-            this.hitEntity(class_12972);
+            this.hitEntity(Entity2);
         } else {
-            Rotations.rotate(Rotations.getYaw(class_12972), Rotations.getPitch(class_12972, this.rotationDirection.get()), () -> this.lambda$attack$1(class_12972));
+            Rotations.rotate(Rotations.getYaw(Entity2), Rotations.getPitch(Entity2, this.rotationDirection.get()), () -> this.lambda$attack$1(Entity2));
         }
         this.canAttack = true;
         return true;
@@ -143,20 +143,20 @@ extends Module {
     @Override
     public String getInfoString() {
         if (!this.entityList.isEmpty()) {
-            class_1297 class_12972 = this.entityList.get(0);
-            if (class_12972 instanceof class_1657) {
-                return class_12972.method_5820();
+            Entity Entity2 = this.entityList.get(0);
+            if (Entity2 instanceof PlayerEntity) {
+                return Entity2.getEntityName();
             }
-            return class_12972.method_5864().method_5897().getString();
+            return Entity2.getType().getName().getString();
         }
         return null;
     }
 
-    private void lambda$attack$1(class_1297 class_12972) {
-        this.hitEntity(class_12972);
+    private void lambda$attack$1(Entity Entity2) {
+        this.hitEntity(Entity2);
     }
 
-    public class_1297 getTarget() {
+    public Entity getTarget() {
         return this.target;
     }
 
@@ -166,7 +166,7 @@ extends Module {
         this.sgRotations = this.settings.createGroup("Rotations");
         this.sgDelay = this.settings.createGroup("Delay");
         this.range = this.sgGeneral.add(new DoubleSetting.Builder().name("range").description("The maximum range the entity can be to attack it.").defaultValue(4.0).min(0.0).max(6.0).sliderMax(6.0).build());
-        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entities").description("Entities to attack.").defaultValue((Object2BooleanMap<class_1299<?>>)new Object2BooleanOpenHashMap(0)).onlyAttackable().build());
+        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entities").description("Entities to attack.").defaultValue((Object2BooleanMap<EntityType<?>>)new Object2BooleanOpenHashMap(0)).onlyAttackable().build());
         this.priority = this.sgGeneral.add(new EnumSetting.Builder().name("priority").description("What type of entities to target.").defaultValue(SortPriority.LowestHealth).build());
         this.onlyWith = this.sgGeneral.add(new EnumSetting.Builder().name("only-with").description("Only attacks an entity when a specified item is in your hand.").defaultValue(OnlyWith.Any).build());
         this.autoSwitch = this.sgGeneral.add(new BoolSetting.Builder().name("auto-switch").description("Switches to an axe or a sword when attacking the target.").defaultValue(false).build());
@@ -183,13 +183,13 @@ extends Module {
         this.hitDelay = this.sgDelay.add(new IntSetting.Builder().name("hit-delay").description("How fast you hit the entity in ticks.").defaultValue(0).min(0).sliderMax(60).build());
         this.randomDelayEnabled = this.sgDelay.add(new BoolSetting.Builder().name("random-delay-enabled").description("Adds a random delay between hits to attempt to bypass anti-cheats.").defaultValue(false).build());
         this.randomDelayMax = this.sgDelay.add(new IntSetting.Builder().name("random-delay-max").description("The maximum value for random delay.").defaultValue(4).min(0).sliderMax(20).build());
-        this.entityList = new ArrayList<class_1297>();
+        this.entityList = new ArrayList<Entity>();
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
         this.entityList.clear();
-        if (this.mc.field_1724.method_29504() || !this.mc.field_1724.method_5805() || !this.itemInHand()) {
+        if (this.mc.player.isDead() || !this.mc.player.isAlive() || !this.itemInHand()) {
             return;
         }
         EntityUtils.getList(this::lambda$onTick$0, this.priority.get(), this.entityList);
@@ -210,7 +210,7 @@ extends Module {
         if (this.rotationMode.get() == RotationMode.Always && this.target != null) {
             Rotations.rotate(Rotations.getYaw(this.target), Rotations.getPitch(this.target, this.rotationDirection.get()));
         }
-        if (this.smartDelay.get().booleanValue() && this.mc.field_1724.method_7261(0.5f) < 1.0f) {
+        if (this.smartDelay.get().booleanValue() && this.mc.player.getAttackCooldownProgress(0.5f) < 1.0f) {
             return;
         }
         if (this.hitDelayTimer >= 0) {
@@ -225,19 +225,19 @@ extends Module {
             }
             this.randomDelayTimer = (int)Math.round(Math.random() * (double)this.randomDelayMax.get().intValue());
         }
-        for (class_1297 class_12972 : this.entityList) {
-            if (!this.attack(class_12972) || !this.canAttack) continue;
-            this.hitEntity(class_12972);
+        for (Entity Entity2 : this.entityList) {
+            if (!this.attack(Entity2) || !this.canAttack) continue;
+            this.hitEntity(Entity2);
         }
     }
 
-    private void hitEntity(class_1297 class_12972) {
+    private void hitEntity(Entity Entity2) {
         int n = InvUtils.findItemInHotbar(this::lambda$hitEntity$2);
         if (this.autoSwitch.get().booleanValue() && n != -1) {
-            this.mc.field_1724.field_7514.field_7545 = n;
+            this.mc.player.inventory.selectedSlot = n;
         }
-        this.mc.field_1761.method_2918((class_1657)this.mc.field_1724, class_12972);
-        this.mc.field_1724.method_6104(class_1268.field_5808);
+        this.mc.interactionManager.attackEntity((PlayerEntity)this.mc.player, Entity2);
+        this.mc.player.swingHand(Hand.MAIN_HAND);
     }
 
     public static final class OnlyWith

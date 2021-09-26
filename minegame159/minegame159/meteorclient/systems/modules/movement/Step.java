@@ -18,9 +18,9 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.DamageCalcUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1309;
-import net.minecraft.class_1511;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 
 public class Step
 extends Module {
@@ -33,23 +33,23 @@ extends Module {
     private final Setting<Integer> stepHealth;
     private boolean prevBaritoneAssumeStep;
 
-    private double lambda$getExplosionDamage$1(class_1297 class_12972) {
-        return DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_12972.method_19538());
+    private double lambda$getExplosionDamage$1(Entity Entity2) {
+        return DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Entity2.getPos());
     }
 
     private float getHealth() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        return this.mc.field_1724.method_6032() + this.mc.field_1724.method_6067();
+        return this.mc.player.getHealth() + this.mc.player.getAbsorptionAmount();
     }
 
-    private static boolean lambda$getExplosionDamage$0(class_1297 class_12972) {
-        return class_12972 instanceof class_1511;
+    private static boolean lambda$getExplosionDamage$0(Entity Entity2) {
+        return Entity2 instanceof EndCrystalEntity;
     }
 
-    private Double lambda$getExplosionDamage$3(class_1511 class_15112) {
-        return DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_15112.method_19538());
+    private Double lambda$getExplosionDamage$3(EndCrystalEntity EndCrystalEntity2) {
+        return DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, EndCrystalEntity2.getPos());
     }
 
     public Step() {
@@ -63,43 +63,43 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        boolean bl = this.activeWhen.get() == ActiveWhen.Always || this.activeWhen.get() == ActiveWhen.Sneaking && this.mc.field_1724.method_5715() || this.activeWhen.get() == ActiveWhen.NotSneaking && !this.mc.field_1724.method_5715();
-        this.mc.field_1724.method_5857(this.mc.field_1724.method_5829().method_989(0.0, 1.0, 0.0));
-        this.mc.field_1724.field_6013 = bl && (this.safeStep.get() == false || this.getHealth() > (float)this.stepHealth.get().intValue() && (double)this.getHealth() - this.getExplosionDamage() > (double)this.stepHealth.get().intValue()) ? this.height.get().floatValue() : this.prevStepHeight;
-        this.mc.field_1724.method_5857(this.mc.field_1724.method_5829().method_989(0.0, -1.0, 0.0));
+        boolean bl = this.activeWhen.get() == ActiveWhen.Always || this.activeWhen.get() == ActiveWhen.Sneaking && this.mc.player.isSneaking() || this.activeWhen.get() == ActiveWhen.NotSneaking && !this.mc.player.isSneaking();
+        this.mc.player.setBoundingBox(this.mc.player.getBoundingBox().offset(0.0, 1.0, 0.0));
+        this.mc.player.stepHeight = bl && (this.safeStep.get() == false || this.getHealth() > (float)this.stepHealth.get().intValue() && (double)this.getHealth() - this.getExplosionDamage() > (double)this.stepHealth.get().intValue()) ? this.height.get().floatValue() : this.prevStepHeight;
+        this.mc.player.setBoundingBox(this.mc.player.getBoundingBox().offset(0.0, -1.0, 0.0));
     }
 
     @Override
     public void onActivate() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        this.prevStepHeight = this.mc.field_1724.field_6013;
+        this.prevStepHeight = this.mc.player.stepHeight;
         this.prevBaritoneAssumeStep = (Boolean)BaritoneAPI.getSettings().assumeStep.value;
         BaritoneAPI.getSettings().assumeStep.value = true;
     }
 
     private double getExplosionDamage() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        Optional<class_1511> optional = Streams.stream((Iterable)this.mc.field_1687.method_18112()).filter(Step::lambda$getExplosionDamage$0).filter(class_1297::method_5805).max(Comparator.comparingDouble(this::lambda$getExplosionDamage$1)).map(Step::lambda$getExplosionDamage$2);
+        Optional<EndCrystalEntity> optional = Streams.stream((Iterable)this.mc.world.getEntities()).filter(Step::lambda$getExplosionDamage$0).filter(Entity::isAlive).max(Comparator.comparingDouble(this::lambda$getExplosionDamage$1)).map(Step::lambda$getExplosionDamage$2);
         return optional.map(this::lambda$getExplosionDamage$3).orElse(0.0);
     }
 
     @Override
     public void onDeactivate() {
-        if (this.mc.field_1724 != null) {
-            this.mc.field_1724.field_6013 = this.prevStepHeight;
+        if (this.mc.player != null) {
+            this.mc.player.stepHeight = this.prevStepHeight;
         }
         BaritoneAPI.getSettings().assumeStep.value = this.prevBaritoneAssumeStep;
     }
 
-    private static class_1511 lambda$getExplosionDamage$2(class_1297 class_12972) {
-        return (class_1511)class_12972;
+    private static EndCrystalEntity lambda$getExplosionDamage$2(Entity Entity2) {
+        return (EndCrystalEntity)Entity2;
     }
 
     public static final class ActiveWhen

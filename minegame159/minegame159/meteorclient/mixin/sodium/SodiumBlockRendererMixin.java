@@ -17,14 +17,14 @@ import me.jellysquid.mods.sodium.client.util.color.ColorABGR;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.WallHack;
 import minegame159.meteorclient.systems.modules.render.Xray;
-import net.minecraft.class_1087;
-import net.minecraft.class_1920;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_243;
-import net.minecraft.class_2680;
-import net.minecraft.class_322;
-import net.minecraft.class_777;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.world.BlockRenderView;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.color.block.BlockColorProvider;
+import net.minecraft.client.render.model.BakedQuad;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,36 +43,36 @@ public class SodiumBlockRendererMixin {
     private BiomeColorBlender biomeColorBlender;
 
     @Inject(method={"renderQuad"}, at={@At(value="INVOKE", target="Lme/jellysquid/mods/sodium/client/model/quad/ModelQuadViewMutable;setColor(II)V", shift=At.Shift.AFTER)}, cancellable=true)
-    private void onRenderQuad(class_1920 class_19202, class_2680 class_26802, class_2338 class_23382, ModelQuadSinkDelegate modelQuadSinkDelegate, class_243 class_2432, class_322 class_3222, class_777 class_7772, QuadLightData quadLightData, ModelQuadFacing modelQuadFacing, CallbackInfo callbackInfo) {
+    private void onRenderQuad(BlockRenderView BlockRenderView2, BlockState BlockState2, BlockPos BlockPos2, ModelQuadSinkDelegate modelQuadSinkDelegate, Vec3d Vec3d2, BlockColorProvider BlockColorProvider2, BakedQuad BakedQuad2, QuadLightData quadLightData, ModelQuadFacing modelQuadFacing, CallbackInfo callbackInfo) {
         WallHack wallHack = Modules.get().get(WallHack.class);
-        if (wallHack.isActive() && wallHack.blocks.get().contains(class_26802.method_26204())) {
-            this.whRenderQuad(class_19202, class_26802, class_23382, modelQuadSinkDelegate, class_2432, class_3222, class_7772, quadLightData, modelQuadFacing, wallHack);
+        if (wallHack.isActive() && wallHack.blocks.get().contains(BlockState2.getBlock())) {
+            this.whRenderQuad(BlockRenderView2, BlockState2, BlockPos2, modelQuadSinkDelegate, Vec3d2, BlockColorProvider2, BakedQuad2, quadLightData, modelQuadFacing, wallHack);
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"renderModel"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onRenderModel(class_1920 class_19202, class_2680 class_26802, class_2338 class_23382, class_1087 class_10872, ModelQuadSinkDelegate modelQuadSinkDelegate, boolean bl, long l, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+    private void onRenderModel(BlockRenderView BlockRenderView2, BlockState BlockState2, BlockPos BlockPos2, BakedModel BakedModel2, ModelQuadSinkDelegate modelQuadSinkDelegate, boolean bl, long l, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         Xray xray = Modules.get().get(Xray.class);
-        if (xray.isActive() && xray.isBlocked(class_26802.method_26204())) {
+        if (xray.isActive() && xray.isBlocked(BlockState2.getBlock())) {
             callbackInfoReturnable.setReturnValue((Object)false);
         }
     }
 
-    private void whRenderQuad(class_1920 class_19202, class_2680 class_26802, class_2338 class_23382, ModelQuadSinkDelegate modelQuadSinkDelegate, class_243 class_2432, class_322 class_3222, class_777 class_7772, QuadLightData quadLightData, ModelQuadFacing modelQuadFacing, WallHack wallHack) {
-        ModelQuadView modelQuadView = (ModelQuadView)class_7772;
+    private void whRenderQuad(BlockRenderView BlockRenderView2, BlockState BlockState2, BlockPos BlockPos2, ModelQuadSinkDelegate modelQuadSinkDelegate, Vec3d Vec3d2, BlockColorProvider BlockColorProvider2, BakedQuad BakedQuad2, QuadLightData quadLightData, ModelQuadFacing modelQuadFacing, WallHack wallHack) {
+        ModelQuadView modelQuadView = (ModelQuadView)BakedQuad2;
         ModelQuadOrientation modelQuadOrientation = ModelQuadOrientation.orient((float[])quadLightData.br);
         ModelQuad modelQuad = this.cachedQuad;
-        int n = ModelQuadUtil.getFacingNormal((class_2350)class_7772.method_3358());
+        int n = ModelQuadUtil.getFacingNormal((Direction)BakedQuad2.getFace());
         int[] nArray = null;
-        if (class_7772.method_3360()) {
-            nArray = this.biomeColorBlender.getColors(class_3222, class_19202, class_26802, class_23382, modelQuadView);
+        if (BakedQuad2.hasColor()) {
+            nArray = this.biomeColorBlender.getColors(BlockColorProvider2, BlockRenderView2, BlockState2, BlockPos2, modelQuadView);
         }
         for (int i = 0; i < 4; ++i) {
             int n2 = modelQuadOrientation.getVertexIndex(i);
-            modelQuad.setX(i, modelQuadView.getX(n2) + (float)class_2432.method_10216());
-            modelQuad.setY(i, modelQuadView.getY(n2) + (float)class_2432.method_10214());
-            modelQuad.setZ(i, modelQuadView.getZ(n2) + (float)class_2432.method_10215());
+            modelQuad.setX(i, modelQuadView.getX(n2) + (float)Vec3d2.getX());
+            modelQuad.setY(i, modelQuadView.getY(n2) + (float)Vec3d2.getY());
+            modelQuad.setZ(i, modelQuadView.getZ(n2) + (float)Vec3d2.getZ());
             int n3 = ColorABGR.mul((int)(nArray != null ? nArray[n2] : -1), (float)quadLightData.br[n2]);
             int n4 = wallHack.opacity.get();
             int n5 = ColorABGR.unpackBlue((int)n3);

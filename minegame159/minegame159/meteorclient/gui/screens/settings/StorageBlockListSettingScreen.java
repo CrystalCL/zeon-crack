@@ -9,82 +9,82 @@ import minegame159.meteorclient.gui.screens.settings.LeftRightListSettingScreen;
 import minegame159.meteorclient.gui.widgets.WWidget;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.StorageBlockListSetting;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2591;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.block.entity.BlockEntityType;
 
 public class StorageBlockListSettingScreen
-extends LeftRightListSettingScreen<class_2591<?>> {
+extends LeftRightListSettingScreen<BlockEntityType<?>> {
     @Override
     protected String getValueName(Object object) {
-        return this.getValueName((class_2591)object);
+        return this.getValueName((BlockEntityType)object);
     }
 
-    public StorageBlockListSettingScreen(GuiTheme guiTheme, Setting<List<class_2591<?>>> setting) {
+    public StorageBlockListSettingScreen(GuiTheme guiTheme, Setting<List<BlockEntityType<?>>> setting) {
         super(guiTheme, "Select storage blocks", setting, StorageBlockListSetting.REGISTRY);
     }
 
     @Override
     protected WWidget getValueWidget(Object object) {
-        return this.getValueWidget((class_2591)object);
+        return this.getValueWidget((BlockEntityType)object);
     }
 
     @Override
-    protected String getValueName(class_2591<?> class_25912) {
+    protected String getValueName(BlockEntityType<?> BlockEntityType2) {
         String string = "Unknown";
-        if (class_25912 == class_2591.field_11903) {
+        if (BlockEntityType2 == BlockEntityType.FURNACE) {
             string = "Furnace";
-        } else if (class_25912 == class_2591.field_11914) {
+        } else if (BlockEntityType2 == BlockEntityType.CHEST) {
             string = "Chest";
-        } else if (class_25912 == class_2591.field_11891) {
+        } else if (BlockEntityType2 == BlockEntityType.TRAPPED_CHEST) {
             string = "Trapped Chest";
-        } else if (class_25912 == class_2591.field_11901) {
+        } else if (BlockEntityType2 == BlockEntityType.ENDER_CHEST) {
             string = "Ender Chest";
-        } else if (class_25912 == class_2591.field_11887) {
+        } else if (BlockEntityType2 == BlockEntityType.DISPENSER) {
             string = "Dispenser";
-        } else if (class_25912 == class_2591.field_11899) {
+        } else if (BlockEntityType2 == BlockEntityType.DROPPER) {
             string = "Dropper";
-        } else if (class_25912 == class_2591.field_11888) {
+        } else if (BlockEntityType2 == BlockEntityType.HOPPER) {
             string = "Hopper";
-        } else if (class_25912 == class_2591.field_11896) {
+        } else if (BlockEntityType2 == BlockEntityType.SHULKER_BOX) {
             string = "Shulker Box";
-        } else if (class_25912 == class_2591.field_16411) {
+        } else if (BlockEntityType2 == BlockEntityType.BARREL) {
             string = "Barrel";
-        } else if (class_25912 == class_2591.field_16414) {
+        } else if (BlockEntityType2 == BlockEntityType.SMOKER) {
             string = "Smoker";
-        } else if (class_25912 == class_2591.field_16415) {
+        } else if (BlockEntityType2 == BlockEntityType.BLAST_FURNACE) {
             string = "Blast Furnace";
         }
         return string;
     }
 
     @Override
-    protected WWidget getValueWidget(class_2591<?> class_25912) {
-        class_1792 class_17922 = class_1802.field_8077;
-        if (class_25912 == class_2591.field_11903) {
-            class_17922 = class_1802.field_8732;
-        } else if (class_25912 == class_2591.field_11914) {
-            class_17922 = class_1802.field_8106;
-        } else if (class_25912 == class_2591.field_11891) {
-            class_17922 = class_1802.field_8247;
-        } else if (class_25912 == class_2591.field_11901) {
-            class_17922 = class_1802.field_8466;
-        } else if (class_25912 == class_2591.field_11887) {
-            class_17922 = class_1802.field_8357;
-        } else if (class_25912 == class_2591.field_11899) {
-            class_17922 = class_1802.field_8878;
-        } else if (class_25912 == class_2591.field_11888) {
-            class_17922 = class_1802.field_8239;
-        } else if (class_25912 == class_2591.field_11896) {
-            class_17922 = class_1802.field_8545;
-        } else if (class_25912 == class_2591.field_16411) {
-            class_17922 = class_1802.field_16307;
-        } else if (class_25912 == class_2591.field_16414) {
-            class_17922 = class_1802.field_16309;
-        } else if (class_25912 == class_2591.field_16415) {
-            class_17922 = class_1802.field_16306;
+    protected WWidget getValueWidget(BlockEntityType<?> BlockEntityType2) {
+        Item Item2 = Items.BARRIER;
+        if (BlockEntityType2 == BlockEntityType.FURNACE) {
+            Item2 = Items.FURNACE;
+        } else if (BlockEntityType2 == BlockEntityType.CHEST) {
+            Item2 = Items.CHEST;
+        } else if (BlockEntityType2 == BlockEntityType.TRAPPED_CHEST) {
+            Item2 = Items.TRAPPED_CHEST;
+        } else if (BlockEntityType2 == BlockEntityType.ENDER_CHEST) {
+            Item2 = Items.ENDER_CHEST;
+        } else if (BlockEntityType2 == BlockEntityType.DISPENSER) {
+            Item2 = Items.DISPENSER;
+        } else if (BlockEntityType2 == BlockEntityType.DROPPER) {
+            Item2 = Items.DROPPER;
+        } else if (BlockEntityType2 == BlockEntityType.HOPPER) {
+            Item2 = Items.HOPPER;
+        } else if (BlockEntityType2 == BlockEntityType.SHULKER_BOX) {
+            Item2 = Items.SHULKER_BOX;
+        } else if (BlockEntityType2 == BlockEntityType.BARREL) {
+            Item2 = Items.BARREL;
+        } else if (BlockEntityType2 == BlockEntityType.SMOKER) {
+            Item2 = Items.SMOKER;
+        } else if (BlockEntityType2 == BlockEntityType.BLAST_FURNACE) {
+            Item2 = Items.BLAST_FURNACE;
         }
-        return this.theme.itemWithLabel(class_17922.method_7854(), this.getValueName(class_25912));
+        return this.theme.itemWithLabel(Item2.getDefaultStack(), this.getValueName(BlockEntityType2));
     }
 }
 

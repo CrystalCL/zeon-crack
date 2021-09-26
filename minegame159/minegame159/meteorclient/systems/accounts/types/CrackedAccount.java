@@ -7,7 +7,7 @@ import minegame159.meteorclient.systems.accounts.Account;
 import minegame159.meteorclient.systems.accounts.AccountType;
 import minegame159.meteorclient.systems.accounts.ProfileResponse;
 import minegame159.meteorclient.utils.network.HttpUtils;
-import net.minecraft.class_320;
+import net.minecraft.client.util.Session;
 
 public class CrackedAccount
 extends Account<CrackedAccount> {
@@ -38,7 +38,7 @@ extends Account<CrackedAccount> {
     @Override
     public boolean login() {
         super.login();
-        this.setSession(new class_320(this.name, "", "", "mojang"));
+        this.setSession(new Session(this.name, "", "", "mojang"));
         return true;
     }
 

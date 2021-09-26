@@ -15,18 +15,18 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2507;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_310;
-import net.minecraft.class_339;
-import net.minecraft.class_4185;
-import net.minecraft.class_437;
-import net.minecraft.class_473;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.BookEditScreen;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,28 +35,28 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_473.class})
+@Mixin(value={BookEditScreen.class})
 public abstract class BookEditScreenMixin
-extends class_437 {
+extends Screen {
     @Shadow
     @Final
-    private List<String> field_17116;
+    private List<String> pages;
     @Shadow
-    private int field_2840;
+    private int currentPage;
     @Shadow
-    private boolean field_2837;
+    private boolean dirty;
 
     @Shadow
-    protected abstract void method_2413();
+    protected abstract void updateButtons();
 
-    public BookEditScreenMixin(class_2561 class_25612) {
-        super(class_25612);
+    public BookEditScreenMixin(Text Text2) {
+        super(Text2);
     }
 
     @Inject(method={"init"}, at={@At(value="TAIL")})
     private void onInit(CallbackInfo callbackInfo) {
-        this.method_25411((class_339)new class_4185(4, 4, 70, 16, (class_2561)new class_2585("Copy"), this::lambda$onInit$0));
-        this.method_25411((class_339)new class_4185(4, 24, 70, 16, (class_2561)new class_2585("Paste"), this::lambda$onInit$1));
+        this.addButton((ClickableWidget)new ButtonWidget(4, 4, 70, 16, (Text)new LiteralText("Copy"), this::lambda$onInit$0));
+        this.addButton((ClickableWidget)new ButtonWidget(4, 24, 70, 16, (Text)new LiteralText("Paste"), this::lambda$onInit$1));
     }
 
     /*
@@ -65,9 +65,9 @@ extends class_437 {
      * Enabled unnecessary exception pruning
      * Enabled aggressive exception aggregation
      */
-    private void lambda$onInit$1(class_4185 class_41852) {
+    private void lambda$onInit$1(ButtonWidget ButtonWidget2) {
         byte[] byArray;
-        String string = GLFW.glfwGetClipboardString((long)class_310.method_1551().method_22683().method_4490());
+        String string = GLFW.glfwGetClipboardString((long)MinecraftClient.getInstance().getWindow().getHandle());
         if (string == null) {
             return;
         }
@@ -79,43 +79,43 @@ extends class_437 {
         }
         DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(byArray));
         {
-            class_2487 class_24872 = class_2507.method_10627((DataInput)dataInputStream);
-            class_2499 class_24992 = class_24872.method_10554("pages", 8).method_10612();
-            this.field_17116.clear();
-            for (int i = 0; i < class_24992.size(); ++i) {
-                this.field_17116.add(class_24992.method_10608(i));
+            NbtCompound NbtCompound2 = NbtIo.read((DataInput)dataInputStream);
+            NbtList NbtList2 = NbtCompound2.getList("pages", 8).copy();
+            this.pages.clear();
+            for (int i = 0; i < NbtList2.size(); ++i) {
+                this.pages.add(NbtList2.getString(i));
             }
-            if (this.field_17116.isEmpty()) {
-                this.field_17116.add("");
+            if (this.pages.isEmpty()) {
+                this.pages.add("");
             }
-            this.field_2840 = class_24872.method_10550("currentPage");
-            this.field_2837 = true;
-            this.method_2413();
+            this.currentPage = NbtCompound2.getInt("currentPage");
+            this.dirty = true;
+            this.updateButtons();
             return;
         }
     }
 
-    private void lambda$onInit$0(class_4185 class_41852) {
-        class_2499 class_24992 = new class_2499();
-        Stream<class_2519> stream = this.field_17116.stream().map(class_2519::method_23256);
-        Objects.requireNonNull(class_24992);
-        stream.forEach(arg_0 -> class_24992.add(arg_0));
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10566("pages", (class_2520)class_24992);
-        class_24872.method_10569("currentPage", this.field_2840);
+    private void lambda$onInit$0(ButtonWidget ButtonWidget2) {
+        NbtList NbtList2 = new NbtList();
+        Stream<NbtString> stream = this.pages.stream().map(NbtString::of);
+        Objects.requireNonNull(NbtList2);
+        stream.forEach(arg_0 -> NbtList2.add(arg_0));
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.put("pages", (NbtElement)NbtList2);
+        NbtCompound2.putInt("currentPage", this.currentPage);
         FastByteArrayOutputStream fastByteArrayOutputStream = new FastByteArrayOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream((OutputStream)fastByteArrayOutputStream);
         try {
-            class_2507.method_10628((class_2487)class_24872, (DataOutput)dataOutputStream);
+            NbtIo.write((NbtCompound)NbtCompound2, (DataOutput)dataOutputStream);
         }
         catch (IOException iOException) {
             iOException.printStackTrace();
         }
         try {
-            GLFW.glfwSetClipboardString((long)class_310.method_1551().method_22683().method_4490(), (CharSequence)Base64.getEncoder().encodeToString(fastByteArrayOutputStream.array));
+            GLFW.glfwSetClipboardString((long)MinecraftClient.getInstance().getWindow().getHandle(), (CharSequence)Base64.getEncoder().encodeToString(fastByteArrayOutputStream.array));
         }
         catch (OutOfMemoryError outOfMemoryError) {
-            GLFW.glfwSetClipboardString((long)class_310.method_1551().method_22683().method_4490(), (CharSequence)outOfMemoryError.toString());
+            GLFW.glfwSetClipboardString((long)MinecraftClient.getInstance().getWindow().getHandle(), (CharSequence)outOfMemoryError.toString());
         }
     }
 }

@@ -22,10 +22,10 @@ import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.PlayerUtils;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_3726;
+import net.minecraft.util.Hand;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.ShapeContext;
 
 public class SelfTrap
 extends Module {
@@ -34,7 +34,7 @@ extends Module {
     private final Setting<Boolean> rotate;
     private final SettingGroup sgGeneral;
     private final Setting<TopMode> topPlacement;
-    private final List<class_2338> placePositions;
+    private final List<BlockPos> placePositions;
     private final SettingGroup sgRender;
     private final Setting<Boolean> center;
     private final Setting<SettingColor> lineColor;
@@ -47,7 +47,7 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        int n = InvUtils.findItemInHotbar(class_2246.field_10540.method_8389());
+        int n = InvUtils.findItemInHotbar(Blocks.OBSIDIAN.asItem());
         if (this.turnOff.get().booleanValue() && (this.placed && this.placePositions.isEmpty() || n == -1)) {
             this.sendToggledMsg();
             this.toggle();
@@ -59,9 +59,9 @@ extends Module {
         }
         this.findPlacePos();
         if (this.delay >= this.delaySetting.get() && this.placePositions.size() > 0) {
-            class_2338 class_23382 = this.placePositions.get(this.placePositions.size() - 1);
-            if (BlockUtils.place(class_23382, class_1268.field_5808, n, this.rotate.get(), 50, true)) {
-                this.placePositions.remove(class_23382);
+            BlockPos BlockPos2 = this.placePositions.get(this.placePositions.size() - 1);
+            if (BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n, this.rotate.get(), 50, true)) {
+                this.placePositions.remove(BlockPos2);
                 this.placed = true;
             }
             this.delay = 0;
@@ -82,9 +82,9 @@ extends Module {
         }
     }
 
-    private void add(class_2338 class_23382) {
-        if (!this.placePositions.contains(class_23382) && this.mc.field_1687.method_8320(class_23382).method_26207().method_15800() && this.mc.field_1687.method_8628(class_2246.field_10540.method_9564(), class_23382, class_3726.method_16194())) {
-            this.placePositions.add(class_23382);
+    private void add(BlockPos BlockPos2) {
+        if (!this.placePositions.contains(BlockPos2) && this.mc.world.getBlockState(BlockPos2).getMaterial().isReplaceable() && this.mc.world.canPlace(Blocks.OBSIDIAN.getDefaultState(), BlockPos2, ShapeContext.absent())) {
+            this.placePositions.add(BlockPos2);
         }
     }
 
@@ -93,36 +93,36 @@ extends Module {
         if (!this.render.get().booleanValue() || this.placePositions.isEmpty()) {
             return;
         }
-        for (class_2338 class_23382 : this.placePositions) {
-            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, class_23382, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
+        for (BlockPos BlockPos2 : this.placePositions) {
+            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, BlockPos2, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
         }
     }
 
     private void findPlacePos() {
         this.placePositions.clear();
-        class_2338 class_23382 = this.mc.field_1724.method_24515();
+        BlockPos BlockPos2 = this.mc.player.getBlockPos();
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$combat$SelfTrap$TopMode[this.topPlacement.get().ordinal()]) {
             case 1: {
-                this.add(class_23382.method_10069(0, 2, 0));
-                this.add(class_23382.method_10069(1, 1, 0));
-                this.add(class_23382.method_10069(-1, 1, 0));
-                this.add(class_23382.method_10069(0, 1, 1));
-                this.add(class_23382.method_10069(0, 1, -1));
+                this.add(BlockPos2.add(0, 2, 0));
+                this.add(BlockPos2.add(1, 1, 0));
+                this.add(BlockPos2.add(-1, 1, 0));
+                this.add(BlockPos2.add(0, 1, 1));
+                this.add(BlockPos2.add(0, 1, -1));
                 break;
             }
             case 2: {
-                this.add(class_23382.method_10069(0, 2, 0));
+                this.add(BlockPos2.add(0, 2, 0));
                 break;
             }
             case 3: {
-                this.add(class_23382.method_10069(1, 1, 0));
-                this.add(class_23382.method_10069(-1, 1, 0));
-                this.add(class_23382.method_10069(0, 1, 1));
-                this.add(class_23382.method_10069(0, 1, -1));
+                this.add(BlockPos2.add(1, 1, 0));
+                this.add(BlockPos2.add(-1, 1, 0));
+                this.add(BlockPos2.add(0, 1, 1));
+                this.add(BlockPos2.add(0, 1, -1));
             }
         }
         if (this.bottomPlacement.get() == BottomMode.Single) {
-            this.add(class_23382.method_10069(0, -1, 0));
+            this.add(BlockPos2.add(0, -1, 0));
         }
     }
 
@@ -140,7 +140,7 @@ extends Module {
         this.shapeMode = this.sgRender.add(new EnumSetting.Builder().name("shape-mode").description("How the shapes are rendered.").defaultValue(ShapeMode.Both).build());
         this.sideColor = this.sgRender.add(new ColorSetting.Builder().name("side-color").description("The color of the sides of the blocks being rendered.").defaultValue(new SettingColor(204, 0, 0, 10)).build());
         this.lineColor = this.sgRender.add(new ColorSetting.Builder().name("line-color").description("The color of the lines of the blocks being rendered.").defaultValue(new SettingColor(204, 0, 0, 255)).build());
-        this.placePositions = new ArrayList<class_2338>();
+        this.placePositions = new ArrayList<BlockPos>();
     }
 
     public static final class BottomMode

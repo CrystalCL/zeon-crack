@@ -16,7 +16,7 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.entity.FakePlayerEntity;
 import minegame159.meteorclient.utils.entity.FakePlayerUtils;
-import net.minecraft.class_1657;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class FakePlayer
 extends Module {
@@ -27,8 +27,8 @@ extends Module {
     public final Setting<Boolean> copyInv;
     private final SettingGroup sgGeneral;
 
-    public boolean showID(class_1657 class_16572) {
-        return this.isActive() && this.idInNametag.get() != false && class_16572 instanceof FakePlayerEntity;
+    public boolean showID(PlayerEntity PlayerEntity2) {
+        return this.isActive() && this.idInNametag.get() != false && PlayerEntity2 instanceof FakePlayerEntity;
     }
 
     @Override

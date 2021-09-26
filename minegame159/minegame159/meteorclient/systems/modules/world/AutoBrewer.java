@@ -12,14 +12,14 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.misc.MyPotion;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1708;
-import net.minecraft.class_1735;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1842;
-import net.minecraft.class_1844;
-import net.minecraft.class_1847;
+import net.minecraft.screen.BrewingStandScreenHandler;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionUtil;
+import net.minecraft.potion.Potions;
 
 public class AutoBrewer
 extends Module {
@@ -30,10 +30,10 @@ extends Module {
     private final SettingGroup sgGeneral;
     private final Setting<Modifier> modifier;
 
-    private boolean takePotions(class_1708 class_17082) {
+    private boolean takePotions(BrewingStandScreenHandler BrewingStandScreenHandler2) {
         for (int i = 0; i < 3; ++i) {
             InvUtils.quickMove().slotId(i);
-            if (((class_1735)class_17082.field_7761.get(i)).method_7677().method_7960()) continue;
+            if (((Slot)BrewingStandScreenHandler2.slots.get(i)).getStack().isEmpty()) continue;
             ChatUtils.moduleError(this, "You do not have a sufficient amount of inventory space... disabling.", new Object[0]);
             this.toggle();
             return true;
@@ -41,47 +41,47 @@ extends Module {
         return false;
     }
 
-    private boolean insertIngredient(class_1708 class_17082, class_1792 class_17922) {
+    private boolean insertIngredient(BrewingStandScreenHandler BrewingStandScreenHandler2, Item Item2) {
         int n = -1;
-        for (int i = 5; i < class_17082.field_7761.size(); ++i) {
-            if (((class_1735)class_17082.field_7761.get(i)).method_7677().method_7909() != class_17922) continue;
+        for (int i = 5; i < BrewingStandScreenHandler2.slots.size(); ++i) {
+            if (((Slot)BrewingStandScreenHandler2.slots.get(i)).getStack().getItem() != Item2) continue;
             n = i;
             break;
         }
         if (n == -1) {
-            ChatUtils.moduleError(this, "You do not have any %s left in your inventory... disabling.", class_17922.method_7848().getString());
+            ChatUtils.moduleError(this, "You do not have any %s left in your inventory... disabling.", Item2.getName().getString());
             this.toggle();
             return true;
         }
-        this.moveOneItem(class_17082, n, 3);
+        this.moveOneItem(BrewingStandScreenHandler2, n, 3);
         return false;
     }
 
-    private boolean applyModifier(class_1708 class_17082) {
+    private boolean applyModifier(BrewingStandScreenHandler BrewingStandScreenHandler2) {
         if (this.modifier.get() != Modifier.None) {
-            class_1792 class_17922 = this.modifier.get() == Modifier.Splash ? class_1802.field_8054 : class_1802.field_8613;
+            Item Item2 = this.modifier.get() == Modifier.Splash ? Items.GUNPOWDER : Items.DRAGON_BREATH;
             int n = -1;
-            for (int i = 5; i < class_17082.field_7761.size(); ++i) {
-                if (((class_1735)class_17082.field_7761.get(i)).method_7677().method_7909() != class_17922) continue;
+            for (int i = 5; i < BrewingStandScreenHandler2.slots.size(); ++i) {
+                if (((Slot)BrewingStandScreenHandler2.slots.get(i)).getStack().getItem() != Item2) continue;
                 n = i;
                 break;
             }
             if (n == -1) {
-                ChatUtils.moduleError(this, "You do not have any %s left in your inventory... disabling.", class_17922.method_7848().getString());
+                ChatUtils.moduleError(this, "You do not have any %s left in your inventory... disabling.", Item2.getName().getString());
                 this.toggle();
                 return true;
             }
-            this.moveOneItem(class_17082, n, 3);
+            this.moveOneItem(BrewingStandScreenHandler2, n, 3);
         }
         return false;
     }
 
-    private boolean insertWaterBottles(class_1708 class_17082) {
+    private boolean insertWaterBottles(BrewingStandScreenHandler BrewingStandScreenHandler2) {
         for (int i = 0; i < 3; ++i) {
             int n = -1;
-            for (int j = 5; j < class_17082.field_7761.size(); ++j) {
-                class_1842 class_18422;
-                if (((class_1735)class_17082.field_7761.get(j)).method_7677().method_7909() != class_1802.field_8574 || (class_18422 = class_1844.method_8063((class_1799)((class_1735)class_17082.field_7761.get(j)).method_7677())) != class_1847.field_8991) continue;
+            for (int j = 5; j < BrewingStandScreenHandler2.slots.size(); ++j) {
+                Potion Potion2;
+                if (((Slot)BrewingStandScreenHandler2.slots.get(j)).getStack().getItem() != Items.POTION || (Potion2 = PotionUtil.getPotion((ItemStack)((Slot)BrewingStandScreenHandler2.slots.get(j)).getStack())) != Potions.WATER) continue;
                 n = j;
                 break;
             }
@@ -97,11 +97,11 @@ extends Module {
         return false;
     }
 
-    private boolean checkFuel(class_1708 class_17082) {
-        if (class_17082.method_17377() == 0) {
+    private boolean checkFuel(BrewingStandScreenHandler BrewingStandScreenHandler2) {
+        if (BrewingStandScreenHandler2.getFuel() == 0) {
             int n = -1;
-            for (int i = 5; i < class_17082.field_7761.size(); ++i) {
-                if (((class_1735)class_17082.field_7761.get(i)).method_7677().method_7909() != class_1802.field_8183) continue;
+            for (int i = 5; i < BrewingStandScreenHandler2.slots.size(); ++i) {
+                if (((Slot)BrewingStandScreenHandler2.slots.get(i)).getStack().getItem() != Items.BLAZE_POWDER) continue;
                 n = i;
                 break;
             }
@@ -110,7 +110,7 @@ extends Module {
                 this.toggle();
                 return true;
             }
-            this.moveOneItem(class_17082, n, 4);
+            this.moveOneItem(BrewingStandScreenHandler2, n, 4);
         }
         return false;
     }
@@ -119,39 +119,39 @@ extends Module {
         this.first = false;
     }
 
-    public void tick(class_1708 class_17082) {
+    public void tick(BrewingStandScreenHandler BrewingStandScreenHandler2) {
         ++this.timer;
         if (!this.first) {
             this.first = true;
             this.ingredientI = -2;
             this.timer = 0;
         }
-        if (class_17082.method_17378() != 0 || this.timer < 5) {
+        if (BrewingStandScreenHandler2.getBrewTime() != 0 || this.timer < 5) {
             return;
         }
         if (this.ingredientI == -2) {
-            if (this.takePotions(class_17082)) {
+            if (this.takePotions(BrewingStandScreenHandler2)) {
                 return;
             }
             ++this.ingredientI;
             this.timer = 0;
         } else if (this.ingredientI == -1) {
-            if (this.insertWaterBottles(class_17082)) {
+            if (this.insertWaterBottles(BrewingStandScreenHandler2)) {
                 return;
             }
             ++this.ingredientI;
             this.timer = 0;
         } else if (this.ingredientI < this.potion.get().ingredients.length) {
-            if (this.checkFuel(class_17082)) {
+            if (this.checkFuel(BrewingStandScreenHandler2)) {
                 return;
             }
-            if (this.insertIngredient(class_17082, this.potion.get().ingredients[this.ingredientI])) {
+            if (this.insertIngredient(BrewingStandScreenHandler2, this.potion.get().ingredients[this.ingredientI])) {
                 return;
             }
             ++this.ingredientI;
             this.timer = 0;
         } else if (this.ingredientI == this.potion.get().ingredients.length) {
-            if (this.applyModifier(class_17082)) {
+            if (this.applyModifier(BrewingStandScreenHandler2)) {
                 return;
             }
             ++this.ingredientI;
@@ -162,7 +162,7 @@ extends Module {
         }
     }
 
-    private void moveOneItem(class_1708 class_17082, int n, int n2) {
+    private void moveOneItem(BrewingStandScreenHandler BrewingStandScreenHandler2, int n, int n2) {
         InvUtils.move().fromId(n).toId(n2);
     }
 

@@ -3,17 +3,17 @@
  */
 package minegame159.meteorclient.events.entity.player;
 
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
 
 public class PlaceBlockEvent {
-    public class_2248 block;
+    public Block block;
     private static final PlaceBlockEvent INSTANCE = new PlaceBlockEvent();
-    public class_2338 blockPos;
+    public BlockPos blockPos;
 
-    public static PlaceBlockEvent get(class_2338 class_23382, class_2248 class_22482) {
-        PlaceBlockEvent.INSTANCE.blockPos = class_23382;
-        PlaceBlockEvent.INSTANCE.block = class_22482;
+    public static PlaceBlockEvent get(BlockPos BlockPos2, Block Block2) {
+        PlaceBlockEvent.INSTANCE.blockPos = BlockPos2;
+        PlaceBlockEvent.INSTANCE.block = Block2;
         return INSTANCE;
     }
 }

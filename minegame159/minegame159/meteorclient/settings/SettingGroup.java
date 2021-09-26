@@ -9,9 +9,9 @@ import java.util.List;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.NbtUtils;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -29,14 +29,14 @@ Iterable<Setting<?>> {
     }
 
     @Override
-    public SettingGroup fromTag(class_2487 class_24872) {
-        this.sectionExpanded = class_24872.method_10577("sectionExpanded");
-        class_2499 class_24992 = class_24872.method_10554("settings", 10);
-        for (class_2520 class_25202 : class_24992) {
-            class_2487 class_24873 = (class_2487)class_25202;
-            Setting<?> setting = this.get(class_24873.method_10558("name"));
+    public SettingGroup fromTag(NbtCompound NbtCompound2) {
+        this.sectionExpanded = NbtCompound2.getBoolean("sectionExpanded");
+        NbtList NbtList2 = NbtCompound2.getList("settings", 10);
+        for (NbtElement NbtElement2 : NbtList2) {
+            NbtCompound NbtCompound3 = (NbtCompound)NbtElement2;
+            Setting<?> setting = this.get(NbtCompound3.getString("name"));
             if (setting == null) continue;
-            setting.fromTag(class_24873);
+            setting.fromTag(NbtCompound3);
         }
         return this;
     }
@@ -47,12 +47,12 @@ Iterable<Setting<?>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10556("sectionExpanded", this.sectionExpanded);
-        class_24872.method_10566("settings", (class_2520)NbtUtils.listToTag(this.settings));
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.putBoolean("sectionExpanded", this.sectionExpanded);
+        NbtCompound2.put("settings", (NbtElement)NbtUtils.listToTag(this.settings));
+        return NbtCompound2;
     }
 
     public Setting<?> get(String string) {
@@ -64,8 +64,8 @@ Iterable<Setting<?>> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override

@@ -3,16 +3,16 @@
  */
 package minegame159.meteorclient.events.world;
 
-import net.minecraft.class_265;
-import net.minecraft.class_2680;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.block.BlockState;
 
 public class FluidCollisionShapeEvent {
-    public class_2680 state;
-    public class_265 shape;
+    public BlockState state;
+    public VoxelShape shape;
     private static final FluidCollisionShapeEvent INSTANCE = new FluidCollisionShapeEvent();
 
-    public static FluidCollisionShapeEvent get(class_2680 class_26802) {
-        FluidCollisionShapeEvent.INSTANCE.state = class_26802;
+    public static FluidCollisionShapeEvent get(BlockState BlockState2) {
+        FluidCollisionShapeEvent.INSTANCE.state = BlockState2;
         FluidCollisionShapeEvent.INSTANCE.shape = null;
         return INSTANCE;
     }

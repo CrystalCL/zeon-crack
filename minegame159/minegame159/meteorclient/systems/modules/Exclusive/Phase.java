@@ -28,13 +28,13 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.PlayerUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2708;
-import net.minecraft.class_2793;
-import net.minecraft.class_2828;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import org.apache.commons.io.FileUtils;
 
 public class Phase
@@ -54,26 +54,26 @@ extends Module {
     private final SettingGroup sgMovement;
     private final Setting<Integer> downDelayFlying;
     private final Setting<Double> horizontalSpeed;
-    private final Set<class_2828> packets = new ConcurrentSet();
+    private final Set<PlayerMoveC2SPacket> packets = new ConcurrentSet();
     private final Setting<Boolean> sendTeleport;
     private final Setting<Boolean> setMove;
 
-    private class_243 outOfBoundsVec(class_243 class_2432, class_243 class_2433) {
-        return class_2433.method_1031(0.0, 1500.0, 0.0);
+    private Vec3d outOfBoundsVec(Vec3d Vec3d2, Vec3d Vec3d3) {
+        return Vec3d3.add(0.0, 1500.0, 0.0);
     }
 
     private void sendPackets(double d, double d2, double d3, boolean bl) {
-        class_243 class_2432 = new class_243(d, d2, d3);
-        class_243 class_2433 = this.mc.field_1724.method_19538().method_1019(class_2432);
-        class_243 class_2434 = this.outOfBoundsVec(class_2432, class_2433);
-        this.packetSender((class_2828)new class_2828.class_2829(class_2433.field_1352, class_2433.field_1351, class_2433.field_1350, this.mc.field_1724.method_24828()));
+        Vec3d Vec3d2 = new Vec3d(d, d2, d3);
+        Vec3d Vec3d3 = this.mc.player.getPos().add(Vec3d2);
+        Vec3d Vec3d4 = this.outOfBoundsVec(Vec3d2, Vec3d3);
+        this.packetSender((PlayerMoveC2SPacket)new PlayerMoveC2SPacket.class_2829(Vec3d3.x, Vec3d3.y, Vec3d3.z, this.mc.player.isOnGround()));
         if (this.invalidPacket.get().booleanValue()) {
-            this.packetSender((class_2828)new class_2828.class_2829(class_2434.field_1352, class_2434.field_1351, class_2434.field_1350, this.mc.field_1724.method_24828()));
+            this.packetSender((PlayerMoveC2SPacket)new PlayerMoveC2SPacket.class_2829(Vec3d4.x, Vec3d4.y, Vec3d4.z, this.mc.player.isOnGround()));
         }
         if (this.setPos.get().booleanValue()) {
-            this.mc.field_1724.method_23327(class_2433.field_1352, class_2433.field_1351, class_2433.field_1350);
+            this.mc.player.setPos(Vec3d3.x, Vec3d3.y, Vec3d3.z);
         }
-        this.teleportPacket(class_2433, bl);
+        this.teleportPacket(Vec3d3, bl);
     }
 
     @Override
@@ -125,11 +125,11 @@ extends Module {
 
     @EventHandler
     public void onPacketReceive(PacketEvent.Receive receive) {
-        if (receive.packet instanceof class_2708 && this.mc.field_1724 != null && this.mc.field_1687 != null) {
-            class_2338 class_23382 = new class_2338(this.mc.field_1724.method_19538().field_1352, this.mc.field_1724.method_19538().field_1351, this.mc.field_1724.method_19538().field_1350);
-            class_2708 class_27082 = (class_2708)receive.packet;
+        if (receive.packet instanceof PlayerPositionLookS2CPacket && this.mc.player != null && this.mc.world != null) {
+            BlockPos BlockPos2 = new BlockPos(this.mc.player.getPos().x, this.mc.player.getPos().y, this.mc.player.getPos().z);
+            PlayerPositionLookS2CPacket PlayerPositionLookS2CPacket2 = (PlayerPositionLookS2CPacket)receive.packet;
             if (this.setID.get().booleanValue()) {
-                this.teleportID = class_27082.method_11737();
+                this.teleportID = PlayerPositionLookS2CPacket2.getTeleportId();
             }
         }
     }
@@ -137,37 +137,37 @@ extends Module {
     @EventHandler
     public void onMove(PlayerMoveEvent playerMoveEvent) {
         if (this.setMove.get().booleanValue() && this.flightCounter != 0) {
-            playerMoveEvent.movement = new class_243(this.mc.field_1724.method_18798().field_1352, this.mc.field_1724.method_18798().field_1351, this.mc.field_1724.method_18798().field_1350);
+            playerMoveEvent.movement = new Vec3d(this.mc.player.getVelocity().x, this.mc.player.getVelocity().y, this.mc.player.getVelocity().z);
             if (this.noClip.get().booleanValue() && this.checkHitBoxes()) {
-                this.mc.field_1724.field_5960 = true;
+                this.mc.player.noClip = true;
             }
         }
     }
 
-    private void packetSender(class_2828 class_28282) {
-        this.packets.add(class_28282);
-        this.mc.field_1724.field_3944.method_2883((class_2596)class_28282);
+    private void packetSender(PlayerMoveC2SPacket PlayerMoveC2SPacket2) {
+        this.packets.add(PlayerMoveC2SPacket2);
+        this.mc.player.networkHandler.sendPacket((Packet)PlayerMoveC2SPacket2);
     }
 
     private boolean checkHitBoxes() {
-        return this.mc.field_1687.method_20812((class_1297)this.mc.field_1724, this.mc.field_1724.method_5829().method_1009(-0.0625, -0.0625, -0.0625)).count() != 0L;
+        return this.mc.world.getBlockCollisions((Entity)this.mc.player, this.mc.player.getBoundingBox().expand(-0.0625, -0.0625, -0.0625)).count() != 0L;
     }
 
-    private void teleportPacket(class_243 class_2432, boolean bl) {
+    private void teleportPacket(Vec3d Vec3d2, boolean bl) {
         if (bl) {
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2793(++this.teleportID));
+            this.mc.player.networkHandler.sendPacket((Packet)new TeleportConfirmC2SPacket(++this.teleportID));
         }
     }
 
     @EventHandler
     public void onSendMovementPackets(SendMovementPacketsEvent.Pre pre) {
-        this.mc.field_1724.method_18800(0.0, 0.0, 0.0);
+        this.mc.player.setVelocity(0.0, 0.0, 0.0);
         double d = 0.0;
         boolean bl = this.checkHitBoxes();
-        d = this.mc.field_1724.field_3913.field_3904 && (bl || (double)this.mc.field_1724.field_3913.field_3905 == 0.0 && (double)this.mc.field_1724.field_3913.field_3907 == 0.0) ? (this.antiKick.get().booleanValue() && !bl ? (this.resetCounter(this.downDelayFlying.get()) ? -0.032 : this.verticalSpeed.get() / 20.0) : this.verticalSpeed.get() / 20.0) : (this.mc.field_1724.field_3913.field_3903 ? this.verticalSpeed.get() / -20.0 : (!bl ? (this.resetCounter(this.downDelay.get()) ? (this.antiKick.get().booleanValue() ? -0.04 : 0.0) : 0.0) : 0.0));
-        class_243 class_2432 = PlayerUtils.getHorizontalVelocity(this.horizontalSpeed.get());
-        this.mc.field_1724.method_18800(class_2432.field_1352, d, class_2432.field_1350);
-        this.sendPackets(this.mc.field_1724.method_18798().field_1352, this.mc.field_1724.method_18798().field_1351, this.mc.field_1724.method_18798().field_1350, this.sendTeleport.get());
+        d = this.mc.player.input.jumping && (bl || (double)this.mc.player.input.movementForward == 0.0 && (double)this.mc.player.input.movementSideways == 0.0) ? (this.antiKick.get().booleanValue() && !bl ? (this.resetCounter(this.downDelayFlying.get()) ? -0.032 : this.verticalSpeed.get() / 20.0) : this.verticalSpeed.get() / 20.0) : (this.mc.player.input.sneaking ? this.verticalSpeed.get() / -20.0 : (!bl ? (this.resetCounter(this.downDelay.get()) ? (this.antiKick.get().booleanValue() ? -0.04 : 0.0) : 0.0) : 0.0));
+        Vec3d Vec3d2 = PlayerUtils.getHorizontalVelocity(this.horizontalSpeed.get());
+        this.mc.player.setVelocity(Vec3d2.x, d, Vec3d2.z);
+        this.sendPackets(this.mc.player.getVelocity().x, this.mc.player.getVelocity().y, this.mc.player.getVelocity().z, this.sendTeleport.get());
     }
 
     private boolean resetCounter(int n) {
@@ -198,7 +198,7 @@ extends Module {
 
     @EventHandler
     public void onPacketSent(PacketEvent.Send send) {
-        if (send.packet instanceof class_2828 && !this.packets.remove((class_2828)send.packet)) {
+        if (send.packet instanceof PlayerMoveC2SPacket && !this.packets.remove((PlayerMoveC2SPacket)send.packet)) {
             send.setCancelled(true);
         }
     }

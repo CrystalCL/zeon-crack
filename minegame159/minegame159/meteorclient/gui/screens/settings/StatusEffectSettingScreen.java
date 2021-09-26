@@ -14,32 +14,32 @@ import minegame159.meteorclient.gui.widgets.input.WIntEdit;
 import minegame159.meteorclient.gui.widgets.input.WTextBox;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.misc.Names;
-import net.minecraft.class_1291;
+import net.minecraft.entity.effect.StatusEffect;
 import org.apache.commons.lang3.StringUtils;
 
 public class StatusEffectSettingScreen
 extends WindowScreen {
-    private final Setting<Object2IntMap<class_1291>> setting;
+    private final Setting<Object2IntMap<StatusEffect>> setting;
     private WTable table;
     private final WTextBox filter;
     private String filterText = "";
 
     private void initWidgets() {
-        ArrayList<class_1291> arrayList = new ArrayList<class_1291>((Collection<class_1291>)this.setting.get().keySet());
+        ArrayList<StatusEffect> arrayList = new ArrayList<StatusEffect>((Collection<StatusEffect>)this.setting.get().keySet());
         arrayList.sort(Comparator.comparing(Names::get));
-        for (class_1291 class_12912 : arrayList) {
-            String string = Names.get(class_12912);
+        for (StatusEffect StatusEffect2 : arrayList) {
+            String string = Names.get(StatusEffect2);
             if (!StringUtils.containsIgnoreCase((CharSequence)string, (CharSequence)this.filterText)) continue;
             this.table.add(this.theme.label(string)).expandCellX();
-            WIntEdit wIntEdit = this.theme.intEdit(this.setting.get().getInt((Object)class_12912), 0, 0);
+            WIntEdit wIntEdit = this.theme.intEdit(this.setting.get().getInt((Object)StatusEffect2), 0, 0);
             wIntEdit.hasSlider = false;
-            wIntEdit.action = () -> this.lambda$initWidgets$1(class_12912, wIntEdit);
+            wIntEdit.action = () -> this.lambda$initWidgets$1(StatusEffect2, wIntEdit);
             this.table.add(wIntEdit).minWidth(50.0);
             this.table.row();
         }
     }
 
-    public StatusEffectSettingScreen(GuiTheme guiTheme, Setting<Object2IntMap<class_1291>> setting) {
+    public StatusEffectSettingScreen(GuiTheme guiTheme, Setting<Object2IntMap<StatusEffect>> setting) {
         super(guiTheme, "Select potions");
         this.setting = setting;
         this.filter = this.add(guiTheme.textBox("")).minWidth(400.0).expandX().widget();
@@ -49,8 +49,8 @@ extends WindowScreen {
         this.initWidgets();
     }
 
-    private void lambda$initWidgets$1(class_1291 class_12912, WIntEdit wIntEdit) {
-        this.setting.get().put((Object)class_12912, wIntEdit.get());
+    private void lambda$initWidgets$1(StatusEffect StatusEffect2, WIntEdit wIntEdit) {
+        this.setting.get().put((Object)StatusEffect2, wIntEdit.get());
         this.setting.changed();
     }
 

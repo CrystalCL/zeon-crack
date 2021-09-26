@@ -24,12 +24,12 @@ import minegame159.meteorclient.utils.misc.Pool;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.BlockIterator;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2382;
-import net.minecraft.class_2680;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.block.BlockState;
 
 public class HoleESP
 extends Module {
@@ -47,7 +47,7 @@ extends Module {
     private final Setting<Boolean> drawOpposite;
     private final Setting<Boolean> doubles;
     private final Setting<Integer> holeHeight;
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
     private final Setting<SettingColor> singleObsidian;
     private final Setting<Integer> horizontalRadius;
     private final SettingGroup sgGlow;
@@ -58,27 +58,27 @@ extends Module {
     private final SettingGroup sgGeneral;
 
     private void drawFlat(Hole hole) {
-        int n = hole.blockPos.method_10263();
-        int n2 = hole.blockPos.method_10264();
-        int n3 = hole.blockPos.method_10260();
+        int n = hole.blockPos.getX();
+        int n2 = hole.blockPos.getY();
+        int n3 = hole.blockPos.getZ();
         switch (hole.direction) {
-            case field_11036: {
+            case UP: {
                 Renderer.quadWithLinesHorizontal(Renderer.NORMAL, Renderer.LINES, n, n2, n3, 1.0, hole.colorSides, hole.colorLines, this.shapeMode.get());
                 break;
             }
-            case field_11043: {
+            case NORTH: {
                 Renderer.quadWithLinesHorizontal(Renderer.NORMAL, Renderer.LINES, n, n2, n3 + 1, n + 1, n3 - 1, hole.colorSides, hole.colorLines, this.shapeMode.get());
                 break;
             }
-            case field_11035: {
+            case SOUTH: {
                 Renderer.quadWithLinesHorizontal(Renderer.NORMAL, Renderer.LINES, n, n2, n3, n + 1, n3 + 2, hole.colorSides, hole.colorLines, this.shapeMode.get());
                 break;
             }
-            case field_11034: {
+            case EAST: {
                 Renderer.quadWithLinesHorizontal(Renderer.NORMAL, Renderer.LINES, n, n2, n3, n + 2, n3 + 1, hole.colorSides, hole.colorLines, this.shapeMode.get());
                 break;
             }
-            case field_11039: {
+            case WEST: {
                 Renderer.quadWithLinesHorizontal(Renderer.NORMAL, Renderer.LINES, n + 1, n2, n3, n - 1, n3 + 1, hole.colorSides, hole.colorLines, this.shapeMode.get());
             }
         }
@@ -97,60 +97,60 @@ extends Module {
         }
     }
 
-    private void lambda$onTick$1(class_2338 class_23382, class_2680 class_26802) {
-        this.blockPos.method_10101((class_2382)class_23382);
-        if (this.ignoreOwn.get().booleanValue() && this.mc.field_1724.method_24515().equals((Object)this.blockPos) || this.isBlocked((class_2338)this.blockPos)) {
+    private void lambda$onTick$1(BlockPos BlockPos2, BlockState BlockState2) {
+        this.blockPos.set((Vec3i)BlockPos2);
+        if (this.ignoreOwn.get().booleanValue() && this.mc.player.getBlockPos().equals((Object)this.blockPos) || this.isBlocked((BlockPos)this.blockPos)) {
             return;
         }
-        if (!this.webs.get().booleanValue() && this.mc.field_1687.method_8320((class_2338)this.blockPos).method_26204().method_27839(class_2246.field_10343)) {
+        if (!this.webs.get().booleanValue() && this.mc.world.getBlockState((BlockPos)this.blockPos).getBlock().is(Blocks.COBWEB)) {
             return;
         }
-        class_2350 class_23502 = class_2350.field_11036;
+        Direction Direction2 = Direction.UP;
         int n = 0;
         int n2 = 0;
         int n3 = 0;
-        class_2680 class_26803 = this.mc.field_1687.method_8320(this.blockPos.method_10074());
-        if (class_26803.method_26204() == class_2246.field_9987) {
+        BlockState BlockState3 = this.mc.world.getBlockState(this.blockPos.down());
+        if (BlockState3.getBlock() == Blocks.BEDROCK) {
             ++n;
-        } else if (class_26803.method_26204() == class_2246.field_10540) {
+        } else if (BlockState3.getBlock() == Blocks.OBSIDIAN) {
             ++n2;
-        } else if (class_26803.method_26215()) {
+        } else if (BlockState3.isAir()) {
             return;
         }
-        class_2680 class_26804 = this.mc.field_1687.method_8320(this.blockPos.method_10095());
-        if (class_26804.method_26204() == class_2246.field_9987) {
+        BlockState BlockState4 = this.mc.world.getBlockState(this.blockPos.north());
+        if (BlockState4.getBlock() == Blocks.BEDROCK) {
             ++n;
-        } else if (class_26804.method_26204() == class_2246.field_10540) {
+        } else if (BlockState4.getBlock() == Blocks.OBSIDIAN) {
             ++n2;
-        } else if (class_26804.method_26215()) {
-            class_23502 = class_2350.field_11043;
+        } else if (BlockState4.isAir()) {
+            Direction2 = Direction.NORTH;
             ++n3;
         }
-        class_2680 class_26805 = this.mc.field_1687.method_8320(this.blockPos.method_10072());
-        if (class_26805.method_26204() == class_2246.field_9987) {
+        BlockState BlockState5 = this.mc.world.getBlockState(this.blockPos.south());
+        if (BlockState5.getBlock() == Blocks.BEDROCK) {
             ++n;
-        } else if (class_26805.method_26204() == class_2246.field_10540) {
+        } else if (BlockState5.getBlock() == Blocks.OBSIDIAN) {
             ++n2;
-        } else if (class_26805.method_26215()) {
-            class_23502 = class_2350.field_11035;
+        } else if (BlockState5.isAir()) {
+            Direction2 = Direction.SOUTH;
             ++n3;
         }
-        class_2680 class_26806 = this.mc.field_1687.method_8320(this.blockPos.method_10078());
-        if (class_26806.method_26204() == class_2246.field_9987) {
+        BlockState BlockState6 = this.mc.world.getBlockState(this.blockPos.east());
+        if (BlockState6.getBlock() == Blocks.BEDROCK) {
             ++n;
-        } else if (class_26806.method_26204() == class_2246.field_10540) {
+        } else if (BlockState6.getBlock() == Blocks.OBSIDIAN) {
             ++n2;
-        } else if (class_26806.method_26215()) {
-            class_23502 = class_2350.field_11034;
+        } else if (BlockState6.isAir()) {
+            Direction2 = Direction.EAST;
             ++n3;
         }
-        class_2680 class_26807 = this.mc.field_1687.method_8320(this.blockPos.method_10067());
-        if (class_26807.method_26204() == class_2246.field_9987) {
+        BlockState BlockState7 = this.mc.world.getBlockState(this.blockPos.west());
+        if (BlockState7.getBlock() == Blocks.BEDROCK) {
             ++n;
-        } else if (class_26807.method_26204() == class_2246.field_10540) {
+        } else if (BlockState7.getBlock() == Blocks.OBSIDIAN) {
             ++n2;
-        } else if (class_26807.method_26215()) {
-            class_23502 = class_2350.field_11039;
+        } else if (BlockState7.isAir()) {
+            Direction2 = Direction.WEST;
             ++n3;
         }
         if (n3 > 1) {
@@ -158,20 +158,20 @@ extends Module {
         }
         if (n2 + n == 5) {
             if (n == 5) {
-                this.holes.add(this.holePool.get().set((class_2338)this.blockPos, this.singleBedrock.get(), class_2350.field_11036));
+                this.holes.add(this.holePool.get().set((BlockPos)this.blockPos, this.singleBedrock.get(), Direction.UP));
             } else if (n2 == 5) {
-                this.holes.add(this.holePool.get().set((class_2338)this.blockPos, this.singleObsidian.get(), class_2350.field_11036));
+                this.holes.add(this.holePool.get().set((BlockPos)this.blockPos, this.singleObsidian.get(), Direction.UP));
             } else {
-                this.holes.add(this.holePool.get().set((class_2338)this.blockPos, this.singleMixed.get(), class_2350.field_11036));
+                this.holes.add(this.holePool.get().set((BlockPos)this.blockPos, this.singleMixed.get(), Direction.UP));
             }
         } else if (n2 + n == 4 && n3 == 1 && this.doubles.get().booleanValue()) {
-            int[] nArray = this.checkArround(this.blockPos.method_10093(class_23502), class_23502.method_10153());
+            int[] nArray = this.checkArround(this.blockPos.offset(Direction2), Direction2.getOpposite());
             if (nArray[0] == 4 && n == 4) {
-                this.holes.add(this.holePool.get().set((class_2338)this.blockPos, this.doubleBedrock.get(), class_23502));
+                this.holes.add(this.holePool.get().set((BlockPos)this.blockPos, this.doubleBedrock.get(), Direction2));
             } else if (nArray[1] == 4 && n2 == 4) {
-                this.holes.add(this.holePool.get().set((class_2338)this.blockPos, this.doubleObsidian.get(), class_23502));
+                this.holes.add(this.holePool.get().set((BlockPos)this.blockPos, this.doubleObsidian.get(), Direction2));
             } else if (nArray[0] + nArray[1] == 4) {
-                this.holes.add(this.holePool.get().set((class_2338)this.blockPos, this.doubleMixed.get(), class_23502));
+                this.holes.add(this.holePool.get().set((BlockPos)this.blockPos, this.doubleMixed.get(), Direction2));
             }
         }
     }
@@ -198,7 +198,7 @@ extends Module {
         this.doubleObsidian = this.sgColors.add(new ColorSetting.Builder().name("double-obsidian").description("The color for double holes that are completely obsidian.").defaultValue(new SettingColor(225, 25, 25, 100)).build());
         this.doubleMixed = this.sgColors.add(new ColorSetting.Builder().name("double-mixed").description("The color for double holes that have mixed bedrock and obsidian.").defaultValue(new SettingColor(225, 145, 25, 100)).build());
         this.holePool = new Pool<Hole>(HoleESP::lambda$new$0);
-        this.blockPos = new class_2338.class_2339();
+        this.blockPos = new Mutable();
         this.holes = new ArrayList<Hole>();
         this.transparent = new Color(0, 0, 0, 0);
     }
@@ -207,51 +207,51 @@ extends Module {
         return new Hole(null);
     }
 
-    private int[] checkArround(class_2338 class_23382, class_2350 class_23502) {
-        class_2248 class_22482;
+    private int[] checkArround(BlockPos BlockPos2, Direction Direction2) {
+        Block Block2;
         int n = 0;
         int n2 = 0;
-        if (this.isBlocked(class_23382)) {
+        if (this.isBlocked(BlockPos2)) {
             return new int[]{n, n2};
         }
-        class_2248 class_22483 = this.mc.field_1687.method_8320(class_23382.method_10074()).method_26204();
-        if (class_22483 == class_2246.field_9987) {
+        Block Block3 = this.mc.world.getBlockState(BlockPos2.down()).getBlock();
+        if (Block3 == Blocks.BEDROCK) {
             ++n;
-        } else if (class_22483 == class_2246.field_10540) {
+        } else if (Block3 == Blocks.OBSIDIAN) {
             ++n2;
         }
-        class_2248 class_22484 = this.mc.field_1687.method_8320(class_23382.method_10095()).method_26204();
-        if (class_23502 != class_2350.field_11043) {
-            if (class_22484 == class_2246.field_9987) {
+        Block Block4 = this.mc.world.getBlockState(BlockPos2.north()).getBlock();
+        if (Direction2 != Direction.NORTH) {
+            if (Block4 == Blocks.BEDROCK) {
                 ++n;
-            } else if (class_22484 == class_2246.field_10540) {
+            } else if (Block4 == Blocks.OBSIDIAN) {
                 ++n2;
             }
         }
-        if ((class_22482 = this.mc.field_1687.method_8320(class_23382.method_10072()).method_26204()) == class_2246.field_9987) {
+        if ((Block2 = this.mc.world.getBlockState(BlockPos2.south()).getBlock()) == Blocks.BEDROCK) {
             ++n;
-        } else if (class_22482 == class_2246.field_10540) {
+        } else if (Block2 == Blocks.OBSIDIAN) {
             ++n2;
         }
-        class_2248 class_22485 = this.mc.field_1687.method_8320(class_23382.method_10078()).method_26204();
-        if (class_22485 == class_2246.field_9987) {
+        Block Block5 = this.mc.world.getBlockState(BlockPos2.east()).getBlock();
+        if (Block5 == Blocks.BEDROCK) {
             ++n;
-        } else if (class_22485 == class_2246.field_10540) {
+        } else if (Block5 == Blocks.OBSIDIAN) {
             ++n2;
         }
-        class_2248 class_22486 = this.mc.field_1687.method_8320(class_23382.method_10067()).method_26204();
-        if (class_22486 == class_2246.field_9987 || class_22486 == class_2246.field_10540) {
+        Block Block6 = this.mc.world.getBlockState(BlockPos2.west()).getBlock();
+        if (Block6 == Blocks.BEDROCK || Block6 == Blocks.OBSIDIAN) {
             // empty if block
         }
         return new int[]{++n, ++n2};
     }
 
-    private boolean isBlocked(class_2338 class_23382) {
-        if (((AbstractBlockAccessor)this.mc.field_1687.method_8320(class_23382).method_26204()).isCollidable()) {
+    private boolean isBlocked(BlockPos BlockPos2) {
+        if (((AbstractBlockAccessor)this.mc.world.getBlockState(BlockPos2).getBlock()).isCollidable()) {
             return true;
         }
         for (int i = 0; i < this.holeHeight.get(); ++i) {
-            if (!((AbstractBlockAccessor)this.mc.field_1687.method_8320(class_23382.method_10086(i)).method_26204()).isCollidable()) continue;
+            if (!((AbstractBlockAccessor)this.mc.world.getBlockState(BlockPos2.up(i)).getBlock()).isCollidable()) continue;
             return true;
         }
         return false;
@@ -267,54 +267,54 @@ extends Module {
     }
 
     private void drawBox(Hole hole, boolean bl) {
-        int n = hole.blockPos.method_10263();
-        int n2 = bl ? hole.blockPos.method_10264() - 1 : hole.blockPos.method_10264();
-        int n3 = hole.blockPos.method_10260();
+        int n = hole.blockPos.getX();
+        int n2 = bl ? hole.blockPos.getY() - 1 : hole.blockPos.getY();
+        int n3 = hole.blockPos.getZ();
         switch (hole.direction) {
-            case field_11036: {
-                Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (class_2338)(bl ? hole.blockPos.method_10074() : hole.blockPos), hole.colorSides, hole.colorLines, this.shapeMode.get(), 0);
+            case UP: {
+                Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, (BlockPos)(bl ? hole.blockPos.down() : hole.blockPos), hole.colorSides, hole.colorLines, this.shapeMode.get(), 0);
                 break;
             }
-            case field_11043: {
+            case NORTH: {
                 Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, n, n2, n3 + 1, n + 1, n2 + 1, n3 - 1, hole.colorSides, hole.colorLines, this.shapeMode.get(), 0);
                 break;
             }
-            case field_11035: {
+            case SOUTH: {
                 Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, n, n2, n3, n + 1, n2 + 1, n3 + 2, hole.colorSides, hole.colorLines, this.shapeMode.get(), 0);
                 break;
             }
-            case field_11034: {
+            case EAST: {
                 Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, n, n2, n3, n + 2, n2 + 1, n3 + 1, hole.colorSides, hole.colorLines, this.shapeMode.get(), 0);
                 break;
             }
-            case field_11039: {
+            case WEST: {
                 Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, n + 1, n2, n3, n - 1, n2 + 1, n3 + 1, hole.colorSides, hole.colorLines, this.shapeMode.get(), 0);
             }
         }
     }
 
     private void drawBoxGlowDirection(Hole hole, boolean bl) {
-        int n = hole.blockPos.method_10263();
-        int n2 = hole.blockPos.method_10264();
-        int n3 = hole.blockPos.method_10260();
+        int n = hole.blockPos.getX();
+        int n2 = hole.blockPos.getY();
+        int n3 = hole.blockPos.getZ();
         switch (hole.direction) {
-            case field_11036: {
+            case UP: {
                 this.drawGlowSimple(n, n2, n3, n + 1, n3 + 1, hole.colorSides, hole.colorLines, bl);
                 break;
             }
-            case field_11043: {
+            case NORTH: {
                 this.drawGlowSimple(n, n2, n3 + 1, n + 1, n3 - 1, hole.colorSides, hole.colorLines, bl);
                 break;
             }
-            case field_11035: {
+            case SOUTH: {
                 this.drawGlowSimple(n, n2, n3, n + 1, n3 + 2, hole.colorSides, hole.colorLines, bl);
                 break;
             }
-            case field_11034: {
+            case EAST: {
                 this.drawGlowSimple(n, n2, n3, n + 2, n3 + 1, hole.colorSides, hole.colorLines, bl);
                 break;
             }
-            case field_11039: {
+            case WEST: {
                 this.drawGlowSimple(n + 1, n2, n3, n - 1, n3 + 1, hole.colorSides, hole.colorLines, bl);
             }
         }
@@ -346,9 +346,9 @@ extends Module {
 
     private static class Hole {
         public Color colorLines;
-        public class_2350 direction;
+        public Direction direction;
         public Color colorSides;
-        public class_2338.class_2339 blockPos = new class_2338.class_2339();
+        public Mutable blockPos = new Mutable();
 
         Hole(1 var1_1) {
             this();
@@ -359,9 +359,9 @@ extends Module {
             this.colorLines = new Color();
         }
 
-        public Hole set(class_2338 class_23382, Color color, class_2350 class_23502) {
-            this.blockPos.method_10101((class_2382)class_23382);
-            this.direction = class_23502;
+        public Hole set(BlockPos BlockPos2, Color color, Direction Direction2) {
+            this.blockPos.set((Vec3i)BlockPos2);
+            this.direction = Direction2;
             this.colorLines.set(color);
             this.colorSides.set(color);
             this.colorSides.a = (int)((double)this.colorSides.a * 0.5);

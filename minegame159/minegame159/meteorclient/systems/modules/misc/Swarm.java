@@ -39,16 +39,16 @@ import minegame159.meteorclient.systems.modules.world.InfinityMiner;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2248;
-import net.minecraft.class_2680;
-import net.minecraft.class_437;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.gui.screen.Screen;
 
 public class Swarm
 extends Module {
     public SwarmClient client;
     public SwarmServer server;
     private final SettingGroup sgGeneral;
-    public class_2680 targetBlock;
+    public BlockState targetBlock;
     private final Setting<String> ipAddress;
     private WLabel label;
     private final Setting<Integer> serverPort;
@@ -112,12 +112,12 @@ extends Module {
         if (BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing()) {
             BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
         }
-        BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(new class_2248[]{this.targetBlock.method_26204()});
+        BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(new Block[]{this.targetBlock.getBlock()});
         this.targetBlock = null;
     }
 
     private void lambda$getWidget$1(GuiTheme guiTheme) {
-        this.mc.method_1507((class_437)new SwarmHelpScreen(this, guiTheme));
+        this.mc.openScreen((Screen)new SwarmHelpScreen(this, guiTheme));
     }
 
     public void runClient() {

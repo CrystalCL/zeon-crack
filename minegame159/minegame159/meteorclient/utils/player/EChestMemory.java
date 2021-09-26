@@ -7,38 +7,38 @@ import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.events.game.OpenScreenEvent;
 import minegame159.meteorclient.events.world.BlockActivateEvent;
-import net.minecraft.class_1263;
-import net.minecraft.class_1707;
-import net.minecraft.class_1799;
-import net.minecraft.class_2336;
-import net.minecraft.class_2371;
-import net.minecraft.class_310;
-import net.minecraft.class_476;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.EnderChestBlock;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 
 public class EChestMemory {
-    private static final class_310 MC;
+    private static final MinecraftClient MC;
     private static int echestOpenedState;
-    public static final class_2371<class_1799> ITEMS;
+    public static final DefaultedList<ItemStack> ITEMS;
 
     @EventHandler
     private static void onOpenScreenEvent(OpenScreenEvent openScreenEvent) {
-        if (echestOpenedState == 1 && openScreenEvent.screen instanceof class_476) {
+        if (echestOpenedState == 1 && openScreenEvent.screen instanceof GenericContainerScreen) {
             echestOpenedState = 2;
             return;
         }
         if (echestOpenedState == 0) {
             return;
         }
-        if (!(EChestMemory.MC.field_1755 instanceof class_476)) {
+        if (!(EChestMemory.MC.currentScreen instanceof GenericContainerScreen)) {
             return;
         }
-        class_1707 class_17072 = (class_1707)((class_476)EChestMemory.MC.field_1755).method_17577();
-        if (class_17072 == null) {
+        GenericContainerScreenHandler GenericContainerScreenHandler2 = (GenericContainerScreenHandler)((GenericContainerScreen)EChestMemory.MC.currentScreen).getScreenHandler();
+        if (GenericContainerScreenHandler2 == null) {
             return;
         }
-        class_1263 class_12632 = class_17072.method_7629();
+        Inventory Inventory2 = GenericContainerScreenHandler2.getInventory();
         for (int i = 0; i < 27; ++i) {
-            ITEMS.set(i, (Object)class_12632.method_5438(i));
+            ITEMS.set(i, (Object)Inventory2.getStack(i));
             if (-4 <= 0) continue;
             return;
         }
@@ -47,7 +47,7 @@ public class EChestMemory {
 
     @EventHandler
     private static void onBlockActivate(BlockActivateEvent blockActivateEvent) {
-        if (blockActivateEvent.blockState.method_26204() instanceof class_2336 && echestOpenedState == 0) {
+        if (blockActivateEvent.blockState.getBlock() instanceof EnderChestBlock && echestOpenedState == 0) {
             echestOpenedState = 1;
         }
     }
@@ -57,8 +57,8 @@ public class EChestMemory {
     }
 
     static {
-        ITEMS = class_2371.method_10213((int)27, (Object)class_1799.field_8037);
-        MC = class_310.method_1551();
+        ITEMS = DefaultedList.ofSize((int)27, (Object)ItemStack.EMPTY);
+        MC = MinecraftClient.getInstance();
     }
 }
 

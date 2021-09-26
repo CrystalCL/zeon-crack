@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_2960;
-import net.minecraft.class_310;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL30C;
 
 public class Shader {
@@ -79,7 +79,7 @@ public class Shader {
     }
 
     private String read(String string) {
-        InputStream inputStream = class_310.method_1551().method_1478().method_14486(new class_2960("meteor-client", string)).method_14482();
+        InputStream inputStream = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("meteor-client", string)).getInputStream();
         StringBuilder stringBuilder = new StringBuilder();
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));){
             bufferedReader.lines().forEach(arg_0 -> Shader.lambda$read$0(stringBuilder, arg_0));

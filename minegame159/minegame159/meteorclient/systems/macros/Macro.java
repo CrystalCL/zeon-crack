@@ -13,11 +13,11 @@ import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.Keybind;
 import minegame159.meteorclient.utils.misc.NbtUtils;
 import minegame159.meteorclient.utils.misc.input.KeyAction;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_310;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.client.MinecraftClient;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -44,27 +44,27 @@ implements ISerializable<Macro> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10566("keybind", (class_2520)this.keybind.toTag());
-        class_2499 class_24992 = new class_2499();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.put("keybind", (NbtElement)this.keybind.toTag());
+        NbtList NbtList2 = new NbtList();
         for (String string : this.messages) {
-            class_24992.add((Object)class_2519.method_23256((String)string));
+            NbtList2.add((Object)NbtString.of((String)string));
         }
-        class_24872.method_10566("messages", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("messages", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     @Override
-    public Macro fromTag(class_2487 class_24872) {
-        this.name = class_24872.method_10558("name");
-        if (class_24872.method_10545("key")) {
-            this.keybind.set(true, class_24872.method_10550("key"));
+    public Macro fromTag(NbtCompound NbtCompound2) {
+        this.name = NbtCompound2.getString("name");
+        if (NbtCompound2.contains("key")) {
+            this.keybind.set(true, NbtCompound2.getInt("key"));
         } else {
-            this.keybind.fromTag(class_24872.method_10562("keybind"));
+            this.keybind.fromTag(NbtCompound2.getCompound("keybind"));
         }
-        this.messages = NbtUtils.listFromTag(class_24872.method_10554("messages", 8), class_2520::method_10714);
+        this.messages = NbtUtils.listFromTag(NbtCompound2.getList("messages", 8), NbtElement::asString);
         return this;
     }
 
@@ -80,8 +80,8 @@ implements ISerializable<Macro> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @EventHandler(priority=100)
@@ -96,9 +96,9 @@ implements ISerializable<Macro> {
     }
 
     private boolean onAction(boolean bl, int n) {
-        if (this.keybind.matches(bl, n) && class_310.method_1551().field_1755 == null) {
+        if (this.keybind.matches(bl, n) && MinecraftClient.getInstance().currentScreen == null) {
             for (String string : this.messages) {
-                class_310.method_1551().field_1724.method_3142(string);
+                MinecraftClient.getInstance().player.sendChatMessage(string);
             }
             return true;
         }

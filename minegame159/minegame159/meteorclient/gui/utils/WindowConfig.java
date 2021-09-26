@@ -4,7 +4,7 @@
 package minegame159.meteorclient.gui.utils;
 
 import minegame159.meteorclient.utils.misc.ISerializable;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -16,25 +16,25 @@ implements ISerializable<WindowConfig> {
     public double x = -1.0;
 
     @Override
-    public WindowConfig fromTag(class_2487 class_24872) {
-        this.expanded = class_24872.method_10577("expanded");
-        this.x = class_24872.method_10574("x");
-        this.y = class_24872.method_10574("y");
+    public WindowConfig fromTag(NbtCompound NbtCompound2) {
+        this.expanded = NbtCompound2.getBoolean("expanded");
+        this.x = NbtCompound2.getDouble("x");
+        this.y = NbtCompound2.getDouble("y");
         return this;
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10556("expanded", this.expanded);
-        class_24872.method_10549("x", this.x);
-        class_24872.method_10549("y", this.y);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putBoolean("expanded", this.expanded);
+        NbtCompound2.putDouble("x", this.x);
+        NbtCompound2.putDouble("y", this.y);
+        return NbtCompound2;
     }
 }
 

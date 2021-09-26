@@ -25,7 +25,7 @@ import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.utils.json.UUIDSerializer;
 import minegame159.meteorclient.utils.network.HttpUtils;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
-import net.minecraft.class_1657;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class MeteorPlayers {
     private static final Object2BooleanMap<UUID> players;
@@ -106,8 +106,8 @@ public class MeteorPlayers {
      * Enabled unnecessary exception pruning
      * Enabled aggressive exception aggregation
      */
-    public static boolean get(class_1657 class_16572) {
-        UUID uUID = class_16572.method_5667();
+    public static boolean get(PlayerEntity PlayerEntity2) {
+        UUID uUID = PlayerEntity2.getUuid();
         if (players.containsKey((Object)uUID)) {
             return players.getBoolean((Object)uUID);
         }

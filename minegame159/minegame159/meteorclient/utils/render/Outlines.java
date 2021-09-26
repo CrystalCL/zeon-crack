@@ -5,58 +5,58 @@ package minegame159.meteorclient.utils.render;
 
 import java.io.IOException;
 import minegame159.meteorclient.mixin.WorldRendererAccessor;
-import net.minecraft.class_276;
-import net.minecraft.class_279;
-import net.minecraft.class_2960;
-import net.minecraft.class_310;
-import net.minecraft.class_4618;
-import net.minecraft.class_761;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.ShaderEffect;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.OutlineVertexConsumerProvider;
+import net.minecraft.client.render.WorldRenderer;
 
 public class Outlines {
-    public static class_4618 vertexConsumerProvider;
+    public static OutlineVertexConsumerProvider vertexConsumerProvider;
     public static boolean loadingOutlineShader;
-    public static class_276 outlinesFbo;
+    public static Framebuffer outlinesFbo;
     public static boolean renderingOutlines;
-    private static class_279 outlinesShader;
+    private static ShaderEffect outlinesShader;
 
     public static void beginRender() {
-        outlinesFbo.method_1230(class_310.field_1703);
-        class_310.method_1551().method_1522().method_1235(false);
+        outlinesFbo.clear(MinecraftClient.IS_SYSTEM_MAC);
+        MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
     }
 
     public static void onResized(int n, int n2) {
         if (outlinesShader != null) {
-            outlinesShader.method_1259(n, n2);
+            outlinesShader.setupDimensions(n, n2);
         }
     }
 
     public static void endRender(float f) {
-        class_761 class_7612 = class_310.method_1551().field_1769;
-        WorldRendererAccessor worldRendererAccessor = (WorldRendererAccessor)class_7612;
-        class_276 class_2763 = class_7612.method_22990();
+        WorldRenderer WorldRenderer2 = MinecraftClient.getInstance().worldRenderer;
+        WorldRendererAccessor worldRendererAccessor = (WorldRendererAccessor)WorldRenderer2;
+        Framebuffer Framebuffer3 = WorldRenderer2.getEntityOutlinesFramebuffer();
         worldRendererAccessor.setEntityOutlinesFramebuffer(outlinesFbo);
-        vertexConsumerProvider.method_23285();
-        worldRendererAccessor.setEntityOutlinesFramebuffer(class_2763);
-        outlinesShader.method_1258(f);
-        class_310.method_1551().method_1522().method_1235(false);
+        vertexConsumerProvider.draw();
+        worldRendererAccessor.setEntityOutlinesFramebuffer(Framebuffer3);
+        outlinesShader.render(f);
+        MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
     }
 
     public static void renderFbo() {
-        class_310 class_3102 = class_310.method_1551();
-        outlinesFbo.method_22594(class_3102.method_22683().method_4489(), class_3102.method_22683().method_4506(), false);
+        MinecraftClient MinecraftClient2 = MinecraftClient.getInstance();
+        outlinesFbo.draw(MinecraftClient2.getWindow().getFramebufferWidth(), MinecraftClient2.getWindow().getFramebufferHeight(), false);
     }
 
     public static void load() {
         try {
-            class_310 class_3102 = class_310.method_1551();
+            MinecraftClient MinecraftClient2 = MinecraftClient.getInstance();
             if (outlinesShader != null) {
                 outlinesShader.close();
             }
             loadingOutlineShader = true;
-            outlinesShader = new class_279(class_3102.method_1531(), class_3102.method_1478(), class_3102.method_1522(), new class_2960("meteor-client", "shaders/post/my_entity_outline.json"));
-            outlinesShader.method_1259(class_3102.method_22683().method_4489(), class_3102.method_22683().method_4506());
-            outlinesFbo = outlinesShader.method_1264("final");
-            vertexConsumerProvider = new class_4618(class_3102.method_22940().method_23000());
+            outlinesShader = new ShaderEffect(MinecraftClient2.getTextureManager(), MinecraftClient2.getResourceManager(), MinecraftClient2.getFramebuffer(), new Identifier("meteor-client", "shaders/post/my_entity_outline.json"));
+            outlinesShader.setupDimensions(MinecraftClient2.getWindow().getFramebufferWidth(), MinecraftClient2.getWindow().getFramebufferHeight());
+            outlinesFbo = outlinesShader.getSecondaryTarget("final");
+            vertexConsumerProvider = new OutlineVertexConsumerProvider(MinecraftClient2.getBufferBuilders().getEntityVertexConsumers());
             loadingOutlineShader = false;
         }
         catch (IOException iOException) {

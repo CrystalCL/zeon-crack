@@ -12,10 +12,10 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2246;
+import net.minecraft.util.Hand;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.block.Blocks;
 
 public class AntiAnvil
 extends Module {
@@ -23,20 +23,20 @@ extends Module {
     private final Setting<Boolean> rotate;
 
     private void place(int n, int n2) {
-        BlockUtils.place(this.mc.field_1724.method_24515().method_10069(0, n - 2, 0), class_1268.field_5808, n2 == -1 ? 0 : n2, this.rotate.get(), 15, true, true, n2 != -1, n2 != -1);
+        BlockUtils.place(this.mc.player.getBlockPos().add(0, n - 2, 0), Hand.MAIN_HAND, n2 == -1 ? 0 : n2, this.rotate.get(), 15, true, true, n2 != -1, n2 != -1);
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
         int n = 2;
-        while ((float)n <= this.mc.field_1761.method_2904() + 2.0f) {
-            if (this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10069(0, n, 0)).method_26204() == class_2246.field_10535 && this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10069(0, n - 1, 0)).method_26215()) {
-                int n2 = InvUtils.findItemWithCount((class_1792)class_1802.field_8281).slot;
+        while ((float)n <= this.mc.interactionManager.getReachDistance() + 2.0f) {
+            if (this.mc.world.getBlockState(this.mc.player.getBlockPos().add(0, n, 0)).getBlock() == Blocks.ANVIL && this.mc.world.getBlockState(this.mc.player.getBlockPos().add(0, n - 1, 0)).isAir()) {
+                int n2 = InvUtils.findItemWithCount((Item)Items.OBSIDIAN).slot;
                 boolean bl = false;
                 if (n2 != 1 && n2 < 9) {
                     this.place(n, n2);
                     bl = true;
-                } else if (this.mc.field_1724.method_6079().method_7909() == class_1802.field_8281) {
+                } else if (this.mc.player.getOffHandStack().getItem() == Items.OBSIDIAN) {
                     this.place(n, -1);
                     bl = true;
                 }

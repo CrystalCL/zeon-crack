@@ -15,23 +15,23 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.render.Fullbright;
-import net.minecraft.class_1922;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_259;
-import net.minecraft.class_2680;
+import net.minecraft.world.BlockView;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.block.BlockState;
 
 public class Xray
 extends Module {
-    private final Setting<List<class_2248>> blocks;
+    private final Setting<List<Block>> blocks;
     private final SettingGroup sgGeneral;
 
     public Xray() {
         super(Categories.Render, "xray", "Only renders specified blocks. Good for mining.");
         this.sgGeneral = this.settings.getDefaultGroup();
-        this.blocks = this.sgGeneral.add(new BlockListSetting.Builder().name("blocks").description("Blocks.").defaultValue(Arrays.asList(class_2246.field_10418, class_2246.field_10212, class_2246.field_10571, class_2246.field_10090, class_2246.field_10080, class_2246.field_10442, class_2246.field_10013, class_2246.field_23077, class_2246.field_10213, class_2246.field_22109)).onChanged(this::lambda$new$0).build());
+        this.blocks = this.sgGeneral.add(new BlockListSetting.Builder().name("blocks").description("Blocks.").defaultValue(Arrays.asList(Blocks.COAL_ORE, Blocks.IRON_ORE, Blocks.GOLD_ORE, Blocks.LAPIS_ORE, Blocks.REDSTONE_ORE, Blocks.DIAMOND_ORE, Blocks.EMERALD_ORE, Blocks.NETHER_GOLD_ORE, Blocks.NETHER_QUARTZ_ORE, Blocks.ANCIENT_DEBRIS)).onChanged(this::lambda$new$0).build());
     }
 
     @EventHandler
@@ -44,46 +44,46 @@ extends Module {
         ambientOcclusionEvent.lightLevel = 1.0f;
     }
 
-    public boolean modifyDrawSide(class_2680 class_26802, class_1922 class_19222, class_2338 class_23382, class_2350 class_23502, boolean bl) {
+    public boolean modifyDrawSide(BlockState BlockState2, BlockView BlockView2, BlockPos BlockPos2, Direction Direction2, boolean bl) {
         if (bl) {
-            if (this.isBlocked(class_26802.method_26204())) {
+            if (this.isBlocked(BlockState2.getBlock())) {
                 return false;
             }
-        } else if (!this.isBlocked(class_26802.method_26204())) {
-            class_2338 class_23383 = class_23382.method_10093(class_23502);
-            class_2680 class_26803 = class_19222.method_8320(class_23383);
-            return class_26803.method_26173(class_19222, class_23383, class_23502.method_10153()) != class_259.method_1077() || class_26803.method_26204() != class_26802.method_26204();
+        } else if (!this.isBlocked(BlockState2.getBlock())) {
+            BlockPos BlockPos3 = BlockPos2.offset(Direction2);
+            BlockState BlockState3 = BlockView2.getBlockState(BlockPos3);
+            return BlockState3.getCullingFace(BlockView2, BlockPos3, Direction2.getOpposite()) != VoxelShapes.fullCube() || BlockState3.getBlock() != BlockState2.getBlock();
         }
         return bl;
     }
 
     private void lambda$new$0(List list) {
         if (this.isActive()) {
-            this.mc.field_1769.method_3279();
+            this.mc.worldRenderer.reload();
         }
     }
 
     @Override
     public void onActivate() {
         Fullbright.enable();
-        this.mc.field_1769.method_3279();
+        this.mc.worldRenderer.reload();
     }
 
     @EventHandler
     private void onRenderBlockEntity(RenderBlockEntityEvent renderBlockEntityEvent) {
-        if (this.isBlocked(renderBlockEntityEvent.blockEntity.method_11010().method_26204())) {
+        if (this.isBlocked(renderBlockEntityEvent.blockEntity.getCachedState().getBlock())) {
             renderBlockEntityEvent.cancel();
         }
     }
 
-    public boolean isBlocked(class_2248 class_22482) {
-        return !this.blocks.get().contains(class_22482);
+    public boolean isBlocked(Block Block2) {
+        return !this.blocks.get().contains(Block2);
     }
 
     @Override
     public void onDeactivate() {
         Fullbright.disable();
-        this.mc.field_1769.method_3279();
+        this.mc.worldRenderer.reload();
     }
 }
 

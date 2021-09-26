@@ -9,12 +9,12 @@ import minegame159.meteorclient.gui.WindowScreen;
 import minegame159.meteorclient.gui.widgets.containers.WHorizontalList;
 import minegame159.meteorclient.gui.widgets.containers.WTable;
 import minegame159.meteorclient.systems.config.Config;
-import net.minecraft.class_156;
+import net.minecraft.util.Util;
 
 public class NewUpdateScreen
 extends WindowScreen {
     private static void lambda$new$0() {
-        class_156.method_668().method_670("http://meteorclient.com/");
+        Util.getOperatingSystem().open("http://meteorclient.com/");
     }
 
     public NewUpdateScreen(GuiTheme guiTheme, Version version) {
@@ -30,7 +30,7 @@ extends WindowScreen {
         this.add(guiTheme.horizontalSeparator()).expandX();
         WHorizontalList wHorizontalList = this.add(guiTheme.horizontalList()).widget();
         wHorizontalList.add(guiTheme.button((String)String.valueOf((Object)new StringBuilder().append((String)"Download ").append((String)version.getOriginalString())))).expandX().widget().action = NewUpdateScreen::lambda$new$0;
-        wHorizontalList.add(guiTheme.button((String)"OK")).expandX().widget().action = this::method_25419;
+        wHorizontalList.add(guiTheme.button((String)"OK")).expandX().widget().action = this::onClose;
     }
 }
 

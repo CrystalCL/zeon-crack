@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -17,15 +17,15 @@ extends Setting<Boolean> {
     private static final List<String> SUGGESTIONS = ImmutableList.of((Object)"true", (Object)"false", (Object)"toggle");
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_24872.method_10556("value", ((Boolean)this.get()).booleanValue());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound2.putBoolean("value", ((Boolean)this.get()).booleanValue());
+        return NbtCompound2;
     }
 
     @Override
-    public Boolean fromTag(class_2487 class_24872) {
-        this.set(class_24872.method_10577("value"));
+    public Boolean fromTag(NbtCompound NbtCompound2) {
+        this.set(NbtCompound2.getBoolean("value"));
         return (Boolean)this.get();
     }
 
@@ -48,8 +48,8 @@ extends Setting<Boolean> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override

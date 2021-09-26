@@ -32,10 +32,10 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.Dimension;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_310;
-import net.minecraft.class_437;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 
 public class WaypointsModule
 extends Module {
@@ -48,7 +48,7 @@ extends Module {
     }
 
     private void lambda$fillTable$1(GuiTheme guiTheme, WTable wTable) {
-        this.mc.method_1507((class_437)new EditWaypointScreen(guiTheme, null, () -> this.lambda$fillTable$0(wTable, guiTheme)));
+        this.mc.openScreen((Screen)new EditWaypointScreen(guiTheme, null, () -> this.lambda$fillTable$0(wTable, guiTheme)));
     }
 
     private void fillTable(GuiTheme guiTheme, WTable wTable) {
@@ -94,20 +94,20 @@ extends Module {
     }
 
     private void lambda$fillTable$3(GuiTheme guiTheme, Waypoint waypoint) {
-        this.mc.method_1507((class_437)new EditWaypointScreen(guiTheme, waypoint, null));
+        this.mc.openScreen((Screen)new EditWaypointScreen(guiTheme, waypoint, null));
     }
 
     private void lambda$fillTable$5(Waypoint waypoint) {
-        if (this.mc.field_1724 == null || this.mc.field_1687 == null) {
+        if (this.mc.player == null || this.mc.world == null) {
             return;
         }
         IBaritone iBaritone = BaritoneAPI.getProvider().getPrimaryBaritone();
         if (iBaritone.getPathingBehavior().isPathing()) {
             iBaritone.getPathingBehavior().cancelEverything();
         }
-        class_243 class_2432 = Waypoints.get().getCoords(waypoint);
-        class_2338 class_23382 = new class_2338(class_2432.field_1352, class_2432.field_1351, class_2432.field_1350);
-        iBaritone.getCustomGoalProcess().setGoalAndPath((Goal)new GoalGetToBlock(class_23382));
+        Vec3d Vec3d2 = Waypoints.get().getCoords(waypoint);
+        BlockPos BlockPos2 = new BlockPos(Vec3d2.x, Vec3d2.y, Vec3d2.z);
+        iBaritone.getCustomGoalProcess().setGoalAndPath((Goal)new GoalGetToBlock(BlockPos2));
     }
 
     @Override
@@ -178,11 +178,11 @@ extends Module {
             } else {
                 Waypoints.get().save();
             }
-            this.method_25419();
+            this.onClose();
         }
 
         private void lambda$initWidgets$2() {
-            class_310.method_1551().method_1507((class_437)new ColorSettingScreen(this.theme, new ColorSetting("", "", this.waypoint.color, this::lambda$initWidgets$1, null)));
+            MinecraftClient.getInstance().openScreen((Screen)new ColorSettingScreen(this.theme, new ColorSetting("", "", this.waypoint.color, this::lambda$initWidgets$1, null)));
         }
 
         public EditWaypointScreen(GuiTheme guiTheme, Waypoint waypoint, Runnable runnable) {
@@ -191,10 +191,10 @@ extends Module {
             this.waypoint = this.newWaypoint ? new Waypoint() : waypoint;
             this.action = runnable;
             if (this.newWaypoint) {
-                class_310 class_3102 = class_310.method_1551();
-                this.waypoint.x = (int)class_3102.field_1724.method_23317();
-                this.waypoint.y = (int)class_3102.field_1724.method_23318() + 2;
-                this.waypoint.z = (int)class_3102.field_1724.method_23321();
+                MinecraftClient MinecraftClient2 = MinecraftClient.getInstance();
+                this.waypoint.x = (int)MinecraftClient2.player.getX();
+                this.waypoint.y = (int)MinecraftClient2.player.getY() + 2;
+                this.waypoint.z = (int)MinecraftClient2.player.getZ();
                 this.waypoint.actualDimension = Utils.getDimension();
                 switch (1.$SwitchMap$minegame159$meteorclient$utils$world$Dimension[Utils.getDimension().ordinal()]) {
                     case 1: {

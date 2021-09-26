@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.events.world;
 
-import net.minecraft.class_2680;
+import net.minecraft.block.BlockState;
 
 public class BlockActivateEvent {
-    public class_2680 blockState;
+    public BlockState blockState;
     private static final BlockActivateEvent INSTANCE = new BlockActivateEvent();
 
-    public static BlockActivateEvent get(class_2680 class_26802) {
-        BlockActivateEvent.INSTANCE.blockState = class_26802;
+    public static BlockActivateEvent get(BlockState BlockState2) {
+        BlockActivateEvent.INSTANCE.blockState = BlockState2;
         return INSTANCE;
     }
 }

@@ -25,7 +25,7 @@ extends DoubleTextHudElement {
                 if (this.isInEditor()) {
                     return string;
                 }
-                int n = (int)(this.mc.field_1687.method_8532() % 24000L);
+                int n = (int)(this.mc.world.getTimeOfDay() % 24000L);
                 if ((n += 6000) > 24000) {
                     n -= 24000;
                 }

@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_2625;
-import net.minecraft.class_498;
+import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.client.gui.screen.ingame.SignEditScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_498.class})
+@Mixin(value={SignEditScreen.class})
 public interface SignEditScreenAccessor {
     @Accessor(value="sign")
-    public class_2625 getSign();
+    public SignBlockEntity getSign();
 }
 

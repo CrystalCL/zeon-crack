@@ -19,7 +19,7 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if ((double)this.fov.get().intValue() != this.mc.field_1690.field_1826) {
+        if ((double)this.fov.get().intValue() != this.mc.options.fov) {
             this.getFOV();
         }
     }
@@ -32,17 +32,17 @@ extends Module {
 
     @Override
     public void onActivate() {
-        this._fov = (float)this.mc.field_1690.field_1826;
-        this.mc.field_1690.field_1826 = this.fov.get().intValue();
+        this._fov = (float)this.mc.options.fov;
+        this.mc.options.fov = this.fov.get().intValue();
     }
 
     @Override
     public void onDeactivate() {
-        this.mc.field_1690.field_1826 = this._fov;
+        this.mc.options.fov = this._fov;
     }
 
     public void getFOV() {
-        this.mc.field_1690.field_1826 = this.fov.get().intValue();
+        this.mc.options.fov = this.fov.get().intValue();
     }
 }
 

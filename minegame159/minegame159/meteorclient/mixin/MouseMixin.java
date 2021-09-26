@@ -11,8 +11,8 @@ import minegame159.meteorclient.systems.modules.render.FreeRotate;
 import minegame159.meteorclient.systems.modules.render.Freecam;
 import minegame159.meteorclient.utils.misc.input.Input;
 import minegame159.meteorclient.utils.misc.input.KeyAction;
-import net.minecraft.class_312;
-import net.minecraft.class_746;
+import net.minecraft.client.Mouse;
+import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(value={class_312.class})
+@Mixin(value={Mouse.class})
 public class MouseMixin {
     @Inject(method={"onMouseButton"}, at={@At(value="HEAD")}, cancellable=true)
     private void onMouseButton(long l, int n, int n2, int n3, CallbackInfo callbackInfo) {
@@ -38,13 +38,13 @@ public class MouseMixin {
     }
 
     @Redirect(method={"updateMouse"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"))
-    private void updateMouseChangeLookDirection(class_746 class_7462, double d, double d2) {
+    private void updateMouseChangeLookDirection(ClientPlayerEntity ClientPlayerEntity2, double d, double d2) {
         Freecam freecam = Modules.get().get(Freecam.class);
         FreeRotate freeRotate = Modules.get().get(FreeRotate.class);
         if (freecam.isActive()) {
             freecam.changeLookDirection(d * 0.15, d2 * 0.15);
         } else if (!freeRotate.cameraMode()) {
-            class_7462.method_5872(d, d2);
+            ClientPlayerEntity2.changeLookDirection(d, d2);
         }
     }
 

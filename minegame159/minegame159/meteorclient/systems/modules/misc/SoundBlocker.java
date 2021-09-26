@@ -12,17 +12,17 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.settings.SoundEventListSetting;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_3414;
+import net.minecraft.sound.SoundEvent;
 
 public class SoundBlocker
 extends Module {
     private final SettingGroup sgGeneral;
-    private final Setting<List<class_3414>> sounds;
+    private final Setting<List<SoundEvent>> sounds;
 
     @EventHandler
     private void onPlaySound(PlaySoundEvent playSoundEvent) {
-        for (class_3414 class_34142 : this.sounds.get()) {
-            if (!class_34142.method_14833().equals((Object)playSoundEvent.sound.method_4775())) continue;
+        for (SoundEvent SoundEvent2 : this.sounds.get()) {
+            if (!SoundEvent2.getId().equals((Object)playSoundEvent.sound.getId())) continue;
             playSoundEvent.cancel();
             break;
         }
@@ -31,7 +31,7 @@ extends Module {
     public SoundBlocker() {
         super(Categories.Misc, "sound-blocker", "Cancels out selected sounds.");
         this.sgGeneral = this.settings.getDefaultGroup();
-        this.sounds = this.sgGeneral.add(new SoundEventListSetting.Builder().name("sounds").description("Sounds to block.").defaultValue(new ArrayList<class_3414>(0)).build());
+        this.sounds = this.sgGeneral.add(new SoundEventListSetting.Builder().name("sounds").description("Sounds to block.").defaultValue(new ArrayList<SoundEvent>(0)).build());
     }
 }
 

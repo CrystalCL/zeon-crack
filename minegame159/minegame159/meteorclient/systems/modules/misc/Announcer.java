@@ -18,26 +18,26 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.settings.StringSetting;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1792;
-import net.minecraft.class_1937;
-import net.minecraft.class_2248;
-import net.minecraft.class_310;
-import net.minecraft.class_465;
+import net.minecraft.item.Item;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 
 public class Announcer
 extends Module {
     private final Feature[] features = new Feature[]{new Moving(this), new Mining(this), new Placing(this), new DropItems(this), new PickItems(this), new OpenContainer(this)};
     private static final double TICK = 0.05;
 
-    static class_310 access$100(Announcer announcer) {
+    static MinecraftClient access$100(Announcer announcer) {
         return announcer.mc;
     }
 
-    static class_310 access$300(Announcer announcer) {
+    static MinecraftClient access$300(Announcer announcer) {
         return announcer.mc;
     }
 
-    static class_310 access$500(Announcer announcer) {
+    static MinecraftClient access$500(Announcer announcer) {
         return announcer.mc;
     }
 
@@ -52,15 +52,15 @@ extends Module {
         }
     }
 
-    static class_310 access$600(Announcer announcer) {
+    static MinecraftClient access$600(Announcer announcer) {
         return announcer.mc;
     }
 
-    static class_310 access$400(Announcer announcer) {
+    static MinecraftClient access$400(Announcer announcer) {
         return announcer.mc;
     }
 
-    static class_310 access$000(Announcer announcer) {
+    static MinecraftClient access$000(Announcer announcer) {
         return announcer.mc;
     }
 
@@ -74,19 +74,19 @@ extends Module {
         }
     }
 
-    static class_310 access$800(Announcer announcer) {
+    static MinecraftClient access$800(Announcer announcer) {
         return announcer.mc;
     }
 
-    static class_310 access$1000(Announcer announcer) {
+    static MinecraftClient access$1000(Announcer announcer) {
         return announcer.mc;
     }
 
-    static class_310 access$200(Announcer announcer) {
+    static MinecraftClient access$200(Announcer announcer) {
         return announcer.mc;
     }
 
-    static class_310 access$900(Announcer announcer) {
+    static MinecraftClient access$900(Announcer announcer) {
         return announcer.mc;
     }
 
@@ -94,7 +94,7 @@ extends Module {
         super(Categories.Misc, "announcer", "Announces specified actions into chat.");
     }
 
-    static class_310 access$700(Announcer announcer) {
+    static MinecraftClient access$700(Announcer announcer) {
         return announcer.mc;
     }
 
@@ -110,7 +110,7 @@ extends Module {
 
     private class Mining
     extends Feature {
-        private class_2248 lastBlock;
+        private Block lastBlock;
         private final Setting<String> msg;
         private double notBrokenTimer;
         final Announcer this$0;
@@ -131,11 +131,11 @@ extends Module {
 
         @EventHandler
         private void onBreakBlock(BreakBlockEvent breakBlockEvent) {
-            class_2248 class_22482 = breakBlockEvent.getBlockState((class_1937)Announcer.access$500((Announcer)this.this$0).field_1687).method_26204();
-            if (this.lastBlock != null && this.lastBlock != class_22482) {
+            Block Block2 = breakBlockEvent.getBlockState((World)Announcer.access$500((Announcer)this.this$0).world).getBlock();
+            if (this.lastBlock != null && this.lastBlock != Block2) {
                 this.sendMsg();
             }
-            this.lastBlock = class_22482;
+            this.lastBlock = Block2;
             ++this.count;
             this.notBrokenTimer = 0.0;
         }
@@ -151,7 +151,7 @@ extends Module {
 
         void sendMsg() {
             if (this.count > 0) {
-                Announcer.access$600((Announcer)this.this$0).field_1724.method_3142(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{block}", this.lastBlock.method_9518().getString()));
+                Announcer.access$600((Announcer)this.this$0).player.sendChatMessage(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{block}", this.lastBlock.getName().getString()));
                 this.count = 0;
             }
         }
@@ -179,13 +179,13 @@ extends Module {
         @EventHandler
         private void onOpenScreen(OpenScreenEvent openScreenEvent) {
             String string;
-            if (openScreenEvent.screen instanceof class_465 && !(string = openScreenEvent.screen.method_25440().getString()).isEmpty()) {
+            if (openScreenEvent.screen instanceof HandledScreen && !(string = openScreenEvent.screen.getTitle().getString()).isEmpty()) {
                 this.sendMsg(string);
             }
         }
 
         void sendMsg(String string) {
-            Announcer.access$1000((Announcer)this.this$0).field_1724.method_3142(this.msg.get().replace("{name}", string));
+            Announcer.access$1000((Announcer)this.this$0).player.sendChatMessage(this.msg.get().replace("{name}", string));
         }
     }
 
@@ -193,13 +193,13 @@ extends Module {
     extends Feature {
         private final Setting<String> msg;
         private double notPlacedTimer;
-        private class_2248 lastBlock;
+        private Block lastBlock;
         private int count;
         final Announcer this$0;
 
         void sendMsg() {
             if (this.count > 0) {
-                Announcer.access$700((Announcer)this.this$0).field_1724.method_3142(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{block}", this.lastBlock.method_9518().getString()));
+                Announcer.access$700((Announcer)this.this$0).player.sendChatMessage(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{block}", this.lastBlock.getName().getString()));
                 this.count = 0;
             }
         }
@@ -269,14 +269,14 @@ extends Module {
     private class PickItems
     extends Feature {
         final Announcer this$0;
-        private class_1792 lastItem;
+        private Item lastItem;
         private final Setting<String> msg;
         private int count;
         private double notPickedUpTimer;
 
         void sendMsg() {
             if (this.count > 0) {
-                Announcer.access$900((Announcer)this.this$0).field_1724.method_3142(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{item}", this.lastItem.method_7848().getString()));
+                Announcer.access$900((Announcer)this.this$0).player.sendChatMessage(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{item}", this.lastItem.getName().getString()));
                 this.count = 0;
             }
         }
@@ -305,11 +305,11 @@ extends Module {
 
         @EventHandler
         private void onPickItems(PickItemsEvent pickItemsEvent) {
-            if (this.lastItem != null && this.lastItem != pickItemsEvent.itemStack.method_7909()) {
+            if (this.lastItem != null && this.lastItem != pickItemsEvent.itemStack.getItem()) {
                 this.sendMsg();
             }
-            this.lastItem = pickItemsEvent.itemStack.method_7909();
-            this.count += pickItemsEvent.itemStack.method_7947();
+            this.lastItem = pickItemsEvent.itemStack.getItem();
+            this.count += pickItemsEvent.itemStack.getCount();
             this.notPickedUpTimer = 0.0;
         }
     }
@@ -319,7 +319,7 @@ extends Module {
         final Announcer this$0;
         private double notDroppedTimer;
         private int count;
-        private class_1792 lastItem;
+        private Item lastItem;
         private final Setting<String> msg;
 
         @Override
@@ -339,11 +339,11 @@ extends Module {
 
         @EventHandler
         private void onDropItems(DropItemsEvent dropItemsEvent) {
-            if (this.lastItem != null && this.lastItem != dropItemsEvent.itemStack.method_7909()) {
+            if (this.lastItem != null && this.lastItem != dropItemsEvent.itemStack.getItem()) {
                 this.sendMsg();
             }
-            this.lastItem = dropItemsEvent.itemStack.method_7909();
-            this.count += dropItemsEvent.itemStack.method_7947();
+            this.lastItem = dropItemsEvent.itemStack.getItem();
+            this.count += dropItemsEvent.itemStack.getCount();
             this.notDroppedTimer = 0.0;
         }
 
@@ -356,7 +356,7 @@ extends Module {
 
         void sendMsg() {
             if (this.count > 0) {
-                Announcer.access$800((Announcer)this.this$0).field_1724.method_3142(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{item}", this.lastItem.method_7848().getString()));
+                Announcer.access$800((Announcer)this.this$0).player.sendChatMessage(this.msg.get().replace("{count}", Integer.toString(this.count)).replace("{item}", this.lastItem.getName().getString()));
                 this.count = 0;
             }
         }
@@ -383,7 +383,7 @@ extends Module {
         }
 
         void sendMsg() {
-            Announcer.access$400((Announcer)this.this$0).field_1724.method_3142(this.msg.get().replace("{dist}", String.format("%.1f", this.dist)));
+            Announcer.access$400((Announcer)this.this$0).player.sendChatMessage(this.msg.get().replace("{dist}", String.format("%.1f", this.dist)));
         }
 
         @Override
@@ -392,8 +392,8 @@ extends Module {
                 this.first = false;
                 this.updateLastPos();
             }
-            double d = Announcer.access$000((Announcer)this.this$0).field_1724.method_23317() - this.lastX;
-            double d2 = Announcer.access$100((Announcer)this.this$0).field_1724.method_23321() - this.lastZ;
+            double d = Announcer.access$000((Announcer)this.this$0).player.getX() - this.lastX;
+            double d2 = Announcer.access$100((Announcer)this.this$0).player.getZ() - this.lastZ;
             this.dist += Math.sqrt(d * d + d2 * d2);
             if (this.timer >= this.delay.get()) {
                 this.timer = 0.0;
@@ -408,8 +408,8 @@ extends Module {
         }
 
         void updateLastPos() {
-            this.lastX = Announcer.access$200((Announcer)this.this$0).field_1724.method_23317();
-            this.lastZ = Announcer.access$300((Announcer)this.this$0).field_1724.method_23321();
+            this.lastX = Announcer.access$200((Announcer)this.this$0).player.getX();
+            this.lastZ = Announcer.access$300((Announcer)this.this$0).player.getZ();
         }
 
         @Override

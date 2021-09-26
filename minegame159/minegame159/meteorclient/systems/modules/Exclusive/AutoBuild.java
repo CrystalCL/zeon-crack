@@ -24,23 +24,23 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.PlayerUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1747;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_2596;
-import net.minecraft.class_2680;
-import net.minecraft.class_2828;
-import net.minecraft.class_3532;
+import net.minecraft.util.Hand;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.Packet;
+import net.minecraft.block.BlockState;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.util.math.MathHelper;
 import org.apache.commons.io.FileUtils;
 
 public class AutoBuild
 extends Module {
     private int YawCheck;
     private int prevSlot;
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
     private final Setting<Build> buildPlacement;
     private final Setting<Boolean> selfToggle;
     private static String[] BUILD;
@@ -63,11 +63,11 @@ extends Module {
     }
 
     private void setBlockPos(int n, int n2, int n3) {
-        this.blockPos.method_10102(this.mc.field_1724.method_23317() + (double)n, this.mc.field_1724.method_23318() + (double)n2, this.mc.field_1724.method_23321() + (double)n3);
+        this.blockPos.set(this.mc.player.getX() + (double)n, this.mc.player.getY() + (double)n2, this.mc.player.getZ() + (double)n3);
     }
 
     private void resetSlot() {
-        this.mc.field_1724.field_7514.field_7545 = this.prevSlot;
+        this.mc.player.inventory.selectedSlot = this.prevSlot;
     }
 
     @EventHandler
@@ -75,7 +75,7 @@ extends Module {
         int n;
         int n2 = -1;
         for (n = 0; n < 9; ++n) {
-            if (this.mc.field_1724.field_7514.method_5438(n).method_7909() != class_2246.field_10540.method_8389()) continue;
+            if (this.mc.player.inventory.getStack(n).getItem() != Blocks.OBSIDIAN.asItem()) continue;
             n2 = n;
             break;
         }
@@ -90,10 +90,10 @@ extends Module {
         if (n2 == -1) {
             return;
         }
-        n = this.mc.field_1724.field_7514.field_7545;
+        n = this.mc.player.inventory.selectedSlot;
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$Exclusive$AutoBuild$Build[this.buildPlacement.get().ordinal()]) {
             case 1: {
-                this.mc.field_1724.field_7514.field_7545 = n2;
+                this.mc.player.inventory.selectedSlot = n2;
                 this.return_ = false;
                 if (this.East > 0) {
                     ChatUtils.moduleInfo(this, "Building the NoMadHut", new Object[0]);
@@ -780,7 +780,7 @@ extends Module {
                 return;
             }
             case 2: {
-                this.mc.field_1724.field_7514.field_7545 = n2;
+                this.mc.player.inventory.selectedSlot = n2;
                 this.return_ = false;
                 if (this.East > 0) {
                     ChatUtils.moduleInfo(this, "Building the Penis", new Object[0]);
@@ -919,7 +919,7 @@ extends Module {
                 return;
             }
             case 3: {
-                this.mc.field_1724.field_7514.field_7545 = n2;
+                this.mc.player.inventory.selectedSlot = n2;
                 this.return_ = false;
                 if (this.East > 0) {
                     ChatUtils.moduleInfo(this, "building the Swastika", new Object[0]);
@@ -1234,7 +1234,7 @@ extends Module {
                 return;
             }
         }
-        this.mc.field_1724.field_7514.field_7545 = n;
+        this.mc.player.inventory.selectedSlot = n;
     }
 
     @Override
@@ -1258,7 +1258,7 @@ extends Module {
         this.center = this.sgGeneral.add(new BoolSetting.Builder().name("center").description("Moves you to the center of the block.").defaultValue(true).build());
         this.selfToggle = this.sgGeneral.add(new BoolSetting.Builder().name("self-toggle").description("Toggles when you run out of obsidian.").defaultValue(false).build());
         this.sentMessage = false;
-        this.blockPos = new class_2338.class_2339();
+        this.blockPos = new Mutable();
         this.YawCheck = 0;
         this.East = 0;
         this.North = 0;
@@ -1311,12 +1311,12 @@ extends Module {
             System.exit(0);
         }
         if (this.center.get().booleanValue()) {
-            double d = (double)class_3532.method_15357((double)this.mc.field_1724.method_23317()) + 0.5;
-            double d2 = (double)class_3532.method_15357((double)this.mc.field_1724.method_23321()) + 0.5;
-            this.mc.field_1724.method_5814(d, this.mc.field_1724.method_23318(), d2);
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318(), this.mc.field_1724.method_23321(), this.mc.field_1724.method_24828()));
+            double d = (double)MathHelper.floor((double)this.mc.player.getX()) + 0.5;
+            double d2 = (double)MathHelper.floor((double)this.mc.player.getZ()) + 0.5;
+            this.mc.player.setPosition(d, this.mc.player.getY(), d2);
+            this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY(), this.mc.player.getZ(), this.mc.player.isOnGround()));
         }
-        float f = this.mc.field_1724.field_6031 > 0.0f ? (float)(((double)(this.mc.field_1724.field_6031 / 360.0f) - Math.floor(this.mc.field_1724.field_6031 / 360.0f)) * 360.0) : (this.mc.field_1724.field_6031 < 0.0f ? (float)(360.0 + ((double)(this.mc.field_1724.field_6031 / 360.0f) - Math.ceil(this.mc.field_1724.field_6031 / 360.0f)) * 360.0) : 0.0f);
+        float f = this.mc.player.yaw > 0.0f ? (float)(((double)(this.mc.player.yaw / 360.0f) - Math.floor(this.mc.player.yaw / 360.0f)) * 360.0) : (this.mc.player.yaw < 0.0f ? (float)(360.0 + ((double)(this.mc.player.yaw / 360.0f) - Math.ceil(this.mc.player.yaw / 360.0f)) * 360.0) : 0.0f);
         if (this.YawCheck == 0) {
             if (f >= 225.0f && f < 315.0f) {
                 ++this.East;
@@ -1332,11 +1332,11 @@ extends Module {
     }
 
     private boolean findSlot() {
-        this.prevSlot = this.mc.field_1724.field_7514.field_7545;
+        this.prevSlot = this.mc.player.inventory.selectedSlot;
         for (int i = 0; i < 9; ++i) {
-            class_1792 class_17922 = this.mc.field_1724.field_7514.method_5438(i).method_7909();
-            if (!(class_17922 instanceof class_1747) || class_17922 != class_1802.field_8281) continue;
-            this.mc.field_1724.field_7514.field_7545 = i;
+            Item Item2 = this.mc.player.inventory.getStack(i).getItem();
+            if (!(Item2 instanceof BlockItem) || Item2 != Items.OBSIDIAN) continue;
+            this.mc.player.inventory.selectedSlot = i;
             return true;
         }
         return false;
@@ -1345,14 +1345,14 @@ extends Module {
     private boolean place(int n, int n2, int n3) {
         boolean bl;
         this.setBlockPos(n, n2, n3);
-        class_2680 class_26802 = this.mc.field_1687.method_8320((class_2338)this.blockPos);
-        boolean bl2 = class_26802.method_26204() == class_2246.field_10540;
-        boolean bl3 = bl = !class_26802.method_26207().method_15800();
+        BlockState BlockState2 = this.mc.world.getBlockState((BlockPos)this.blockPos);
+        boolean bl2 = BlockState2.getBlock() == Blocks.OBSIDIAN;
+        boolean bl3 = bl = !BlockState2.getMaterial().isReplaceable();
         if (!bl && this.findSlot()) {
             boolean bl4;
-            bl = PlayerUtils.placeBlock((class_2338)this.blockPos, class_1268.field_5808);
+            bl = PlayerUtils.placeBlock((BlockPos)this.blockPos, Hand.MAIN_HAND);
             this.resetSlot();
-            boolean bl5 = bl4 = this.mc.field_1687.method_8320((class_2338)this.blockPos).method_26204() == class_2246.field_10540;
+            boolean bl5 = bl4 = this.mc.world.getBlockState((BlockPos)this.blockPos).getBlock() == Blocks.OBSIDIAN;
             if (!bl2 && bl4) {
                 this.return_ = true;
             }

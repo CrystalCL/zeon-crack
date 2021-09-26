@@ -8,27 +8,27 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_2378;
-import net.minecraft.class_2396;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2960;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.particle.ParticleType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.Identifier;
 
 public class ParticleTypeListSetting
-extends Setting<List<class_2396<?>>> {
-    private static List<class_2960> suggestions;
+extends Setting<List<ParticleType<?>>> {
+    private static List<Identifier> suggestions;
 
     @Override
-    protected List<class_2396<?>> parseImpl(String string) {
+    protected List<ParticleType<?>> parseImpl(String string) {
         String[] stringArray = string.split(",");
         ArrayList arrayList = new ArrayList(stringArray.length);
         try {
             for (String string2 : stringArray) {
-                class_2396 class_23962 = (class_2396)ParticleTypeListSetting.parseId(class_2378.field_11141, string2);
-                if (!(class_23962 instanceof class_2396)) continue;
-                arrayList.add(class_23962);
+                ParticleType ParticleType2 = (ParticleType)ParticleTypeListSetting.parseId(Registry.PARTICLE_TYPE, string2);
+                if (!(ParticleType2 instanceof ParticleType)) continue;
+                arrayList.add(ParticleType2);
                 if (0 != 3) continue;
                 return null;
             }
@@ -40,24 +40,24 @@ extends Setting<List<class_2396<?>>> {
     }
 
     @Override
-    public Iterable<class_2960> getIdentifierSuggestions() {
+    public Iterable<Identifier> getIdentifierSuggestions() {
         if (suggestions == null) {
-            suggestions = new ArrayList<class_2960>(class_2378.field_11141.method_10235().size());
-            for (class_2960 class_29602 : class_2378.field_11141.method_10235()) {
-                class_2396 class_23962 = (class_2396)class_2378.field_11141.method_10223(class_29602);
-                if (!(class_23962 instanceof class_2396)) continue;
-                suggestions.add(class_29602);
+            suggestions = new ArrayList<Identifier>(Registry.PARTICLE_TYPE.getIds().size());
+            for (Identifier Identifier2 : Registry.PARTICLE_TYPE.getIds()) {
+                ParticleType ParticleType2 = (ParticleType)Registry.PARTICLE_TYPE.get(Identifier2);
+                if (!(ParticleType2 instanceof ParticleType)) continue;
+                suggestions.add(Identifier2);
             }
         }
         return suggestions;
     }
 
     @Override
-    public List<class_2396<?>> fromTag(class_2487 class_24872) {
+    public List<ParticleType<?>> fromTag(NbtCompound NbtCompound2) {
         ((List)this.get()).clear();
-        class_2499 class_24992 = class_24872.method_10554("value", 8);
-        for (class_2520 class_25202 : class_24992) {
-            ((List)this.get()).add((class_2396)class_2378.field_11141.method_10223(new class_2960(class_25202.method_10714())));
+        NbtList NbtList2 = NbtCompound2.getList("value", 8);
+        for (NbtElement NbtElement2 : NbtList2) {
+            ((List)this.get()).add((ParticleType)Registry.PARTICLE_TYPE.get(new Identifier(NbtElement2.asString())));
         }
         this.changed();
         return (List)this.get();
@@ -72,22 +72,22 @@ extends Setting<List<class_2396<?>>> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2499 class_24992 = new class_2499();
-        for (class_2396 class_23962 : (List)this.get()) {
-            class_24992.add((Object)class_2519.method_23256((String)class_2378.field_11141.method_10221((Object)class_23962).toString()));
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtList NbtList2 = new NbtList();
+        for (ParticleType ParticleType2 : (List)this.get()) {
+            NbtList2.add((Object)NbtString.of((String)Registry.PARTICLE_TYPE.getId((Object)ParticleType2).toString()));
         }
-        class_24872.method_10566("value", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
-    public ParticleTypeListSetting(String string, String string2, List<class_2396<?>> list, Consumer<List<class_2396<?>>> consumer, Consumer<Setting<List<class_2396<?>>>> consumer2) {
+    public ParticleTypeListSetting(String string, String string2, List<ParticleType<?>> list, Consumer<List<ParticleType<?>>> consumer, Consumer<Setting<List<ParticleType<?>>>> consumer2) {
         super(string, string2, list, consumer, consumer2);
         this.value = new ArrayList(list);
     }
@@ -98,7 +98,7 @@ extends Setting<List<class_2396<?>>> {
     }
 
     @Override
-    protected boolean isValueValid(List<class_2396<?>> list) {
+    protected boolean isValueValid(List<ParticleType<?>> list) {
         return true;
     }
 
@@ -108,23 +108,23 @@ extends Setting<List<class_2396<?>>> {
     }
 
     public static class Builder {
-        private List<class_2396<?>> defaultValue;
-        private Consumer<Setting<List<class_2396<?>>>> onModuleActivated;
+        private List<ParticleType<?>> defaultValue;
+        private Consumer<Setting<List<ParticleType<?>>>> onModuleActivated;
         private String name = "undefined";
         private String description = "";
-        private Consumer<List<class_2396<?>>> onChanged;
+        private Consumer<List<ParticleType<?>>> onChanged;
 
         public Builder description(String string) {
             this.description = string;
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<List<class_2396<?>>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<List<ParticleType<?>>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
 
-        public Builder defaultValue(List<class_2396<?>> list) {
+        public Builder defaultValue(List<ParticleType<?>> list) {
             this.defaultValue = list;
             return this;
         }
@@ -138,7 +138,7 @@ extends Setting<List<class_2396<?>>> {
             return new ParticleTypeListSetting(this.name, this.description, this.defaultValue, this.onChanged, this.onModuleActivated);
         }
 
-        public Builder onChanged(Consumer<List<class_2396<?>>> consumer) {
+        public Builder onChanged(Consumer<List<ParticleType<?>>> consumer) {
             this.onChanged = consumer;
             return this;
         }

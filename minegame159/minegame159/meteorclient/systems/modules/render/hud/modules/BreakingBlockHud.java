@@ -14,7 +14,7 @@ extends DoubleTextHudElement {
         if (this.isInEditor()) {
             return "0%";
         }
-        return String.format("%.0f%%", Float.valueOf(((ClientPlayerInteractionManagerAccessor)this.mc.field_1761).getBreakingProgress() * 100.0f));
+        return String.format("%.0f%%", Float.valueOf(((ClientPlayerInteractionManagerAccessor)this.mc.interactionManager).getBreakingProgress() * 100.0f));
     }
 
     public BreakingBlockHud(HUD hUD) {

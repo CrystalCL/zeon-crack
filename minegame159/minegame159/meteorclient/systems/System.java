@@ -8,8 +8,8 @@ import java.io.IOException;
 import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.utils.files.StreamUtils;
 import minegame159.meteorclient.utils.misc.ISerializable;
-import net.minecraft.class_2487;
-import net.minecraft.class_2507;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIo;
 
 public abstract class System<T>
 implements ISerializable<T> {
@@ -31,7 +31,7 @@ implements ISerializable<T> {
                 file2 = new File(file, file2.getName());
             }
             if (file2.exists()) {
-                this.fromTag(class_2507.method_10633((File)file2));
+                this.fromTag(NbtIo.read((File)file2));
             }
         }
         catch (IOException iOException) {
@@ -40,7 +40,7 @@ implements ISerializable<T> {
     }
 
     @Override
-    public T fromTag(class_2487 class_24872) {
+    public T fromTag(NbtCompound NbtCompound2) {
         return null;
     }
 
@@ -48,7 +48,7 @@ implements ISerializable<T> {
     }
 
     @Override
-    public class_2487 toTag() {
+    public NbtCompound toTag() {
         return null;
     }
 
@@ -65,13 +65,13 @@ implements ISerializable<T> {
         if (file2 == null) {
             return;
         }
-        class_2487 class_24872 = this.toTag();
-        if (class_24872 == null) {
+        NbtCompound NbtCompound2 = this.toTag();
+        if (NbtCompound2 == null) {
             return;
         }
         try {
             File file3 = File.createTempFile("meteor-client", file2.getName());
-            class_2507.method_10630((class_2487)class_24872, (File)file3);
+            NbtIo.write((NbtCompound)NbtCompound2, (File)file3);
             if (file != null) {
                 file2 = new File(file, file2.getName());
             }

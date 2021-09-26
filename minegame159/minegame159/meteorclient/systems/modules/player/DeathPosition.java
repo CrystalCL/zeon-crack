@@ -26,14 +26,14 @@ import minegame159.meteorclient.systems.waypoints.Waypoint;
 import minegame159.meteorclient.systems.waypoints.Waypoints;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_243;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_2749;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.network.packet.s2c.play.HealthUpdateS2CPacket;
 
 public class DeathPosition
 extends Module {
-    private class_243 dmgPos;
+    private Vec3d dmgPos;
     private String labelText;
     private final SimpleDateFormat dateFormat;
     private final Setting<Boolean> showTimestamp;
@@ -49,21 +49,21 @@ extends Module {
     }
 
     private void onDeath() {
-        this.dmgPos = this.mc.field_1724.method_19538();
-        this.deathPos.put("x", this.dmgPos.field_1352);
-        this.deathPos.put("z", this.dmgPos.field_1350);
-        this.labelText = String.format("Latest death: %.1f, %.1f, %.1f", this.dmgPos.field_1352, this.dmgPos.field_1351, this.dmgPos.field_1350);
+        this.dmgPos = this.mc.player.getPos();
+        this.deathPos.put("x", this.dmgPos.x);
+        this.deathPos.put("z", this.dmgPos.z);
+        this.labelText = String.format("Latest death: %.1f, %.1f, %.1f", this.dmgPos.x, this.dmgPos.y, this.dmgPos.z);
         String string = this.dateFormat.format(new Date());
-        class_2585 class_25852 = new class_2585("Died at ");
-        class_25852.method_10852((class_2561)ChatUtils.formatCoords(this.dmgPos));
-        class_25852.method_27693(this.showTimestamp.get() != false ? String.format(" on %s.", string) : ".");
-        ChatUtils.moduleInfo(this, (class_2561)class_25852);
+        LiteralText LiteralText2 = new LiteralText("Died at ");
+        LiteralText2.append((Text)ChatUtils.formatCoords(this.dmgPos));
+        LiteralText2.append(this.showTimestamp.get() != false ? String.format(" on %s.", string) : ".");
+        ChatUtils.moduleInfo(this, (Text)LiteralText2);
         if (this.createWaypoint.get().booleanValue()) {
             this.waypoint = new Waypoint();
             this.waypoint.name = String.valueOf(new StringBuilder().append("Death ").append(string));
-            this.waypoint.x = (int)this.dmgPos.field_1352;
-            this.waypoint.y = (int)this.dmgPos.field_1351 + 2;
-            this.waypoint.z = (int)this.dmgPos.field_1350;
+            this.waypoint.x = (int)this.dmgPos.x;
+            this.waypoint.y = (int)this.dmgPos.y + 2;
+            this.waypoint.z = (int)this.dmgPos.z;
             this.waypoint.maxVisibleDistance = Integer.MAX_VALUE;
             this.waypoint.actualDimension = Utils.getDimension();
             switch (1.$SwitchMap$minegame159$meteorclient$utils$world$Dimension[Utils.getDimension().ordinal()]) {
@@ -85,8 +85,8 @@ extends Module {
 
     @EventHandler
     private void onPacketReceive(PacketEvent.Receive receive) {
-        class_2749 class_27492;
-        if (receive.packet instanceof class_2749 && (class_27492 = (class_2749)receive.packet).method_11833() <= 0.0f) {
+        HealthUpdateS2CPacket HealthUpdateS2CPacket2;
+        if (receive.packet instanceof HealthUpdateS2CPacket && (HealthUpdateS2CPacket2 = (HealthUpdateS2CPacket)receive.packet).getHealth() <= 0.0f) {
             this.onDeath();
         }
     }
@@ -113,11 +113,11 @@ extends Module {
     }
 
     private void path() {
-        if (this.deathPos.isEmpty() && this.mc.field_1724 != null) {
+        if (this.deathPos.isEmpty() && this.mc.player != null) {
             ChatUtils.moduleWarning(this, "No latest death found.", new Object[0]);
-        } else if (this.mc.field_1687 != null) {
-            double d = this.dmgPos.field_1352;
-            double d2 = this.dmgPos.field_1350;
+        } else if (this.mc.world != null) {
+            double d = this.dmgPos.x;
+            double d2 = this.dmgPos.z;
             if (BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing()) {
                 BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
             }

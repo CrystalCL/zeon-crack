@@ -46,7 +46,7 @@ extends Module {
 
     @EventHandler
     public void onPreTick(TickEvent.Pre pre) {
-        if (this.mc.field_1724.method_23318() > 0.0 || this.mc.field_1724.method_23318() < -15.0) {
+        if (this.mc.player.getY() > 0.0 || this.mc.player.getY() < -15.0) {
             if (this.hasRun && this.mode.get() == Mode.Flight && Modules.get().isActive(Flight.class)) {
                 Modules.get().get(Flight.class).toggle();
                 this.hasRun = false;
@@ -62,7 +62,7 @@ extends Module {
                 break;
             }
             case 2: {
-                this.mc.field_1724.method_6043();
+                this.mc.player.jump();
             }
         }
     }

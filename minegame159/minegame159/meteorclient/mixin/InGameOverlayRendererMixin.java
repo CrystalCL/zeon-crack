@@ -5,25 +5,25 @@ package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.NoRender;
-import net.minecraft.class_310;
-import net.minecraft.class_4587;
-import net.minecraft.class_4603;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.hud.InGameOverlayRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_4603.class})
+@Mixin(value={InGameOverlayRenderer.class})
 public class InGameOverlayRendererMixin {
     @Inject(method={"renderFireOverlay"}, at={@At(value="HEAD")}, cancellable=true)
-    private static void onRenderFireOverlay(class_310 class_3102, class_4587 class_45872, CallbackInfo callbackInfo) {
+    private static void onRenderFireOverlay(MinecraftClient MinecraftClient2, MatrixStack MatrixStack2, CallbackInfo callbackInfo) {
         if (Modules.get().get(NoRender.class).noFireOverlay()) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"renderUnderwaterOverlay"}, at={@At(value="HEAD")}, cancellable=true)
-    private static void onRenderUnderwaterOverlay(class_310 class_3102, class_4587 class_45872, CallbackInfo callbackInfo) {
+    private static void onRenderUnderwaterOverlay(MinecraftClient MinecraftClient2, MatrixStack MatrixStack2, CallbackInfo callbackInfo) {
         if (Modules.get().get(NoRender.class).noWaterOverlay()) {
             callbackInfo.cancel();
         }

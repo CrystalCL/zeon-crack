@@ -19,19 +19,19 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.player.ChestSwap;
 import minegame159.meteorclient.utils.player.DamageCalcUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1309;
-import net.minecraft.class_1511;
-import net.minecraft.class_1738;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1887;
-import net.minecraft.class_1890;
-import net.minecraft.class_1893;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_2587;
-import net.minecraft.class_490;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.entity.BedBlockEntity;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 
 public class AutoArmor
 extends Module {
@@ -60,13 +60,13 @@ extends Module {
     private final Setting<Boolean> antiBreak;
     private final Setting<Boolean> boomSwitch;
     private int currentMending;
-    private final Setting<List<class_1887>> avoidEnch;
+    private final Setting<List<Enchantment>> avoidEnch;
     private final Setting<Integer> switchCooldown;
 
-    private List<class_1887> setDefaultValue() {
-        ArrayList<class_1887> arrayList = new ArrayList<class_1887>();
-        arrayList.add(class_1893.field_9113);
-        arrayList.add(class_1893.field_9122);
+    private List<Enchantment> setDefaultValue() {
+        ArrayList<Enchantment> arrayList = new ArrayList<Enchantment>();
+        arrayList.add(Enchantments.BINDING_CURSE);
+        arrayList.add(Enchantments.FROST_WALKER);
         return arrayList;
     }
 
@@ -95,52 +95,52 @@ extends Module {
     }
 
     private boolean explosionNear() {
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972 instanceof class_1511) || !(DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_12972.method_19538()) > (double)this.boomDamage.get().intValue())) continue;
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2 instanceof EndCrystalEntity) || !(DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Entity2.getPos()) > (double)this.boomDamage.get().intValue())) continue;
             return true;
         }
-        if (!this.mc.field_1687.method_8597().method_29956()) {
-            for (class_1297 class_12972 : this.mc.field_1687.field_9231) {
-                class_2338 class_23382 = class_12972.method_11016();
-                if (!(class_12972 instanceof class_2587)) continue;
-                class_243 class_2432 = new class_243((double)class_23382.method_10263(), (double)class_23382.method_10264(), (double)class_23382.method_10260());
-                if (!(DamageCalcUtils.bedDamage((class_1309)this.mc.field_1724, class_2432) > (double)this.boomDamage.get().intValue())) continue;
+        if (!this.mc.world.getDimension().isBedWorking()) {
+            for (Entity Entity2 : this.mc.world.blockEntities) {
+                BlockPos BlockPos2 = Entity2.getPos();
+                if (!(Entity2 instanceof BedBlockEntity)) continue;
+                Vec3d Vec3d2 = new Vec3d((double)BlockPos2.getX(), (double)BlockPos2.getY(), (double)BlockPos2.getZ());
+                if (!(DamageCalcUtils.bedDamage((LivingEntity)this.mc.player, Vec3d2) > (double)this.boomDamage.get().intValue())) continue;
                 return true;
             }
         }
         return false;
     }
 
-    private void getCurrentScore(class_1799 class_17992) {
-        this.currentBest = class_1890.method_8225((class_1887)Prot.access$000(this.mode.get()), (class_1799)class_17992);
-        this.currentProt = class_1890.method_8225((class_1887)class_1893.field_9111, (class_1799)class_17992);
-        this.currentBlast = class_1890.method_8225((class_1887)class_1893.field_9107, (class_1799)class_17992);
-        this.currentFire = class_1890.method_8225((class_1887)class_1893.field_9095, (class_1799)class_17992);
-        this.currentProj = class_1890.method_8225((class_1887)class_1893.field_9096, (class_1799)class_17992);
-        this.currentArmour = ((class_1738)class_17992.method_7909()).method_7687();
-        this.currentToughness = ((class_1738)class_17992.method_7909()).method_26353();
-        this.currentUnbreaking = class_1890.method_8225((class_1887)class_1893.field_9119, (class_1799)class_17992);
-        this.currentMending = class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)class_17992);
+    private void getCurrentScore(ItemStack ItemStack2) {
+        this.currentBest = EnchantmentHelper.getLevel((Enchantment)Prot.access$000(this.mode.get()), (ItemStack)ItemStack2);
+        this.currentProt = EnchantmentHelper.getLevel((Enchantment)Enchantments.PROTECTION, (ItemStack)ItemStack2);
+        this.currentBlast = EnchantmentHelper.getLevel((Enchantment)Enchantments.BLAST_PROTECTION, (ItemStack)ItemStack2);
+        this.currentFire = EnchantmentHelper.getLevel((Enchantment)Enchantments.FIRE_PROTECTION, (ItemStack)ItemStack2);
+        this.currentProj = EnchantmentHelper.getLevel((Enchantment)Enchantments.PROJECTILE_PROTECTION, (ItemStack)ItemStack2);
+        this.currentArmour = ((ArmorItem)ItemStack2.getItem()).getProtection();
+        this.currentToughness = ((ArmorItem)ItemStack2.getItem()).method_26353();
+        this.currentUnbreaking = EnchantmentHelper.getLevel((Enchantment)Enchantments.UNBREAKING, (ItemStack)ItemStack2);
+        this.currentMending = EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)ItemStack2);
     }
 
-    private int getItemScore(class_1799 class_17992) {
+    private int getItemScore(ItemStack ItemStack2) {
         int n = 0;
-        if (this.antiBreak.get().booleanValue() && class_17992.method_7936() - class_17992.method_7919() <= this.breakDurability.get()) {
+        if (this.antiBreak.get().booleanValue() && ItemStack2.getMaxDamage() - ItemStack2.getDamage() <= this.breakDurability.get()) {
             return 0;
         }
-        for (class_1887 class_18872 : this.avoidEnch.get()) {
-            if (class_1890.method_8225((class_1887)class_18872, (class_1799)class_17992) <= 0) continue;
+        for (Enchantment Enchantment2 : this.avoidEnch.get()) {
+            if (EnchantmentHelper.getLevel((Enchantment)Enchantment2, (ItemStack)ItemStack2) <= 0) continue;
             return -10;
         }
-        n += 4 * (class_1890.method_8225((class_1887)Prot.access$000(this.mode.get()), (class_1799)class_17992) - this.currentBest);
-        n += 2 * (class_1890.method_8225((class_1887)class_1893.field_9111, (class_1799)class_17992) - this.currentProt);
-        n += 2 * (class_1890.method_8225((class_1887)class_1893.field_9107, (class_1799)class_17992) - this.currentBlast);
-        n += 2 * (class_1890.method_8225((class_1887)class_1893.field_9095, (class_1799)class_17992) - this.currentFire);
-        n += 2 * (class_1890.method_8225((class_1887)class_1893.field_9096, (class_1799)class_17992) - this.currentProj);
-        n += 2 * (((class_1738)class_17992.method_7909()).method_7687() - this.currentArmour);
-        n = (int)((float)n + 2.0f * (((class_1738)class_17992.method_7909()).method_26353() - this.currentToughness));
-        n += class_1890.method_8225((class_1887)class_1893.field_9119, (class_1799)class_17992) - this.currentUnbreaking;
-        if (this.preferMending.get().booleanValue() && class_1890.method_8225((class_1887)class_1893.field_9101, (class_1799)class_17992) - this.currentMending > 0) {
+        n += 4 * (EnchantmentHelper.getLevel((Enchantment)Prot.access$000(this.mode.get()), (ItemStack)ItemStack2) - this.currentBest);
+        n += 2 * (EnchantmentHelper.getLevel((Enchantment)Enchantments.PROTECTION, (ItemStack)ItemStack2) - this.currentProt);
+        n += 2 * (EnchantmentHelper.getLevel((Enchantment)Enchantments.BLAST_PROTECTION, (ItemStack)ItemStack2) - this.currentBlast);
+        n += 2 * (EnchantmentHelper.getLevel((Enchantment)Enchantments.FIRE_PROTECTION, (ItemStack)ItemStack2) - this.currentFire);
+        n += 2 * (EnchantmentHelper.getLevel((Enchantment)Enchantments.PROJECTILE_PROTECTION, (ItemStack)ItemStack2) - this.currentProj);
+        n += 2 * (((ArmorItem)ItemStack2.getItem()).getProtection() - this.currentArmour);
+        n = (int)((float)n + 2.0f * (((ArmorItem)ItemStack2.getItem()).method_26353() - this.currentToughness));
+        n += EnchantmentHelper.getLevel((Enchantment)Enchantments.UNBREAKING, (ItemStack)ItemStack2) - this.currentUnbreaking;
+        if (this.preferMending.get().booleanValue() && EnchantmentHelper.getLevel((Enchantment)Enchantments.MENDING, (ItemStack)ItemStack2) - this.currentMending > 0) {
             n += this.weight.get().intValue();
         }
         return n;
@@ -148,10 +148,10 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1724.field_7503.field_7477) {
+        if (this.mc.player.abilities.creativeMode) {
             return;
         }
-        if (this.pauseInInventory.get().booleanValue() && this.mc.field_1755 instanceof class_490) {
+        if (this.pauseInInventory.get().booleanValue() && this.mc.currentScreen instanceof InventoryScreen) {
             return;
         }
         if (this.boomSwitch.get().booleanValue() && this.mode.get() != Prot.Blast_Protection && this.explosionNear()) {
@@ -170,7 +170,7 @@ extends Module {
             this.didSkip = false;
         }
         for (int i = 0; i < 4; ++i) {
-            class_1799 class_17992 = this.mc.field_1724.field_7514.method_7372(i);
+            ItemStack ItemStack2 = this.mc.player.inventory.getArmorStack(i);
             this.currentBest = 0;
             this.currentProt = 0;
             this.currentBlast = 0;
@@ -180,19 +180,19 @@ extends Module {
             this.currentToughness = 0.0f;
             this.currentUnbreaking = 0;
             this.currentMending = 0;
-            if ((this.ignoreElytra.get().booleanValue() || Modules.get().isActive(ChestSwap.class)) && class_17992.method_7909() == class_1802.field_8833 || class_1890.method_8224((class_1799)class_17992)) continue;
-            if (class_17992.method_7909() instanceof class_1738) {
+            if ((this.ignoreElytra.get().booleanValue() || Modules.get().isActive(ChestSwap.class)) && ItemStack2.getItem() == Items.ELYTRA || EnchantmentHelper.hasBindingCurse((ItemStack)ItemStack2)) continue;
+            if (ItemStack2.getItem() instanceof ArmorItem) {
                 if (i == 1 && this.bProtLegs.get().booleanValue()) {
                     this.mode.set(Prot.Blast_Protection);
                 }
-                this.getCurrentScore(class_17992);
+                this.getCurrentScore(ItemStack2);
             }
             int n = -1;
             int n2 = 0;
             for (int j = 0; j < 36; ++j) {
                 int n3;
-                class_1799 class_17993 = this.mc.field_1724.field_7514.method_5438(j);
-                if (!(class_17993.method_7909() instanceof class_1738) || ((class_1738)class_17993.method_7909()).method_7685().method_5927() != i || n2 >= (n3 = this.getItemScore(class_17993))) continue;
+                ItemStack ItemStack3 = this.mc.player.inventory.getStack(j);
+                if (!(ItemStack3.getItem() instanceof ArmorItem) || ((ArmorItem)ItemStack3.getItem()).getSlotType().getEntitySlotId() != i || n2 >= (n3 = this.getItemScore(ItemStack3))) continue;
                 n2 = n3;
                 n = j;
                 if (null == null) continue;
@@ -210,11 +210,11 @@ extends Module {
 
     public static final class Prot
     extends Enum<Prot> {
-        public static final /* enum */ Prot Protection = new Prot(class_1893.field_9111);
-        private final class_1887 enchantment;
-        public static final /* enum */ Prot Blast_Protection = new Prot(class_1893.field_9107);
-        public static final /* enum */ Prot Fire_Protection = new Prot(class_1893.field_9095);
-        public static final /* enum */ Prot Projectile_Protection = new Prot(class_1893.field_9096);
+        public static final /* enum */ Prot Protection = new Prot(Enchantments.PROTECTION);
+        private final Enchantment enchantment;
+        public static final /* enum */ Prot Blast_Protection = new Prot(Enchantments.BLAST_PROTECTION);
+        public static final /* enum */ Prot Fire_Protection = new Prot(Enchantments.FIRE_PROTECTION);
+        public static final /* enum */ Prot Projectile_Protection = new Prot(Enchantments.PROJECTILE_PROTECTION);
         private static final Prot[] $VALUES = Prot.$values();
 
         private static Prot[] $values() {
@@ -225,12 +225,12 @@ extends Module {
             return (Prot[])$VALUES.clone();
         }
 
-        static class_1887 access$000(Prot prot) {
+        static Enchantment access$000(Prot prot) {
             return prot.enchantment;
         }
 
-        private Prot(class_1887 class_18872) {
-            this.enchantment = class_18872;
+        private Prot(Enchantment Enchantment2) {
+            this.enchantment = Enchantment2;
         }
 
         public static Prot valueOf(String string) {

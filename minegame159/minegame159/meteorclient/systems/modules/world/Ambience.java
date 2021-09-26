@@ -14,8 +14,8 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_243;
-import net.minecraft.class_5294;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.render.SkyProperties;
 
 public class Ambience
 extends Module {
@@ -41,15 +41,15 @@ extends Module {
     public final Setting<SettingColor> waterColor;
 
     private void lambda$getWidget$0() {
-        if (this.mc.field_1769 != null) {
-            this.mc.field_1769.method_3279();
+        if (this.mc.worldRenderer != null) {
+            this.mc.worldRenderer.reload();
         }
     }
 
     @Override
     public void onActivate() {
-        if (this.mc.field_1769 != null) {
-            this.mc.field_1769.method_3279();
+        if (this.mc.worldRenderer != null) {
+            this.mc.worldRenderer.reload();
         }
     }
 
@@ -87,27 +87,27 @@ extends Module {
 
     @Override
     public void onDeactivate() {
-        if (this.mc.field_1769 != null) {
-            this.mc.field_1769.method_3279();
+        if (this.mc.worldRenderer != null) {
+            this.mc.worldRenderer.reload();
         }
     }
 
     public static class Custom
-    extends class_5294 {
-        public class_243 method_28112(class_243 class_2432, float f) {
-            return class_2432.method_1021((double)0.15f);
+    extends SkyProperties {
+        public Vec3d adjustFogColor(Vec3d Vec3d2, float f) {
+            return Vec3d2.multiply((double)0.15f);
         }
 
-        public float[] method_28109(float f, float f2) {
+        public float[] getFogColorOverride(float f, float f2) {
             return null;
         }
 
-        public boolean method_28110(int n, int n2) {
+        public boolean useThickFog(int n, int n2) {
             return false;
         }
 
         public Custom() {
-            super(Float.NaN, true, class_5294.class_5401.field_25641, true, false);
+            super(Float.NaN, true, SkyType.END, true, false);
         }
     }
 }

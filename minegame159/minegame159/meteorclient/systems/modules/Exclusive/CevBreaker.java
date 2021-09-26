@@ -32,16 +32,16 @@ import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.PlayerUtils;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1511;
-import net.minecraft.class_1657;
-import net.minecraft.class_1802;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2596;
-import net.minecraft.class_2626;
-import net.minecraft.class_2846;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 
@@ -57,7 +57,7 @@ extends Module {
     private final Setting<Boolean> swap;
     private final Setting<Double> range;
     private final SettingGroup sgGeneral;
-    class_2338 pos;
+    BlockPos pos;
     private final Setting<Boolean> pauseOnEat;
     private final Setting<Boolean> pauseOnDrink;
     private final Setting<Mode> b;
@@ -81,28 +81,28 @@ extends Module {
         this.firtDone = false;
     }
 
-    private boolean placeCrystal(class_1657 class_16572, class_2338 class_23382) {
-        class_2338 class_23383 = new class_2338(class_16572.method_24515().method_10263(), class_16572.method_24515().method_10264() + 3, class_16572.method_24515().method_10260());
-        if (!BlockUtils.canPlace(class_23383, true)) {
+    private boolean placeCrystal(PlayerEntity PlayerEntity2, BlockPos BlockPos2) {
+        BlockPos BlockPos3 = new BlockPos(PlayerEntity2.getBlockPos().getX(), PlayerEntity2.getBlockPos().getY() + 3, PlayerEntity2.getBlockPos().getZ());
+        if (!BlockUtils.canPlace(BlockPos3, true)) {
             return false;
         }
-        if (!this.mc.field_1687.method_8320(class_23383).method_26215()) {
+        if (!this.mc.world.getBlockState(BlockPos3).isAir()) {
             return false;
         }
-        int n = InvUtils.findItemInHotbar(class_1802.field_8301);
+        int n = InvUtils.findItemInHotbar(Items.END_CRYSTAL);
         if (n == -1) {
             ChatUtils.moduleError(this, "There are no crystals in the quick access bar!", new Object[0]);
             this.toggle();
             return false;
         }
-        Ezz.interact(class_23382, n, class_2350.field_11033);
+        Ezz.interact(BlockPos2, n, Direction.DOWN);
         return true;
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
         Object object;
-        if (this.mc.field_1687 == null || this.mc.field_1724 == null) {
+        if (this.mc.world == null || this.mc.player == null) {
             return;
         }
         if (PlayerUtils.shouldPause(this.pauseOnMine.get(), this.pauseOnEat.get(), this.pauseOnDrink.get())) {
@@ -113,107 +113,107 @@ extends Module {
             return;
         }
         this.pause = this.delay.get();
-        class_1657 class_16572 = CityUtils.getPlayerTarget(7.0);
-        if (class_16572 == null) {
+        PlayerEntity PlayerEntity2 = CityUtils.getPlayerTarget(7.0);
+        if (PlayerEntity2 == null) {
             return;
         }
-        class_2338 class_23382 = new class_2338(class_16572.method_24515().method_10263(), class_16572.method_24515().method_10264() + 2, class_16572.method_24515().method_10260());
-        if (Ezz.DistanceTo(class_23382) > this.range.get()) {
+        BlockPos BlockPos2 = new BlockPos(PlayerEntity2.getBlockPos().getX(), PlayerEntity2.getBlockPos().getY() + 2, PlayerEntity2.getBlockPos().getZ());
+        if (Ezz.DistanceTo(BlockPos2) > this.range.get()) {
             return;
         }
-        class_2338 class_23383 = new class_2338(class_16572.method_24515().method_10263(), class_16572.method_24515().method_10264() + 1, class_16572.method_24515().method_10260());
-        if (this.mc.field_1687.method_8320(class_23383).method_26204() == class_2246.field_10540 || this.mc.field_1687.method_8320(class_23383).method_26204() == class_2246.field_9987) {
+        BlockPos BlockPos3 = new BlockPos(PlayerEntity2.getBlockPos().getX(), PlayerEntity2.getBlockPos().getY() + 1, PlayerEntity2.getBlockPos().getZ());
+        if (this.mc.world.getBlockState(BlockPos3).getBlock() == Blocks.OBSIDIAN || this.mc.world.getBlockState(BlockPos3).getBlock() == Blocks.BEDROCK) {
             return;
         }
-        class_2338 class_23384 = new class_2338(class_16572.method_24515().method_10263(), class_16572.method_24515().method_10264() + 3, class_16572.method_24515().method_10260());
-        if (!this.mc.field_1687.method_8320(class_23382).method_26215() && this.mc.field_1687.method_8320(class_23382).method_26204() != class_2246.field_10540) {
+        BlockPos BlockPos4 = new BlockPos(PlayerEntity2.getBlockPos().getX(), PlayerEntity2.getBlockPos().getY() + 3, PlayerEntity2.getBlockPos().getZ());
+        if (!this.mc.world.getBlockState(BlockPos2).isAir() && this.mc.world.getBlockState(BlockPos2).getBlock() != Blocks.OBSIDIAN) {
             return;
         }
-        int n = InvUtils.findItemInHotbar(class_1802.field_8403);
+        int n = InvUtils.findItemInHotbar(Items.IRON_PICKAXE);
         if (n == -1) {
-            n = InvUtils.findItemInHotbar(class_1802.field_22024);
+            n = InvUtils.findItemInHotbar(Items.NETHERITE_PICKAXE);
         }
         if (n == -1) {
-            n = InvUtils.findItemInHotbar(class_1802.field_8377);
+            n = InvUtils.findItemInHotbar(Items.DIAMOND_PICKAXE);
         }
         if (n == -1) {
             ChatUtils.moduleError(this, "There is no pickaxe in the quick access bar!", new Object[0]);
             this.toggle();
             return;
         }
-        if (this.mc.field_1687.method_8320(class_23382).method_26204() != class_2246.field_10540) {
-            Ezz.BlockPlace(class_23382, InvUtils.findItemInHotbar(class_1802.field_8281), this.rotate.get());
+        if (this.mc.world.getBlockState(BlockPos2).getBlock() != Blocks.OBSIDIAN) {
+            Ezz.BlockPlace(BlockPos2, InvUtils.findItemInHotbar(Items.OBSIDIAN), this.rotate.get());
         }
-        if (!Ezz.equalsBlockPos(this.pos, class_23382)) {
-            this.pos = class_23382;
+        if (!Ezz.equalsBlockPos(this.pos, BlockPos2)) {
+            this.pos = BlockPos2;
             Ezz.swap(n);
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12968, this.pos, class_2350.field_11036));
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, this.pos, class_2350.field_11036));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.START_DESTROY_BLOCK, this.pos, Direction.UP));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, this.pos, Direction.UP));
             this.isDone = false;
             return;
         }
         if (!this.isDone) {
             return;
         }
-        class_1511 class_15112 = null;
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972 instanceof class_1511) || !Ezz.equalsBlockPos(class_12972.method_24515(), class_23384)) continue;
-            class_15112 = (class_1511)class_12972;
+        EndCrystalEntity EndCrystalEntity2 = null;
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2 instanceof EndCrystalEntity) || !Ezz.equalsBlockPos(Entity2.getBlockPos(), BlockPos4)) continue;
+            EndCrystalEntity2 = (EndCrystalEntity)Entity2;
             break;
         }
-        if (class_15112 != null && this.b.get() == Mode.Instant) {
+        if (EndCrystalEntity2 != null && this.b.get() == Mode.Instant) {
             if (this.rotate.get().booleanValue()) {
-                object = PlayerUtils.calculateAngle(class_15112.method_19538());
+                object = PlayerUtils.calculateAngle(EndCrystalEntity2.getPos());
                 Rotations.rotate((double)object[0], (double)object[1]);
             }
-            int n2 = this.mc.field_1724.field_7514.field_7545;
+            int n2 = this.mc.player.inventory.selectedSlot;
             if (this.swap.get().booleanValue()) {
                 Ezz.swap(n);
             }
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, this.pos, class_2350.field_11036));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, this.pos, Direction.UP));
             if (this.backswap.get().booleanValue()) {
                 Ezz.swap(n2);
             }
-            Ezz.attackEntity((class_1297)class_15112);
+            Ezz.attackEntity((Entity)EndCrystalEntity2);
             return;
         }
-        if (class_15112 != null && this.b.get() == Mode.Normal) {
+        if (EndCrystalEntity2 != null && this.b.get() == Mode.Normal) {
             if (this.rotate.get().booleanValue()) {
-                object = PlayerUtils.calculateAngle(class_15112.method_19538());
+                object = PlayerUtils.calculateAngle(EndCrystalEntity2.getPos());
                 Rotations.rotate((double)object[0], (double)object[1]);
             }
-            int n3 = this.mc.field_1724.field_7514.field_7545;
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12968, this.pos, class_2350.field_11036));
+            int n3 = this.mc.player.inventory.selectedSlot;
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.START_DESTROY_BLOCK, this.pos, Direction.UP));
             if (this.swap.get().booleanValue()) {
                 Ezz.swap(n);
             }
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, this.pos, class_2350.field_11036));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, this.pos, Direction.UP));
             if (this.backswap.get().booleanValue()) {
                 Ezz.swap(n3);
             }
-            Ezz.attackEntity((class_1297)class_15112);
+            Ezz.attackEntity((Entity)EndCrystalEntity2);
             return;
         }
-        this.placeCrystal(class_16572, class_23382);
+        this.placeCrystal(PlayerEntity2, BlockPos2);
     }
 
     @EventHandler
     private void BlockUpdate(PacketEvent.Receive receive) {
-        if (!(receive.packet instanceof class_2626)) {
+        if (!(receive.packet instanceof BlockUpdateS2CPacket)) {
             return;
         }
-        class_2626 class_26262 = (class_2626)receive.packet;
-        if (Ezz.equalsBlockPos(class_26262.method_11309(), this.pos) && class_26262.method_11308().method_26215()) {
+        BlockUpdateS2CPacket BlockUpdateS2CPacket2 = (BlockUpdateS2CPacket)receive.packet;
+        if (Ezz.equalsBlockPos(BlockUpdateS2CPacket2.getPos(), this.pos) && BlockUpdateS2CPacket2.getState().isAir()) {
             this.isDone = true;
         }
     }
 
     @EventHandler
     private void AntiClick(PacketEvent.Send send) {
-        if (send.packet instanceof class_2846) {
-            class_2846 class_28462 = (class_2846)send.packet;
-            this.s(String.valueOf(new StringBuilder().append(class_28462.method_12363()).append(" ").append(class_28462.method_12362())));
-            if (!(class_28462.method_12363() != class_2846.class_2847.field_12968 && class_28462.method_12363() != class_2846.class_2847.field_12973 && class_28462.method_12363() != class_2846.class_2847.field_12971 || Ezz.equalsBlockPos(class_28462.method_12362(), this.pos))) {
+        if (send.packet instanceof PlayerActionC2SPacket) {
+            PlayerActionC2SPacket PlayerActionC2SPacket2 = (PlayerActionC2SPacket)send.packet;
+            this.s(String.valueOf(new StringBuilder().append(PlayerActionC2SPacket2.getAction()).append(" ").append(PlayerActionC2SPacket2.getPos())));
+            if (!(PlayerActionC2SPacket2.getAction() != Action.START_DESTROY_BLOCK && PlayerActionC2SPacket2.getAction() != Action.STOP_DESTROY_BLOCK && PlayerActionC2SPacket2.getAction() != Action.ABORT_DESTROY_BLOCK || Ezz.equalsBlockPos(PlayerActionC2SPacket2.getPos(), this.pos))) {
                 this.s("cancel!");
                 send.cancel();
             }

@@ -22,13 +22,13 @@ import minegame159.meteorclient.utils.misc.input.KeyAction;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.Rotations;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.class_124;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_304;
-import net.minecraft.class_3532;
-import net.minecraft.class_3965;
-import net.minecraft.class_3966;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 
 public class Freecam
 extends Module {
@@ -66,61 +66,61 @@ extends Module {
     }
 
     public double getPitch(float f) {
-        return class_3532.method_16439((float)f, (float)this.prevPitch, (float)this.pitch);
+        return MathHelper.lerp((float)f, (float)this.prevPitch, (float)this.pitch);
     }
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1719.method_5757()) {
-            this.mc.method_1560().field_5960 = true;
+        if (this.mc.cameraEntity.isInsideWall()) {
+            this.mc.getCameraEntity().noClip = true;
         }
-        if (this.mc.field_1755 != null) {
+        if (this.mc.currentScreen != null) {
             return;
         }
-        class_243 class_2432 = class_243.method_1030((float)0.0f, (float)this.yaw);
-        class_243 class_2433 = class_243.method_1030((float)0.0f, (float)(this.yaw + 90.0f));
+        Vec3d Vec3d2 = Vec3d.fromPolar((float)0.0f, (float)this.yaw);
+        Vec3d Vec3d3 = Vec3d.fromPolar((float)0.0f, (float)(this.yaw + 90.0f));
         double d = 0.0;
         double d2 = 0.0;
         double d3 = 0.0;
         if (this.rotate.get().booleanValue()) {
-            class_2338 class_23382;
-            if (this.mc.field_1765 instanceof class_3965) {
-                class_243 class_2434 = this.mc.field_1765.method_17784();
-                class_23382 = ((class_3965)this.mc.field_1765).method_17777();
-                if (!this.mc.field_1687.method_8320(class_23382).method_26215()) {
-                    this.mc.field_1724.field_6031 = (float)Rotations.getYaw(class_2434);
-                    this.mc.field_1724.field_5965 = (float)Rotations.getPitch(class_2434);
+            BlockPos BlockPos2;
+            if (this.mc.crosshairTarget instanceof BlockHitResult) {
+                Vec3d Vec3d4 = this.mc.crosshairTarget.getPos();
+                BlockPos2 = ((BlockHitResult)this.mc.crosshairTarget).getBlockPos();
+                if (!this.mc.world.getBlockState(BlockPos2).isAir()) {
+                    this.mc.player.yaw = (float)Rotations.getYaw(Vec3d4);
+                    this.mc.player.pitch = (float)Rotations.getPitch(Vec3d4);
                 }
             } else {
-                class_23382 = ((class_3966)this.mc.field_1765).method_17782().method_24515();
-                this.mc.field_1724.field_6031 = (float)Rotations.getYaw(class_23382);
-                this.mc.field_1724.field_5965 = (float)Rotations.getPitch(class_23382);
+                BlockPos2 = ((EntityHitResult)this.mc.crosshairTarget).getEntity().getBlockPos();
+                this.mc.player.yaw = (float)Rotations.getYaw(BlockPos2);
+                this.mc.player.pitch = (float)Rotations.getPitch(BlockPos2);
             }
         }
         double d4 = 0.5;
-        if (this.mc.field_1690.field_1867.method_1434()) {
+        if (this.mc.options.keySprint.isPressed()) {
             d4 = 1.0;
         }
         boolean bl = false;
         if (this.forward) {
-            d += class_2432.field_1352 * d4 * this.speed.get();
-            d3 += class_2432.field_1350 * d4 * this.speed.get();
+            d += Vec3d2.x * d4 * this.speed.get();
+            d3 += Vec3d2.z * d4 * this.speed.get();
             bl = true;
         }
         if (this.backward) {
-            d -= class_2432.field_1352 * d4 * this.speed.get();
-            d3 -= class_2432.field_1350 * d4 * this.speed.get();
+            d -= Vec3d2.x * d4 * this.speed.get();
+            d3 -= Vec3d2.z * d4 * this.speed.get();
             bl = true;
         }
         boolean bl2 = false;
         if (this.right) {
-            d += class_2433.field_1352 * d4 * this.speed.get();
-            d3 += class_2433.field_1350 * d4 * this.speed.get();
+            d += Vec3d3.x * d4 * this.speed.get();
+            d3 += Vec3d3.z * d4 * this.speed.get();
             bl2 = true;
         }
         if (this.left) {
-            d -= class_2433.field_1352 * d4 * this.speed.get();
-            d3 -= class_2433.field_1350 * d4 * this.speed.get();
+            d -= Vec3d3.x * d4 * this.speed.get();
+            d3 -= Vec3d3.z * d4 * this.speed.get();
             bl2 = true;
         }
         if (bl && bl2) {
@@ -141,17 +141,17 @@ extends Module {
     @EventHandler
     private void onKey(KeyEvent keyEvent) {
         boolean bl = true;
-        if (KeyBindingHelper.getBoundKeyOf((class_304)this.mc.field_1690.field_1894).method_1444() == keyEvent.key) {
+        if (KeyBindingHelper.getBoundKeyOf((KeyBinding)this.mc.options.keyForward).getCode() == keyEvent.key) {
             this.forward = keyEvent.action != KeyAction.Release;
-        } else if (KeyBindingHelper.getBoundKeyOf((class_304)this.mc.field_1690.field_1881).method_1444() == keyEvent.key) {
+        } else if (KeyBindingHelper.getBoundKeyOf((KeyBinding)this.mc.options.keyBack).getCode() == keyEvent.key) {
             this.backward = keyEvent.action != KeyAction.Release;
-        } else if (KeyBindingHelper.getBoundKeyOf((class_304)this.mc.field_1690.field_1849).method_1444() == keyEvent.key) {
+        } else if (KeyBindingHelper.getBoundKeyOf((KeyBinding)this.mc.options.keyRight).getCode() == keyEvent.key) {
             this.right = keyEvent.action != KeyAction.Release;
-        } else if (KeyBindingHelper.getBoundKeyOf((class_304)this.mc.field_1690.field_1913).method_1444() == keyEvent.key) {
+        } else if (KeyBindingHelper.getBoundKeyOf((KeyBinding)this.mc.options.keyLeft).getCode() == keyEvent.key) {
             this.left = keyEvent.action != KeyAction.Release;
-        } else if (KeyBindingHelper.getBoundKeyOf((class_304)this.mc.field_1690.field_1903).method_1444() == keyEvent.key) {
+        } else if (KeyBindingHelper.getBoundKeyOf((KeyBinding)this.mc.options.keyJump).getCode() == keyEvent.key) {
             this.up = keyEvent.action != KeyAction.Release;
-        } else if (KeyBindingHelper.getBoundKeyOf((class_304)this.mc.field_1690.field_1832).method_1444() == keyEvent.key) {
+        } else if (KeyBindingHelper.getBoundKeyOf((KeyBinding)this.mc.options.keySneak).getCode() == keyEvent.key) {
             this.down = keyEvent.action != KeyAction.Release;
         } else {
             bl = false;
@@ -163,20 +163,20 @@ extends Module {
 
     @EventHandler
     private void onTookDamage(TookDamageEvent tookDamageEvent) {
-        if (tookDamageEvent.entity.method_5667() == null) {
+        if (tookDamageEvent.entity.getUuid() == null) {
             return;
         }
-        if (!tookDamageEvent.entity.method_5667().equals(this.mc.field_1724.method_5667())) {
+        if (!tookDamageEvent.entity.getUuid().equals(this.mc.player.getUuid())) {
             return;
         }
-        if (this.autoDisableOnDamage.get() == AutoDisableEvent.OnDamage || this.autoDisableOnDamage.get() == AutoDisableEvent.OnDeath && tookDamageEvent.entity.method_6032() <= 0.0f) {
+        if (this.autoDisableOnDamage.get() == AutoDisableEvent.OnDamage || this.autoDisableOnDamage.get() == AutoDisableEvent.OnDeath && tookDamageEvent.entity.getHealth() <= 0.0f) {
             this.toggle();
-            ChatUtils.moduleInfo(this, "Auto toggled %s(default).", this.isActive() ? String.valueOf(new StringBuilder().append(class_124.field_1060).append("on")) : String.valueOf(new StringBuilder().append(class_124.field_1061).append("off")));
+            ChatUtils.moduleInfo(this, "Auto toggled %s(default).", this.isActive() ? String.valueOf(new StringBuilder().append(Formatting.GREEN).append("on")) : String.valueOf(new StringBuilder().append(Formatting.RED).append("off")));
         }
     }
 
     public double getYaw(float f) {
-        return class_3532.method_16439((float)f, (float)this.prevYaw, (float)this.yaw);
+        return MathHelper.lerp((float)f, (float)this.prevYaw, (float)this.yaw);
     }
 
     @EventHandler
@@ -188,11 +188,11 @@ extends Module {
     }
 
     public double getX(float f) {
-        return class_3532.method_16436((double)f, (double)this.prevPos.x, (double)this.pos.x);
+        return MathHelper.lerp((double)f, (double)this.prevPos.x, (double)this.pos.x);
     }
 
     public double getZ(float f) {
-        return class_3532.method_16436((double)f, (double)this.prevPos.z, (double)this.pos.z);
+        return MathHelper.lerp((double)f, (double)this.prevPos.z, (double)this.pos.z);
     }
 
     public boolean renderHands() {
@@ -202,7 +202,7 @@ extends Module {
     @Override
     public void onDeactivate() {
         if (this.reloadChunks.get().booleanValue()) {
-            this.mc.field_1769.method_3279();
+            this.mc.worldRenderer.reload();
         }
     }
 
@@ -220,20 +220,20 @@ extends Module {
     }
 
     private void unpress() {
-        this.mc.field_1690.field_1894.method_23481(false);
-        this.mc.field_1690.field_1881.method_23481(false);
-        this.mc.field_1690.field_1849.method_23481(false);
-        this.mc.field_1690.field_1913.method_23481(false);
-        this.mc.field_1690.field_1903.method_23481(false);
-        this.mc.field_1690.field_1832.method_23481(false);
+        this.mc.options.keyForward.setPressed(false);
+        this.mc.options.keyBack.setPressed(false);
+        this.mc.options.keyRight.setPressed(false);
+        this.mc.options.keyLeft.setPressed(false);
+        this.mc.options.keyJump.setPressed(false);
+        this.mc.options.keySneak.setPressed(false);
     }
 
     @Override
     public void onActivate() {
-        this.yaw = this.mc.field_1724.field_6031;
-        this.pitch = this.mc.field_1724.field_5965;
-        this.pos.set(this.mc.field_1773.method_19418().method_19326());
-        this.prevPos.set(this.mc.field_1773.method_19418().method_19326());
+        this.yaw = this.mc.player.yaw;
+        this.pitch = this.mc.player.pitch;
+        this.pos.set(this.mc.gameRenderer.getCamera().getPos());
+        this.prevPos.set(this.mc.gameRenderer.getCamera().getPos());
         this.prevYaw = this.yaw;
         this.prevPitch = this.pitch;
         this.forward = false;
@@ -244,12 +244,12 @@ extends Module {
         this.down = false;
         this.unpress();
         if (this.reloadChunks.get().booleanValue()) {
-            this.mc.field_1769.method_3279();
+            this.mc.worldRenderer.reload();
         }
     }
 
     public double getY(float f) {
-        return class_3532.method_16436((double)f, (double)this.prevPos.y, (double)this.pos.y);
+        return MathHelper.lerp((double)f, (double)this.prevPos.y, (double)this.pos.y);
     }
 
     public void changeLookDirection(double d, double d2) {
@@ -257,7 +257,7 @@ extends Module {
         this.prevPitch = this.pitch;
         this.yaw = (float)((double)this.yaw + d);
         this.pitch = (float)((double)this.pitch + d2);
-        this.pitch = class_3532.method_15363((float)this.pitch, (float)-90.0f, (float)90.0f);
+        this.pitch = MathHelper.clamp((float)this.pitch, (float)-90.0f, (float)90.0f);
     }
 
     public static final class AutoDisableEvent

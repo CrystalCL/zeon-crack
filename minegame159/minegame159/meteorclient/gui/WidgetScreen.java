@@ -19,15 +19,15 @@ import minegame159.meteorclient.rendering.Matrices;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.CursorStyle;
 import minegame159.meteorclient.utils.misc.input.Input;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_310;
-import net.minecraft.class_437;
-import net.minecraft.class_4587;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.math.MatrixStack;
 
 public abstract class WidgetScreen
-extends class_437 {
-    protected class_437 parent;
+extends Screen {
+    protected Screen parent;
     private boolean debug;
     protected final GuiTheme theme;
     public boolean locked;
@@ -41,24 +41,24 @@ extends class_437 {
     private double lastMouseY;
     private boolean onClose;
 
-    public boolean method_25404(int n, int n2, int n3) {
+    public boolean keyPressed(int n, int n2, int n3) {
         if (this.locked) {
             return false;
         }
-        return this.root.keyPressed(n, n3) || super.method_25404(n, n2, n3);
+        return this.root.keyPressed(n, n3) || super.keyPressed(n, n2, n3);
     }
 
-    public void method_25394(class_4587 class_45872, int n, int n2, float f) {
+    public void render(MatrixStack MatrixStack2, int n, int n2, float f) {
         if (!Utils.canUpdate()) {
-            this.method_25420(class_45872);
+            this.renderBackground(MatrixStack2);
         }
-        double d = Utils.mc.method_22683().method_4495();
+        double d = Utils.mc.getWindow().getScaleFactor();
         n = (int)((double)n * d);
         n2 = (int)((double)n2 * d);
         this.animProgress += (double)(f / 20.0f * 14.0f);
         this.animProgress = Utils.clamp(this.animProgress, 0.0, 1.0);
         Utils.unscaledProjection();
-        Matrices.begin(new class_4587());
+        Matrices.begin(new MatrixStack());
         this.onRenderBefore(f);
         WidgetScreen.RENDERER.theme = this.theme;
         this.theme.beforeRender();
@@ -81,16 +81,16 @@ extends class_437 {
         }
     }
 
-    public boolean method_25406(double d, double d2, int n) {
+    public boolean mouseReleased(double d, double d2, int n) {
         if (this.locked) {
             return false;
         }
-        double d3 = Utils.mc.method_22683().method_4495();
+        double d3 = Utils.mc.getWindow().getScaleFactor();
         return this.root.mouseReleased(d *= d3, d2 *= d3, n);
     }
 
-    public void method_25410(class_310 class_3102, int n, int n2) {
-        super.method_25410(class_3102, n, n2);
+    public void resize(MinecraftClient MinecraftClient2, int n, int n2) {
+        super.resize(MinecraftClient2, n, n2);
         this.root.invalidate();
     }
 
@@ -99,8 +99,8 @@ extends class_437 {
     }
 
     public WidgetScreen(GuiTheme guiTheme, String string) {
-        super((class_2561)new class_2585(string));
-        this.parent = Utils.mc.field_1755;
+        super((Text)new LiteralText(string));
+        this.parent = Utils.mc.currentScreen;
         this.root = new WFullScreenRoot(null);
         this.theme = guiTheme;
         this.root.theme = guiTheme;
@@ -112,11 +112,11 @@ extends class_437 {
         }
     }
 
-    public void method_25419() {
+    public void onClose() {
         if (!this.locked) {
             boolean bl = this.onClose;
             this.onClose = true;
-            this.method_25432();
+            this.removed();
             this.onClose = bl;
         }
     }
@@ -127,7 +127,7 @@ extends class_437 {
         }
     }
 
-    public boolean method_16803(int n, int n2, int n3) {
+    public boolean keyReleased(int n, int n2, int n3) {
         if (this.locked) {
             return false;
         }
@@ -135,7 +135,7 @@ extends class_437 {
             this.debug = !this.debug;
             return true;
         }
-        return super.method_16803(n, n2, n3);
+        return super.keyReleased(n, n2, n3);
     }
 
     public void keyRepeated(int n, int n2) {
@@ -152,18 +152,18 @@ extends class_437 {
         }
     }
 
-    public boolean method_25400(char c, int n) {
+    public boolean charTyped(char c, int n) {
         if (this.locked) {
             return false;
         }
         return this.root.charTyped(c);
     }
 
-    public boolean method_25402(double d, double d2, int n) {
+    public boolean mouseClicked(double d, double d2, int n) {
         if (this.locked) {
             return false;
         }
-        double d3 = Utils.mc.method_22683().method_4495();
+        double d3 = Utils.mc.getWindow().getScaleFactor();
         return this.root.mouseClicked(d *= d3, d2 *= d3, n, false);
     }
 
@@ -171,17 +171,17 @@ extends class_437 {
         this.root.invalidate();
     }
 
-    protected void method_25426() {
+    protected void init() {
         MeteorClient.EVENT_BUS.subscribe((Object)this);
         this.loopWidgets(this.root, WidgetScreen::lambda$init$0);
         this.closed = false;
     }
 
-    public void method_16014(double d, double d2) {
+    public void mouseMoved(double d, double d2) {
         if (this.locked) {
             return;
         }
-        double d3 = Utils.mc.method_22683().method_4495();
+        double d3 = Utils.mc.getWindow().getScaleFactor();
         this.root.mouseMoved(d *= d3, d2 *= d3, this.lastMouseX, this.lastMouseY);
         this.lastMouseX = d;
         this.lastMouseY = d2;
@@ -193,11 +193,11 @@ extends class_437 {
     protected void onClosed() {
     }
 
-    public boolean method_25421() {
+    public boolean isPauseScreen() {
         return false;
     }
 
-    public void method_25432() {
+    public void removed() {
         if (!this.closed) {
             this.closed = true;
             this.onClosed();
@@ -205,17 +205,17 @@ extends class_437 {
             this.loopWidgets(this.root, WidgetScreen::lambda$removed$1);
             MeteorClient.EVENT_BUS.unsubscribe((Object)this);
             if (this.onClose) {
-                Utils.mc.method_1507(this.parent);
+                Utils.mc.openScreen(this.parent);
             }
         }
     }
 
-    public boolean method_25401(double d, double d2, double d3) {
+    public boolean mouseScrolled(double d, double d2, double d3) {
         if (this.locked) {
             return false;
         }
         this.root.mouseScrolled(d3);
-        return super.method_25401(d, d2, d3);
+        return super.mouseScrolled(d, d2, d3);
     }
 
     private void loopWidgets(WWidget wWidget, Consumer<WWidget> consumer) {
@@ -231,7 +231,7 @@ extends class_437 {
         this.root.clear();
     }
 
-    public boolean method_25422() {
+    public boolean shouldCloseOnEsc() {
         return !this.locked;
     }
 
@@ -280,7 +280,7 @@ extends class_437 {
                 this.calculateSize();
                 this.calculateWidgetPositions();
                 this.valid = true;
-                this.mouseMoved(Utils.mc.field_1729.method_1603(), Utils.mc.field_1729.method_1604(), Utils.mc.field_1729.method_1603(), Utils.mc.field_1729.method_1604());
+                this.mouseMoved(Utils.mc.mouse.getX(), Utils.mc.mouse.getY(), Utils.mc.mouse.getX(), Utils.mc.mouse.getY());
             }
             return super.render(guiRenderer, d, d2, d3);
         }

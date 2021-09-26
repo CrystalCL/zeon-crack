@@ -19,19 +19,19 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1922;
-import net.minecraft.class_2338;
-import net.minecraft.class_238;
-import net.minecraft.class_265;
-import net.minecraft.class_2680;
-import net.minecraft.class_3191;
+import net.minecraft.world.BlockView;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.BlockBreakingInfo;
 
 public class BreakIndicators
 extends Module {
     private final Setting<SettingColor> gradientColor2Sides;
     private final Setting<SettingColor> gradientColor1Sides;
     private final Setting<ShapeMode> shapeMode;
-    public final Map<Integer, class_3191> blocks;
+    public final Map<Integer, BlockBreakingInfo> blocks;
     private final Setting<SettingColor> gradientColor2Lines;
     private final SettingGroup sgGeneral;
     public final Setting<Boolean> hideVanillaIndicators;
@@ -54,13 +54,13 @@ extends Module {
         this.gradientColor1Lines = this.sgRender.add(new ColorSetting.Builder().name("gradient-color-1-lines").description("The line color for the non-broken block.").defaultValue(new SettingColor(25, 252, 25, 100)).build());
         this.gradientColor2Sides = this.sgRender.add(new ColorSetting.Builder().name("gradient-color-2-sides").description("The side color for the fully-broken block.").defaultValue(new SettingColor(255, 25, 25, 100)).build());
         this.gradientColor2Lines = this.sgRender.add(new ColorSetting.Builder().name("gradient-color-2-lines").description("The line color for the fully-broken block.").defaultValue(new SettingColor(255, 25, 25, 100)).build());
-        this.blocks = new HashMap<Integer, class_3191>();
+        this.blocks = new HashMap<Integer, BlockBreakingInfo>();
         this.cSides = new Color();
         this.cLines = new Color();
     }
 
-    private static boolean lambda$onRender$0(class_2338 class_23382, class_3191 class_31912) {
-        return class_31912.method_13991().equals((Object)class_23382);
+    private static boolean lambda$onRender$0(BlockPos BlockPos2, BlockBreakingInfo BlockBreakingInfo2) {
+        return BlockBreakingInfo2.getPos().equals((Object)BlockPos2);
     }
 
     @EventHandler
@@ -68,11 +68,11 @@ extends Module {
         boolean bl;
         ClientPlayerInteractionManagerAccessor clientPlayerInteractionManagerAccessor;
         if (this.smoothAnim.get().booleanValue()) {
-            clientPlayerInteractionManagerAccessor = (ClientPlayerInteractionManagerAccessor)this.mc.field_1761;
-            class_2338 class_23382 = clientPlayerInteractionManagerAccessor.getCurrentBreakingBlockPos();
-            boolean bl2 = bl = class_23382 != null && clientPlayerInteractionManagerAccessor.getBreakingProgress() > 0.0f;
-            if (bl && this.blocks.values().stream().noneMatch(arg_0 -> BreakIndicators.lambda$onRender$0(class_23382, arg_0))) {
-                this.blocks.put(this.mc.field_1724.method_5628(), new class_3191(this.mc.field_1724.method_5628(), class_23382));
+            clientPlayerInteractionManagerAccessor = (ClientPlayerInteractionManagerAccessor)this.mc.interactionManager;
+            BlockPos BlockPos2 = clientPlayerInteractionManagerAccessor.getCurrentBreakingBlockPos();
+            boolean bl2 = bl = BlockPos2 != null && clientPlayerInteractionManagerAccessor.getBreakingProgress() > 0.0f;
+            if (bl && this.blocks.values().stream().noneMatch(arg_0 -> BreakIndicators.lambda$onRender$0(BlockPos2, arg_0))) {
+                this.blocks.put(this.mc.player.getEntityId(), new BlockBreakingInfo(this.mc.player.getEntityId(), BlockPos2));
             }
         } else {
             clientPlayerInteractionManagerAccessor = null;
@@ -81,28 +81,28 @@ extends Module {
         this.blocks.values().forEach(arg_0 -> this.lambda$onRender$1(bl, clientPlayerInteractionManagerAccessor, arg_0));
     }
 
-    private void lambda$onRender$1(boolean bl, ClientPlayerInteractionManagerAccessor clientPlayerInteractionManagerAccessor, class_3191 class_31912) {
-        class_238 class_2383;
-        class_2338 class_23382 = class_31912.method_13991();
-        int n = class_31912.method_13988();
-        class_2680 class_26802 = this.mc.field_1687.method_8320(class_23382);
-        class_265 class_2652 = class_26802.method_26218((class_1922)this.mc.field_1687, class_23382);
-        if (class_2652.method_1110()) {
+    private void lambda$onRender$1(boolean bl, ClientPlayerInteractionManagerAccessor clientPlayerInteractionManagerAccessor, BlockBreakingInfo BlockBreakingInfo2) {
+        Box Box3;
+        BlockPos BlockPos2 = BlockBreakingInfo2.getPos();
+        int n = BlockBreakingInfo2.getStage();
+        BlockState BlockState2 = this.mc.world.getBlockState(BlockPos2);
+        VoxelShape VoxelShape2 = BlockState2.getOutlineShape((BlockView)this.mc.world, BlockPos2);
+        if (VoxelShape2.isEmpty()) {
             return;
         }
-        class_238 class_2384 = class_2383 = class_2652.method_1107();
-        double d = bl && clientPlayerInteractionManagerAccessor.getCurrentBreakingBlockPos().equals((Object)class_23382) ? 1.0 - (double)clientPlayerInteractionManagerAccessor.getBreakingProgress() : (double)(9 - (n + 1)) / 9.0;
+        Box Box4 = Box3 = VoxelShape2.getBoundingBox();
+        double d = bl && clientPlayerInteractionManagerAccessor.getCurrentBreakingBlockPos().equals((Object)BlockPos2) ? 1.0 - (double)clientPlayerInteractionManagerAccessor.getBreakingProgress() : (double)(9 - (n + 1)) / 9.0;
         double d2 = 1.0 - d;
-        class_2384 = class_2384.method_1002(class_2384.method_17939() * d, class_2384.method_17940() * d, class_2384.method_17941() * d);
-        double d3 = class_2383.method_17939() * d / 2.0;
-        double d4 = class_2383.method_17940() * d / 2.0;
-        double d5 = class_2383.method_17941() * d / 2.0;
-        double d6 = (double)class_23382.method_10263() + class_2384.field_1323 + d3;
-        double d7 = (double)class_23382.method_10264() + class_2384.field_1322 + d4;
-        double d8 = (double)class_23382.method_10260() + class_2384.field_1321 + d5;
-        double d9 = (double)class_23382.method_10263() + class_2384.field_1320 + d3;
-        double d10 = (double)class_23382.method_10264() + class_2384.field_1325 + d4;
-        double d11 = (double)class_23382.method_10260() + class_2384.field_1324 + d5;
+        Box4 = Box4.shrink(Box4.getXLength() * d, Box4.getYLength() * d, Box4.getZLength() * d);
+        double d3 = Box3.getXLength() * d / 2.0;
+        double d4 = Box3.getYLength() * d / 2.0;
+        double d5 = Box3.getZLength() * d / 2.0;
+        double d6 = (double)BlockPos2.getX() + Box4.minX + d3;
+        double d7 = (double)BlockPos2.getY() + Box4.minY + d4;
+        double d8 = (double)BlockPos2.getZ() + Box4.minZ + d5;
+        double d9 = (double)BlockPos2.getX() + Box4.maxX + d3;
+        double d10 = (double)BlockPos2.getY() + Box4.maxY + d4;
+        double d11 = (double)BlockPos2.getZ() + Box4.maxZ + d5;
         Color color = this.gradientColor1Sides.get();
         Color color2 = this.gradientColor2Sides.get();
         this.cSides.set((int)Math.round((double)color.r + (double)(color2.r - color.r) * d2), (int)Math.round((double)color.g + (double)(color2.g - color.g) * d2), (int)Math.round((double)color.b + (double)(color2.b - color.b) * d2), (int)Math.round((double)color.a + (double)(color2.a - color.a) * d2));

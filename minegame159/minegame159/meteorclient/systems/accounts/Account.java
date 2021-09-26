@@ -11,10 +11,10 @@ import minegame159.meteorclient.systems.accounts.AccountType;
 import minegame159.meteorclient.systems.accounts.AccountUtils;
 import minegame159.meteorclient.utils.misc.ISerializable;
 import minegame159.meteorclient.utils.misc.NbtException;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
-import net.minecraft.class_310;
-import net.minecraft.class_320;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.Session;
 
 public abstract class Account<T extends Account<?>>
 implements ISerializable<T> {
@@ -23,17 +23,17 @@ implements ISerializable<T> {
     protected final AccountCache cache;
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("type", this.type.name());
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10566("cache", (class_2520)this.cache.toTag());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("type", this.type.name());
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.put("cache", (NbtElement)this.cache.toTag());
+        return NbtCompound2;
     }
 
     public AccountCache getCache() {
@@ -41,18 +41,18 @@ implements ISerializable<T> {
     }
 
     @Override
-    public T fromTag(class_2487 class_24872) {
-        if (!class_24872.method_10545("name") || !class_24872.method_10545("cache")) {
+    public T fromTag(NbtCompound NbtCompound2) {
+        if (!NbtCompound2.contains("name") || !NbtCompound2.contains("cache")) {
             throw new NbtException();
         }
-        this.name = class_24872.method_10558("name");
-        this.cache.fromTag(class_24872.method_10562("cache"));
+        this.name = NbtCompound2.getString("name");
+        this.cache.fromTag(NbtCompound2.getCompound("cache"));
         return (T)this;
     }
 
-    protected void setSession(class_320 class_3202) {
-        ((MinecraftClientAccessor)class_310.method_1551()).setSession(class_3202);
-        class_310.method_1551().method_1539().clear();
+    protected void setSession(Session Session2) {
+        ((MinecraftClientAccessor)MinecraftClient.getInstance()).setSession(Session2);
+        MinecraftClient.getInstance().getSessionProperties().clear();
     }
 
     public String getUsername() {
@@ -77,7 +77,7 @@ implements ISerializable<T> {
     }
 
     public boolean login() {
-        YggdrasilMinecraftSessionService yggdrasilMinecraftSessionService = (YggdrasilMinecraftSessionService)class_310.method_1551().method_1495();
+        YggdrasilMinecraftSessionService yggdrasilMinecraftSessionService = (YggdrasilMinecraftSessionService)MinecraftClient.getInstance().getSessionService();
         AccountUtils.setBaseUrl(yggdrasilMinecraftSessionService, String.valueOf(new StringBuilder().append(YggdrasilEnvironment.PROD.getSessionHost()).append("/session/minecraft/")));
         AccountUtils.setJoinUrl(yggdrasilMinecraftSessionService, String.valueOf(new StringBuilder().append(YggdrasilEnvironment.PROD.getSessionHost()).append("/session/minecraft/join")));
         AccountUtils.setCheckUrl(yggdrasilMinecraftSessionService, String.valueOf(new StringBuilder().append(YggdrasilEnvironment.PROD.getSessionHost()).append("/session/minecraft/hasJoined")));

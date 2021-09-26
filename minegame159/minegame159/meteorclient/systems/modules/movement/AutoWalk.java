@@ -14,7 +14,7 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.misc.input.Input;
 import minegame159.meteorclient.utils.world.GoalDirection;
-import net.minecraft.class_304;
+import net.minecraft.client.option.KeyBinding;
 
 public class AutoWalk
 extends Module {
@@ -33,7 +33,7 @@ extends Module {
 
     private void createGoal() {
         this.timer = 0;
-        this.goal = new GoalDirection(this.mc.field_1724.method_19538(), this.mc.field_1724.field_6031);
+        this.goal = new GoalDirection(this.mc.player.getPos(), this.mc.player.yaw);
         BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess().setGoalAndPath((Goal)this.goal);
     }
 
@@ -48,35 +48,35 @@ extends Module {
         if (this.mode.get() == Mode.Simple) {
             switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$movement$AutoWalk$Direction[this.direction.get().ordinal()]) {
                 case 1: {
-                    this.setPressed(this.mc.field_1690.field_1894, true);
+                    this.setPressed(this.mc.options.keyForward, true);
                     break;
                 }
                 case 2: {
-                    this.setPressed(this.mc.field_1690.field_1881, true);
+                    this.setPressed(this.mc.options.keyBack, true);
                     break;
                 }
                 case 3: {
-                    this.setPressed(this.mc.field_1690.field_1913, true);
+                    this.setPressed(this.mc.options.keyLeft, true);
                     break;
                 }
                 case 4: {
-                    this.setPressed(this.mc.field_1690.field_1849, true);
+                    this.setPressed(this.mc.options.keyRight, true);
                 }
             }
         } else {
             if (this.timer > 20) {
                 this.timer = 0;
-                this.goal.recalculate(this.mc.field_1724.method_19538());
+                this.goal.recalculate(this.mc.player.getPos());
             }
             ++this.timer;
         }
     }
 
     private void unpress() {
-        this.setPressed(this.mc.field_1690.field_1894, false);
-        this.setPressed(this.mc.field_1690.field_1881, false);
-        this.setPressed(this.mc.field_1690.field_1913, false);
-        this.setPressed(this.mc.field_1690.field_1849, false);
+        this.setPressed(this.mc.options.keyForward, false);
+        this.setPressed(this.mc.options.keyBack, false);
+        this.setPressed(this.mc.options.keyLeft, false);
+        this.setPressed(this.mc.options.keyRight, false);
     }
 
     public AutoWalk() {
@@ -110,9 +110,9 @@ extends Module {
         this.goal = null;
     }
 
-    private void setPressed(class_304 class_3042, boolean bl) {
-        class_3042.method_23481(bl);
-        Input.setKeyState(class_3042, bl);
+    private void setPressed(KeyBinding KeyBinding2, boolean bl) {
+        KeyBinding2.setPressed(bl);
+        Input.setKeyState(KeyBinding2, bl);
     }
 
     public static final class Direction

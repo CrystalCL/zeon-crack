@@ -23,18 +23,18 @@ import minegame159.meteorclient.systems.modules.movement.elytrafly.ElytraFlightM
 import minegame159.meteorclient.systems.modules.movement.elytrafly.modes.Packet;
 import minegame159.meteorclient.systems.modules.movement.elytrafly.modes.Vanilla;
 import minegame159.meteorclient.systems.modules.player.ChestSwap;
-import net.minecraft.class_1297;
-import net.minecraft.class_1304;
-import net.minecraft.class_1770;
-import net.minecraft.class_1802;
-import net.minecraft.class_239;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
-import net.minecraft.class_2848;
-import net.minecraft.class_310;
-import net.minecraft.class_3959;
-import net.minecraft.class_3965;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ElytraItem;
+import net.minecraft.item.Items;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.world.RaycastContext;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class ElytraFly
 extends Module {
@@ -70,14 +70,14 @@ extends Module {
     @Override
     public void onDeactivate() {
         if (this.moveForward.get().booleanValue()) {
-            this.mc.field_1690.field_1894.method_23481(false);
+            this.mc.options.keyForward.setPressed(false);
         }
-        if (this.chestSwap.get() == ChestSwapMode.Always && this.mc.field_1724.method_6118(class_1304.field_6174).method_7909() == class_1802.field_8833) {
+        if (this.chestSwap.get() == ChestSwapMode.Always && this.mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem() == Items.ELYTRA) {
             Modules.get().get(ChestSwap.class).swap();
         } else if (this.chestSwap.get() == ChestSwapMode.WaitForGround) {
             this.enableGroundListener();
         }
-        if (this.mc.field_1724.method_6128() && this.instaDrop.get().booleanValue()) {
+        if (this.mc.player.isFallFlying() && this.instaDrop.get().booleanValue()) {
             this.enableInstaDropListener();
         }
         this.currentMode.onDeactivate();
@@ -85,18 +85,18 @@ extends Module {
 
     @EventHandler
     private void onPlayerMove(PlayerMoveEvent playerMoveEvent) {
-        if (!(this.mc.field_1724.method_6118(class_1304.field_6174).method_7909() instanceof class_1770)) {
+        if (!(this.mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem() instanceof ElytraItem)) {
             return;
         }
         this.currentMode.autoTakeoff();
-        if (this.mc.field_1724.method_6128()) {
+        if (this.mc.player.isFallFlying()) {
             this.currentMode.velX = 0.0;
-            this.currentMode.velY = playerMoveEvent.movement.field_1351;
+            this.currentMode.velY = playerMoveEvent.movement.y;
             this.currentMode.velZ = 0.0;
-            this.currentMode.forward = class_243.method_1030((float)0.0f, (float)this.mc.field_1724.field_6031).method_1021(0.1);
-            this.currentMode.right = class_243.method_1030((float)0.0f, (float)(this.mc.field_1724.field_6031 + 90.0f)).method_1021(0.1);
-            if (this.mc.field_1724.method_5799() && this.stopInWater.get().booleanValue()) {
-                this.mc.method_1562().method_2883((class_2596)new class_2848((class_1297)this.mc.field_1724, class_2848.class_2849.field_12982));
+            this.currentMode.forward = Vec3d.fromPolar((float)0.0f, (float)this.mc.player.yaw).multiply(0.1);
+            this.currentMode.right = Vec3d.fromPolar((float)0.0f, (float)(this.mc.player.yaw + 90.0f)).multiply(0.1);
+            if (this.mc.player.isTouchingWater() && this.stopInWater.get().booleanValue()) {
+                this.mc.getNetworkHandler().sendPacket((Packet)new ClientCommandC2SPacket((Entity)this.mc.player, ClientCommandC2SPacket.class_2849.START_FALL_FLYING));
                 return;
             }
             this.currentMode.handleFallMultiplier();
@@ -105,10 +105,10 @@ extends Module {
             }
             this.currentMode.handleHorizontalSpeed();
             this.currentMode.handleVerticalSpeed();
-            int n = (int)((this.mc.field_1724.method_23317() + this.currentMode.velX) / 16.0);
-            int n2 = (int)((this.mc.field_1724.method_23321() + this.currentMode.velZ) / 16.0);
+            int n = (int)((this.mc.player.getX() + this.currentMode.velX) / 16.0);
+            int n2 = (int)((this.mc.player.getZ() + this.currentMode.velZ) / 16.0);
             if (this.dontGoIntoUnloadedChunks.get().booleanValue()) {
-                if (this.mc.field_1687.method_2935().method_12123(n, n2)) {
+                if (this.mc.world.getChunkManager().isChunkLoaded(n, n2)) {
                     ((IVec3d)playerMoveEvent.movement).set(this.currentMode.velX, this.currentMode.velY, this.currentMode.velZ);
                 } else {
                     ((IVec3d)playerMoveEvent.movement).set(0.0, this.currentMode.velY, 0.0);
@@ -118,24 +118,24 @@ extends Module {
             }
             this.currentMode.onPlayerMove();
         } else if (this.currentMode.lastForwardPressed) {
-            this.mc.field_1690.field_1894.method_23481(false);
+            this.mc.options.keyForward.setPressed(false);
             this.currentMode.lastForwardPressed = false;
         }
-        if (this.noCrash.get().booleanValue() && this.mc.field_1724.method_6128()) {
-            class_243 class_2432 = this.mc.field_1724.method_19538().method_1019(this.mc.field_1724.method_18798().method_1029().method_1021((double)this.crashLookAhead.get().intValue()));
-            class_3959 class_39592 = new class_3959(this.mc.field_1724.method_19538(), new class_243(class_2432.method_10216(), this.mc.field_1724.method_23318(), class_2432.method_10215()), class_3959.class_3960.field_17559, class_3959.class_242.field_1348, (class_1297)this.mc.field_1724);
-            class_3965 class_39652 = this.mc.field_1687.method_17742(class_39592);
-            if (class_39652 != null && class_39652.method_17783() == class_239.class_240.field_1332) {
+        if (this.noCrash.get().booleanValue() && this.mc.player.isFallFlying()) {
+            Vec3d Vec3d2 = this.mc.player.getPos().add(this.mc.player.getVelocity().normalize().multiply((double)this.crashLookAhead.get().intValue()));
+            RaycastContext RaycastContext2 = new RaycastContext(this.mc.player.getPos(), new Vec3d(Vec3d2.getX(), this.mc.player.getY(), Vec3d2.getZ()), RaycastContext.class_3960.OUTLINE, RaycastContext.class_242.NONE, (Entity)this.mc.player);
+            BlockHitResult BlockHitResult2 = this.mc.world.raycast(RaycastContext2);
+            if (BlockHitResult2 != null && BlockHitResult2.getType() == HitResult.class_240.BLOCK) {
                 ((IVec3d)playerMoveEvent.movement).set(0.0, this.currentMode.velY, 0.0);
             }
         }
     }
 
-    static class_310 access$200(ElytraFly elytraFly) {
+    static MinecraftClient access$200(ElytraFly elytraFly) {
         return elytraFly.mc;
     }
 
-    static class_310 access$500(ElytraFly elytraFly) {
+    static MinecraftClient access$500(ElytraFly elytraFly) {
         return elytraFly.mc;
     }
 
@@ -156,7 +156,7 @@ extends Module {
         return this.currentMode.getHudString();
     }
 
-    static class_310 access$100(ElytraFly elytraFly) {
+    static MinecraftClient access$100(ElytraFly elytraFly) {
         return elytraFly.mc;
     }
 
@@ -167,7 +167,7 @@ extends Module {
     @Override
     public void onActivate() {
         this.currentMode.onActivate();
-        if ((this.chestSwap.get() == ChestSwapMode.Always || this.chestSwap.get() == ChestSwapMode.WaitForGround) && this.mc.field_1724.method_6118(class_1304.field_6174).method_7909() != class_1802.field_8833) {
+        if ((this.chestSwap.get() == ChestSwapMode.Always || this.chestSwap.get() == ChestSwapMode.WaitForGround) && this.mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem() != Items.ELYTRA) {
             Modules.get().get(ChestSwap.class).swap();
         }
     }
@@ -181,7 +181,7 @@ extends Module {
         this.currentMode.onPacketSend(send);
     }
 
-    static class_310 access$000(ElytraFly elytraFly) {
+    static MinecraftClient access$000(ElytraFly elytraFly) {
         return elytraFly.mc;
     }
 
@@ -196,7 +196,7 @@ extends Module {
         this.flightMode = this.sgDefault.add(new EnumSetting.Builder().name("mode").description("The mode of flying.").defaultValue(ElytraFlightModes.Vanilla).onModuleActivated(this::lambda$new$0).onChanged(this::onModeChanged).build());
         this.autoTakeOff = this.sgDefault.add(new BoolSetting.Builder().name("auto-take-off").description("Automatically takes off when you hold jump without needing to double jump.").defaultValue(false).build());
         this.replace = this.sgDefault.add(new BoolSetting.Builder().name("elytra-replace").description("Replaces broken elytra with a new elytra.").defaultValue(false).build());
-        this.replaceDurability = this.sgDefault.add(new IntSetting.Builder().name("replace-durability").description("The durability threshold your elytra will be replaced at.").defaultValue(2).min(1).max(class_1802.field_8833.method_7841() - 1).sliderMax(20).build());
+        this.replaceDurability = this.sgDefault.add(new IntSetting.Builder().name("replace-durability").description("The durability threshold your elytra will be replaced at.").defaultValue(2).min(1).max(Items.ELYTRA.getMaxDamage() - 1).sliderMax(20).build());
         this.fallMultiplier = this.sgDefault.add(new DoubleSetting.Builder().name("fall-multiplier").description("Controls how fast will you go down naturally.").defaultValue(0.01).min(0.0).build());
         this.horizontalSpeed = this.sgDefault.add(new DoubleSetting.Builder().name("horizontal-speed").description("How fast you go forward and backward.").defaultValue(1.0).min(0.0).build());
         this.verticalSpeed = this.sgDefault.add(new DoubleSetting.Builder().name("vertical-speed").description("How fast you go up and down.").defaultValue(1.0).min(0.0).build());
@@ -216,7 +216,7 @@ extends Module {
         this.staticInstadropListener = new StaticInstaDropListener(this, null);
     }
 
-    static class_310 access$600(ElytraFly elytraFly) {
+    static MinecraftClient access$600(ElytraFly elytraFly) {
         return elytraFly.mc;
     }
 
@@ -229,7 +229,7 @@ extends Module {
         MeteorClient.EVENT_BUS.subscribe(this.staticInstadropListener);
     }
 
-    static class_310 access$400(ElytraFly elytraFly) {
+    static MinecraftClient access$400(ElytraFly elytraFly) {
         return elytraFly.mc;
     }
 
@@ -242,7 +242,7 @@ extends Module {
 
         @EventHandler
         private void chestSwapGroundListener(PlayerMoveEvent playerMoveEvent) {
-            if (ElytraFly.access$000((ElytraFly)this.this$0).field_1724 != null && ElytraFly.access$100((ElytraFly)this.this$0).field_1724.method_24828() && ElytraFly.access$200((ElytraFly)this.this$0).field_1724.method_6118(class_1304.field_6174).method_7909() == class_1802.field_8833) {
+            if (ElytraFly.access$000((ElytraFly)this.this$0).player != null && ElytraFly.access$100((ElytraFly)this.this$0).player.isOnGround() && ElytraFly.access$200((ElytraFly)this.this$0).player.getEquippedStack(EquipmentSlot.CHEST).getItem() == Items.ELYTRA) {
                 Modules.get().get(ChestSwap.class).swap();
                 this.this$0.disableGroundListener();
             }
@@ -262,9 +262,9 @@ extends Module {
 
         @EventHandler
         private void onInstadropTick(TickEvent.Post post) {
-            if (ElytraFly.access$400((ElytraFly)this.this$0).field_1724.method_6128()) {
-                ElytraFly.access$500((ElytraFly)this.this$0).field_1724.method_18800(0.0, 0.0, 0.0);
-                ElytraFly.access$600((ElytraFly)this.this$0).field_1724.field_3944.method_2883((class_2596)new class_2828(true));
+            if (ElytraFly.access$400((ElytraFly)this.this$0).player.isFallFlying()) {
+                ElytraFly.access$500((ElytraFly)this.this$0).player.setVelocity(0.0, 0.0, 0.0);
+                ElytraFly.access$600((ElytraFly)this.this$0).player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket(true));
             } else {
                 this.this$0.disableInstaDropListener();
             }

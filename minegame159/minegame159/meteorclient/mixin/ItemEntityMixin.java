@@ -4,23 +4,23 @@
 package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.mixininterface.IItemEntity;
-import net.minecraft.class_1542;
-import net.minecraft.class_243;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(value={class_1542.class})
+@Mixin(value={ItemEntity.class})
 public class ItemEntityMixin
 implements IItemEntity {
-    private class_243 rotation = new class_243(0.0, 0.0, 0.0);
+    private Vec3d rotation = new Vec3d(0.0, 0.0, 0.0);
 
     @Override
-    public class_243 getRotation() {
+    public Vec3d getRotation() {
         return this.rotation;
     }
 
     @Override
-    public void setRotation(class_243 class_2432) {
-        this.rotation = class_2432;
+    public void setRotation(Vec3d Vec3d2) {
+        this.rotation = Vec3d2;
     }
 }
 

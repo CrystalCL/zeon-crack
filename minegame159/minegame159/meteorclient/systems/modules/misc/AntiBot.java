@@ -11,29 +11,29 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.entity.EntityUtils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class AntiBot
 extends Module {
     private final SettingGroup sgGeneral;
     private final Setting<Boolean> removeInvisible;
 
-    private boolean isBot(class_1297 class_12972) {
-        if (class_12972 == null) {
+    private boolean isBot(Entity Entity2) {
+        if (Entity2 == null) {
             return false;
         }
-        if (!(class_12972 instanceof class_1657)) {
+        if (!(Entity2 instanceof PlayerEntity)) {
             return false;
         }
-        return EntityUtils.getGameMode((class_1657)class_12972) == null;
+        return EntityUtils.getGameMode((PlayerEntity)Entity2) == null;
     }
 
     @EventHandler
     public void onTick(TickEvent.Post post) {
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (this.removeInvisible.get().booleanValue() && !class_12972.method_5767() || !this.isBot(class_12972)) continue;
-            class_12972.method_5650();
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (this.removeInvisible.get().booleanValue() && !Entity2.isInvisible() || !this.isBot(Entity2)) continue;
+            Entity2.remove();
         }
     }
 

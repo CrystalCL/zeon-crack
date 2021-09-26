@@ -9,16 +9,16 @@ import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1268;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_243;
-import net.minecraft.class_2586;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class GhostHand
 extends Module {
-    private final List<class_2338> posList = new ArrayList<class_2338>();
+    private final List<BlockPos> posList = new ArrayList<BlockPos>();
 
     public GhostHand() {
         super(Categories.Player, "ghost-hand", "Opens containers through walls.");
@@ -26,22 +26,22 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (!this.mc.field_1690.field_1904.method_1434() || this.mc.field_1724.method_5715()) {
+        if (!this.mc.options.keyUse.isPressed() || this.mc.player.isSneaking()) {
             return;
         }
-        for (class_2586 class_25862 : this.mc.field_1687.field_9231) {
-            if (!new class_2338(this.mc.field_1724.method_5745((double)this.mc.field_1761.method_2904(), this.mc.method_1488(), false).method_17784()).equals((Object)class_25862.method_11016())) continue;
+        for (BlockEntity BlockEntity2 : this.mc.world.blockEntities) {
+            if (!new BlockPos(this.mc.player.raycast((double)this.mc.interactionManager.getReachDistance(), this.mc.getTickDelta(), false).getPos()).equals((Object)BlockEntity2.getPos())) continue;
             return;
         }
-        class_243 class_2432 = new class_243(0.0, 0.0, 0.1).method_1037(-((float)Math.toRadians(this.mc.field_1724.field_5965))).method_1024(-((float)Math.toRadians(this.mc.field_1724.field_6031)));
+        Vec3d Vec3d2 = new Vec3d(0.0, 0.0, 0.1).rotateX(-((float)Math.toRadians(this.mc.player.pitch))).rotateY(-((float)Math.toRadians(this.mc.player.yaw)));
         int n = 1;
-        while ((float)n < this.mc.field_1761.method_2904() * 10.0f) {
-            class_2338 class_23382 = new class_2338(this.mc.field_1724.method_5836(this.mc.method_1488()).method_1019(class_2432.method_1021((double)n)));
-            if (!this.posList.contains(class_23382)) {
-                this.posList.add(class_23382);
-                for (class_2586 class_25863 : this.mc.field_1687.field_9231) {
-                    if (!class_25863.method_11016().equals((Object)class_23382)) continue;
-                    this.mc.field_1761.method_2896(this.mc.field_1724, this.mc.field_1687, class_1268.field_5808, new class_3965(this.mc.field_1724.method_19538(), class_2350.field_11036, class_23382, true));
+        while ((float)n < this.mc.interactionManager.getReachDistance() * 10.0f) {
+            BlockPos BlockPos2 = new BlockPos(this.mc.player.getCameraPosVec(this.mc.getTickDelta()).add(Vec3d2.multiply((double)n)));
+            if (!this.posList.contains(BlockPos2)) {
+                this.posList.add(BlockPos2);
+                for (BlockEntity BlockEntity3 : this.mc.world.blockEntities) {
+                    if (!BlockEntity3.getPos().equals((Object)BlockPos2)) continue;
+                    this.mc.interactionManager.interactBlock(this.mc.player, this.mc.world, Hand.MAIN_HAND, new BlockHitResult(this.mc.player.getPos(), Direction.UP, BlockPos2, true));
                     return;
                 }
             }

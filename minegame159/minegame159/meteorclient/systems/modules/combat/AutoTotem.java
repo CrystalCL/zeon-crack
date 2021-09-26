@@ -19,21 +19,21 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.player.DamageCalcUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.world.Dimension;
-import net.minecraft.class_1297;
-import net.minecraft.class_1304;
-import net.minecraft.class_1309;
-import net.minecraft.class_1511;
-import net.minecraft.class_1657;
-import net.minecraft.class_1802;
-import net.minecraft.class_1829;
-import net.minecraft.class_243;
-import net.minecraft.class_2587;
-import net.minecraft.class_310;
-import net.minecraft.class_490;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.item.SwordItem;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.entity.BedBlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 
 public class AutoTotem
 extends Module {
-    private final class_310 mc;
+    private final MinecraftClient mc;
     private String totemCountString;
     private final Setting<Boolean> elytraHold;
     private final SettingGroup sgGeneral;
@@ -46,33 +46,33 @@ extends Module {
 
     private double getHealthReduction() {
         double d;
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
         double d2 = 0.0;
-        if (this.mc.field_1724.field_7503.field_7477) {
+        if (this.mc.player.abilities.creativeMode) {
             return d2;
         }
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (class_12972 instanceof class_1511 && d2 < DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_12972.method_19538())) {
-                d2 = DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_12972.method_19538());
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (Entity2 instanceof EndCrystalEntity && d2 < DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Entity2.getPos())) {
+                d2 = DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Entity2.getPos());
                 continue;
             }
-            if (!(class_12972 instanceof class_1657) || !(d2 < DamageCalcUtils.getSwordDamage((class_1657)class_12972, true)) || !Friends.get().notTrusted((class_1657)class_12972) || !(this.mc.field_1724.method_19538().method_1022(class_12972.method_19538()) < 5.0) || !(((class_1657)class_12972).method_6030().method_7909() instanceof class_1829)) continue;
-            d2 = DamageCalcUtils.getSwordDamage((class_1657)class_12972, true);
+            if (!(Entity2 instanceof PlayerEntity) || !(d2 < DamageCalcUtils.getSwordDamage((PlayerEntity)Entity2, true)) || !Friends.get().notTrusted((PlayerEntity)Entity2) || !(this.mc.player.getPos().distanceTo(Entity2.getPos()) < 5.0) || !(((PlayerEntity)Entity2).getActiveItem().getItem() instanceof SwordItem)) continue;
+            d2 = DamageCalcUtils.getSwordDamage((PlayerEntity)Entity2, true);
         }
-        if (!Modules.get().isActive(NoFall.class) && this.mc.field_1724.field_6017 > 3.0f && (d = (double)this.mc.field_1724.field_6017 * 0.5) > d2) {
+        if (!Modules.get().isActive(NoFall.class) && this.mc.player.fallDistance > 3.0f && (d = (double)this.mc.player.fallDistance * 0.5) > d2) {
             d2 = d;
         }
         if (Utils.getDimension() != Dimension.Nether) {
-            for (class_1297 class_12972 : this.mc.field_1687.field_9231) {
-                if (!(class_12972 instanceof class_2587)) continue;
-                class_243 class_2432 = new class_243((double)class_12972.method_11016().method_10263(), (double)class_12972.method_11016().method_10264(), (double)class_12972.method_11016().method_10260());
-                if (!(d2 < DamageCalcUtils.bedDamage((class_1309)this.mc.field_1724, class_2432))) continue;
-                d2 = DamageCalcUtils.bedDamage((class_1309)this.mc.field_1724, new class_243((double)class_12972.method_11016().method_10263(), (double)class_12972.method_11016().method_10264(), (double)class_12972.method_11016().method_10260()));
+            for (Entity Entity2 : this.mc.world.blockEntities) {
+                if (!(Entity2 instanceof BedBlockEntity)) continue;
+                Vec3d Vec3d2 = new Vec3d((double)Entity2.getPos().getX(), (double)Entity2.getPos().getY(), (double)Entity2.getPos().getZ());
+                if (!(d2 < DamageCalcUtils.bedDamage((LivingEntity)this.mc.player, Vec3d2))) continue;
+                d2 = DamageCalcUtils.bedDamage((LivingEntity)this.mc.player, new Vec3d((double)Entity2.getPos().getX(), (double)Entity2.getPos().getY(), (double)Entity2.getPos().getZ()));
             }
         }
         return d2;
@@ -84,13 +84,13 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (this.mc.field_1755 instanceof class_490 && !this.inventorySwitch.get().booleanValue()) {
+        if (this.mc.currentScreen instanceof InventoryScreen && !this.inventorySwitch.get().booleanValue()) {
             return;
         }
-        if (this.mc.field_1755 != null && !(this.mc.field_1755 instanceof class_490)) {
+        if (this.mc.currentScreen != null && !(this.mc.currentScreen instanceof InventoryScreen)) {
             return;
         }
-        InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(class_1802.field_8288);
+        InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(Items.TOTEM_OF_UNDYING);
         if (findItemResult.count <= 0) {
             if (!Modules.get().isActive(OffhandExtra.class) && this.fallback.get().booleanValue()) {
                 Modules.get().get(OffhandExtra.class).toggle();
@@ -99,7 +99,7 @@ extends Module {
             this.locked = false;
         } else {
             Modules.get().get(OffhandExtra.class).setTotems(false);
-            if (this.mc.field_1724.method_6079().method_7909() != class_1802.field_8288 && (!this.smart.get().booleanValue() || this.isLow() || this.elytraMove())) {
+            if (this.mc.player.getOffHandStack().getItem() != Items.TOTEM_OF_UNDYING && (!this.smart.get().booleanValue() || this.isLow() || this.elytraMove())) {
                 this.locked = true;
                 InvUtils.move().from(findItemResult.slot).toOffhand();
             } else if (this.smart.get().booleanValue() && !this.isLow() && !this.elytraMove()) {
@@ -118,12 +118,12 @@ extends Module {
         this.health = this.sgGeneral.add(new IntSetting.Builder().name("health").description("The health Auto Totem's smart mode activates at.").defaultValue(10).min(0).sliderMax(20).build());
         this.elytraHold = this.sgGeneral.add(new BoolSetting.Builder().name("elytra-hold").description("Whether or not to always hold a totem when flying with an elytra.").defaultValue(false).build());
         this.totemCountString = "0";
-        this.mc = class_310.method_1551();
+        this.mc = MinecraftClient.getInstance();
         this.locked = false;
     }
 
     private boolean elytraMove() {
-        return this.elytraHold.get() != false && this.mc.field_1724.method_6118(class_1304.field_6174).method_7909() == class_1802.field_8833 && this.mc.field_1724.method_6128();
+        return this.elytraHold.get() != false && this.mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem() == Items.ELYTRA && this.mc.player.isFallFlying();
     }
 
     private boolean isLow() {
@@ -131,10 +131,10 @@ extends Module {
     }
 
     private double getHealth() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        return this.mc.field_1724.method_6032() + this.mc.field_1724.method_6067();
+        return this.mc.player.getHealth() + this.mc.player.getAbsorptionAmount();
     }
 
     @Override

@@ -3,20 +3,20 @@
  */
 package minegame159.meteorclient.utils.misc;
 
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1842;
-import net.minecraft.class_1844;
-import net.minecraft.class_1847;
-import net.minecraft.class_1935;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionUtil;
+import net.minecraft.potion.Potions;
+import net.minecraft.item.ItemConvertible;
 
 public final class MyPotion
 extends Enum<MyPotion> {
     public static final /* enum */ MyPotion PoisonLong;
     public static final /* enum */ MyPotion HarmingStrong;
     public static final /* enum */ MyPotion TurtleMasterLong;
-    public final class_1792[] ingredients;
+    public final Item[] ingredients;
     public static final /* enum */ MyPotion JumpBoostLong;
     public static final /* enum */ MyPotion SlownessStrong;
     private static final MyPotion[] $VALUES;
@@ -33,7 +33,7 @@ extends Enum<MyPotion> {
     public static final /* enum */ MyPotion InvisibilityLong;
     public static final /* enum */ MyPotion RegenerationStrong;
     public static final /* enum */ MyPotion NightVisionLong;
-    public final class_1799 potion;
+    public final ItemStack potion;
     public static final /* enum */ MyPotion Poison;
     public static final /* enum */ MyPotion WaterBreathingLong;
     public static final /* enum */ MyPotion Swiftness;
@@ -55,49 +55,49 @@ extends Enum<MyPotion> {
     public static final /* enum */ MyPotion Healing;
 
     static {
-        Swiftness = new MyPotion(class_1847.field_9005, class_1802.field_8790, class_1802.field_8479);
-        SwiftnessLong = new MyPotion(class_1847.field_8983, class_1802.field_8790, class_1802.field_8479, class_1802.field_8725);
-        SwiftnessStrong = new MyPotion(class_1847.field_8966, class_1802.field_8790, class_1802.field_8479, class_1802.field_8601);
-        Slowness = new MyPotion(class_1847.field_8996, class_1802.field_8790, class_1802.field_8479, class_1802.field_8711);
-        SlownessLong = new MyPotion(class_1847.field_8989, class_1802.field_8790, class_1802.field_8479, class_1802.field_8711, class_1802.field_8725);
-        SlownessStrong = new MyPotion(class_1847.field_8976, class_1802.field_8790, class_1802.field_8479, class_1802.field_8711, class_1802.field_8601);
-        JumpBoost = new MyPotion(class_1847.field_8979, class_1802.field_8790, class_1802.field_8073);
-        JumpBoostLong = new MyPotion(class_1847.field_8971, class_1802.field_8790, class_1802.field_8073, class_1802.field_8725);
-        JumpBoostStrong = new MyPotion(class_1847.field_8998, class_1802.field_8790, class_1802.field_8073, class_1802.field_8601);
-        Strength = new MyPotion(class_1847.field_8978, class_1802.field_8790, class_1802.field_8183);
-        StrengthLong = new MyPotion(class_1847.field_8965, class_1802.field_8790, class_1802.field_8183, class_1802.field_8725);
-        StrengthStrong = new MyPotion(class_1847.field_8993, class_1802.field_8790, class_1802.field_8183, class_1802.field_8601);
-        Healing = new MyPotion(class_1847.field_8963, class_1802.field_8790, class_1802.field_8597);
-        HealingStrong = new MyPotion(class_1847.field_8980, class_1802.field_8790, class_1802.field_8597, class_1802.field_8601);
-        Harming = new MyPotion(class_1847.field_9004, class_1802.field_8790, class_1802.field_8597, class_1802.field_8711);
-        HarmingStrong = new MyPotion(class_1847.field_8973, class_1802.field_8790, class_1802.field_8597, class_1802.field_8711, class_1802.field_8601);
-        Poison = new MyPotion(class_1847.field_8982, class_1802.field_8790, class_1802.field_8680);
-        PoisonLong = new MyPotion(class_1847.field_9002, class_1802.field_8790, class_1802.field_8680, class_1802.field_8725);
-        PoisonStrong = new MyPotion(class_1847.field_8972, class_1802.field_8790, class_1802.field_8680, class_1802.field_8601);
-        Regeneration = new MyPotion(class_1847.field_8986, class_1802.field_8790, class_1802.field_8070);
-        RegenerationLong = new MyPotion(class_1847.field_9003, class_1802.field_8790, class_1802.field_8070, class_1802.field_8725);
-        RegenerationStrong = new MyPotion(class_1847.field_8992, class_1802.field_8790, class_1802.field_8070, class_1802.field_8601);
-        FireResistance = new MyPotion(class_1847.field_8987, class_1802.field_8790, class_1802.field_8135);
-        FireResistanceLong = new MyPotion(class_1847.field_8969, class_1802.field_8790, class_1802.field_8135, class_1802.field_8725);
-        WaterBreathing = new MyPotion(class_1847.field_8994, class_1802.field_8790, class_1802.field_8323);
-        WaterBreathingLong = new MyPotion(class_1847.field_9001, class_1802.field_8790, class_1802.field_8323, class_1802.field_8725);
-        NightVision = new MyPotion(class_1847.field_8968, class_1802.field_8790, class_1802.field_8071);
-        NightVisionLong = new MyPotion(class_1847.field_8981, class_1802.field_8790, class_1802.field_8071, class_1802.field_8725);
-        Invisibility = new MyPotion(class_1847.field_8997, class_1802.field_8790, class_1802.field_8071, class_1802.field_8711);
-        InvisibilityLong = new MyPotion(class_1847.field_9000, class_1802.field_8790, class_1802.field_8071, class_1802.field_8711, class_1802.field_8725);
-        TurtleMaster = new MyPotion(class_1847.field_8990, class_1802.field_8790, class_1802.field_8090);
-        TurtleMasterLong = new MyPotion(class_1847.field_8988, class_1802.field_8790, class_1802.field_8090, class_1802.field_8725);
-        TurtleMasterStrong = new MyPotion(class_1847.field_8977, class_1802.field_8790, class_1802.field_8090, class_1802.field_8601);
-        SlowFalling = new MyPotion(class_1847.field_8974, class_1802.field_8790, class_1802.field_8614);
-        SlowFallingLong = new MyPotion(class_1847.field_8964, class_1802.field_8790, class_1802.field_8614, class_1802.field_8725);
-        Weakness = new MyPotion(class_1847.field_8975, class_1802.field_8711);
-        WeaknessLong = new MyPotion(class_1847.field_8970, class_1802.field_8711, class_1802.field_8725);
+        Swiftness = new MyPotion(Potions.SWIFTNESS, Items.NETHER_WART, Items.SUGAR);
+        SwiftnessLong = new MyPotion(Potions.LONG_SWIFTNESS, Items.NETHER_WART, Items.SUGAR, Items.REDSTONE);
+        SwiftnessStrong = new MyPotion(Potions.STRONG_SWIFTNESS, Items.NETHER_WART, Items.SUGAR, Items.GLOWSTONE_DUST);
+        Slowness = new MyPotion(Potions.SLOWNESS, Items.NETHER_WART, Items.SUGAR, Items.FERMENTED_SPIDER_EYE);
+        SlownessLong = new MyPotion(Potions.LONG_SLOWNESS, Items.NETHER_WART, Items.SUGAR, Items.FERMENTED_SPIDER_EYE, Items.REDSTONE);
+        SlownessStrong = new MyPotion(Potions.STRONG_SLOWNESS, Items.NETHER_WART, Items.SUGAR, Items.FERMENTED_SPIDER_EYE, Items.GLOWSTONE_DUST);
+        JumpBoost = new MyPotion(Potions.LEAPING, Items.NETHER_WART, Items.RABBIT_FOOT);
+        JumpBoostLong = new MyPotion(Potions.LONG_LEAPING, Items.NETHER_WART, Items.RABBIT_FOOT, Items.REDSTONE);
+        JumpBoostStrong = new MyPotion(Potions.STRONG_LEAPING, Items.NETHER_WART, Items.RABBIT_FOOT, Items.GLOWSTONE_DUST);
+        Strength = new MyPotion(Potions.STRENGTH, Items.NETHER_WART, Items.BLAZE_POWDER);
+        StrengthLong = new MyPotion(Potions.LONG_STRENGTH, Items.NETHER_WART, Items.BLAZE_POWDER, Items.REDSTONE);
+        StrengthStrong = new MyPotion(Potions.STRONG_STRENGTH, Items.NETHER_WART, Items.BLAZE_POWDER, Items.GLOWSTONE_DUST);
+        Healing = new MyPotion(Potions.HEALING, Items.NETHER_WART, Items.GLISTERING_MELON_SLICE);
+        HealingStrong = new MyPotion(Potions.STRONG_HEALING, Items.NETHER_WART, Items.GLISTERING_MELON_SLICE, Items.GLOWSTONE_DUST);
+        Harming = new MyPotion(Potions.HARMING, Items.NETHER_WART, Items.GLISTERING_MELON_SLICE, Items.FERMENTED_SPIDER_EYE);
+        HarmingStrong = new MyPotion(Potions.STRONG_HARMING, Items.NETHER_WART, Items.GLISTERING_MELON_SLICE, Items.FERMENTED_SPIDER_EYE, Items.GLOWSTONE_DUST);
+        Poison = new MyPotion(Potions.POISON, Items.NETHER_WART, Items.SPIDER_EYE);
+        PoisonLong = new MyPotion(Potions.LONG_POISON, Items.NETHER_WART, Items.SPIDER_EYE, Items.REDSTONE);
+        PoisonStrong = new MyPotion(Potions.STRONG_POISON, Items.NETHER_WART, Items.SPIDER_EYE, Items.GLOWSTONE_DUST);
+        Regeneration = new MyPotion(Potions.REGENERATION, Items.NETHER_WART, Items.GHAST_TEAR);
+        RegenerationLong = new MyPotion(Potions.LONG_REGENERATION, Items.NETHER_WART, Items.GHAST_TEAR, Items.REDSTONE);
+        RegenerationStrong = new MyPotion(Potions.STRONG_REGENERATION, Items.NETHER_WART, Items.GHAST_TEAR, Items.GLOWSTONE_DUST);
+        FireResistance = new MyPotion(Potions.FIRE_RESISTANCE, Items.NETHER_WART, Items.MAGMA_CREAM);
+        FireResistanceLong = new MyPotion(Potions.LONG_FIRE_RESISTANCE, Items.NETHER_WART, Items.MAGMA_CREAM, Items.REDSTONE);
+        WaterBreathing = new MyPotion(Potions.WATER_BREATHING, Items.NETHER_WART, Items.PUFFERFISH);
+        WaterBreathingLong = new MyPotion(Potions.LONG_WATER_BREATHING, Items.NETHER_WART, Items.PUFFERFISH, Items.REDSTONE);
+        NightVision = new MyPotion(Potions.NIGHT_VISION, Items.NETHER_WART, Items.GOLDEN_CARROT);
+        NightVisionLong = new MyPotion(Potions.LONG_NIGHT_VISION, Items.NETHER_WART, Items.GOLDEN_CARROT, Items.REDSTONE);
+        Invisibility = new MyPotion(Potions.INVISIBILITY, Items.NETHER_WART, Items.GOLDEN_CARROT, Items.FERMENTED_SPIDER_EYE);
+        InvisibilityLong = new MyPotion(Potions.LONG_INVISIBILITY, Items.NETHER_WART, Items.GOLDEN_CARROT, Items.FERMENTED_SPIDER_EYE, Items.REDSTONE);
+        TurtleMaster = new MyPotion(Potions.TURTLE_MASTER, Items.NETHER_WART, Items.TURTLE_HELMET);
+        TurtleMasterLong = new MyPotion(Potions.LONG_TURTLE_MASTER, Items.NETHER_WART, Items.TURTLE_HELMET, Items.REDSTONE);
+        TurtleMasterStrong = new MyPotion(Potions.STRONG_TURTLE_MASTER, Items.NETHER_WART, Items.TURTLE_HELMET, Items.GLOWSTONE_DUST);
+        SlowFalling = new MyPotion(Potions.SLOW_FALLING, Items.NETHER_WART, Items.PHANTOM_MEMBRANE);
+        SlowFallingLong = new MyPotion(Potions.LONG_SLOW_FALLING, Items.NETHER_WART, Items.PHANTOM_MEMBRANE, Items.REDSTONE);
+        Weakness = new MyPotion(Potions.WEAKNESS, Items.FERMENTED_SPIDER_EYE);
+        WeaknessLong = new MyPotion(Potions.LONG_WEAKNESS, Items.FERMENTED_SPIDER_EYE, Items.REDSTONE);
         $VALUES = MyPotion.$values();
     }
 
-    private MyPotion(class_1842 class_18422, class_1792 ... class_1792Array) {
-        this.potion = class_1844.method_8061((class_1799)new class_1799((class_1935)class_1802.field_8574), (class_1842)class_18422);
-        this.ingredients = class_1792Array;
+    private MyPotion(Potion Potion2, Item ... ItemArray) {
+        this.potion = PotionUtil.setPotion((ItemStack)new ItemStack((ItemConvertible)Items.POTION), (Potion)Potion2);
+        this.ingredients = ItemArray;
     }
 
     public static MyPotion[] values() {

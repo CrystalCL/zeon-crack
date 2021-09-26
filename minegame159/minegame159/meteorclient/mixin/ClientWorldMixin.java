@@ -9,12 +9,12 @@ import minegame159.meteorclient.events.entity.EntityRemovedEvent;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.Search;
 import minegame159.meteorclient.systems.modules.world.Ambience;
-import net.minecraft.class_1297;
-import net.minecraft.class_2338;
-import net.minecraft.class_243;
-import net.minecraft.class_2680;
-import net.minecraft.class_5294;
-import net.minecraft.class_638;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.SkyProperties;
+import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,33 +22,33 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={class_638.class})
+@Mixin(value={ClientWorld.class})
 public class ClientWorldMixin {
     @Unique
-    private final class_5294 endSky = new class_5294.class_5295();
+    private final SkyProperties endSky = new End();
     @Unique
-    private final class_5294 customSky = new Ambience.Custom();
+    private final SkyProperties customSky = new Ambience.Custom();
 
     @Inject(method={"addEntityPrivate"}, at={@At(value="TAIL")})
-    private void onAddEntityPrivate(int n, class_1297 class_12972, CallbackInfo callbackInfo) {
-        MeteorClient.EVENT_BUS.post(EntityAddedEvent.get(class_12972));
+    private void onAddEntityPrivate(int n, Entity Entity2, CallbackInfo callbackInfo) {
+        MeteorClient.EVENT_BUS.post(EntityAddedEvent.get(Entity2));
     }
 
     @Inject(method={"finishRemovingEntity"}, at={@At(value="TAIL")})
-    private void onFinishRemovingEntity(class_1297 class_12972, CallbackInfo callbackInfo) {
-        MeteorClient.EVENT_BUS.post(EntityRemovedEvent.get(class_12972));
+    private void onFinishRemovingEntity(Entity Entity2, CallbackInfo callbackInfo) {
+        MeteorClient.EVENT_BUS.post(EntityRemovedEvent.get(Entity2));
     }
 
     @Inject(method={"setBlockStateWithoutNeighborUpdates"}, at={@At(value="TAIL")})
-    private void onSetBlockStateWithoutNeighborUpdates(class_2338 class_23382, class_2680 class_26802, CallbackInfo callbackInfo) {
+    private void onSetBlockStateWithoutNeighborUpdates(BlockPos BlockPos2, BlockState BlockState2, CallbackInfo callbackInfo) {
         Search search = Modules.get().get(Search.class);
         if (search.isActive()) {
-            search.onBlockUpdate(class_23382, class_26802);
+            search.onBlockUpdate(BlockPos2, BlockState2);
         }
     }
 
     @Inject(method={"method_23777"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onGetSkyColor(class_2338 class_23382, float f, CallbackInfoReturnable<class_243> callbackInfoReturnable) {
+    private void onGetSkyColor(BlockPos BlockPos2, float f, CallbackInfoReturnable<Vec3d> callbackInfoReturnable) {
         Ambience ambience = Modules.get().get(Ambience.class);
         if (ambience.isActive() && ambience.changeSkyColor.get().booleanValue()) {
             callbackInfoReturnable.setReturnValue((Object)ambience.skyColor.get().getVec3d());
@@ -56,7 +56,7 @@ public class ClientWorldMixin {
     }
 
     @Inject(method={"getSkyProperties"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onGetSkyProperties(CallbackInfoReturnable<class_5294> callbackInfoReturnable) {
+    private void onGetSkyProperties(CallbackInfoReturnable<SkyProperties> callbackInfoReturnable) {
         Ambience ambience = Modules.get().get(Ambience.class);
         if (ambience.isActive() && ambience.enderMode.get().booleanValue()) {
             callbackInfoReturnable.setReturnValue((Object)(ambience.enderCustomSkyColor.get() != false ? this.customSky : this.endSky));
@@ -64,7 +64,7 @@ public class ClientWorldMixin {
     }
 
     @Inject(method={"getCloudsColor"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onGetCloudsColor(float f, CallbackInfoReturnable<class_243> callbackInfoReturnable) {
+    private void onGetCloudsColor(float f, CallbackInfoReturnable<Vec3d> callbackInfoReturnable) {
         Ambience ambience = Modules.get().get(Ambience.class);
         if (ambience.isActive() && ambience.changeCloudColor.get().booleanValue()) {
             callbackInfoReturnable.setReturnValue((Object)ambience.cloudColor.get().getVec3d());

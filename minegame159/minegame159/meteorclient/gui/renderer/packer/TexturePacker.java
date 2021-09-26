@@ -9,20 +9,20 @@ import java.util.List;
 import minegame159.meteorclient.gui.renderer.packer.GuiTexture;
 import minegame159.meteorclient.gui.renderer.packer.TextureRegion;
 import minegame159.meteorclient.utils.render.ByteTexture;
-import net.minecraft.class_2960;
-import net.minecraft.class_310;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.stb.STBImageResize;
 
 public class TexturePacker {
     private final List<Image> images = new ArrayList<Image>();
-    private static final class_310 mc;
+    private static final MinecraftClient mc;
     private static final int maxWidth;
 
     static {
         maxWidth = 2048;
-        mc = class_310.method_1551();
+        mc = MinecraftClient.getInstance();
     }
 
     private void addResized(GuiTexture guiTexture, ByteBuffer byteBuffer, int n, int n2, int n3) {
@@ -38,7 +38,7 @@ public class TexturePacker {
     /*
      * Exception decompiling
      */
-    public GuiTexture add(class_2960 var1_1) {
+    public GuiTexture add(Identifier var1_1) {
         /*
          * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
          * 

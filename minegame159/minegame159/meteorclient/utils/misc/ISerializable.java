@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.utils.misc;
 
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 public interface ISerializable<T> {
-    public T fromTag(class_2487 var1);
+    public T fromTag(NbtCompound var1);
 
-    public class_2487 toTag();
+    public NbtCompound toTag();
 }
 

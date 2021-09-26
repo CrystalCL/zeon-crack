@@ -6,14 +6,14 @@ package minegame159.meteorclient.utils.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import net.minecraft.class_1044;
-import net.minecraft.class_3300;
-import net.minecraft.class_4536;
+import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.client.texture.TextureUtil;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30C;
 
 public class ByteTexture
-extends class_1044 {
+extends AbstractTexture {
     private void upload(int n, int n2, byte[] byArray, Format format, Filter filter, Filter filter2) {
         ByteBuffer byteBuffer = BufferUtils.createByteBuffer((int)byArray.length).put(byArray);
         byteBuffer.flip();
@@ -21,8 +21,8 @@ extends class_1044 {
     }
 
     private void upload(int n, int n2, ByteBuffer byteBuffer, Format format, Filter filter, Filter filter2) {
-        class_4536.method_24958((int)this.method_4624(), (int)n, (int)n2);
-        this.method_23207();
+        TextureUtil.allocate((int)this.getGlId(), (int)n, (int)n2);
+        this.bindTexture();
         GL30C.glTexParameteri((int)3553, (int)10242, (int)10497);
         GL30C.glTexParameteri((int)3553, (int)10243, (int)10497);
         GL30C.glTexParameteri((int)3553, (int)10241, (int)filter.toOpenGL());
@@ -30,7 +30,7 @@ extends class_1044 {
         GL30C.glTexImage2D((int)3553, (int)0, (int)format.toOpenGL(), (int)n, (int)n2, (int)0, (int)format.toOpenGL(), (int)5121, (ByteBuffer)byteBuffer);
     }
 
-    public void method_4625(class_3300 class_33002) throws IOException {
+    public void load(ResourceManager ResourceManager2) throws IOException {
     }
 
     public ByteTexture(int n, int n2, byte[] byArray, Format format, Filter filter, Filter filter2) {

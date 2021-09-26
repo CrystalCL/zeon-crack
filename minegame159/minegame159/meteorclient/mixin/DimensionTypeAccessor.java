@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_2874;
+import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_2874.class})
+@Mixin(value={DimensionType.class})
 public interface DimensionTypeAccessor {
     @Accessor(value="OVERWORLD")
-    public static class_2874 getOverworld() {
+    public static DimensionType getOverworld() {
         return null;
     }
 }

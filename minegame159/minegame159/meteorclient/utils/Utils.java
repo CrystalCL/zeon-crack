@@ -23,38 +23,38 @@ import minegame159.meteorclient.mixin.MinecraftServerAccessor;
 import minegame159.meteorclient.mixininterface.IMinecraftClient;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.world.Dimension;
-import net.minecraft.class_124;
-import net.minecraft.class_1291;
-import net.minecraft.class_1297;
-import net.minecraft.class_1753;
-import net.minecraft.class_1764;
-import net.minecraft.class_1771;
-import net.minecraft.class_1776;
-import net.minecraft.class_1779;
-import net.minecraft.class_1787;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1803;
-import net.minecraft.class_1823;
-import net.minecraft.class_1828;
-import net.minecraft.class_1835;
-import net.minecraft.class_1887;
-import net.minecraft.class_2338;
-import net.minecraft.class_2378;
-import net.minecraft.class_243;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2520;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_310;
-import net.minecraft.class_4184;
-import net.minecraft.class_442;
-import net.minecraft.class_500;
-import net.minecraft.class_526;
-import net.minecraft.class_641;
-import net.minecraft.class_642;
+import net.minecraft.util.Formatting;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.BowItem;
+import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.EggItem;
+import net.minecraft.item.EnderPearlItem;
+import net.minecraft.item.ExperienceBottleItem;
+import net.minecraft.item.FishingRodItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.LingeringPotionItem;
+import net.minecraft.item.SnowballItem;
+import net.minecraft.item.SplashPotionItem;
+import net.minecraft.item.TridentItem;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.gui.screen.world.SelectWorldScreen;
+import net.minecraft.client.option.ServerList;
+import net.minecraft.client.network.ServerInfo;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -65,7 +65,7 @@ public class Utils {
     public static boolean isReleasingTrident;
     public static boolean firstTimeTitleScreen;
     private static final DecimalFormat df;
-    public static class_310 mc;
+    public static MinecraftClient mc;
     public static final Color WHITE;
 
     public static double distance(double d, double d2, double d3, double d4, double d5, double d6) {
@@ -79,30 +79,30 @@ public class Utils {
         return random.nextInt(n2 - n) + n;
     }
 
-    public static void addEnchantment(class_1799 class_17992, class_1887 class_18872, int n) {
-        class_2499 class_24992;
-        class_2487 class_24872 = class_17992.method_7948();
-        if (!class_24872.method_10573("Enchantments", 9)) {
-            class_24992 = new class_2499();
-            class_24872.method_10566("Enchantments", (class_2520)class_24992);
+    public static void addEnchantment(ItemStack ItemStack2, Enchantment Enchantment2, int n) {
+        NbtList NbtList2;
+        NbtCompound NbtCompound2 = ItemStack2.getOrCreateTag();
+        if (!NbtCompound2.contains("Enchantments", 9)) {
+            NbtList2 = new NbtList();
+            NbtCompound2.put("Enchantments", (NbtElement)NbtList2);
         } else {
-            class_24992 = class_24872.method_10554("Enchantments", 10);
+            NbtList2 = NbtCompound2.getList("Enchantments", 10);
         }
-        String string = class_2378.field_11160.method_10221((Object)class_18872).toString();
-        for (class_2520 class_25202 : class_24992) {
-            class_2487 class_24873 = (class_2487)class_25202;
-            if (!class_24873.method_10558("id").equals(string)) continue;
-            class_24873.method_10575("lvl", (short)n);
+        String string = Registry.ENCHANTMENT.getId((Object)Enchantment2).toString();
+        for (NbtElement NbtElement2 : NbtList2) {
+            NbtCompound NbtCompound3 = (NbtCompound)NbtElement2;
+            if (!NbtCompound3.getString("id").equals(string)) continue;
+            NbtCompound3.putShort("lvl", (short)n);
             return;
         }
-        Iterator iterator = new class_2487();
-        iterator.method_10582("id", string);
-        iterator.method_10575("lvl", (short)n);
-        class_24992.add((Object)iterator);
+        Iterator iterator = new NbtCompound();
+        iterator.putString("id", string);
+        iterator.putShort("lvl", (short)n);
+        NbtList2.add((Object)iterator);
     }
 
-    public static boolean isThrowable(class_1792 class_17922) {
-        return class_17922 instanceof class_1779 || class_17922 instanceof class_1753 || class_17922 instanceof class_1764 || class_17922 instanceof class_1823 || class_17922 instanceof class_1771 || class_17922 instanceof class_1776 || class_17922 instanceof class_1828 || class_17922 instanceof class_1803 || class_17922 instanceof class_1787 || class_17922 instanceof class_1835;
+    public static boolean isThrowable(Item Item2) {
+        return Item2 instanceof ExperienceBottleItem || Item2 instanceof BowItem || Item2 instanceof CrossbowItem || Item2 instanceof SnowballItem || Item2 instanceof EggItem || Item2 instanceof EnderPearlItem || Item2 instanceof SplashPotionItem || Item2 instanceof LingeringPotionItem || Item2 instanceof FishingRodItem || Item2 instanceof TridentItem;
     }
 
     public static float clamp(float f, float f2, float f3) {
@@ -129,30 +129,30 @@ public class Utils {
         return (int)(l & 0xFFFFL);
     }
 
-    public static String getEnchantSimpleName(class_1887 class_18872, int n) {
-        return class_18872.method_8179(0).getString().substring(0, n);
+    public static String getEnchantSimpleName(Enchantment Enchantment2, int n) {
+        return Enchantment2.getName(0).getString().substring(0, n);
     }
 
-    public static void getItemsInContainerItem(class_1799 class_17992, class_1799[] class_1799Array) {
-        class_2487 class_24872;
-        Arrays.fill(class_1799Array, class_1799.field_8037);
-        class_2487 class_24873 = class_17992.method_7969();
-        if (class_24873 != null && class_24873.method_10545("BlockEntityTag") && (class_24872 = class_24873.method_10562("BlockEntityTag")).method_10545("Items")) {
-            class_2499 class_24992 = (class_2499)class_24872.method_10580("Items");
-            for (int i = 0; i < class_24992.size(); ++i) {
-                class_1799Array[class_24992.method_10602((int)i).method_10571((String)"Slot")] = class_1799.method_7915((class_2487)class_24992.method_10602(i));
+    public static void getItemsInContainerItem(ItemStack ItemStack2, ItemStack[] ItemStackArray) {
+        NbtCompound NbtCompound2;
+        Arrays.fill(ItemStackArray, ItemStack.EMPTY);
+        NbtCompound NbtCompound3 = ItemStack2.getTag();
+        if (NbtCompound3 != null && NbtCompound3.contains("BlockEntityTag") && (NbtCompound2 = NbtCompound3.getCompound("BlockEntityTag")).contains("Items")) {
+            NbtList NbtList2 = (NbtList)NbtCompound2.get("Items");
+            for (int i = 0; i < NbtList2.size(); ++i) {
+                ItemStackArray[NbtList2.getCompound((int)i).getByte((String)"Slot")] = ItemStack.fromNbt((NbtCompound)NbtList2.getCompound(i));
             }
         }
     }
 
-    public static Object2IntMap<class_1291> createStatusEffectMap() {
-        Object2IntArrayMap object2IntArrayMap = new Object2IntArrayMap(class_2378.field_11159.method_10235().size());
-        class_2378.field_11159.forEach(arg_0 -> Utils.lambda$createStatusEffectMap$0((Object2IntMap)object2IntArrayMap, arg_0));
+    public static Object2IntMap<StatusEffect> createStatusEffectMap() {
+        Object2IntArrayMap object2IntArrayMap = new Object2IntArrayMap(Registry.STATUS_EFFECT.getIds().size());
+        Registry.STATUS_EFFECT.forEach(arg_0 -> Utils.lambda$createStatusEffectMap$0((Object2IntMap)object2IntArrayMap, arg_0));
         return object2IntArrayMap;
     }
 
     public static int getWindowHeight() {
-        return mc.method_22683().method_4506();
+        return mc.getWindow().getFramebufferHeight();
     }
 
     public static String getKeyName(int n) {
@@ -349,13 +349,13 @@ public class Utils {
     }
 
     public static boolean isWhitelistedScreen() {
-        if (Utils.mc.field_1755 instanceof class_442) {
+        if (Utils.mc.currentScreen instanceof TitleScreen) {
             return true;
         }
-        if (Utils.mc.field_1755 instanceof class_500) {
+        if (Utils.mc.currentScreen instanceof MultiplayerScreen) {
             return true;
         }
-        return Utils.mc.field_1755 instanceof class_526;
+        return Utils.mc.currentScreen instanceof SelectWorldScreen;
     }
 
     public static int unpackLong1(long l) {
@@ -386,23 +386,23 @@ public class Utils {
     }
 
     public static void sendMessage(String string, Object ... objectArray) {
-        if (Utils.mc.field_1724 == null) {
+        if (Utils.mc.player == null) {
             return;
         }
         string = String.format(string, objectArray);
-        string = string.replaceAll("#yellow", class_124.field_1054.toString());
-        string = string.replaceAll("#white", class_124.field_1068.toString());
-        string = string.replaceAll("#red", class_124.field_1061.toString());
-        string = string.replaceAll("#blue", class_124.field_1078.toString());
-        string = string.replaceAll("#pink", class_124.field_1076.toString());
-        string = string.replaceAll("#gray", class_124.field_1080.toString());
-        Utils.mc.field_1724.method_7353((class_2561)new class_2585(string), false);
+        string = string.replaceAll("#yellow", Formatting.YELLOW.toString());
+        string = string.replaceAll("#white", Formatting.WHITE.toString());
+        string = string.replaceAll("#red", Formatting.RED.toString());
+        string = string.replaceAll("#blue", Formatting.BLUE.toString());
+        string = string.replaceAll("#pink", Formatting.LIGHT_PURPLE.toString());
+        string = string.replaceAll("#gray", Formatting.GRAY.toString());
+        Utils.mc.player.sendMessage((Text)new LiteralText(string), false);
     }
 
     public static void leftClick() {
-        Utils.mc.field_1690.field_1886.method_23481(true);
+        Utils.mc.options.keyAttack.setPressed(true);
         ((MinecraftClientAccessor)mc).leftClick();
-        Utils.mc.field_1690.field_1886.method_23481(false);
+        Utils.mc.options.keyAttack.setPressed(false);
     }
 
     public static String getButtonName(int n) {
@@ -430,7 +430,7 @@ public class Utils {
     public static void unscaledProjection() {
         RenderSystem.matrixMode((int)5889);
         RenderSystem.loadIdentity();
-        RenderSystem.ortho((double)0.0, (double)class_310.method_1551().method_22683().method_4489(), (double)class_310.method_1551().method_22683().method_4506(), (double)0.0, (double)1000.0, (double)3000.0);
+        RenderSystem.ortho((double)0.0, (double)MinecraftClient.getInstance().getWindow().getFramebufferWidth(), (double)MinecraftClient.getInstance().getWindow().getFramebufferHeight(), (double)0.0, (double)1000.0, (double)3000.0);
         RenderSystem.matrixMode((int)5888);
         RenderSystem.loadIdentity();
         RenderSystem.translatef((float)0.0f, (float)0.0f, (float)-2000.0f);
@@ -447,8 +447,8 @@ public class Utils {
         return (int)(l >> 16 & 0xFFFFL);
     }
 
-    public static class_243 vec3d(class_2338 class_23382) {
-        return new class_243((double)class_23382.method_10263(), (double)class_23382.method_10264(), (double)class_23382.method_10260());
+    public static Vec3d vec3d(BlockPos BlockPos2) {
+        return new Vec3d((double)BlockPos2.getX(), (double)BlockPos2.getY(), (double)BlockPos2.getZ());
     }
 
     public static int clamp(int n, int n2, int n3) {
@@ -463,14 +463,14 @@ public class Utils {
 
     public static String getWorldName() {
         String string;
-        if (mc.method_1542()) {
-            File file = ((MinecraftServerAccessor)mc.method_1576()).getSession().method_27424(Utils.mc.field_1687.method_27983());
-            if (file.toPath().relativize(Utils.mc.field_1697.toPath()).getNameCount() != 2) {
+        if (mc.isInSingleplayer()) {
+            File file = ((MinecraftServerAccessor)mc.getServer()).getSession().getWorldDirectory(Utils.mc.world.getRegistryKey());
+            if (file.toPath().relativize(Utils.mc.runDirectory.toPath()).getNameCount() != 2) {
                 file = file.getParentFile();
             }
             return file.getName();
         }
-        String string2 = string = mc.method_1589() ? "realms" : Utils.mc.method_1558().field_3761;
+        String string2 = string = mc.isConnectedToRealms() ? "realms" : Utils.mc.getCurrentServerEntry().address;
         if (SystemUtils.IS_OS_WINDOWS) {
             string = string.replace(":", "_");
         }
@@ -478,7 +478,7 @@ public class Utils {
     }
 
     public static int getWindowWidth() {
-        return mc.method_22683().method_4489();
+        return mc.getWindow().getFramebufferWidth();
     }
 
     public static String floatToString(float f) {
@@ -495,14 +495,14 @@ public class Utils {
     public static void scaledProjection() {
         RenderSystem.matrixMode((int)5889);
         RenderSystem.loadIdentity();
-        RenderSystem.ortho((double)0.0, (double)((double)class_310.method_1551().method_22683().method_4489() / class_310.method_1551().method_22683().method_4495()), (double)((double)class_310.method_1551().method_22683().method_4506() / class_310.method_1551().method_22683().method_4495()), (double)0.0, (double)1000.0, (double)3000.0);
+        RenderSystem.ortho((double)0.0, (double)((double)MinecraftClient.getInstance().getWindow().getFramebufferWidth() / MinecraftClient.getInstance().getWindow().getScaleFactor()), (double)((double)MinecraftClient.getInstance().getWindow().getFramebufferHeight() / MinecraftClient.getInstance().getWindow().getScaleFactor()), (double)0.0, (double)1000.0, (double)3000.0);
         RenderSystem.matrixMode((int)5888);
         RenderSystem.loadIdentity();
         RenderSystem.translatef((float)0.0f, (float)0.0f, (float)-2000.0f);
     }
 
     public static Dimension getDimension() {
-        switch (class_310.method_1551().field_1687.method_27983().method_29177().method_12832()) {
+        switch (MinecraftClient.getInstance().world.getRegistryKey().getValue().getPath()) {
             case "the_nether": {
                 return Dimension.Nether;
             }
@@ -517,8 +517,8 @@ public class Utils {
         return (int)(l >> 32 & 0xFFFFL);
     }
 
-    public static boolean isShulker(class_1792 class_17922) {
-        return class_17922 == class_1802.field_8545 || class_17922 == class_1802.field_8722 || class_17922 == class_1802.field_8380 || class_17922 == class_1802.field_8050 || class_17922 == class_1802.field_8829 || class_17922 == class_1802.field_8271 || class_17922 == class_1802.field_8548 || class_17922 == class_1802.field_8520 || class_17922 == class_1802.field_8627 || class_17922 == class_1802.field_8451 || class_17922 == class_1802.field_8213 || class_17922 == class_1802.field_8816 || class_17922 == class_1802.field_8350 || class_17922 == class_1802.field_8584 || class_17922 == class_1802.field_8461 || class_17922 == class_1802.field_8676 || class_17922 == class_1802.field_8268;
+    public static boolean isShulker(Item Item2) {
+        return Item2 == Items.SHULKER_BOX || Item2 == Items.WHITE_SHULKER_BOX || Item2 == Items.ORANGE_SHULKER_BOX || Item2 == Items.MAGENTA_SHULKER_BOX || Item2 == Items.LIGHT_BLUE_SHULKER_BOX || Item2 == Items.YELLOW_SHULKER_BOX || Item2 == Items.LIME_SHULKER_BOX || Item2 == Items.PINK_SHULKER_BOX || Item2 == Items.GRAY_SHULKER_BOX || Item2 == Items.LIGHT_GRAY_SHULKER_BOX || Item2 == Items.CYAN_SHULKER_BOX || Item2 == Items.PURPLE_SHULKER_BOX || Item2 == Items.BLUE_SHULKER_BOX || Item2 == Items.BROWN_SHULKER_BOX || Item2 == Items.GREEN_SHULKER_BOX || Item2 == Items.RED_SHULKER_BOX || Item2 == Items.BLACK_SHULKER_BOX;
     }
 
     public static String nameToTitle(String string) {
@@ -536,33 +536,33 @@ public class Utils {
         df.setDecimalFormatSymbols(decimalFormatSymbols);
     }
 
-    public static double distanceToCamera(class_1297 class_12972) {
-        return Utils.distanceToCamera(class_12972.method_23317(), class_12972.method_23318(), class_12972.method_23321());
+    public static double distanceToCamera(Entity Entity2) {
+        return Utils.distanceToCamera(Entity2.getX(), Entity2.getY(), Entity2.getZ());
     }
 
     public static void addMeteorPvpToServerList() {
-        class_641 class_6412 = new class_641(mc);
-        class_6412.method_2981();
+        ServerList ServerList2 = new ServerList(mc);
+        ServerList2.loadFile();
         boolean bl = false;
-        for (int i = 0; i < class_6412.method_2984(); ++i) {
-            class_642 class_6422 = class_6412.method_2982(i);
-            if (!class_6422.field_3761.contains("pvp.meteorclient.com")) continue;
+        for (int i = 0; i < ServerList2.size(); ++i) {
+            ServerInfo ServerInfo2 = ServerList2.get(i);
+            if (!ServerInfo2.address.contains("pvp.meteorclient.com")) continue;
             bl = true;
             break;
         }
         if (!bl) {
-            class_6412.method_2988(new class_642("Meteor Pvp", "pvp.meteorclient.com", false));
-            class_6412.method_2987();
+            ServerList2.add(new ServerInfo("Meteor Pvp", "pvp.meteorclient.com", false));
+            ServerList2.saveFile();
         }
     }
 
     public static double distanceToCamera(double d, double d2, double d3) {
-        class_4184 class_41842 = Utils.mc.field_1773.method_19418();
-        return Math.sqrt(class_41842.method_19326().method_1028(d, d2, d3));
+        Camera Camera2 = Utils.mc.gameRenderer.getCamera();
+        return Math.sqrt(Camera2.getPos().squaredDistanceTo(d, d2, d3));
     }
 
-    private static void lambda$createStatusEffectMap$0(Object2IntMap object2IntMap, class_1291 class_12912) {
-        object2IntMap.put((Object)class_12912, 0);
+    private static void lambda$createStatusEffectMap$0(Object2IntMap object2IntMap, StatusEffect StatusEffect2) {
+        object2IntMap.put((Object)StatusEffect2, 0);
     }
 
     public static void rightClick() {
@@ -577,7 +577,7 @@ public class Utils {
     }
 
     public static boolean canUpdate() {
-        return mc != null && (Utils.mc.field_1687 != null || Utils.mc.field_1724 != null);
+        return mc != null && (Utils.mc.world != null || Utils.mc.player != null);
     }
 }
 

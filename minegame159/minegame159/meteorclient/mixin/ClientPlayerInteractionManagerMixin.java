@@ -13,14 +13,14 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.player.NoBreakDelay;
 import minegame159.meteorclient.systems.modules.player.Reach;
 import minegame159.meteorclient.systems.modules.world.Nuker;
-import net.minecraft.class_1268;
-import net.minecraft.class_1269;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_1937;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_636;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ActionResult;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.World;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.client.network.ClientPlayerInteractionManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,26 +29,26 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={class_636.class})
+@Mixin(value={ClientPlayerInteractionManager.class})
 public abstract class ClientPlayerInteractionManagerMixin
 implements IClientPlayerInteractionManager {
     @Shadow
-    private int field_3716;
+    private int blockBreakingCooldown;
 
     @Shadow
-    protected abstract void method_2911();
+    protected abstract void syncSelectedSlot();
 
     @Inject(method={"attackEntity"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onAttackEntity(class_1657 class_16572, class_1297 class_12972, CallbackInfo callbackInfo) {
-        AttackEntityEvent attackEntityEvent = MeteorClient.EVENT_BUS.post(AttackEntityEvent.get(class_12972));
+    private void onAttackEntity(PlayerEntity PlayerEntity2, Entity Entity2, CallbackInfo callbackInfo) {
+        AttackEntityEvent attackEntityEvent = MeteorClient.EVENT_BUS.post(AttackEntityEvent.get(Entity2));
         if (attackEntityEvent.isCancelled()) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"attackBlock"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onAttackBlock(class_2338 class_23382, class_2350 class_23502, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        StartBreakingBlockEvent startBreakingBlockEvent = MeteorClient.EVENT_BUS.post(StartBreakingBlockEvent.get(class_23382, class_23502));
+    private void onAttackBlock(BlockPos BlockPos2, Direction Direction2, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+        StartBreakingBlockEvent startBreakingBlockEvent = MeteorClient.EVENT_BUS.post(StartBreakingBlockEvent.get(BlockPos2, Direction2));
         if (startBreakingBlockEvent.isCancelled()) {
             callbackInfoReturnable.cancel();
         }
@@ -62,32 +62,32 @@ implements IClientPlayerInteractionManager {
     }
 
     @Redirect(method={"updateBlockBreakingProgress"}, at=@At(value="FIELD", target="Lnet/minecraft/client/network/ClientPlayerInteractionManager;blockBreakingCooldown:I", opcode=181))
-    private void onMethod_2902SetField_3716Proxy(class_636 class_6362, int n) {
+    private void onMethod_2902SetField_3716Proxy(ClientPlayerInteractionManager ClientPlayerInteractionManager2, int n) {
         if (Modules.get().isActive(Nuker.class)) {
             n = 0;
         }
         if (Modules.get().isActive(NoBreakDelay.class)) {
             n = 0;
         }
-        this.field_3716 = n;
+        this.blockBreakingCooldown = n;
     }
 
     @Redirect(method={"attackBlock"}, at=@At(value="FIELD", target="Lnet/minecraft/client/network/ClientPlayerInteractionManager;blockBreakingCooldown:I", opcode=181))
-    private void onAttackBlockSetField_3719Proxy(class_636 class_6362, int n) {
+    private void onAttackBlockSetField_3719Proxy(ClientPlayerInteractionManager ClientPlayerInteractionManager2, int n) {
         if (Modules.get().isActive(Nuker.class)) {
             n = 0;
         }
-        this.field_3716 = n;
+        this.blockBreakingCooldown = n;
     }
 
     @Inject(method={"breakBlock"}, at={@At(value="HEAD")})
-    private void onBreakBlock(class_2338 class_23382, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        MeteorClient.EVENT_BUS.post(BreakBlockEvent.get(class_23382));
+    private void onBreakBlock(BlockPos BlockPos2, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+        MeteorClient.EVENT_BUS.post(BreakBlockEvent.get(BlockPos2));
     }
 
     @Inject(method={"interactItem"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onInteractItem(class_1657 class_16572, class_1937 class_19372, class_1268 class_12682, CallbackInfoReturnable<class_1269> callbackInfoReturnable) {
-        InteractItemEvent interactItemEvent = MeteorClient.EVENT_BUS.post(InteractItemEvent.get(class_12682));
+    private void onInteractItem(PlayerEntity PlayerEntity2, World World2, Hand Hand2, CallbackInfoReturnable<ActionResult> callbackInfoReturnable) {
+        InteractItemEvent interactItemEvent = MeteorClient.EVENT_BUS.post(InteractItemEvent.get(Hand2));
         if (interactItemEvent.toReturn != null) {
             callbackInfoReturnable.setReturnValue((Object)interactItemEvent.toReturn);
         }
@@ -95,7 +95,7 @@ implements IClientPlayerInteractionManager {
 
     @Override
     public void syncSelectedSlot2() {
-        this.method_2911();
+        this.syncSelectedSlot();
     }
 }
 

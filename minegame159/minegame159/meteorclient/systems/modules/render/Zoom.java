@@ -27,17 +27,17 @@ extends Module {
 
     @Override
     public void onActivate() {
-        this.preCinematic = this.mc.field_1690.field_1914;
-        this.preMouseSensitivity = this.mc.field_1690.field_1843;
+        this.preCinematic = this.mc.options.smoothCameraEnabled;
+        this.preMouseSensitivity = this.mc.options.mouseSensitivity;
         this.value = this.zoom.get();
-        this.lastFov = this.mc.field_1690.field_1826;
+        this.lastFov = this.mc.options.fov;
     }
 
     @Override
     public void onDeactivate() {
-        this.mc.field_1690.field_1914 = this.preCinematic;
-        this.mc.field_1690.field_1843 = this.preMouseSensitivity;
-        this.mc.field_1769.method_3292();
+        this.mc.options.smoothCameraEnabled = this.preCinematic;
+        this.mc.options.mouseSensitivity = this.preMouseSensitivity;
+        this.mc.worldRenderer.scheduleTerrainUpdate();
     }
 
     @EventHandler
@@ -53,9 +53,9 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        this.mc.field_1690.field_1914 = this.cinematic.get();
+        this.mc.options.smoothCameraEnabled = this.cinematic.get();
         if (!this.cinematic.get().booleanValue()) {
-            this.mc.field_1690.field_1843 = this.preMouseSensitivity / Math.max(this.value * 0.5, 1.0);
+            this.mc.options.mouseSensitivity = this.preMouseSensitivity / Math.max(this.value * 0.5, 1.0);
         }
     }
 
@@ -71,7 +71,7 @@ extends Module {
     private void onGetFov(GetFovEvent getFovEvent) {
         getFovEvent.fov /= this.value;
         if (this.lastFov != getFovEvent.fov) {
-            this.mc.field_1769.method_3292();
+            this.mc.worldRenderer.scheduleTerrainUpdate();
         }
         this.lastFov = getFovEvent.fov;
     }

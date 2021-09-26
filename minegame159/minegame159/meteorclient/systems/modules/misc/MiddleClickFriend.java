@@ -10,14 +10,14 @@ import minegame159.meteorclient.systems.friends.Friends;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.misc.input.KeyAction;
-import net.minecraft.class_1657;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class MiddleClickFriend
 extends Module {
     @EventHandler
     private void onMouseButton(MouseButtonEvent mouseButtonEvent) {
-        if (mouseButtonEvent.action == KeyAction.Press && mouseButtonEvent.button == 2 && this.mc.field_1755 == null && this.mc.field_1692 instanceof class_1657) {
-            Friends.get().addOrRemove(new Friend((class_1657)this.mc.field_1692));
+        if (mouseButtonEvent.action == KeyAction.Press && mouseButtonEvent.button == 2 && this.mc.currentScreen == null && this.mc.targetedEntity instanceof PlayerEntity) {
+            Friends.get().addOrRemove(new Friend((PlayerEntity)this.mc.targetedEntity));
         }
     }
 

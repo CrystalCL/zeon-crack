@@ -3,13 +3,13 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_5225;
+import net.minecraft.client.font.TextHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_5225.class})
+@Mixin(value={TextHandler.class})
 public interface TextHandlerAccessor {
     @Accessor(value="widthRetriever")
-    public class_5225.class_5231 getWidthRetriever();
+    public WidthRetriever getWidthRetriever();
 }
 

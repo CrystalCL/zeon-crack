@@ -8,7 +8,7 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1810;
+import net.minecraft.item.PickaxeItem;
 
 public class NoMiningTrace
 extends Module {
@@ -26,7 +26,7 @@ extends Module {
             return false;
         }
         if (this.onlyWhenHoldingPickaxe.get().booleanValue()) {
-            return this.mc.field_1724.method_6047().method_7909() instanceof class_1810 || this.mc.field_1724.method_6079().method_7909() instanceof class_1810;
+            return this.mc.player.getMainHandStack().getItem() instanceof PickaxeItem || this.mc.player.getOffHandStack().getItem() instanceof PickaxeItem;
         }
         return true;
     }

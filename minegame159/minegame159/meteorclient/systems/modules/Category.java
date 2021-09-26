@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.systems.modules;
 
-import net.minecraft.class_1799;
+import net.minecraft.item.ItemStack;
 
 public class Category {
     public final String name;
-    public final class_1799 icon;
+    public final ItemStack icon;
     private final int nameHash;
 
     public boolean equals(Object object) {
@@ -25,10 +25,10 @@ public class Category {
         this(string, null);
     }
 
-    public Category(String string, class_1799 class_17992) {
+    public Category(String string, ItemStack ItemStack2) {
         this.name = string;
         this.nameHash = string.hashCode();
-        this.icon = class_17992;
+        this.icon = ItemStack2;
     }
 
     public int hashCode() {

@@ -10,9 +10,9 @@ import me.jellysquid.mods.sodium.client.render.pipeline.FluidRenderer;
 import me.jellysquid.mods.sodium.client.util.color.ColorARGB;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.world.Ambience;
-import net.minecraft.class_1920;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
+import net.minecraft.world.BlockRenderView;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,7 +27,7 @@ public class SodiumFluidRendererMixin {
     private int[] quadColors;
 
     @Inject(method={"calculateQuadColors"}, at={@At(value="TAIL")}, cancellable=true, remap=false)
-    private void onCalculateQuadColors(ModelQuadView modelQuadView, class_1920 class_19202, class_2338 class_23382, LightPipeline lightPipeline, class_2350 class_23502, float f, boolean bl, CallbackInfo callbackInfo) {
+    private void onCalculateQuadColors(ModelQuadView modelQuadView, BlockRenderView BlockRenderView2, BlockPos BlockPos2, LightPipeline lightPipeline, Direction Direction2, float f, boolean bl, CallbackInfo callbackInfo) {
         Ambience ambience = Modules.get().get(Ambience.class);
         if (ambience.isActive() && ambience.changeLavaColor.get().booleanValue() && !bl) {
             Arrays.fill(this.quadColors, ColorARGB.toABGR((int)ambience.lavaColor.get().getPacked()));

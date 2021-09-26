@@ -20,13 +20,13 @@ import minegame159.meteorclient.systems.modules.combat.CrystalAura;
 import minegame159.meteorclient.utils.misc.input.KeyAction;
 import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1743;
-import net.minecraft.class_1775;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_1829;
-import net.minecraft.class_465;
-import net.minecraft.class_490;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.EnchantedGoldenAppleItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.item.SwordItem;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 
 public class OffhandExtra
 extends Module {
@@ -66,16 +66,16 @@ extends Module {
         this.currentMode = this.mode.get();
     }
 
-    private int findSlot(class_1792 class_17922) {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+    private int findSlot(Item Item2) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        for (int i = 9; i < this.mc.field_1724.field_7514.method_5439(); ++i) {
-            if (this.mc.field_1724.field_7514.method_5438(i).method_7909() != class_17922) continue;
+        for (int i = 9; i < this.mc.player.inventory.size(); ++i) {
+            if (this.mc.player.inventory.getStack(i).getItem() != Item2) continue;
             return i;
         }
         if (this.hotBar.get().booleanValue()) {
-            return InvUtils.findItemWithCount((class_1792)class_17922).slot;
+            return InvUtils.findItemWithCount((Item)Item2).slot;
         }
         return -1;
     }
@@ -86,11 +86,11 @@ extends Module {
 
     @Override
     public void onDeactivate() {
-        if (this.mc.field_1687 == null || this.mc.field_1724 == null) {
+        if (this.mc.world == null || this.mc.player == null) {
             return;
         }
-        if (Modules.get().isActive(AutoTotem.class) && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8288) {
-            InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(class_1802.field_8288);
+        if (Modules.get().isActive(AutoTotem.class) && this.mc.player.getOffHandStack().getItem() != Items.TOTEM_OF_UNDYING) {
+            InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(Items.TOTEM_OF_UNDYING);
             if (findItemResult.slot != -1) {
                 InvUtils.move().from(findItemResult.slot).toOffhand();
             }
@@ -98,10 +98,10 @@ extends Module {
     }
 
     private boolean canMove() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        return this.mc.field_1724.method_6047().method_7909() != class_1802.field_8102 && this.mc.field_1724.method_6047().method_7909() != class_1802.field_8547 && this.mc.field_1724.method_6047().method_7909() != class_1802.field_8399 && !this.mc.field_1724.method_6047().method_7909().method_19263();
+        return this.mc.player.getMainHandStack().getItem() != Items.BOW && this.mc.player.getMainHandStack().getItem() != Items.TRIDENT && this.mc.player.getMainHandStack().getItem() != Items.CROSSBOW && !this.mc.player.getMainHandStack().getItem().isFood();
     }
 
     @EventHandler
@@ -109,27 +109,27 @@ extends Module {
         if (mouseButtonEvent.action != KeyAction.Press || mouseButtonEvent.button != 1) {
             return;
         }
-        if (this.mc.field_1755 != null) {
+        if (this.mc.currentScreen != null) {
             return;
         }
         if (Modules.get().get(AutoTotem.class).getLocked() || !this.canMove()) {
             return;
         }
-        if (this.mc.field_1724.method_6079().method_7909() != class_1802.field_8288 || this.mc.field_1724.method_6032() + this.mc.field_1724.method_6067() > (float)this.health.get().intValue() && this.mc.field_1724.method_6079().method_7909() != this.getItem() && !(this.mc.field_1755 instanceof class_465)) {
-            if (this.mc.field_1724.method_6047().method_7909() instanceof class_1829 && this.sword.get().booleanValue()) {
+        if (this.mc.player.getOffHandStack().getItem() != Items.TOTEM_OF_UNDYING || this.mc.player.getHealth() + this.mc.player.getAbsorptionAmount() > (float)this.health.get().intValue() && this.mc.player.getOffHandStack().getItem() != this.getItem() && !(this.mc.currentScreen instanceof HandledScreen)) {
+            if (this.mc.player.getMainHandStack().getItem() instanceof SwordItem && this.sword.get().booleanValue()) {
                 this.currentMode = Mode.EGap;
-            } else if (this.mc.field_1724.method_6047().method_7909() instanceof class_1775 && this.offhandCrystal.get().booleanValue()) {
+            } else if (this.mc.player.getMainHandStack().getItem() instanceof EnchantedGoldenAppleItem && this.offhandCrystal.get().booleanValue()) {
                 this.currentMode = Mode.Crystal;
             } else if (Modules.get().isActive(CrystalAura.class) && this.offhandCA.get().booleanValue()) {
                 this.currentMode = Mode.Crystal;
             }
-            if (this.mc.field_1724.method_6079().method_7909() == this.getItem()) {
+            if (this.mc.player.getOffHandStack().getItem() == this.getItem()) {
                 return;
             }
             this.isClicking = true;
-            class_1792 class_17922 = this.getItem();
-            int n = this.findSlot(class_17922);
-            if (n == -1 && this.mc.field_1724.method_6079().method_7909() != this.getItem()) {
+            Item Item2 = this.getItem();
+            int n = this.findSlot(Item2);
+            if (n == -1 && this.mc.player.getOffHandStack().getItem() != this.getItem()) {
                 if (!this.sentMessage) {
                     ChatUtils.moduleWarning(this, String.valueOf(new StringBuilder().append("Chosen item not found.").append(this.selfToggle.get() != false ? " Disabling." : "")), new Object[0]);
                     this.sentMessage = true;
@@ -139,7 +139,7 @@ extends Module {
                 }
                 return;
             }
-            if (this.mc.field_1724.method_6079().method_7909() != class_17922 && this.mc.field_1724.method_6047().method_7909() != class_17922 && this.replace.get().booleanValue()) {
+            if (this.mc.player.getOffHandStack().getItem() != Item2 && this.mc.player.getMainHandStack().getItem() != Item2 && this.replace.get().booleanValue()) {
                 InvUtils.move().from(n).toOffhand();
                 this.sentMessage = false;
             }
@@ -152,30 +152,30 @@ extends Module {
         this.currentMode = this.mode.get();
     }
 
-    private class_1792 getItem() {
-        class_1792 class_17922 = class_1802.field_8288;
+    private Item getItem() {
+        Item Item2 = Items.TOTEM_OF_UNDYING;
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$combat$OffhandExtra$Mode[this.currentMode.ordinal()]) {
             case 1: {
-                class_17922 = class_1802.field_8367;
+                Item2 = Items.ENCHANTED_GOLDEN_APPLE;
                 break;
             }
             case 2: {
-                class_17922 = class_1802.field_8287;
+                Item2 = Items.EXPERIENCE_BOTTLE;
                 break;
             }
             case 3: {
-                class_17922 = class_1802.field_8463;
+                Item2 = Items.GOLDEN_APPLE;
                 break;
             }
             case 4: {
-                class_17922 = class_1802.field_8301;
+                Item2 = Items.END_CRYSTAL;
                 break;
             }
             case 5: {
-                class_17922 = class_1802.field_8255;
+                Item2 = Items.SHIELD;
             }
         }
-        return class_17922;
+        return Item2;
     }
 
     @Override
@@ -190,32 +190,32 @@ extends Module {
     @EventHandler
     private void onTick(TickEvent.Post post) {
         int n;
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
         this.currentMode = this.mode.get();
-        if (!(this.mc.field_1755 == null || (this.mc.field_1755 instanceof class_490 || this.mc.field_1755 instanceof WidgetScreen) && this.asimov.get().booleanValue())) {
+        if (!(this.mc.currentScreen == null || (this.mc.currentScreen instanceof InventoryScreen || this.mc.currentScreen instanceof WidgetScreen) && this.asimov.get().booleanValue())) {
             return;
         }
-        if (!this.mc.field_1724.method_6115()) {
+        if (!this.mc.player.isUsingItem()) {
             this.isClicking = false;
         }
         if (Modules.get().get(AutoTotem.class).getLocked()) {
             return;
         }
-        if ((this.mc.field_1724.method_6047().method_7909() instanceof class_1829 || this.mc.field_1724.method_6047().method_7909() instanceof class_1743) && this.sword.get().booleanValue()) {
+        if ((this.mc.player.getMainHandStack().getItem() instanceof SwordItem || this.mc.player.getMainHandStack().getItem() instanceof AxeItem) && this.sword.get().booleanValue()) {
             this.currentMode = Mode.EGap;
-        } else if (this.mc.field_1724.method_6047().method_7909() instanceof class_1775 && this.offhandCrystal.get().booleanValue()) {
+        } else if (this.mc.player.getMainHandStack().getItem() instanceof EnchantedGoldenAppleItem && this.offhandCrystal.get().booleanValue()) {
             this.currentMode = Mode.Crystal;
         } else if (Modules.get().isActive(CrystalAura.class) && this.offhandCA.get().booleanValue()) {
             this.currentMode = Mode.Crystal;
         }
-        if ((this.asimov.get().booleanValue() || this.noTotems) && this.mc.field_1724.method_6079().method_7909() != this.getItem()) {
+        if ((this.asimov.get().booleanValue() || this.noTotems) && this.mc.player.getOffHandStack().getItem() != this.getItem()) {
             int n2 = this.findSlot(this.getItem());
-            if (n2 == -1 && this.mc.field_1724.method_6079().method_7909() != this.getItem()) {
+            if (n2 == -1 && this.mc.player.getOffHandStack().getItem() != this.getItem()) {
                 if (this.currentMode != this.mode.get()) {
                     this.currentMode = this.mode.get();
-                    if (this.mc.field_1724.method_6079().method_7909() != this.getItem() && (n2 = this.findSlot(this.getItem())) != -1) {
+                    if (this.mc.player.getOffHandStack().getItem() != this.getItem() && (n2 = this.findSlot(this.getItem())) != -1) {
                         InvUtils.move().from(n2).toOffhand();
                         return;
                     }
@@ -229,11 +229,11 @@ extends Module {
                 }
                 return;
             }
-            if (this.mc.field_1724.method_6079().method_7909() != this.getItem() && this.replace.get().booleanValue()) {
+            if (this.mc.player.getOffHandStack().getItem() != this.getItem() && this.replace.get().booleanValue()) {
                 InvUtils.move().from(n2).toOffhand();
                 this.sentMessage = false;
             }
-        } else if (!this.asimov.get().booleanValue() && !this.isClicking && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8288 && (n = this.findSlot(class_1802.field_8288)) != -1) {
+        } else if (!this.asimov.get().booleanValue() && !this.isClicking && this.mc.player.getOffHandStack().getItem() != Items.TOTEM_OF_UNDYING && (n = this.findSlot(Items.TOTEM_OF_UNDYING)) != -1) {
             InvUtils.move().from(n).toOffhand();
         }
     }

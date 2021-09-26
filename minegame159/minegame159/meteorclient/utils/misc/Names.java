@@ -8,101 +8,101 @@ import java.util.Map;
 import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.events.game.ResourcePacksReloadedEvent;
-import net.minecraft.class_1146;
-import net.minecraft.class_1291;
-import net.minecraft.class_1299;
-import net.minecraft.class_1792;
-import net.minecraft.class_1887;
-import net.minecraft.class_2248;
-import net.minecraft.class_2394;
-import net.minecraft.class_2396;
-import net.minecraft.class_2561;
-import net.minecraft.class_2588;
-import net.minecraft.class_2960;
-import net.minecraft.class_310;
-import net.minecraft.class_3544;
+import net.minecraft.client.sound.WeightedSoundSet;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.block.Block;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleType;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.ChatUtil;
 import org.apache.commons.lang3.text.WordUtils;
 
 public class Names {
-    private static final Map<class_2396<?>, String> particleTypesNames;
-    private static final Map<class_1887, String> enchantmentNames;
-    private static final Map<class_1792, String> itemNames;
-    private static final Map<class_1291, String> statusEffectNames;
-    private static final Map<class_2248, String> blockNames;
-    private static final Map<class_1299<?>, String> entityTypeNames;
-    private static final Map<class_2960, String> soundNames;
+    private static final Map<ParticleType<?>, String> particleTypesNames;
+    private static final Map<Enchantment, String> enchantmentNames;
+    private static final Map<Item, String> itemNames;
+    private static final Map<StatusEffect, String> statusEffectNames;
+    private static final Map<Block, String> blockNames;
+    private static final Map<EntityType<?>, String> entityTypeNames;
+    private static final Map<Identifier, String> soundNames;
 
-    public static String get(class_1291 class_12912) {
-        return statusEffectNames.computeIfAbsent(class_12912, Names::lambda$get$0);
+    public static String get(StatusEffect StatusEffect2) {
+        return statusEffectNames.computeIfAbsent(StatusEffect2, Names::lambda$get$0);
     }
 
     static {
-        statusEffectNames = new HashMap<class_1291, String>(16);
-        itemNames = new HashMap<class_1792, String>(128);
-        blockNames = new HashMap<class_2248, String>(128);
-        enchantmentNames = new HashMap<class_1887, String>(16);
+        statusEffectNames = new HashMap<StatusEffect, String>(16);
+        itemNames = new HashMap<Item, String>(128);
+        blockNames = new HashMap<Block, String>(128);
+        enchantmentNames = new HashMap<Enchantment, String>(16);
         entityTypeNames = new HashMap(64);
         particleTypesNames = new HashMap(64);
-        soundNames = new HashMap<class_2960, String>(64);
+        soundNames = new HashMap<Identifier, String>(64);
     }
 
-    public static String getSoundName(class_2960 class_29602) {
-        return soundNames.computeIfAbsent(class_29602, Names::lambda$getSoundName$6);
+    public static String getSoundName(Identifier Identifier2) {
+        return soundNames.computeIfAbsent(Identifier2, Names::lambda$getSoundName$6);
     }
 
-    public static String get(class_2396<?> class_23962) {
-        if (!(class_23962 instanceof class_2394)) {
+    public static String get(ParticleType<?> ParticleType2) {
+        if (!(ParticleType2 instanceof ParticleEffect)) {
             return "";
         }
-        return particleTypesNames.computeIfAbsent(class_23962, Names::lambda$get$5);
+        return particleTypesNames.computeIfAbsent(ParticleType2, Names::lambda$get$5);
     }
 
-    private static String lambda$getSoundName$6(class_2960 class_29602) {
-        class_1146 class_11462 = class_310.method_1551().method_1483().method_4869(class_29602);
-        if (class_11462 == null) {
-            return class_29602.method_12832();
+    private static String lambda$getSoundName$6(Identifier Identifier2) {
+        WeightedSoundSet WeightedSoundSet2 = MinecraftClient.getInstance().getSoundManager().get(Identifier2);
+        if (WeightedSoundSet2 == null) {
+            return Identifier2.getPath();
         }
-        class_2561 class_25612 = class_11462.method_4886();
-        if (class_25612 == null) {
-            return class_29602.method_12832();
+        Text Text2 = WeightedSoundSet2.getSubtitle();
+        if (Text2 == null) {
+            return Identifier2.getPath();
         }
-        return class_3544.method_15440((String)class_25612.getString());
+        return ChatUtil.stripTextFormat((String)Text2.getString());
     }
 
-    private static String lambda$get$5(class_2396 class_23962) {
-        return WordUtils.capitalize((String)((class_2394)class_23962).method_10293().substring(10).replace("_", " "));
+    private static String lambda$get$5(ParticleType ParticleType2) {
+        return WordUtils.capitalize((String)((ParticleEffect)ParticleType2).asString().substring(10).replace("_", " "));
     }
 
-    private static String lambda$get$0(class_1291 class_12912) {
-        return class_3544.method_15440((String)class_12912.method_5560().getString());
+    private static String lambda$get$0(StatusEffect StatusEffect2) {
+        return ChatUtil.stripTextFormat((String)StatusEffect2.getName().getString());
     }
 
-    public static String get(class_2248 class_22482) {
-        return blockNames.computeIfAbsent(class_22482, Names::lambda$get$2);
+    public static String get(Block Block2) {
+        return blockNames.computeIfAbsent(Block2, Names::lambda$get$2);
     }
 
-    private static String lambda$get$1(class_1792 class_17922) {
-        return class_3544.method_15440((String)class_17922.method_7848().getString());
+    private static String lambda$get$1(Item Item2) {
+        return ChatUtil.stripTextFormat((String)Item2.getName().getString());
     }
 
-    private static String lambda$get$2(class_2248 class_22482) {
-        return class_3544.method_15440((String)class_22482.method_9518().getString());
+    private static String lambda$get$2(Block Block2) {
+        return ChatUtil.stripTextFormat((String)Block2.getName().getString());
     }
 
-    public static String get(class_1887 class_18872) {
-        return enchantmentNames.computeIfAbsent(class_18872, Names::lambda$get$3);
+    public static String get(Enchantment Enchantment2) {
+        return enchantmentNames.computeIfAbsent(Enchantment2, Names::lambda$get$3);
     }
 
     public static void init() {
         MeteorClient.EVENT_BUS.subscribe(Names.class);
     }
 
-    private static String lambda$get$4(class_1299 class_12992) {
-        return class_3544.method_15440((String)class_12992.method_5897().getString());
+    private static String lambda$get$4(EntityType EntityType2) {
+        return ChatUtil.stripTextFormat((String)EntityType2.getName().getString());
     }
 
-    public static String get(class_1299<?> class_12992) {
-        return entityTypeNames.computeIfAbsent(class_12992, Names::lambda$get$4);
+    public static String get(EntityType<?> EntityType2) {
+        return entityTypeNames.computeIfAbsent(EntityType2, Names::lambda$get$4);
     }
 
     @EventHandler
@@ -116,12 +116,12 @@ public class Names {
         soundNames.clear();
     }
 
-    public static String get(class_1792 class_17922) {
-        return itemNames.computeIfAbsent(class_17922, Names::lambda$get$1);
+    public static String get(Item Item2) {
+        return itemNames.computeIfAbsent(Item2, Names::lambda$get$1);
     }
 
-    private static String lambda$get$3(class_1887 class_18872) {
-        return class_3544.method_15440((String)new class_2588(class_18872.method_8184()).getString());
+    private static String lambda$get$3(Enchantment Enchantment2) {
+        return ChatUtil.stripTextFormat((String)new TranslatableText(Enchantment2.getTranslationKey()).getString());
     }
 }
 

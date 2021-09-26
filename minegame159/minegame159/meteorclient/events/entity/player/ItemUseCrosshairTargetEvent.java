@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.events.entity.player;
 
-import net.minecraft.class_239;
+import net.minecraft.util.hit.HitResult;
 
 public class ItemUseCrosshairTargetEvent {
     private static final ItemUseCrosshairTargetEvent INSTANCE = new ItemUseCrosshairTargetEvent();
-    public class_239 target;
+    public HitResult target;
 
-    public static ItemUseCrosshairTargetEvent get(class_239 class_2392) {
-        ItemUseCrosshairTargetEvent.INSTANCE.target = class_2392;
+    public static ItemUseCrosshairTargetEvent get(HitResult HitResult2) {
+        ItemUseCrosshairTargetEvent.INSTANCE.target = HitResult2;
         return INSTANCE;
     }
 }

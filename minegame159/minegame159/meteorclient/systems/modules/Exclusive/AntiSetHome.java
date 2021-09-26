@@ -18,10 +18,10 @@ import meteordevelopment.orbit.EventHandler;
 import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2244;
-import net.minecraft.class_2338;
-import net.minecraft.class_2885;
-import net.minecraft.class_4969;
+import net.minecraft.block.BedBlock;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.block.RespawnAnchorBlock;
 import org.apache.commons.io.FileUtils;
 
 public class AntiSetHome
@@ -34,17 +34,17 @@ extends Module {
 
     @EventHandler
     private void onSendPacket(PacketEvent.Send send) {
-        if (this.mc.field_1687 == null) {
+        if (this.mc.world == null) {
             return;
         }
-        if (!(send.packet instanceof class_2885)) {
+        if (!(send.packet instanceof PlayerInteractBlockC2SPacket)) {
             return;
         }
-        class_2338 class_23382 = ((class_2885)send.packet).method_12543().method_17777();
-        boolean bl = this.mc.field_1687.method_8597().method_29956();
-        boolean bl2 = this.mc.field_1687.method_8597().method_29957();
-        boolean bl3 = this.mc.field_1687.method_8320(class_23382).method_26204() instanceof class_2244;
-        boolean bl4 = this.mc.field_1687.method_8320(class_23382).method_26204() instanceof class_4969;
+        BlockPos BlockPos2 = ((PlayerInteractBlockC2SPacket)send.packet).getBlockHitResult().getBlockPos();
+        boolean bl = this.mc.world.getDimension().isBedWorking();
+        boolean bl2 = this.mc.world.getDimension().isRespawnAnchorWorking();
+        boolean bl3 = this.mc.world.getBlockState(BlockPos2).getBlock() instanceof BedBlock;
+        boolean bl4 = this.mc.world.getBlockState(BlockPos2).getBlock() instanceof RespawnAnchorBlock;
         if (bl3 && bl || bl4 && bl2) {
             send.cancel();
         }

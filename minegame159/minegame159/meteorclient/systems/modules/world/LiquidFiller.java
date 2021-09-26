@@ -17,17 +17,17 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.world.BlockIterator;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1747;
-import net.minecraft.class_1792;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2680;
+import net.minecraft.util.Hand;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.BlockState;
 
 public class LiquidFiller
 extends Module {
-    private final Setting<List<class_2248>> whitelist;
+    private final Setting<List<Block>> whitelist;
     private final SettingGroup sgGeneral;
     private final Setting<PlaceIn> placeInLiquids;
     private final Setting<Boolean> rotate;
@@ -55,22 +55,22 @@ extends Module {
         BlockIterator.register(this.horizontalRadius.get(), this.verticalRadius.get(), (arg_0, arg_1) -> this.lambda$onTick$0(n, arg_0, arg_1));
     }
 
-    private boolean isSource(class_2680 class_26802) {
-        return class_26802.method_26227().method_15761() == 8 && class_26802.method_26227().method_15771();
+    private boolean isSource(BlockState BlockState2) {
+        return BlockState2.getFluidState().getLevel() == 8 && BlockState2.getFluidState().isStill();
     }
 
-    private void lambda$onTick$0(int n, class_2338 class_23382, class_2680 class_26802) {
-        if (this.isSource(class_26802)) {
-            class_2248 class_22482 = class_26802.method_26204();
+    private void lambda$onTick$0(int n, BlockPos BlockPos2, BlockState BlockState2) {
+        if (this.isSource(BlockState2)) {
+            Block Block2 = BlockState2.getBlock();
             PlaceIn placeIn = this.placeInLiquids.get();
-            if ((placeIn == PlaceIn.Both || placeIn == PlaceIn.Lava && class_22482 == class_2246.field_10164 || placeIn == PlaceIn.Water && class_22482 == class_2246.field_10382) && BlockUtils.place(class_23382, class_1268.field_5808, n, this.rotate.get(), 0, true)) {
+            if ((placeIn == PlaceIn.Both || placeIn == PlaceIn.Lava && Block2 == Blocks.LAVA || placeIn == PlaceIn.Water && Block2 == Blocks.WATER) && BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n, this.rotate.get(), 0, true)) {
                 BlockIterator.disableCurrent();
             }
         }
     }
 
-    private List<class_2248> getDefaultWhitelist() {
-        return Lists.newArrayList((Object[])new class_2248[]{class_2246.field_10566, class_2246.field_10445, class_2246.field_10340, class_2246.field_10515, class_2246.field_10508, class_2246.field_10474, class_2246.field_10115});
+    private List<Block> getDefaultWhitelist() {
+        return Lists.newArrayList((Object[])new Block[]{Blocks.DIRT, Blocks.COBBLESTONE, Blocks.STONE, Blocks.NETHERRACK, Blocks.DIORITE, Blocks.GRANITE, Blocks.ANDESITE});
     }
 
     public LiquidFiller() {
@@ -87,8 +87,8 @@ extends Module {
     private int findSlot() {
         int n = -1;
         for (int i = 0; i < 9; ++i) {
-            class_1792 class_17922 = this.mc.field_1724.field_7514.method_5438(i).method_7909();
-            if (!(class_17922 instanceof class_1747) || !this.whitelist.get().contains(((class_1747)class_17922).method_7711())) continue;
+            Item Item2 = this.mc.player.inventory.getStack(i).getItem();
+            if (!(Item2 instanceof BlockItem) || !this.whitelist.get().contains(((BlockItem)Item2).getBlock())) continue;
             n = i;
             break;
         }

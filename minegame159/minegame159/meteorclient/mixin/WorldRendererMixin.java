@@ -17,24 +17,24 @@ import minegame159.meteorclient.systems.modules.render.NoRender;
 import minegame159.meteorclient.systems.modules.world.Ambience;
 import minegame159.meteorclient.utils.render.Outlines;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_1159;
-import net.minecraft.class_1297;
-import net.minecraft.class_2338;
-import net.minecraft.class_2680;
-import net.minecraft.class_276;
-import net.minecraft.class_287;
-import net.minecraft.class_289;
-import net.minecraft.class_310;
-import net.minecraft.class_3191;
-import net.minecraft.class_4184;
-import net.minecraft.class_4587;
-import net.minecraft.class_4588;
-import net.minecraft.class_4597;
-import net.minecraft.class_4604;
-import net.minecraft.class_757;
-import net.minecraft.class_761;
-import net.minecraft.class_765;
-import net.minecraft.class_898;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BlockBreakingInfo;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,17 +44,17 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_761.class})
+@Mixin(value={WorldRenderer.class})
 public abstract class WorldRendererMixin {
     @Shadow
     @Nullable
-    private class_276 field_4101;
+    private Framebuffer entityOutlinesFramebuffer;
     @Shadow
     @Final
-    private class_310 field_4088;
+    private MinecraftClient client;
 
     @Shadow
-    protected abstract void method_22977(class_1297 var1, double var2, double var4, double var6, float var8, class_4587 var9, class_4597 var10);
+    protected abstract void renderEntity(Entity var1, double var2, double var4, double var6, float var8, MatrixStack var9, VertexConsumerProvider var10);
 
     @Inject(method={"loadEntityOutlineShader"}, at={@At(value="TAIL")})
     private void onLoadEntityOutlineShader(CallbackInfo callbackInfo) {
@@ -62,19 +62,19 @@ public abstract class WorldRendererMixin {
     }
 
     @Inject(method={"checkEmpty"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onCheckEmpty(class_4587 class_45872, CallbackInfo callbackInfo) {
+    private void onCheckEmpty(MatrixStack MatrixStack2, CallbackInfo callbackInfo) {
         callbackInfo.cancel();
     }
 
     @Inject(method={"renderWeather"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onRenderWeather(class_765 class_7652, float f, double d, double d2, double d3, CallbackInfo callbackInfo) {
+    private void onRenderWeather(LightmapTextureManager LightmapTextureManager2, float f, double d, double d2, double d3, CallbackInfo callbackInfo) {
         if (Modules.get().get(NoRender.class).noWeather()) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"drawBlockOutline"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onDrawHighlightedBlockOutline(class_4587 class_45872, class_4588 class_45882, class_1297 class_12972, double d, double d2, double d3, class_2338 class_23382, class_2680 class_26802, CallbackInfo callbackInfo) {
+    private void onDrawHighlightedBlockOutline(MatrixStack MatrixStack2, VertexConsumer VertexConsumer2, Entity Entity2, double d, double d2, double d3, BlockPos BlockPos2, BlockState BlockState2, CallbackInfo callbackInfo) {
         if (Modules.get().isActive(BlockSelection.class)) {
             callbackInfo.cancel();
         }
@@ -86,36 +86,36 @@ public abstract class WorldRendererMixin {
     }
 
     @Inject(method={"render"}, at={@At(value="TAIL")})
-    private void onRenderTail(class_4587 class_45872, float f, long l, boolean bl, class_4184 class_41842, class_757 class_7572, class_765 class_7652, class_1159 class_11592, CallbackInfo callbackInfo) {
+    private void onRenderTail(MatrixStack MatrixStack2, float f, long l, boolean bl, Camera Camera2, GameRenderer GameRenderer2, LightmapTextureManager LightmapTextureManager2, Matrix4f Matrix4f2, CallbackInfo callbackInfo) {
         Blur.render();
     }
 
     @Inject(method={"render"}, at={@At(value="HEAD")})
-    private void onRenderHead(class_4587 class_45872, float f, long l, boolean bl, class_4184 class_41842, class_757 class_7572, class_765 class_7652, class_1159 class_11592, CallbackInfo callbackInfo) {
+    private void onRenderHead(MatrixStack MatrixStack2, float f, long l, boolean bl, Camera Camera2, GameRenderer GameRenderer2, LightmapTextureManager LightmapTextureManager2, Matrix4f Matrix4f2, CallbackInfo callbackInfo) {
         Outlines.beginRender();
     }
 
     @Inject(method={"renderEntity"}, at={@At(value="HEAD")}, cancellable=true)
-    private void renderEntity(class_1297 class_12972, double d, double d2, double d3, float f, class_4587 class_45872, class_4597 class_45972, CallbackInfo callbackInfo) {
-        if (class_45972 == Outlines.vertexConsumerProvider) {
+    private void renderEntity(Entity Entity2, double d, double d2, double d3, float f, MatrixStack MatrixStack2, VertexConsumerProvider VertexConsumerProvider2, CallbackInfo callbackInfo) {
+        if (VertexConsumerProvider2 == Outlines.vertexConsumerProvider) {
             return;
         }
         ESP eSP = Modules.get().get(ESP.class);
         if (!eSP.isActive() || !eSP.isOutline()) {
             return;
         }
-        Color color = eSP.getOutlineColor(class_12972);
+        Color color = eSP.getOutlineColor(Entity2);
         if (color != null) {
-            class_276 class_2763 = this.field_4101;
-            this.field_4101 = Outlines.outlinesFbo;
-            Outlines.vertexConsumerProvider.method_23286(color.r, color.g, color.b, color.a);
-            this.method_22977(class_12972, d, d2, d3, f, class_45872, (class_4597)Outlines.vertexConsumerProvider);
-            this.field_4101 = class_2763;
+            Framebuffer Framebuffer3 = this.entityOutlinesFramebuffer;
+            this.entityOutlinesFramebuffer = Outlines.outlinesFbo;
+            Outlines.vertexConsumerProvider.setColor(color.r, color.g, color.b, color.a);
+            this.renderEntity(Entity2, d, d2, d3, f, MatrixStack2, (VertexConsumerProvider)Outlines.vertexConsumerProvider);
+            this.entityOutlinesFramebuffer = Framebuffer3;
         }
     }
 
     @Inject(method={"render"}, at={@At(value="INVOKE", target="Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V")})
-    private void onRender(class_4587 class_45872, float f, long l, boolean bl, class_4184 class_41842, class_757 class_7572, class_765 class_7652, class_1159 class_11592, CallbackInfo callbackInfo) {
+    private void onRender(MatrixStack MatrixStack2, float f, long l, boolean bl, Camera Camera2, GameRenderer GameRenderer2, LightmapTextureManager LightmapTextureManager2, Matrix4f Matrix4f2, CallbackInfo callbackInfo) {
         Outlines.endRender(f);
     }
 
@@ -130,18 +130,18 @@ public abstract class WorldRendererMixin {
     }
 
     @Inject(method={"setBlockBreakingInfo"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onBlockBreakingInfo(int n, class_2338 class_23382, int n2, CallbackInfo callbackInfo) {
+    private void onBlockBreakingInfo(int n, BlockPos BlockPos2, int n2, CallbackInfo callbackInfo) {
         BreakIndicators breakIndicators = Modules.get().get(BreakIndicators.class);
         if (!breakIndicators.isActive()) {
             return;
         }
-        if (!breakIndicators.multiple.get().booleanValue() && n != this.field_4088.field_1724.method_5628()) {
+        if (!breakIndicators.multiple.get().booleanValue() && n != this.client.player.getEntityId()) {
             return;
         }
         if (0 <= n2 && n2 <= 8) {
-            class_3191 class_31912 = new class_3191(n, class_23382);
-            class_31912.method_13987(n2);
-            breakIndicators.blocks.put(n, class_31912);
+            BlockBreakingInfo BlockBreakingInfo2 = new BlockBreakingInfo(n, BlockPos2);
+            BlockBreakingInfo2.setStage(n2);
+            breakIndicators.blocks.put(n, BlockBreakingInfo2);
             if (breakIndicators.hideVanillaIndicators.get().booleanValue()) {
                 callbackInfo.cancel();
             }
@@ -151,34 +151,34 @@ public abstract class WorldRendererMixin {
     }
 
     @Inject(method={"removeBlockBreakingInfo"}, at={@At(value="TAIL")})
-    private void onBlockBreakingInfoRemoval(class_3191 class_31912, CallbackInfo callbackInfo) {
+    private void onBlockBreakingInfoRemoval(BlockBreakingInfo BlockBreakingInfo2, CallbackInfo callbackInfo) {
         BreakIndicators breakIndicators = Modules.get().get(BreakIndicators.class);
         if (!breakIndicators.isActive()) {
             return;
         }
-        Collection<class_3191> collection = breakIndicators.blocks.values();
-        Objects.requireNonNull(class_31912);
-        collection.removeIf(arg_0 -> ((class_3191)class_31912).equals(arg_0));
+        Collection<BlockBreakingInfo> collection = breakIndicators.blocks.values();
+        Objects.requireNonNull(BlockBreakingInfo2);
+        collection.removeIf(arg_0 -> ((BlockBreakingInfo)BlockBreakingInfo2).equals(arg_0));
     }
 
     @Redirect(method={"render"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/render/entity/EntityRenderDispatcher;shouldRender(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/render/Frustum;DDD)Z"))
-    private <E extends class_1297> boolean shouldRenderRedirect(class_898 class_8982, E e, class_4604 class_46042, double d, double d2, double d3) {
-        return Modules.get().isActive(Chams.class) || class_8982.method_3950(e, class_46042, d, d2, d3);
+    private <E extends Entity> boolean shouldRenderRedirect(EntityRenderDispatcher EntityRenderDispatcher2, E e, Frustum Frustum2, double d, double d2, double d3) {
+        return Modules.get().isActive(Chams.class) || EntityRenderDispatcher2.shouldRender(e, Frustum2, d, d2, d3);
     }
 
     @Inject(method={"renderEndSky"}, at={@At(value="INVOKE", target="Lnet/minecraft/client/render/Tessellator;draw()V")})
-    private void onRenderEndSkyDraw(class_4587 class_45872, CallbackInfo callbackInfo) {
+    private void onRenderEndSkyDraw(MatrixStack MatrixStack2, CallbackInfo callbackInfo) {
         Ambience ambience = Modules.get().get(Ambience.class);
         if (ambience.enderCustomSkyColor.get().booleanValue()) {
             Color color = ambience.endSkyColor.get();
-            class_289 class_2892 = class_289.method_1348();
-            class_287 class_2872 = class_2892.method_1349();
-            class_1159 class_11592 = class_45872.method_23760().method_23761();
-            class_2872.method_1343();
-            class_2872.method_22918(class_11592, -100.0f, -100.0f, -100.0f).method_22913(0.0f, 0.0f).method_1336(color.r, color.g, color.b, 255).method_1344();
-            class_2872.method_22918(class_11592, -100.0f, -100.0f, 100.0f).method_22913(0.0f, 16.0f).method_1336(color.r, color.g, color.b, 255).method_1344();
-            class_2872.method_22918(class_11592, 100.0f, -100.0f, 100.0f).method_22913(16.0f, 16.0f).method_1336(color.r, color.g, color.b, 255).method_1344();
-            class_2872.method_22918(class_11592, 100.0f, -100.0f, -100.0f).method_22913(16.0f, 0.0f).method_1336(color.r, color.g, color.b, 255).method_1344();
+            Tessellator Tessellator2 = Tessellator.getInstance();
+            BufferBuilder BufferBuilder2 = Tessellator2.getBuffer();
+            Matrix4f Matrix4f2 = MatrixStack2.peek().getModel();
+            BufferBuilder2.clear();
+            BufferBuilder2.vertex(Matrix4f2, -100.0f, -100.0f, -100.0f).texture(0.0f, 0.0f).color(color.r, color.g, color.b, 255).next();
+            BufferBuilder2.vertex(Matrix4f2, -100.0f, -100.0f, 100.0f).texture(0.0f, 16.0f).color(color.r, color.g, color.b, 255).next();
+            BufferBuilder2.vertex(Matrix4f2, 100.0f, -100.0f, 100.0f).texture(16.0f, 16.0f).color(color.r, color.g, color.b, 255).next();
+            BufferBuilder2.vertex(Matrix4f2, 100.0f, -100.0f, -100.0f).texture(16.0f, 0.0f).color(color.r, color.g, color.b, 255).next();
         }
     }
 }

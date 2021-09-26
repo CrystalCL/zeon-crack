@@ -12,30 +12,30 @@ import java.util.Optional;
 import java.util.Stack;
 import minegame159.meteorclient.utils.misc.text.ColoredText;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_2561;
-import net.minecraft.class_5251;
+import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 
 public class TextUtils {
-    private static void preOrderTraverse(class_2561 class_25612, Stack<ColoredText> stack, List<ColoredText> list) {
-        if (class_25612 == null) {
+    private static void preOrderTraverse(Text Text2, Stack<ColoredText> stack, List<ColoredText> list) {
+        if (Text2 == null) {
             return;
         }
-        String string = class_25612.method_10851();
-        class_5251 class_52512 = class_25612.method_10866().method_10973();
-        Color color = class_52512 == null ? (stack.empty() ? new Color(255, 255, 255) : stack.peek().getColor()) : new Color(class_25612.method_10866().method_10973().method_27716() | 0xFF000000);
+        String string = Text2.asString();
+        TextColor TextColor2 = Text2.getStyle().getColor();
+        Color color = TextColor2 == null ? (stack.empty() ? new Color(255, 255, 255) : stack.peek().getColor()) : new Color(Text2.getStyle().getColor().getRgb() | 0xFF000000);
         ColoredText coloredText = new ColoredText(string, color);
         list.add(coloredText);
         stack.push(coloredText);
-        for (class_2561 class_25613 : class_25612.method_10855()) {
-            TextUtils.preOrderTraverse(class_25613, stack, list);
+        for (Text Text3 : Text2.getSiblings()) {
+            TextUtils.preOrderTraverse(Text3, stack, list);
         }
         stack.pop();
     }
 
-    public static List<ColoredText> toColoredTextList(class_2561 class_25612) {
+    public static List<ColoredText> toColoredTextList(Text Text2) {
         Stack<ColoredText> stack = new Stack<ColoredText>();
         ArrayList<ColoredText> arrayList = new ArrayList<ColoredText>();
-        TextUtils.preOrderTraverse(class_25612, stack, arrayList);
+        TextUtils.preOrderTraverse(Text2, stack, arrayList);
         arrayList.removeIf(TextUtils::lambda$toColoredTextList$0);
         return arrayList;
     }
@@ -52,9 +52,9 @@ public class TextUtils {
         return hashMap;
     }
 
-    public static Color getMostPopularColor(class_2561 class_25612) {
+    public static Color getMostPopularColor(Text Text2) {
         Comparator comparator = Comparator.naturalOrder();
-        Optional optional = TextUtils.getColoredCharacterCount(TextUtils.toColoredTextList(class_25612)).entrySet().stream().max((arg_0, arg_1) -> TextUtils.lambda$getMostPopularColor$1(comparator, arg_0, arg_1));
+        Optional optional = TextUtils.getColoredCharacterCount(TextUtils.toColoredTextList(Text2)).entrySet().stream().max((arg_0, arg_1) -> TextUtils.lambda$getMostPopularColor$1(comparator, arg_0, arg_1));
         return optional.map(Map.Entry::getKey).orElse(new Color(255, 255, 255));
     }
 

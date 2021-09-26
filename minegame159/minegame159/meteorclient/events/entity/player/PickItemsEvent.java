@@ -3,15 +3,15 @@
  */
 package minegame159.meteorclient.events.entity.player;
 
-import net.minecraft.class_1799;
+import net.minecraft.item.ItemStack;
 
 public class PickItemsEvent {
     private static final PickItemsEvent INSTANCE = new PickItemsEvent();
-    public class_1799 itemStack;
+    public ItemStack itemStack;
     public int count;
 
-    public static PickItemsEvent get(class_1799 class_17992, int n) {
-        PickItemsEvent.INSTANCE.itemStack = class_17992;
+    public static PickItemsEvent get(ItemStack ItemStack2, int n) {
+        PickItemsEvent.INSTANCE.itemStack = ItemStack2;
         PickItemsEvent.INSTANCE.count = n;
         return INSTANCE;
     }

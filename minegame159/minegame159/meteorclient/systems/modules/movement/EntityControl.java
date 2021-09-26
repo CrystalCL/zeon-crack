@@ -13,8 +13,8 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1297;
-import net.minecraft.class_1496;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.HorseBaseEntity;
 
 public class EntityControl
 extends Module {
@@ -29,23 +29,23 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972 instanceof class_1496)) continue;
-            ((IHorseBaseEntity)class_12972).setSaddled(true);
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2 instanceof HorseBaseEntity)) continue;
+            ((IHorseBaseEntity)Entity2).setSaddled(true);
         }
         if (this.maxJump.get().booleanValue()) {
-            ((ClientPlayerEntityAccessor)this.mc.field_1724).setMountJumpStrength(1.0f);
+            ((ClientPlayerEntityAccessor)this.mc.player).setMountJumpStrength(1.0f);
         }
     }
 
     @Override
     public void onDeactivate() {
-        if (!Utils.canUpdate() || this.mc.field_1687.method_18112() == null) {
+        if (!Utils.canUpdate() || this.mc.world.getEntities() == null) {
             return;
         }
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (!(class_12972 instanceof class_1496)) continue;
-            ((IHorseBaseEntity)class_12972).setSaddled(false);
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (!(Entity2 instanceof HorseBaseEntity)) continue;
+            ((IHorseBaseEntity)Entity2).setSaddled(false);
         }
     }
 }

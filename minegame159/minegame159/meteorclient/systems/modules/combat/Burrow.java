@@ -21,20 +21,20 @@ import minegame159.meteorclient.utils.player.ChatUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.PlayerUtils;
 import minegame159.meteorclient.utils.player.Rotations;
-import net.minecraft.class_1268;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2382;
-import net.minecraft.class_2596;
-import net.minecraft.class_2680;
-import net.minecraft.class_2828;
-import net.minecraft.class_2879;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.network.Packet;
+import net.minecraft.block.BlockState;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class Burrow
 extends Module {
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
     private final SettingGroup sgGeneral;
     private boolean shouldBurrow;
     private final Setting<Boolean> rotate;
@@ -51,7 +51,7 @@ extends Module {
 
     @Override
     public void onActivate() {
-        if (!this.mc.field_1687.method_8320(this.mc.field_1724.method_24515()).method_26207().method_15800()) {
+        if (!this.mc.world.getBlockState(this.mc.player.getBlockPos()).getMaterial().isReplaceable()) {
             ChatUtils.moduleError(this, "Already burrowed, disabling.", new Object[0]);
             this.toggle();
             return;
@@ -71,14 +71,14 @@ extends Module {
             this.toggle();
             return;
         }
-        this.blockPos.method_10101((class_2382)this.mc.field_1724.method_24515());
+        this.blockPos.set((Vec3i)this.mc.player.getBlockPos());
         Modules.get().get(Timer.class).setOverride(this.timer.get());
         this.shouldBurrow = false;
         if (this.automatic.get().booleanValue()) {
             if (this.instant.get().booleanValue()) {
                 this.shouldBurrow = true;
             } else {
-                this.mc.field_1724.method_6043();
+                this.mc.player.jump();
             }
         } else {
             ChatUtils.moduleInfo(this, "Waiting for manual jump.", new Object[0]);
@@ -97,18 +97,18 @@ extends Module {
         this.onlyInHole = this.sgGeneral.add(new BoolSetting.Builder().name("only-in-holes").description("Burrowing only in holes.").defaultValue(false).build());
         this.center = this.sgGeneral.add(new BoolSetting.Builder().name("CenterTP").description("Teleport character to the center of the block.").defaultValue(true).build());
         this.rotate = this.sgGeneral.add(new BoolSetting.Builder().name("rotate").description("Send packets for rotate.").defaultValue(true).build());
-        this.blockPos = new class_2338.class_2339();
+        this.blockPos = new Mutable();
     }
 
     private boolean checkInventory() {
-        this.prevSlot = this.mc.field_1724.field_7514.field_7545;
+        this.prevSlot = this.mc.player.inventory.selectedSlot;
         switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$combat$Burrow$Block[this.block.get().ordinal()]) {
             case 1: {
-                this.slot = InvUtils.findItemInHotbar(class_1802.field_8281);
+                this.slot = InvUtils.findItemInHotbar(Items.OBSIDIAN);
                 break;
             }
             case 2: {
-                this.slot = InvUtils.findItemInHotbar(class_1802.field_8466);
+                this.slot = InvUtils.findItemInHotbar(Items.ENDER_CHEST);
             }
         }
         return this.slot != -1;
@@ -117,10 +117,10 @@ extends Module {
     @EventHandler
     private void onKey(KeyEvent keyEvent) {
         if (this.instant.get().booleanValue() && !this.shouldBurrow) {
-            if (keyEvent.action == KeyAction.Press && this.mc.field_1690.field_1903.method_1417(keyEvent.key, 0)) {
+            if (keyEvent.action == KeyAction.Press && this.mc.options.keyJump.matchesKey(keyEvent.key, 0)) {
                 this.shouldBurrow = true;
             }
-            this.blockPos.method_10101((class_2382)this.mc.field_1724.method_24515());
+            this.blockPos.set((Vec3i)this.mc.player.getBlockPos());
         }
     }
 
@@ -130,29 +130,29 @@ extends Module {
     }
 
     private boolean checkHead() {
-        class_2680 class_26802 = this.mc.field_1687.method_8320((class_2338)this.blockPos.method_10102(this.mc.field_1724.method_23317() + 0.3, this.mc.field_1724.method_23318() + 2.3, this.mc.field_1724.method_23321() + 0.3));
-        class_2680 class_26803 = this.mc.field_1687.method_8320((class_2338)this.blockPos.method_10102(this.mc.field_1724.method_23317() + 0.3, this.mc.field_1724.method_23318() + 2.3, this.mc.field_1724.method_23321() - 0.3));
-        class_2680 class_26804 = this.mc.field_1687.method_8320((class_2338)this.blockPos.method_10102(this.mc.field_1724.method_23317() - 0.3, this.mc.field_1724.method_23318() + 2.3, this.mc.field_1724.method_23321() - 0.3));
-        class_2680 class_26805 = this.mc.field_1687.method_8320((class_2338)this.blockPos.method_10102(this.mc.field_1724.method_23317() - 0.3, this.mc.field_1724.method_23318() + 2.3, this.mc.field_1724.method_23321() + 0.3));
-        boolean bl = class_26802.method_26207().method_15800();
-        boolean bl2 = class_26803.method_26207().method_15800();
-        boolean bl3 = class_26804.method_26207().method_15800();
-        boolean bl4 = class_26805.method_26207().method_15800();
+        BlockState BlockState2 = this.mc.world.getBlockState((BlockPos)this.blockPos.set(this.mc.player.getX() + 0.3, this.mc.player.getY() + 2.3, this.mc.player.getZ() + 0.3));
+        BlockState BlockState3 = this.mc.world.getBlockState((BlockPos)this.blockPos.set(this.mc.player.getX() + 0.3, this.mc.player.getY() + 2.3, this.mc.player.getZ() - 0.3));
+        BlockState BlockState4 = this.mc.world.getBlockState((BlockPos)this.blockPos.set(this.mc.player.getX() - 0.3, this.mc.player.getY() + 2.3, this.mc.player.getZ() - 0.3));
+        BlockState BlockState5 = this.mc.world.getBlockState((BlockPos)this.blockPos.set(this.mc.player.getX() - 0.3, this.mc.player.getY() + 2.3, this.mc.player.getZ() + 0.3));
+        boolean bl = BlockState2.getMaterial().isReplaceable();
+        boolean bl2 = BlockState3.getMaterial().isReplaceable();
+        boolean bl3 = BlockState4.getMaterial().isReplaceable();
+        boolean bl4 = BlockState5.getMaterial().isReplaceable();
         return bl & bl2 & bl3 & bl4;
     }
 
     private void placeBlock() {
-        this.mc.field_1761.method_2896(this.mc.field_1724, this.mc.field_1687, class_1268.field_5808, new class_3965(Utils.vec3d((class_2338)this.blockPos), class_2350.field_11036, (class_2338)this.blockPos, false));
-        this.mc.method_1562().method_2883((class_2596)new class_2879(class_1268.field_5808));
+        this.mc.interactionManager.interactBlock(this.mc.player, this.mc.world, Hand.MAIN_HAND, new BlockHitResult(Utils.vec3d((BlockPos)this.blockPos), Direction.UP, (BlockPos)this.blockPos, false));
+        this.mc.getNetworkHandler().sendPacket((Packet)new HandSwingC2SPacket(Hand.MAIN_HAND));
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
         if (!this.instant.get().booleanValue()) {
-            boolean bl = this.shouldBurrow = this.mc.field_1724.method_23318() > (double)this.blockPos.method_10264() + this.triggerHeight.get();
+            boolean bl = this.shouldBurrow = this.mc.player.getY() > (double)this.blockPos.getY() + this.triggerHeight.get();
         }
         if (!this.shouldBurrow && this.instant.get().booleanValue()) {
-            this.blockPos.method_10101((class_2382)this.mc.field_1724.method_24515());
+            this.blockPos.set((Vec3i)this.mc.player.getBlockPos());
         }
         if (this.shouldBurrow) {
             if (!this.checkInventory()) {
@@ -162,22 +162,22 @@ extends Module {
                 PlayerUtils.centerPlayer();
             }
             if (this.instant.get().booleanValue()) {
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + 0.4, this.mc.field_1724.method_23321(), true));
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + 0.75, this.mc.field_1724.method_23321(), true));
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + 1.0, this.mc.field_1724.method_23321(), true));
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + 1.15, this.mc.field_1724.method_23321(), true));
+                this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY() + 0.4, this.mc.player.getZ(), true));
+                this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY() + 0.75, this.mc.player.getZ(), true));
+                this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY() + 1.0, this.mc.player.getZ(), true));
+                this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY() + 1.15, this.mc.player.getZ(), true));
             }
-            this.mc.field_1724.field_7514.field_7545 = this.slot;
+            this.mc.player.inventory.selectedSlot = this.slot;
             if (this.rotate.get().booleanValue()) {
-                Rotations.rotate(Rotations.getYaw((class_2338)this.blockPos), Rotations.getPitch((class_2338)this.blockPos), this::placeBlock);
+                Rotations.rotate(Rotations.getYaw((BlockPos)this.blockPos), Rotations.getPitch((BlockPos)this.blockPos), this::placeBlock);
             } else {
                 this.placeBlock();
             }
-            this.mc.field_1724.field_7514.field_7545 = this.prevSlot;
+            this.mc.player.inventory.selectedSlot = this.prevSlot;
             if (this.instant.get().booleanValue()) {
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + this.rubberbandHeight.get(), this.mc.field_1724.method_23321(), false));
+                this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(this.mc.player.getX(), this.mc.player.getY() + this.rubberbandHeight.get(), this.mc.player.getZ(), false));
             } else {
-                this.mc.field_1724.method_18799(this.mc.field_1724.method_18798().method_1031(0.0, this.rubberbandHeight.get().doubleValue(), 0.0));
+                this.mc.player.setVelocity(this.mc.player.getVelocity().add(0.0, this.rubberbandHeight.get().doubleValue(), 0.0));
             }
             this.toggle();
         }

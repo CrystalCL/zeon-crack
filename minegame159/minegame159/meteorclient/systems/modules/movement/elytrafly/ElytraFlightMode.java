@@ -8,29 +8,29 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.movement.elytrafly.ElytraFlightModes;
 import minegame159.meteorclient.systems.modules.movement.elytrafly.ElytraFly;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1657;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1937;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2848;
-import net.minecraft.class_310;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.world.World;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.client.MinecraftClient;
 
 public class ElytraFlightMode {
     protected final ElytraFly settings = Modules.get().get(ElytraFly.class);
     protected int jumpTimer;
     protected double ticksLeft;
     private final ElytraFlightModes type;
-    protected class_243 forward;
-    protected final class_310 mc = class_310.method_1551();
+    protected Vec3d forward;
+    protected final MinecraftClient mc = MinecraftClient.getInstance();
     protected boolean lastJumpPressed;
     protected double velY;
     protected double velZ;
     protected boolean incrementJumpTimer;
-    protected class_243 right;
+    protected Vec3d right;
     protected double velX;
     protected boolean lastForwardPressed;
 
@@ -51,29 +51,29 @@ public class ElytraFlightMode {
         this.ticksLeft = 0.0;
     }
 
-    private boolean lambda$onTick$0(class_1799 class_17992) {
-        return class_17992.method_7936() - class_17992.method_7919() > this.settings.replaceDurability.get();
+    private boolean lambda$onTick$0(ItemStack ItemStack2) {
+        return ItemStack2.getMaxDamage() - ItemStack2.getDamage() > this.settings.replaceDurability.get();
     }
 
     public void handleHorizontalSpeed() {
         boolean bl = false;
         boolean bl2 = false;
-        if (this.mc.field_1690.field_1894.method_1434()) {
-            this.velX += this.forward.field_1352 * this.settings.horizontalSpeed.get() * 10.0;
-            this.velZ += this.forward.field_1350 * this.settings.horizontalSpeed.get() * 10.0;
+        if (this.mc.options.keyForward.isPressed()) {
+            this.velX += this.forward.x * this.settings.horizontalSpeed.get() * 10.0;
+            this.velZ += this.forward.z * this.settings.horizontalSpeed.get() * 10.0;
             bl = true;
-        } else if (this.mc.field_1690.field_1881.method_1434()) {
-            this.velX -= this.forward.field_1352 * this.settings.horizontalSpeed.get() * 10.0;
-            this.velZ -= this.forward.field_1350 * this.settings.horizontalSpeed.get() * 10.0;
+        } else if (this.mc.options.keyBack.isPressed()) {
+            this.velX -= this.forward.x * this.settings.horizontalSpeed.get() * 10.0;
+            this.velZ -= this.forward.z * this.settings.horizontalSpeed.get() * 10.0;
             bl = true;
         }
-        if (this.mc.field_1690.field_1849.method_1434()) {
-            this.velX += this.right.field_1352 * this.settings.horizontalSpeed.get() * 10.0;
-            this.velZ += this.right.field_1350 * this.settings.horizontalSpeed.get() * 10.0;
+        if (this.mc.options.keyRight.isPressed()) {
+            this.velX += this.right.x * this.settings.horizontalSpeed.get() * 10.0;
+            this.velZ += this.right.z * this.settings.horizontalSpeed.get() * 10.0;
             bl2 = true;
-        } else if (this.mc.field_1690.field_1913.method_1434()) {
-            this.velX -= this.right.field_1352 * this.settings.horizontalSpeed.get() * 10.0;
-            this.velZ -= this.right.field_1350 * this.settings.horizontalSpeed.get() * 10.0;
+        } else if (this.mc.options.keyLeft.isPressed()) {
+            this.velX -= this.right.x * this.settings.horizontalSpeed.get() * 10.0;
+            this.velZ -= this.right.z * this.settings.horizontalSpeed.get() * 10.0;
             bl2 = true;
         }
         if (bl && bl2) {
@@ -84,40 +84,40 @@ public class ElytraFlightMode {
     }
 
     public void handleVerticalSpeed() {
-        if (this.mc.field_1690.field_1903.method_1434()) {
+        if (this.mc.options.keyJump.isPressed()) {
             this.velY += 0.5 * this.settings.verticalSpeed.get();
-        } else if (this.mc.field_1690.field_1832.method_1434()) {
+        } else if (this.mc.options.keySneak.isPressed()) {
             this.velY -= 0.5 * this.settings.verticalSpeed.get();
         }
     }
 
     public void handleAutopilot() {
-        if (this.settings.moveForward.get().booleanValue() && this.mc.field_1724.method_23318() > this.settings.autoPilotMinimumHeight.get()) {
-            this.mc.field_1690.field_1894.method_23481(true);
+        if (this.settings.moveForward.get().booleanValue() && this.mc.player.getY() > this.settings.autoPilotMinimumHeight.get()) {
+            this.mc.options.keyForward.setPressed(true);
         }
         this.lastForwardPressed = true;
         if (this.settings.useFireworks.get().booleanValue()) {
-            int n = InvUtils.findItemInHotbar(class_1802.field_8639);
-            int n2 = this.mc.field_1724.field_7514.field_7545;
-            if (!this.mc.field_1724.method_6128()) {
+            int n = InvUtils.findItemInHotbar(Items.FIREWORK_ROCKET);
+            int n2 = this.mc.player.inventory.selectedSlot;
+            if (!this.mc.player.isFallFlying()) {
                 return;
             }
-            if (n == -1 && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8639) {
+            if (n == -1 && this.mc.player.getOffHandStack().getItem() != Items.FIREWORK_ROCKET) {
                 return;
             }
-            class_1268 class_12682 = InvUtils.getHand(class_1802.field_8639);
+            Hand Hand2 = InvUtils.getHand(Items.FIREWORK_ROCKET);
             if (this.ticksLeft <= 0.0) {
                 this.ticksLeft = this.settings.autoPilotFireworkDelay.get() * 20.0;
                 if (n != -1) {
-                    this.mc.field_1724.field_7514.field_7545 = n;
-                    this.mc.field_1761.method_2919((class_1657)this.mc.field_1724, (class_1937)this.mc.field_1687, class_12682);
-                    this.mc.field_1724.method_6104(class_12682);
+                    this.mc.player.inventory.selectedSlot = n;
+                    this.mc.interactionManager.interactItem((PlayerEntity)this.mc.player, (World)this.mc.world, Hand2);
+                    this.mc.player.swingHand(Hand2);
                     if (this.settings.autoPilotFireworkGhosthand.get().booleanValue()) {
-                        this.mc.field_1724.field_7514.field_7545 = n2;
+                        this.mc.player.inventory.selectedSlot = n2;
                     }
-                } else if (this.mc.field_1724.method_6079().method_7909() == class_1802.field_8639) {
-                    this.mc.field_1761.method_2919((class_1657)this.mc.field_1724, (class_1937)this.mc.field_1687, class_12682);
-                    this.mc.field_1724.method_6104(class_12682);
+                } else if (this.mc.player.getOffHandStack().getItem() == Items.FIREWORK_ROCKET) {
+                    this.mc.interactionManager.interactItem((PlayerEntity)this.mc.player, (World)this.mc.world, Hand2);
+                    this.mc.player.swingHand(Hand2);
                 }
             }
             this.ticksLeft -= 1.0;
@@ -133,9 +133,9 @@ public class ElytraFlightMode {
     }
 
     public void onTick() {
-        class_1799 class_17992;
-        if (this.settings.replace.get().booleanValue() && (class_17992 = this.mc.field_1724.field_7514.method_7372(2)).method_7909() == class_1802.field_8833 && class_17992.method_7936() - class_17992.method_7919() <= this.settings.replaceDurability.get()) {
-            int n = InvUtils.findItemInAll(class_1802.field_8833, this::lambda$onTick$0);
+        ItemStack ItemStack2;
+        if (this.settings.replace.get().booleanValue() && (ItemStack2 = this.mc.player.inventory.getArmorStack(2)).getItem() == Items.ELYTRA && ItemStack2.getMaxDamage() - ItemStack2.getDamage() <= this.settings.replaceDurability.get()) {
+            int n = InvUtils.findItemInAll(Items.ELYTRA, this::lambda$onTick$0);
             InvUtils.move().from(n).toArmor(2);
         }
     }
@@ -150,19 +150,19 @@ public class ElytraFlightMode {
         if (this.incrementJumpTimer) {
             ++this.jumpTimer;
         }
-        boolean bl = this.mc.field_1690.field_1903.method_1434();
+        boolean bl = this.mc.options.keyJump.isPressed();
         if (this.settings.autoTakeOff.get().booleanValue() && bl) {
-            if (!this.lastJumpPressed && !this.mc.field_1724.method_6128()) {
+            if (!this.lastJumpPressed && !this.mc.player.isFallFlying()) {
                 this.jumpTimer = 0;
                 this.incrementJumpTimer = true;
             }
             if (this.jumpTimer >= 8) {
                 this.jumpTimer = 0;
                 this.incrementJumpTimer = false;
-                this.mc.field_1724.method_6100(false);
-                this.mc.field_1724.method_5728(true);
-                this.mc.field_1724.method_6043();
-                this.mc.method_1562().method_2883((class_2596)new class_2848((class_1297)this.mc.field_1724, class_2848.class_2849.field_12982));
+                this.mc.player.setJumping(false);
+                this.mc.player.setSprinting(true);
+                this.mc.player.jump();
+                this.mc.getNetworkHandler().sendPacket((Packet)new ClientCommandC2SPacket((Entity)this.mc.player, ClientCommandC2SPacket.class_2849.START_FALL_FLYING));
             }
         }
         this.lastJumpPressed = bl;

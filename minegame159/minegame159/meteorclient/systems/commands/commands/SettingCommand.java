@@ -13,7 +13,7 @@ import minegame159.meteorclient.systems.commands.arguments.ModuleArgumentType;
 import minegame159.meteorclient.systems.commands.arguments.SettingArgumentType;
 import minegame159.meteorclient.systems.commands.arguments.SettingValueArgumentType;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2172;
+import net.minecraft.command.CommandSource;
 
 public class SettingCommand
 extends Command {
@@ -37,7 +37,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.then(SettingCommand.argument("module", ModuleArgumentType.module()).then(((RequiredArgumentBuilder)SettingCommand.argument("setting", SettingArgumentType.setting()).executes(SettingCommand::lambda$build$0)).then(SettingCommand.argument("value", SettingValueArgumentType.value()).executes(SettingCommand::lambda$build$1))));
     }
 }

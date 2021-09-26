@@ -20,19 +20,19 @@ import minegame159.meteorclient.utils.entity.EntityUtils;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1304;
-import net.minecraft.class_1657;
-import net.minecraft.class_1747;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1937;
-import net.minecraft.class_239;
-import net.minecraft.class_2828;
-import net.minecraft.class_3612;
-import net.minecraft.class_3959;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.world.World;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.world.RaycastContext;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class NoFall
 extends Module {
@@ -46,15 +46,15 @@ extends Module {
     private int fallHeightBaritone;
 
     private void lambda$useBucket$1(int n, boolean bl) {
-        int n2 = this.mc.field_1724.field_7514.field_7545;
-        this.mc.field_1724.field_7514.field_7545 = n;
-        this.mc.field_1761.method_2919((class_1657)this.mc.field_1724, (class_1937)this.mc.field_1687, class_1268.field_5808);
-        this.mc.field_1724.field_7514.field_7545 = n2;
+        int n2 = this.mc.player.inventory.selectedSlot;
+        this.mc.player.inventory.selectedSlot = n;
+        this.mc.interactionManager.interactItem((PlayerEntity)this.mc.player, (World)this.mc.world, Hand.MAIN_HAND);
+        this.mc.player.inventory.selectedSlot = n2;
         this.placedWater = bl;
     }
 
-    private static boolean lambda$onTick$0(class_1799 class_17992) {
-        return class_17992.method_7909() instanceof class_1747;
+    private static boolean lambda$onTick$0(ItemStack ItemStack2) {
+        return ItemStack2.getItem() instanceof BlockItem;
     }
 
     @Override
@@ -63,7 +63,7 @@ extends Module {
     }
 
     private void useBucket(int n, boolean bl) {
-        Rotations.rotate(this.mc.field_1724.field_6031, 90.0, 10, true, () -> this.lambda$useBucket$1(n, bl));
+        Rotations.rotate(this.mc.player.yaw, 90.0, 10, true, () -> this.lambda$useBucket$1(n, bl));
     }
 
     public NoFall() {
@@ -94,41 +94,41 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (this.mc.field_1724.field_7503.field_7477) {
+        if (this.mc.player.abilities.creativeMode) {
             return;
         }
-        if (this.mode.get() == Mode.AirPlace && (this.placeMode.get() == PlaceMode.BeforeDamage && this.mc.field_1724.field_6017 > 2.0f || this.placeMode.get() == PlaceMode.BeforeDeath && this.mc.field_1724.method_6032() + this.mc.field_1724.method_6067() < this.mc.field_1724.field_6017)) {
+        if (this.mode.get() == Mode.AirPlace && (this.placeMode.get() == PlaceMode.BeforeDamage && this.mc.player.fallDistance > 2.0f || this.placeMode.get() == PlaceMode.BeforeDeath && this.mc.player.getHealth() + this.mc.player.getAbsorptionAmount() < this.mc.player.fallDistance)) {
             int n = InvUtils.findItemInHotbar(NoFall::lambda$onTick$0);
             if (n != -1) {
-                BlockUtils.place(this.mc.field_1724.method_24515().method_10074(), class_1268.field_5808, n, true, 10, true);
+                BlockUtils.place(this.mc.player.getBlockPos().down(), Hand.MAIN_HAND, n, true, 10, true);
             }
         } else if (this.mode.get() == Mode.Bucket) {
-            class_3965 class_39652;
+            BlockHitResult BlockHitResult2;
             int n;
             if (this.placedWater) {
-                int n2 = InvUtils.findItemInHotbar(class_1802.field_8550);
-                if (n2 != -1 && this.mc.field_1724.method_16212().method_26227().method_15772() == class_3612.field_15910) {
+                int n2 = InvUtils.findItemInHotbar(Items.BUCKET);
+                if (n2 != -1 && this.mc.player.getBlockState().getFluidState().getFluid() == Fluids.WATER) {
                     this.useBucket(n2, false);
                 }
-            } else if (this.mc.field_1724.field_6017 > 3.0f && !EntityUtils.isAboveWater((class_1297)this.mc.field_1724) && (n = InvUtils.findItemInHotbar(class_1802.field_8705)) != -1 && (class_39652 = this.mc.field_1687.method_17742(new class_3959(this.mc.field_1724.method_19538(), this.mc.field_1724.method_19538().method_1023(0.0, 5.0, 0.0), class_3959.class_3960.field_17559, class_3959.class_242.field_1348, (class_1297)this.mc.field_1724))) != null && class_39652.method_17783() == class_239.class_240.field_1332) {
+            } else if (this.mc.player.fallDistance > 3.0f && !EntityUtils.isAboveWater((Entity)this.mc.player) && (n = InvUtils.findItemInHotbar(Items.WATER_BUCKET)) != -1 && (BlockHitResult2 = this.mc.world.raycast(new RaycastContext(this.mc.player.getPos(), this.mc.player.getPos().subtract(0.0, 5.0, 0.0), RaycastContext.class_3960.OUTLINE, RaycastContext.class_242.NONE, (Entity)this.mc.player))) != null && BlockHitResult2.getType() == HitResult.class_240.BLOCK) {
                 this.useBucket(n, true);
             }
         }
-        if (this.mc.field_1724.field_6017 == 0.0f) {
+        if (this.mc.player.fallDistance == 0.0f) {
             this.placedWater = false;
         }
     }
 
     @EventHandler
     private void onSendPacket(PacketEvent.Send send) {
-        if (this.mc.field_1724 != null && this.mc.field_1724.field_7503.field_7477) {
+        if (this.mc.player != null && this.mc.player.abilities.creativeMode) {
             return;
         }
-        if (send.packet instanceof class_2828) {
-            if (this.elytra.get().booleanValue() && (this.mc.field_1724.method_6118(class_1304.field_6174).method_7909() == class_1802.field_8833 && this.mc.field_1690.field_1903.method_1434() || this.mc.field_1724.method_6128())) {
+        if (send.packet instanceof PlayerMoveC2SPacket) {
+            if (this.elytra.get().booleanValue() && (this.mc.player.getEquippedStack(EquipmentSlot.CHEST).getItem() == Items.ELYTRA && this.mc.options.keyJump.isPressed() || this.mc.player.isFallFlying())) {
                 int n = 0;
                 while ((double)n <= Math.ceil(this.height.get())) {
-                    if (!this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10069(0, -n, 0)).method_26207().method_15800() && (double)(this.mc.field_1724.method_24515().method_10069(0, -n, 0).method_10264() + 1) + this.height.get() >= this.mc.field_1724.method_19538().method_10214()) {
+                    if (!this.mc.world.getBlockState(this.mc.player.getBlockPos().add(0, -n, 0)).getMaterial().isReplaceable() && (double)(this.mc.player.getBlockPos().add(0, -n, 0).getY() + 1) + this.height.get() >= this.mc.player.getPos().getY()) {
                         ((PlayerMoveC2SPacketAccessor)send.packet).setOnGround(true);
                         return;
                     }

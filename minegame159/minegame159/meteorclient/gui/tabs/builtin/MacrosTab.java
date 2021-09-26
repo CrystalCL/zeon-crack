@@ -23,13 +23,13 @@ import minegame159.meteorclient.gui.widgets.pressable.WPressable;
 import minegame159.meteorclient.systems.macros.Macro;
 import minegame159.meteorclient.systems.macros.Macros;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 
 public class MacrosTab
 extends Tab {
     @Override
-    public boolean isScreen(class_437 class_4372) {
-        return class_4372 instanceof MacrosScreen;
+    public boolean isScreen(Screen Screen2) {
+        return Screen2 instanceof MacrosScreen;
     }
 
     @Override
@@ -81,11 +81,11 @@ extends Tab {
             if (this.isNewMacro) {
                 if (this.macro.name != null && !this.macro.name.isEmpty() && this.macro.messages.size() > 0 && this.macro.keybind.isSet()) {
                     Macros.get().add(this.macro);
-                    this.method_25419();
+                    this.onClose();
                 }
             } else {
                 Macros.get().save();
-                this.method_25419();
+                this.onClose();
             }
         }
 
@@ -156,18 +156,18 @@ extends Tab {
     private static class MacrosScreen
     extends WindowTabScreen {
         @Override
-        protected void method_25426() {
-            super.method_25426();
+        protected void init() {
+            super.init();
             this.clear();
             this.initWidgets();
         }
 
         private void lambda$initWidgets$2() {
-            Utils.mc.method_1507((class_437)new MacroEditorScreen(this.theme, null));
+            Utils.mc.openScreen((Screen)new MacroEditorScreen(this.theme, null));
         }
 
         private void lambda$initWidgets$0(Macro macro) {
-            Utils.mc.method_1507((class_437)new MacroEditorScreen(this.theme, macro));
+            Utils.mc.openScreen((Screen)new MacroEditorScreen(this.theme, macro));
         }
 
         private void lambda$initWidgets$1(Macro macro) {

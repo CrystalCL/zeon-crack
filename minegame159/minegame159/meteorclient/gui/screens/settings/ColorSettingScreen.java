@@ -115,7 +115,7 @@ extends WindowScreen {
         wHorizontalList.add(this.rainbowSpeed).expandX();
         WHorizontalList wHorizontalList2 = this.add(guiTheme.horizontalList()).expandX().widget();
         WButton wButton = wHorizontalList2.add(guiTheme.button("Back")).expandX().widget();
-        wButton.action = this::method_25419;
+        wButton.action = this::onClose;
         WButton wButton2 = wHorizontalList2.add(guiTheme.button(GuiRenderer.RESET)).widget();
         wButton2.action = () -> this.lambda$new$1(setting);
         this.hueQuad.calculateFromSetting(false);
@@ -152,8 +152,8 @@ extends WindowScreen {
         this.callAction();
     }
 
-    public void method_25393() {
-        super.method_25393();
+    public void tick() {
+        super.tick();
         if (this.setting.get().rainbowSpeed > 0.0) {
             this.setFromSetting();
         }

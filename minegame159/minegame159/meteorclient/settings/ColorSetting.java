@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -32,8 +32,8 @@ extends Setting<SettingColor> {
     }
 
     @Override
-    public SettingColor fromTag(class_2487 class_24872) {
-        ((SettingColor)this.get()).fromTag(class_24872.method_10562("value"));
+    public SettingColor fromTag(NbtCompound NbtCompound2) {
+        ((SettingColor)this.get()).fromTag(NbtCompound2.getCompound("value"));
         this.changed();
         return (SettingColor)this.get();
     }
@@ -44,10 +44,10 @@ extends Setting<SettingColor> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_24872.method_10566("value", (class_2520)((SettingColor)this.get()).toTag());
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound2.put("value", (NbtElement)((SettingColor)this.get()).toTag());
+        return NbtCompound2;
     }
 
     public ColorSetting(String string, String string2, SettingColor settingColor, Consumer<SettingColor> consumer, Consumer<Setting<SettingColor>> consumer2) {
@@ -82,8 +82,8 @@ extends Setting<SettingColor> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public static class Builder {

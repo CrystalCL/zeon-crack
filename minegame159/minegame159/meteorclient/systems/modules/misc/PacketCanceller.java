@@ -13,23 +13,23 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.network.PacketUtils;
-import net.minecraft.class_2596;
+import net.minecraft.network.Packet;
 
 public class PacketCanceller
 extends Module {
-    private final Setting<Object2BooleanMap<Class<? extends class_2596<?>>>> c2sPackets;
-    public static Object2BooleanMap<Class<? extends class_2596<?>>> C2S_PACKETS;
+    private final Setting<Object2BooleanMap<Class<? extends Packet<?>>>> c2sPackets;
+    public static Object2BooleanMap<Class<? extends Packet<?>>> C2S_PACKETS;
     private final SettingGroup sgGeneral;
-    private final Setting<Object2BooleanMap<Class<? extends class_2596<?>>>> s2cPackets;
-    public static Object2BooleanMap<Class<? extends class_2596<?>>> S2C_PACKETS;
+    private final Setting<Object2BooleanMap<Class<? extends Packet<?>>>> s2cPackets;
+    public static Object2BooleanMap<Class<? extends Packet<?>>> S2C_PACKETS;
 
     static {
         S2C_PACKETS = new Object2BooleanArrayMap();
         C2S_PACKETS = new Object2BooleanArrayMap();
-        for (Class<? extends class_2596<?>> clazz : PacketUtils.getS2CPackets()) {
+        for (Class<? extends Packet<?>> clazz : PacketUtils.getS2CPackets()) {
             S2C_PACKETS.put(clazz, false);
         }
-        for (Class<? extends class_2596<?>> clazz : PacketUtils.getC2SPackets()) {
+        for (Class<? extends Packet<?>> clazz : PacketUtils.getC2SPackets()) {
             C2S_PACKETS.put(clazz, false);
         }
     }

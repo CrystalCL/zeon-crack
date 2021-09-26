@@ -5,54 +5,54 @@ package minegame159.meteorclient.utils.misc;
 
 import minegame159.meteorclient.mixin.DimensionTypeAccessor;
 import minegame159.meteorclient.utils.misc.PlayerListEntryFactory;
-import net.minecraft.class_1267;
-import net.minecraft.class_1657;
-import net.minecraft.class_1934;
-import net.minecraft.class_1937;
-import net.minecraft.class_2535;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_2598;
-import net.minecraft.class_310;
-import net.minecraft.class_4599;
-import net.minecraft.class_634;
-import net.minecraft.class_638;
-import net.minecraft.class_640;
-import net.minecraft.class_745;
-import net.minecraft.class_761;
+import net.minecraft.world.Difficulty;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BufferBuilderStorage;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.network.OtherClientPlayerEntity;
+import net.minecraft.client.render.WorldRenderer;
 
 public class FakeClientPlayer {
-    private static class_1657 player;
+    private static PlayerEntity player;
     private static String lastId;
-    private static final class_310 mc;
-    private static class_640 playerListEntry;
-    private static class_638 world;
+    private static final MinecraftClient mc;
+    private static PlayerListEntry playerListEntry;
+    private static ClientWorld world;
     private static boolean needsNewEntry;
 
-    public static class_1657 getPlayer() {
-        String string = mc.method_1548().method_1673();
+    public static PlayerEntity getPlayer() {
+        String string = mc.getSession().getUuid();
         if (player == null || !string.equals(lastId)) {
-            player = new class_745(world, mc.method_1548().method_1677());
+            player = new OtherClientPlayerEntity(world, mc.getSession().getProfile());
             lastId = string;
             needsNewEntry = true;
         }
         return player;
     }
 
-    public static class_640 getPlayerListEntry() {
+    public static PlayerListEntry getPlayerListEntry() {
         if (playerListEntry == null || needsNewEntry) {
-            playerListEntry = new class_640(PlayerListEntryFactory.create(mc.method_1548().method_1677(), 0, class_1934.field_9215, (class_2561)new class_2585(mc.method_1548().method_1677().getName())));
+            playerListEntry = new PlayerListEntry(PlayerListEntryFactory.create(mc.getSession().getProfile(), 0, GameMode.SURVIVAL, (Text)new LiteralText(mc.getSession().getProfile().getName())));
             needsNewEntry = false;
         }
         return playerListEntry;
     }
 
     static {
-        mc = class_310.method_1551();
+        mc = MinecraftClient.getInstance();
     }
 
     public static void init() {
-        world = new class_638(new class_634(mc, null, new class_2535(class_2598.field_11942), mc.method_1548().method_1677()), new class_638.class_5271(class_1267.field_5802, false, false), class_1937.field_25179, DimensionTypeAccessor.getOverworld(), 1, () -> ((class_310)mc).method_16011(), new class_761(mc, new class_4599()), false, 0L);
+        world = new ClientWorld(new ClientPlayNetworkHandler(mc, null, new ClientConnection(NetworkSide.CLIENTBOUND), mc.getSession().getProfile()), new ClientWorld.class_5271(Difficulty.NORMAL, false, false), World.OVERWORLD, DimensionTypeAccessor.getOverworld(), 1, () -> ((MinecraftClient)mc).getProfiler(), new WorldRenderer(mc, new BufferBuilderStorage()), false, 0L);
     }
 }
 

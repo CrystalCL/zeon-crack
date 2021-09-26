@@ -13,7 +13,7 @@ import minegame159.meteorclient.systems.friends.Friend;
 import minegame159.meteorclient.systems.friends.Friends;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1657;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class MessageAura
 extends Module {
@@ -23,11 +23,11 @@ extends Module {
 
     @EventHandler
     private void onEntityAdded(EntityAddedEvent entityAddedEvent) {
-        if (!(entityAddedEvent.entity instanceof class_1657) || entityAddedEvent.entity.method_5667().equals(this.mc.field_1724.method_5667())) {
+        if (!(entityAddedEvent.entity instanceof PlayerEntity) || entityAddedEvent.entity.getUuid().equals(this.mc.player.getUuid())) {
             return;
         }
-        if (!this.ignoreFriends.get().booleanValue() || this.ignoreFriends.get().booleanValue() && !Friends.get().contains(new Friend((class_1657)entityAddedEvent.entity))) {
-            this.mc.field_1724.method_3142(String.valueOf(new StringBuilder().append("/msg ").append(((class_1657)entityAddedEvent.entity).method_7334().getName()).append(" ").append(this.message.get())));
+        if (!this.ignoreFriends.get().booleanValue() || this.ignoreFriends.get().booleanValue() && !Friends.get().contains(new Friend((PlayerEntity)entityAddedEvent.entity))) {
+            this.mc.player.sendChatMessage(String.valueOf(new StringBuilder().append("/msg ").append(((PlayerEntity)entityAddedEvent.entity).getGameProfile().getName()).append(" ").append(this.message.get())));
         }
     }
 

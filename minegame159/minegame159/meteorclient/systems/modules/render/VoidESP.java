@@ -21,9 +21,9 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.Dimension;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
 
 public class VoidESP
 extends Module {
@@ -32,7 +32,7 @@ extends Module {
     private final SettingGroup sgGeneral;
     private final Setting<Boolean> airOnly;
     private final Setting<Integer> horizontalRadius;
-    private final List<class_2338> voidHoles;
+    private final List<BlockPos> voidHoles;
     private final Setting<SettingColor> lineColor;
     private final Setting<SettingColor> sideColor;
     private final SettingGroup sgRender;
@@ -47,13 +47,13 @@ extends Module {
         this.shapeMode = this.sgRender.add(new EnumSetting.Builder().name("shape-mode").description("How the shapes are rendered.").defaultValue(ShapeMode.Both).build());
         this.sideColor = this.sgRender.add(new ColorSetting.Builder().name("fill-color").description("The color that fills holes in the void.").defaultValue(new SettingColor(225, 25, 25)).build());
         this.lineColor = this.sgRender.add(new ColorSetting.Builder().name("line-color").description("The color to draw lines of holes to the void.").defaultValue(new SettingColor(225, 25, 255)).build());
-        this.voidHoles = new ArrayList<class_2338>();
+        this.voidHoles = new ArrayList<BlockPos>();
     }
 
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
-        for (class_2338 class_23382 : this.voidHoles) {
-            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, class_23382, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
+        for (BlockPos BlockPos2 : this.voidHoles) {
+            Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, BlockPos2, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
         }
     }
 
@@ -62,43 +62,43 @@ extends Module {
         if (Utils.getDimension() == Dimension.End) {
             return;
         }
-        class_2338 class_23382 = this.mc.field_1724.method_24515();
-        int n3 = class_23382.method_10264();
+        BlockPos BlockPos2 = this.mc.player.getBlockPos();
+        int n3 = BlockPos2.getY();
         for (int i = -n; i < n; ++i) {
             for (int j = -n; j < n; ++j) {
-                class_2338 class_23383 = class_23382.method_10069(i, -n3, j);
+                BlockPos BlockPos3 = BlockPos2.add(i, -n3, j);
                 int n4 = 0;
                 for (int k = 0; k < n2; ++k) {
-                    if (!this.isBlockMatching(this.mc.field_1687.method_8320(class_23383.method_10069(0, k, 0)).method_26204())) continue;
+                    if (!this.isBlockMatching(this.mc.world.getBlockState(BlockPos3.add(0, k, 0)).getBlock())) continue;
                     ++n4;
                     if (!false) continue;
                     return;
                 }
                 if (n4 >= n2) {
-                    this.voidHoles.add(class_23383);
+                    this.voidHoles.add(BlockPos3);
                 }
                 if (Utils.getDimension() != Dimension.Nether) continue;
-                class_2338 class_23384 = class_23382.method_10069(i, 127 - n3, j);
+                BlockPos BlockPos4 = BlockPos2.add(i, 127 - n3, j);
                 int n5 = 0;
                 for (int k = 0; k < n2; ++k) {
-                    if (!this.isBlockMatching(this.mc.field_1687.method_8320(class_23383.method_10069(0, 127 - k, 0)).method_26204())) continue;
+                    if (!this.isBlockMatching(this.mc.world.getBlockState(BlockPos3.add(0, 127 - k, 0)).getBlock())) continue;
                     ++n5;
                     if (null == null) continue;
                     return;
                 }
                 if (n5 < n2) continue;
-                this.voidHoles.add(class_23384);
+                this.voidHoles.add(BlockPos4);
             }
             if (-1 <= 0) continue;
             return;
         }
     }
 
-    private boolean isBlockMatching(class_2248 class_22482) {
+    private boolean isBlockMatching(Block Block2) {
         if (this.airOnly.get().booleanValue()) {
-            return class_22482 == class_2246.field_10124;
+            return Block2 == Blocks.AIR;
         }
-        return class_22482 != class_2246.field_9987;
+        return Block2 != Blocks.BEDROCK;
     }
 
     @EventHandler

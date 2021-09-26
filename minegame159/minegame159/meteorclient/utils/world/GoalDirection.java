@@ -6,8 +6,8 @@ package minegame159.meteorclient.utils.world;
 import baritone.api.BaritoneAPI;
 import baritone.api.pathing.goals.Goal;
 import baritone.api.utils.SettingsUtil;
-import net.minecraft.class_243;
-import net.minecraft.class_3532;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.MathHelper;
 
 public class GoalDirection
 implements Goal {
@@ -16,9 +16,9 @@ implements Goal {
     private final float yaw;
     private int z;
 
-    public GoalDirection(class_243 class_2432, float f) {
+    public GoalDirection(Vec3d Vec3d2, float f) {
         this.yaw = f;
-        this.recalculate(class_2432);
+        this.recalculate(Vec3d2);
     }
 
     public int getX() {
@@ -35,10 +35,10 @@ implements Goal {
         return GoalDirection.calculate(n4, n5);
     }
 
-    public void recalculate(class_243 class_2432) {
+    public void recalculate(Vec3d Vec3d2) {
         float f = (float)Math.toRadians(this.yaw);
-        this.x = (int)Math.floor(class_2432.field_1352 - (double)class_3532.method_15374((float)f) * 100.0);
-        this.z = (int)Math.floor(class_2432.field_1350 + (double)class_3532.method_15362((float)f) * 100.0);
+        this.x = (int)Math.floor(Vec3d2.x - (double)MathHelper.sin((float)f) * 100.0);
+        this.z = (int)Math.floor(Vec3d2.z + (double)MathHelper.cos((float)f) * 100.0);
     }
 
     public String toString() {

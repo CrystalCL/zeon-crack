@@ -12,15 +12,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import minegame159.meteorclient.systems.commands.Command;
-import net.minecraft.class_1011;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1806;
-import net.minecraft.class_1937;
-import net.minecraft.class_2172;
-import net.minecraft.class_22;
-import net.minecraft.class_2585;
-import net.minecraft.class_3620;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.FilledMapItem;
+import net.minecraft.world.World;
+import net.minecraft.command.CommandSource;
+import net.minecraft.item.map.MapState;
+import net.minecraft.text.LiteralText;
+import net.minecraft.block.MapColor;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -33,8 +33,8 @@ extends Command {
     private final PointerBuffer filters = BufferUtils.createPointerBuffer((int)1);
 
     static {
-        MAP_NOT_FOUND = new SimpleCommandExceptionType((Message)new class_2585("You must be holding a filled map."));
-        OOPS = new SimpleCommandExceptionType((Message)new class_2585("Something went wrong."));
+        MAP_NOT_FOUND = new SimpleCommandExceptionType((Message)new LiteralText("You must be holding a filled map."));
+        OOPS = new SimpleCommandExceptionType((Message)new LiteralText("Something went wrong."));
     }
 
     public SaveMapCommand() {
@@ -45,17 +45,17 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.executes(this::lambda$build$0);
     }
 
     private int lambda$build$0(CommandContext commandContext) throws CommandSyntaxException {
-        class_1799 class_17992 = this.getMap();
-        if (class_17992 == null) {
+        ItemStack ItemStack2 = this.getMap();
+        if (ItemStack2 == null) {
             throw MAP_NOT_FOUND.create();
         }
-        class_22 class_222 = class_1806.method_7997((class_1799)class_17992, (class_1937)SaveMapCommand.mc.field_1687);
-        if (class_222 == null) {
+        MapState MapState2 = FilledMapItem.getMapState((ItemStack)ItemStack2, (World)SaveMapCommand.mc.world);
+        if (MapState2 == null) {
             throw MAP_NOT_FOUND.create();
         }
         String string = TinyFileDialogs.tinyfd_saveFileDialog((CharSequence)"Save image", null, (PointerBuffer)this.filters, null);
@@ -65,20 +65,20 @@ extends Command {
         if (!string.endsWith(".png")) {
             string = String.valueOf(new StringBuilder().append(string).append(".png"));
         }
-        class_1011 class_10112 = new class_1011(128, 128, true);
+        NativeImage NativeImage2 = new NativeImage(128, 128, true);
         for (int i = 0; i < 128; ++i) {
             for (int j = 0; j < 128; ++j) {
-                int n = class_222.field_122[i + j * 128] & 0xFF;
+                int n = MapState2.colors[i + j * 128] & 0xFF;
                 if (n / 4 == 0) {
-                    class_10112.method_4305(i, j, 0);
+                    NativeImage2.setPixelColor(i, j, 0);
                     continue;
                 }
-                class_10112.method_4305(i, j, class_3620.field_16006[n / 4].method_15820(n & 3));
+                NativeImage2.setPixelColor(i, j, MapColor.COLORS[n / 4].getRenderColor(n & 3));
             }
         }
         try {
-            class_10112.method_4325(new File(string));
-            class_10112.close();
+            NativeImage2.writeFile(new File(string));
+            NativeImage2.close();
         }
         catch (IOException iOException) {
             iOException.printStackTrace();
@@ -86,14 +86,14 @@ extends Command {
         return 1;
     }
 
-    private class_1799 getMap() {
-        class_1799 class_17992 = SaveMapCommand.mc.field_1724.method_6047();
-        if (class_17992.method_7909() == class_1802.field_8204) {
-            return class_17992;
+    private ItemStack getMap() {
+        ItemStack ItemStack2 = SaveMapCommand.mc.player.getMainHandStack();
+        if (ItemStack2.getItem() == Items.FILLED_MAP) {
+            return ItemStack2;
         }
-        class_17992 = SaveMapCommand.mc.field_1724.method_6079();
-        if (class_17992.method_7909() == class_1802.field_8204) {
-            return class_17992;
+        ItemStack2 = SaveMapCommand.mc.player.getOffHandStack();
+        if (ItemStack2.getItem() == Items.FILLED_MAP) {
+            return ItemStack2;
         }
         return null;
     }

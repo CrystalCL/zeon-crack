@@ -5,20 +5,20 @@ package minegame159.meteorclient.events.render;
 
 import java.util.Iterator;
 import minegame159.meteorclient.events.Cancellable;
-import net.minecraft.class_2561;
-import net.minecraft.class_345;
+import net.minecraft.text.Text;
+import net.minecraft.client.gui.hud.ClientBossBar;
 
 public class RenderBossBarEvent
 extends Cancellable {
 
     public static class BossText {
         private static final BossText INSTANCE = new BossText();
-        public class_2561 name;
-        public class_345 bossBar;
+        public Text name;
+        public ClientBossBar bossBar;
 
-        public static BossText get(class_345 class_3452, class_2561 class_25612) {
-            BossText.INSTANCE.bossBar = class_3452;
-            BossText.INSTANCE.name = class_25612;
+        public static BossText get(ClientBossBar ClientBossBar2, Text Text2) {
+            BossText.INSTANCE.bossBar = ClientBossBar2;
+            BossText.INSTANCE.name = Text2;
             return INSTANCE;
         }
     }
@@ -34,10 +34,10 @@ extends Cancellable {
     }
 
     public static class BossIterator {
-        public Iterator<class_345> iterator;
+        public Iterator<ClientBossBar> iterator;
         private static final BossIterator INSTANCE = new BossIterator();
 
-        public static BossIterator get(Iterator<class_345> iterator) {
+        public static BossIterator get(Iterator<ClientBossBar> iterator) {
             BossIterator.INSTANCE.iterator = iterator;
             return INSTANCE;
         }

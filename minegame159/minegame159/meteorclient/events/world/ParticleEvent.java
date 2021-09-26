@@ -4,16 +4,16 @@
 package minegame159.meteorclient.events.world;
 
 import minegame159.meteorclient.events.Cancellable;
-import net.minecraft.class_2394;
+import net.minecraft.particle.ParticleEffect;
 
 public class ParticleEvent
 extends Cancellable {
     private static final ParticleEvent INSTANCE = new ParticleEvent();
-    public class_2394 particle;
+    public ParticleEffect particle;
 
-    public static ParticleEvent get(class_2394 class_23942) {
+    public static ParticleEvent get(ParticleEffect ParticleEffect2) {
         INSTANCE.setCancelled(false);
-        ParticleEvent.INSTANCE.particle = class_23942;
+        ParticleEvent.INSTANCE.particle = ParticleEffect2;
         return INSTANCE;
     }
 }

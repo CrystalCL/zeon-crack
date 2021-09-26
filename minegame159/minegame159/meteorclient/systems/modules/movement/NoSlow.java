@@ -10,19 +10,19 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1297;
-import net.minecraft.class_2596;
-import net.minecraft.class_2848;
+import net.minecraft.entity.Entity;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 
 public class NoSlow
 extends Module {
     private final Setting<Boolean> items;
     private final Setting<Boolean> airStrict;
     private final Setting<Boolean> slimeBlock;
-    private class_2848 STOP;
+    private ClientCommandC2SPacket STOP;
     private final Setting<Boolean> web;
     private final Setting<Boolean> soulSand;
-    private class_2848 START;
+    private ClientCommandC2SPacket START;
     private boolean shouldSneak;
     private final SettingGroup sgGeneral;
 
@@ -54,11 +54,11 @@ extends Module {
         if (!this.airStrict.get().booleanValue()) {
             return;
         }
-        if (this.mc.field_1724.method_6115()) {
-            this.mc.field_1724.field_3944.method_2883((class_2596)this.START);
+        if (this.mc.player.isUsingItem()) {
+            this.mc.player.networkHandler.sendPacket((Packet)this.START);
             this.shouldSneak = true;
-        } else if (this.shouldSneak && !this.mc.field_1724.method_6115()) {
-            this.mc.field_1724.field_3944.method_2883((class_2596)this.STOP);
+        } else if (this.shouldSneak && !this.mc.player.isUsingItem()) {
+            this.mc.player.networkHandler.sendPacket((Packet)this.STOP);
             this.shouldSneak = false;
         }
     }
@@ -69,8 +69,8 @@ extends Module {
 
     @Override
     public void onActivate() {
-        this.START = new class_2848((class_1297)this.mc.field_1724, class_2848.class_2849.field_12979);
-        this.STOP = new class_2848((class_1297)this.mc.field_1724, class_2848.class_2849.field_12984);
+        this.START = new ClientCommandC2SPacket((Entity)this.mc.player, ClientCommandC2SPacket.class_2849.PRESS_SHIFT_KEY);
+        this.STOP = new ClientCommandC2SPacket((Entity)this.mc.player, ClientCommandC2SPacket.class_2849.RELEASE_SHIFT_KEY);
     }
 }
 

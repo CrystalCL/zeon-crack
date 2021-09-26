@@ -18,13 +18,13 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.Freecam;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.input.Input;
-import net.minecraft.class_1761;
-import net.minecraft.class_408;
-import net.minecraft.class_463;
-import net.minecraft.class_471;
-import net.minecraft.class_481;
-import net.minecraft.class_497;
-import net.minecraft.class_498;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.ingame.AbstractCommandBlockScreen;
+import net.minecraft.client.gui.screen.ingame.AnvilScreen;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.client.gui.screen.ingame.StructureBlockScreen;
+import net.minecraft.client.gui.screen.ingame.SignEditScreen;
 
 public class GUIMove
 extends Module {
@@ -41,12 +41,12 @@ extends Module {
         if (!this.skip()) {
             switch (1.$SwitchMap$minegame159$meteorclient$systems$modules$movement$GUIMove$Screens[this.screens.get().ordinal()]) {
                 case 1: {
-                    if (!(this.mc.field_1755 instanceof WidgetScreen)) break;
+                    if (!(this.mc.currentScreen instanceof WidgetScreen)) break;
                     this.tickSneakJumpAndSprint();
                     break;
                 }
                 case 2: {
-                    if (this.mc.field_1755 instanceof WidgetScreen) break;
+                    if (this.mc.currentScreen instanceof WidgetScreen) break;
                     this.tickSneakJumpAndSprint();
                     break;
                 }
@@ -61,58 +61,58 @@ extends Module {
         if (!this.isActive() || this.skip()) {
             return;
         }
-        this.mc.field_1724.field_3913.field_3905 = 0.0f;
-        this.mc.field_1724.field_3913.field_3907 = 0.0f;
-        if (Input.isPressed(this.mc.field_1690.field_1894)) {
-            this.mc.field_1724.field_3913.field_3910 = true;
-            this.mc.field_1724.field_3913.field_3905 += 1.0f;
+        this.mc.player.input.movementForward = 0.0f;
+        this.mc.player.input.movementSideways = 0.0f;
+        if (Input.isPressed(this.mc.options.keyForward)) {
+            this.mc.player.input.pressingForward = true;
+            this.mc.player.input.movementForward += 1.0f;
         } else {
-            this.mc.field_1724.field_3913.field_3910 = false;
+            this.mc.player.input.pressingForward = false;
         }
-        if (Input.isPressed(this.mc.field_1690.field_1881)) {
-            this.mc.field_1724.field_3913.field_3909 = true;
-            this.mc.field_1724.field_3913.field_3905 -= 1.0f;
+        if (Input.isPressed(this.mc.options.keyBack)) {
+            this.mc.player.input.pressingBack = true;
+            this.mc.player.input.movementForward -= 1.0f;
         } else {
-            this.mc.field_1724.field_3913.field_3909 = false;
+            this.mc.player.input.pressingBack = false;
         }
-        if (Input.isPressed(this.mc.field_1690.field_1849)) {
-            this.mc.field_1724.field_3913.field_3906 = true;
-            this.mc.field_1724.field_3913.field_3907 -= 1.0f;
+        if (Input.isPressed(this.mc.options.keyRight)) {
+            this.mc.player.input.pressingRight = true;
+            this.mc.player.input.movementSideways -= 1.0f;
         } else {
-            this.mc.field_1724.field_3913.field_3906 = false;
+            this.mc.player.input.pressingRight = false;
         }
-        if (Input.isPressed(this.mc.field_1690.field_1913)) {
-            this.mc.field_1724.field_3913.field_3908 = true;
-            this.mc.field_1724.field_3913.field_3907 += 1.0f;
+        if (Input.isPressed(this.mc.options.keyLeft)) {
+            this.mc.player.input.pressingLeft = true;
+            this.mc.player.input.movementSideways += 1.0f;
         } else {
-            this.mc.field_1724.field_3913.field_3908 = false;
+            this.mc.player.input.pressingLeft = false;
         }
         this.tickSneakJumpAndSprint();
         if (this.arrowsRotate.get().booleanValue()) {
             int n = 0;
             while ((double)n < this.rotateSpeed.get() * 2.0) {
                 if (Input.isKeyPressed(263)) {
-                    this.mc.field_1724.field_6031 = (float)((double)this.mc.field_1724.field_6031 - 0.5);
+                    this.mc.player.yaw = (float)((double)this.mc.player.yaw - 0.5);
                 }
                 if (Input.isKeyPressed(262)) {
-                    this.mc.field_1724.field_6031 = (float)((double)this.mc.field_1724.field_6031 + 0.5);
+                    this.mc.player.yaw = (float)((double)this.mc.player.yaw + 0.5);
                 }
                 if (Input.isKeyPressed(265)) {
-                    this.mc.field_1724.field_5965 = (float)((double)this.mc.field_1724.field_5965 - 0.5);
+                    this.mc.player.pitch = (float)((double)this.mc.player.pitch - 0.5);
                 }
                 if (Input.isKeyPressed(264)) {
-                    this.mc.field_1724.field_5965 = (float)((double)this.mc.field_1724.field_5965 + 0.5);
+                    this.mc.player.pitch = (float)((double)this.mc.player.pitch + 0.5);
                 }
                 ++n;
                 if (0 >= 0) continue;
                 return;
             }
-            this.mc.field_1724.field_5965 = Utils.clamp(this.mc.field_1724.field_5965, -90.0f, 90.0f);
+            this.mc.player.pitch = Utils.clamp(this.mc.player.pitch, -90.0f, 90.0f);
         }
     }
 
     private boolean skip() {
-        return this.mc.field_1755 == null || Modules.get().isActive(Freecam.class) || this.mc.field_1755 instanceof class_481 && ((CreativeInventoryScreenAccessor)this.mc.field_1755).getSelectedTab() == class_1761.field_7915.method_7741() || this.mc.field_1755 instanceof class_408 || this.mc.field_1755 instanceof class_498 || this.mc.field_1755 instanceof class_471 || this.mc.field_1755 instanceof class_463 || this.mc.field_1755 instanceof class_497;
+        return this.mc.currentScreen == null || Modules.get().isActive(Freecam.class) || this.mc.currentScreen instanceof CreativeInventoryScreen && ((CreativeInventoryScreenAccessor)this.mc.currentScreen).getSelectedTab() == ItemGroup.SEARCH.getIndex() || this.mc.currentScreen instanceof ChatScreen || this.mc.currentScreen instanceof SignEditScreen || this.mc.currentScreen instanceof AnvilScreen || this.mc.currentScreen instanceof AbstractCommandBlockScreen || this.mc.currentScreen instanceof StructureBlockScreen;
     }
 
     public GUIMove() {
@@ -127,9 +127,9 @@ extends Module {
     }
 
     private void tickSneakJumpAndSprint() {
-        this.mc.field_1724.field_3913.field_3904 = this.jump.get() != false && Input.isPressed(this.mc.field_1690.field_1903);
-        this.mc.field_1724.field_3913.field_3903 = this.sneak.get() != false && Input.isPressed(this.mc.field_1690.field_1832);
-        this.mc.field_1724.method_5728(this.sprint.get() != false && Input.isPressed(this.mc.field_1690.field_1867));
+        this.mc.player.input.jumping = this.jump.get() != false && Input.isPressed(this.mc.options.keyJump);
+        this.mc.player.input.sneaking = this.sneak.get() != false && Input.isPressed(this.mc.options.keySneak);
+        this.mc.player.setSprinting(this.sprint.get() != false && Input.isPressed(this.mc.options.keySprint));
     }
 
     public static final class Screens

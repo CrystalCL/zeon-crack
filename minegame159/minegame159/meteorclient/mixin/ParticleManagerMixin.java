@@ -8,37 +8,37 @@ import minegame159.meteorclient.events.world.ParticleEvent;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.NoRender;
 import minegame159.meteorclient.systems.modules.world.Nuker;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2394;
-import net.minecraft.class_2680;
-import net.minecraft.class_702;
-import net.minecraft.class_703;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.Particle;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={class_702.class})
+@Mixin(value={ParticleManager.class})
 public class ParticleManagerMixin {
     @Inject(method={"addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)Lnet/minecraft/client/particle/Particle;"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onAddParticle(class_2394 class_23942, double d, double d2, double d3, double d4, double d5, double d6, CallbackInfoReturnable<class_703> callbackInfoReturnable) {
-        ParticleEvent particleEvent = MeteorClient.EVENT_BUS.post(ParticleEvent.get(class_23942));
+    private void onAddParticle(ParticleEffect ParticleEffect2, double d, double d2, double d3, double d4, double d5, double d6, CallbackInfoReturnable<Particle> callbackInfoReturnable) {
+        ParticleEvent particleEvent = MeteorClient.EVENT_BUS.post(ParticleEvent.get(ParticleEffect2));
         if (particleEvent.isCancelled()) {
             callbackInfoReturnable.cancel();
         }
     }
 
     @Inject(method={"addBlockBreakParticles"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onAddBlockBreakParticles(class_2338 class_23382, class_2680 class_26802, CallbackInfo callbackInfo) {
+    private void onAddBlockBreakParticles(BlockPos BlockPos2, BlockState BlockState2, CallbackInfo callbackInfo) {
         if (Modules.get().get(Nuker.class).noParticles() || Modules.get().get(NoRender.class).noBlockBreakParticles()) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method={"addBlockBreakingParticles"}, at={@At(value="HEAD")}, cancellable=true)
-    private void onAddBlockBreakingParticles(class_2338 class_23382, class_2350 class_23502, CallbackInfo callbackInfo) {
+    private void onAddBlockBreakingParticles(BlockPos BlockPos2, Direction Direction2, CallbackInfo callbackInfo) {
         if (Modules.get().get(Nuker.class).noParticles() || Modules.get().get(NoRender.class).noBlockBreakParticles()) {
             callbackInfo.cancel();
         }

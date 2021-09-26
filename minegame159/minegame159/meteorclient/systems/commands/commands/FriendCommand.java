@@ -18,9 +18,9 @@ import minegame159.meteorclient.systems.commands.Command;
 import minegame159.meteorclient.systems.friends.Friend;
 import minegame159.meteorclient.systems.friends.Friends;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2172;
-import net.minecraft.class_310;
-import net.minecraft.class_640;
+import net.minecraft.command.CommandSource;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.PlayerListEntry;
 
 public class FriendCommand
 extends Command {
@@ -42,12 +42,12 @@ extends Command {
         return 1;
     }
 
-    static class_310 access$000() {
+    static MinecraftClient access$000() {
         return mc;
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         ((LiteralArgumentBuilder)((LiteralArgumentBuilder)literalArgumentBuilder.then(FriendCommand.literal("add").then(FriendCommand.argument("friend", FriendArgumentType.friend()).executes(FriendCommand::lambda$build$0)))).then(FriendCommand.literal("remove").then(FriendCommand.argument("friend", FriendArgumentType.friend()).executes(FriendCommand::lambda$build$1)))).then(FriendCommand.literal("list").executes(FriendCommand::lambda$build$3));
     }
 
@@ -89,7 +89,7 @@ extends Command {
         }
 
         public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder suggestionsBuilder) {
-            return class_2172.method_9265((Iterable)FriendCommand.access$000().method_1562().method_2880().stream().map(FriendArgumentType::lambda$listSuggestions$0).collect(Collectors.toList()), (SuggestionsBuilder)suggestionsBuilder);
+            return CommandSource.suggestMatching((Iterable)FriendCommand.access$000().getNetworkHandler().getPlayerList().stream().map(FriendArgumentType::lambda$listSuggestions$0).collect(Collectors.toList()), (SuggestionsBuilder)suggestionsBuilder);
         }
 
         public Object parse(StringReader stringReader) throws CommandSyntaxException {
@@ -99,8 +99,8 @@ extends Command {
         private FriendArgumentType() {
         }
 
-        private static String lambda$listSuggestions$0(class_640 class_6402) {
-            return class_6402.method_2966().getName();
+        private static String lambda$listSuggestions$0(PlayerListEntry PlayerListEntry2) {
+            return PlayerListEntry2.getProfile().getName();
         }
     }
 }

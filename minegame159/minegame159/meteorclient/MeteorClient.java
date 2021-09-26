@@ -52,11 +52,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
-import net.minecraft.class_1293;
-import net.minecraft.class_304;
-import net.minecraft.class_310;
-import net.minecraft.class_437;
-import net.minecraft.class_4587;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.math.MatrixStack;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,10 +64,10 @@ import org.apache.logging.log4j.Logger;
 public class MeteorClient
 implements ClientModInitializer {
     private static List<String> s;
-    public class_437 screenToOpen;
+    public Screen screenToOpen;
     public static MeteorClient INSTANCE;
     public static CustomTextRenderer FONT;
-    private class_310 mc;
+    private MinecraftClient mc;
     public static final IEventBus EVENT_BUS;
     public static final File FOLDER;
     public static final Logger LOG;
@@ -102,13 +102,13 @@ implements ClientModInitializer {
         Systems.save();
     }
 
-    private static boolean lambda$onTick$2(class_1293 class_12932) {
-        return class_12932.method_5584() <= 0;
+    private static boolean lambda$onTick$2(StatusEffectInstance StatusEffectInstance2) {
+        return StatusEffectInstance2.getDuration() <= 0;
     }
 
     @EventHandler
     private void onKey(KeyEvent keyEvent) {
-        if (keyEvent.action == KeyAction.Press && keyEvent.key == KeyBindingHelper.getBoundKeyOf((class_304)KeyBinds.OPEN_CLICK_GUI).method_1444() && (!Utils.canUpdate() && Utils.isWhitelistedScreen() || this.mc.field_1755 == null)) {
+        if (keyEvent.action == KeyAction.Press && keyEvent.key == KeyBindingHelper.getBoundKeyOf((KeyBinding)KeyBinds.OPEN_CLICK_GUI).getCode() && (!Utils.canUpdate() && Utils.isWhitelistedScreen() || this.mc.currentScreen == null)) {
             this.openClickGui();
         }
     }
@@ -116,12 +116,12 @@ implements ClientModInitializer {
     @EventHandler
     private void onTick(TickEvent.Post post) {
         Capes.tick();
-        if (this.screenToOpen != null && this.mc.field_1755 == null) {
-            this.mc.method_1507(this.screenToOpen);
+        if (this.screenToOpen != null && this.mc.currentScreen == null) {
+            this.mc.openScreen(this.screenToOpen);
             this.screenToOpen = null;
         }
         if (Utils.canUpdate()) {
-            this.mc.field_1724.method_6088().values().removeIf(MeteorClient::lambda$onTick$2);
+            this.mc.player.getActiveStatusEffects().values().removeIf(MeteorClient::lambda$onTick$2);
         }
     }
 
@@ -177,10 +177,10 @@ implements ClientModInitializer {
         for (EntrypointContainer entrypointContainer : FabricLoader.getInstance().getEntrypointContainers("meteor", MeteorAddon.class)) {
             arrayList.add((MeteorAddon)entrypointContainer.getEntrypoint());
         }
-        Utils.mc = this.mc = class_310.method_1551();
+        Utils.mc = this.mc = MinecraftClient.getInstance();
         EntityUtils.mc = this.mc;
         Systems.addPreLoadTask(MeteorClient::lambda$onInitializeClient$0);
-        Matrices.begin(new class_4587());
+        Matrices.begin(new MatrixStack());
         Fonts.init();
         MeteorExecutor.init();
         Capes.init();

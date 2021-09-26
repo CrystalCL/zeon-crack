@@ -13,12 +13,12 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_124;
-import net.minecraft.class_2172;
-import net.minecraft.class_2561;
-import net.minecraft.class_2568;
-import net.minecraft.class_2585;
-import net.minecraft.class_5250;
+import net.minecraft.util.Formatting;
+import net.minecraft.command.CommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 
 public class BindsCommand
 extends Command {
@@ -34,29 +34,29 @@ extends Command {
         List list = Modules.get().getAll().stream().filter(BindsCommand::lambda$build$0).collect(Collectors.toList());
         ChatUtils.info("--- (highlight)%d(default) bound modules ---", list.size());
         for (Module module : list) {
-            class_2568 class_25682 = new class_2568(class_2568.class_5247.field_24342, (Object)this.getTooltip(module));
-            class_5250 class_52502 = new class_2585(module.title).method_27692(class_124.field_1068);
-            class_52502.method_10862(class_52502.method_10866().method_10949(class_25682));
-            class_2585 class_25852 = new class_2585(" - ");
-            class_25852.method_10862(class_25852.method_10866().method_10949(class_25682));
-            class_52502.method_10852((class_2561)class_25852.method_27692(class_124.field_1080));
-            class_2585 class_25853 = new class_2585(module.keybind.toString());
-            class_25853.method_10862(class_25853.method_10866().method_10949(class_25682));
-            class_52502.method_10852((class_2561)class_25853.method_27692(class_124.field_1080));
-            ChatUtils.info((class_2561)class_52502);
+            HoverEvent HoverEvent2 = new HoverEvent(HoverEvent.class_5247.SHOW_TEXT, (Object)this.getTooltip(module));
+            MutableText MutableText2 = new LiteralText(module.title).formatted(Formatting.WHITE);
+            MutableText2.setStyle(MutableText2.getStyle().withHoverEvent(HoverEvent2));
+            LiteralText LiteralText2 = new LiteralText(" - ");
+            LiteralText2.setStyle(LiteralText2.getStyle().withHoverEvent(HoverEvent2));
+            MutableText2.append((Text)LiteralText2.formatted(Formatting.GRAY));
+            LiteralText LiteralText3 = new LiteralText(module.keybind.toString());
+            LiteralText3.setStyle(LiteralText3.getStyle().withHoverEvent(HoverEvent2));
+            MutableText2.append((Text)LiteralText3.formatted(Formatting.GRAY));
+            ChatUtils.info((Text)MutableText2);
         }
         return 1;
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.executes(this::lambda$build$1);
     }
 
-    private class_5250 getTooltip(Module module) {
-        class_5250 class_52502 = new class_2585(Utils.nameToTitle(module.title)).method_27695(new class_124[]{class_124.field_1078, class_124.field_1067}).method_27693("\n\n");
-        class_52502.method_10852((class_2561)new class_2585(module.description).method_27692(class_124.field_1068));
-        return class_52502;
+    private MutableText getTooltip(Module module) {
+        MutableText MutableText2 = new LiteralText(Utils.nameToTitle(module.title)).formatted(new Formatting[]{Formatting.BLUE, Formatting.BOLD}).append("\n\n");
+        MutableText2.append((Text)new LiteralText(module.description).formatted(Formatting.WHITE));
+        return MutableText2;
     }
 }
 

@@ -9,9 +9,9 @@ import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.events.render.RenderBossBarEvent;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.NoRender;
-import net.minecraft.class_2561;
-import net.minecraft.class_337;
-import net.minecraft.class_345;
+import net.minecraft.text.Text;
+import net.minecraft.client.gui.hud.BossBarHud;
+import net.minecraft.client.gui.hud.ClientBossBar;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_337.class})
+@Mixin(value={BossBarHud.class})
 public class BossBarHudMixin {
     @Inject(method={"render"}, at={@At(value="HEAD")}, cancellable=true)
     private void onRender(CallbackInfo callbackInfo) {
@@ -30,14 +30,14 @@ public class BossBarHudMixin {
     }
 
     @Redirect(method={"render"}, at=@At(value="INVOKE", target="Ljava/util/Collection;iterator()Ljava/util/Iterator;"))
-    public Iterator<class_345> onRender(Collection<class_345> collection) {
+    public Iterator<ClientBossBar> onRender(Collection<ClientBossBar> collection) {
         RenderBossBarEvent.BossIterator bossIterator = MeteorClient.EVENT_BUS.post(RenderBossBarEvent.BossIterator.get(collection.iterator()));
         return bossIterator.iterator;
     }
 
     @Redirect(method={"render"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/gui/hud/ClientBossBar;getName()Lnet/minecraft/text/Text;"))
-    public class_2561 onAsFormattedString(class_345 class_3452) {
-        RenderBossBarEvent.BossText bossText = MeteorClient.EVENT_BUS.post(RenderBossBarEvent.BossText.get(class_3452, class_3452.method_5414()));
+    public Text onAsFormattedString(ClientBossBar ClientBossBar2) {
+        RenderBossBarEvent.BossText bossText = MeteorClient.EVENT_BUS.post(RenderBossBarEvent.BossText.get(ClientBossBar2, ClientBossBar2.getName()));
         return bossText.name;
     }
 

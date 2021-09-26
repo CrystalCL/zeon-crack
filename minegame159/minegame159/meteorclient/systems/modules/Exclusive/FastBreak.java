@@ -30,13 +30,13 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1802;
-import net.minecraft.class_2246;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2596;
-import net.minecraft.class_2846;
+import net.minecraft.item.Items;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import org.apache.commons.io.FileUtils;
 
 public class FastBreak
@@ -50,7 +50,7 @@ extends Module {
     private final Setting<Boolean> obbyonly;
     private final Setting<SettingColor> sideColor;
     private final Setting<Boolean> autocity;
-    class_2338 pos;
+    BlockPos pos;
     private int ticks;
     private final Setting<Boolean> render;
     private final SettingGroup sgGeneral;
@@ -59,46 +59,46 @@ extends Module {
     @EventHandler
     public void StartBreakingBlockEvent(StartBreakingBlockEvent startBreakingBlockEvent) {
         this.pos = startBreakingBlockEvent.blockPos;
-        class_2248 class_22482 = this.mc.field_1687.method_8320(this.pos).method_26204();
-        if (this.obbyonly.get().booleanValue() && class_22482 != class_2246.field_10540) {
+        Block Block2 = this.mc.world.getBlockState(this.pos).getBlock();
+        if (this.obbyonly.get().booleanValue() && Block2 != Blocks.OBSIDIAN) {
             this.pos = null;
             return;
         }
-        if (class_22482 == class_2246.field_9987 || class_22482 == class_2246.field_10316 || class_22482 == class_2246.field_10613 || class_22482 == class_2246.field_10027 || class_22482 == class_2246.field_10398 || class_22482 == class_2246.field_10499) {
+        if (Block2 == Blocks.BEDROCK || Block2 == Blocks.NETHER_PORTAL || Block2 == Blocks.END_GATEWAY || Block2 == Blocks.END_PORTAL || Block2 == Blocks.END_PORTAL_FRAME || Block2 == Blocks.BARRIER) {
             this.pos = null;
             return;
         }
-        class_2248[] class_2248Array = new class_2248[]{class_2246.field_10340, class_2246.field_10445, class_2246.field_10515, class_2246.field_10415, class_2246.field_22091, class_2246.field_10181, class_2246.field_10085, class_2246.field_10205, class_2246.field_10166};
+        Block[] BlockArray = new Block[]{Blocks.STONE, Blocks.COBBLESTONE, Blocks.NETHERRACK, Blocks.TERRACOTTA, Blocks.BASALT, Blocks.FURNACE, Blocks.IRON_BLOCK, Blocks.GOLD_BLOCK, Blocks.BONE_BLOCK};
         String[] stringArray = new String[]{"acacia_", "oak_", "crimson_", "birch_", "warped_", "jungle_", "spruce_", "crafting_table"};
         String[] stringArray2 = new String[]{"stone_", "andesite", "diorite", "granite", "cobblestone_", "mossy_", "_terracotta", "basalt", "blackstone", "end_", "purpur_", "shulker_box"};
         boolean bl = false;
-        if (this.smash.get().booleanValue() && this.mc.field_1724.method_24828()) {
+        if (this.smash.get().booleanValue() && this.mc.player.isOnGround()) {
             int n;
-            if (this.mc.field_1724.method_6047().method_7909() == class_1802.field_22024) {
-                if (Arrays.asList(class_2248Array).contains(class_22482)) {
+            if (this.mc.player.getMainHandStack().getItem() == Items.NETHERITE_PICKAXE) {
+                if (Arrays.asList(BlockArray).contains(Block2)) {
                     bl = true;
                 }
                 for (n = 0; n < stringArray2.length; ++n) {
-                    if (!class_22482.method_8389().toString().contains(stringArray2[n])) continue;
+                    if (!Block2.asItem().toString().contains(stringArray2[n])) continue;
                     bl = true;
                     break;
                 }
             }
-            if (this.mc.field_1724.method_6047().method_7909() == class_1802.field_22025) {
+            if (this.mc.player.getMainHandStack().getItem() == Items.NETHERITE_AXE) {
                 for (n = 0; n < stringArray.length; ++n) {
-                    if (!class_22482.method_8389().toString().contains(stringArray[n])) continue;
+                    if (!Block2.asItem().toString().contains(stringArray[n])) continue;
                     bl = true;
                     break;
                 }
             }
-            if (class_22482.method_8389().toString().contains("_leaves")) {
+            if (Block2.asItem().toString().contains("_leaves")) {
                 bl = false;
             }
-            if (class_22482.method_8389().toString().contains("_wart")) {
+            if (Block2.asItem().toString().contains("_wart")) {
                 bl = false;
             }
             if (bl) {
-                this.mc.field_1687.method_8501(this.pos, class_2246.field_10124.method_9564());
+                this.mc.world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
             }
         }
     }
@@ -110,7 +110,7 @@ extends Module {
             if (this.pos == null) {
                 return;
             }
-            this.mc.method_1562().method_2883((class_2596)new class_2846(class_2846.class_2847.field_12973, this.pos, class_2350.field_11036));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerActionC2SPacket(Action.STOP_DESTROY_BLOCK, this.pos, Direction.UP));
         } else {
             ++this.ticks;
         }
@@ -118,9 +118,9 @@ extends Module {
 
     @EventHandler
     private void AUTO_CITY(PacketEvent.Send send) {
-        class_2846 class_28462;
-        if (send.packet instanceof class_2846 && this.autocity.get().booleanValue() && (class_28462 = (class_2846)send.packet).method_12363().toString() == "START_DESTROY_BLOCK") {
-            this.pos = class_28462.method_12362();
+        PlayerActionC2SPacket PlayerActionC2SPacket2;
+        if (send.packet instanceof PlayerActionC2SPacket && this.autocity.get().booleanValue() && (PlayerActionC2SPacket2 = (PlayerActionC2SPacket)send.packet).getAction().toString() == "START_DESTROY_BLOCK") {
+            this.pos = PlayerActionC2SPacket2.getPos();
         }
     }
 

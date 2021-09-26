@@ -247,7 +247,7 @@ extends WWidget {
         boolean bl2 = bl = n2 == 2 || n2 == 8;
         if (n == 86 && bl) {
             String string = this.text;
-            String string2 = Utils.mc.field_1774.method_1460();
+            String string2 = Utils.mc.keyboard.getClipboard();
             int n3 = 0;
             StringBuilder stringBuilder = new StringBuilder(this.text.length() + string2.length());
             stringBuilder.append(this.text, 0, this.cursor);
@@ -268,12 +268,12 @@ extends WWidget {
             return true;
         }
         if (n == 67 && bl) {
-            Utils.mc.field_1774.method_1455(this.text);
+            Utils.mc.keyboard.setClipboard(this.text);
             return true;
         }
         if (n == 88 && bl) {
             String string = this.text;
-            Utils.mc.field_1774.method_1455(this.text);
+            Utils.mc.keyboard.setClipboard(this.text);
             this.text = "";
             this.cursor = 0;
             if (!this.text.equals(string)) {

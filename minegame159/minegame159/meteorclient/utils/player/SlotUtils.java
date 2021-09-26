@@ -6,35 +6,35 @@ package minegame159.meteorclient.utils.player;
 import minegame159.meteorclient.mixin.CreativeInventoryScreenAccessor;
 import minegame159.meteorclient.mixin.HorseScreenHandlerAccessor;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1492;
-import net.minecraft.class_1496;
-import net.minecraft.class_1498;
-import net.minecraft.class_1501;
-import net.minecraft.class_1506;
-import net.minecraft.class_1507;
-import net.minecraft.class_1703;
-import net.minecraft.class_1704;
-import net.minecraft.class_1706;
-import net.minecraft.class_1707;
-import net.minecraft.class_1708;
-import net.minecraft.class_1714;
-import net.minecraft.class_1716;
-import net.minecraft.class_1718;
-import net.minecraft.class_1722;
-import net.minecraft.class_1723;
-import net.minecraft.class_1724;
-import net.minecraft.class_1726;
-import net.minecraft.class_1728;
-import net.minecraft.class_1733;
-import net.minecraft.class_1761;
-import net.minecraft.class_3705;
-import net.minecraft.class_3706;
-import net.minecraft.class_3803;
-import net.minecraft.class_3858;
-import net.minecraft.class_3910;
-import net.minecraft.class_3916;
-import net.minecraft.class_3971;
-import net.minecraft.class_481;
+import net.minecraft.entity.passive.AbstractDonkeyEntity;
+import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.entity.passive.HorseEntity;
+import net.minecraft.entity.passive.LlamaEntity;
+import net.minecraft.entity.mob.SkeletonHorseEntity;
+import net.minecraft.entity.mob.ZombieHorseEntity;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.BeaconScreenHandler;
+import net.minecraft.screen.AnvilScreenHandler;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.BrewingStandScreenHandler;
+import net.minecraft.screen.CraftingScreenHandler;
+import net.minecraft.screen.Generic3x3ContainerScreenHandler;
+import net.minecraft.screen.EnchantmentScreenHandler;
+import net.minecraft.screen.HopperScreenHandler;
+import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.screen.HorseScreenHandler;
+import net.minecraft.screen.LoomScreenHandler;
+import net.minecraft.screen.MerchantScreenHandler;
+import net.minecraft.screen.ShulkerBoxScreenHandler;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.screen.BlastFurnaceScreenHandler;
+import net.minecraft.screen.SmokerScreenHandler;
+import net.minecraft.screen.GrindstoneScreenHandler;
+import net.minecraft.screen.FurnaceScreenHandler;
+import net.minecraft.screen.CartographyTableScreenHandler;
+import net.minecraft.screen.LecternScreenHandler;
+import net.minecraft.screen.StonecutterScreenHandler;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 
 public class SlotUtils {
     public static final int ARMOR_END;
@@ -170,78 +170,78 @@ public class SlotUtils {
     }
 
     private static int creativeInventory(int n) {
-        if (!(Utils.mc.field_1755 instanceof class_481) || ((CreativeInventoryScreenAccessor)Utils.mc.field_1755).getSelectedTab() != class_1761.field_7918.method_7741()) {
+        if (!(Utils.mc.currentScreen instanceof CreativeInventoryScreen) || ((CreativeInventoryScreenAccessor)Utils.mc.currentScreen).getSelectedTab() != ItemGroup.INVENTORY.getIndex()) {
             return -1;
         }
         return SlotUtils.survivalInventory(n);
     }
 
     public static int indexToId(int n) {
-        if (Utils.mc.field_1724 == null) {
+        if (Utils.mc.player == null) {
             return -1;
         }
-        class_1703 class_17032 = Utils.mc.field_1724.field_7512;
-        if (class_17032 instanceof class_1723) {
+        ScreenHandler ScreenHandler2 = Utils.mc.player.currentScreenHandler;
+        if (ScreenHandler2 instanceof PlayerScreenHandler) {
             return SlotUtils.survivalInventory(n);
         }
-        if (class_17032 instanceof class_481.class_483) {
+        if (ScreenHandler2 instanceof CreativeInventoryScreen.class_483) {
             return SlotUtils.creativeInventory(n);
         }
-        if (class_17032 instanceof class_1707) {
-            return SlotUtils.genericContainer(n, ((class_1707)class_17032).method_17388());
+        if (ScreenHandler2 instanceof GenericContainerScreenHandler) {
+            return SlotUtils.genericContainer(n, ((GenericContainerScreenHandler)ScreenHandler2).getRows());
         }
-        if (class_17032 instanceof class_1714) {
+        if (ScreenHandler2 instanceof CraftingScreenHandler) {
             return SlotUtils.craftingTable(n);
         }
-        if (class_17032 instanceof class_3858) {
+        if (ScreenHandler2 instanceof FurnaceScreenHandler) {
             return SlotUtils.furnace(n);
         }
-        if (class_17032 instanceof class_3705) {
+        if (ScreenHandler2 instanceof BlastFurnaceScreenHandler) {
             return SlotUtils.furnace(n);
         }
-        if (class_17032 instanceof class_3706) {
+        if (ScreenHandler2 instanceof SmokerScreenHandler) {
             return SlotUtils.furnace(n);
         }
-        if (class_17032 instanceof class_1716) {
+        if (ScreenHandler2 instanceof Generic3x3ContainerScreenHandler) {
             return SlotUtils.generic3x3(n);
         }
-        if (class_17032 instanceof class_1718) {
+        if (ScreenHandler2 instanceof EnchantmentScreenHandler) {
             return SlotUtils.enchantmentTable(n);
         }
-        if (class_17032 instanceof class_1708) {
+        if (ScreenHandler2 instanceof BrewingStandScreenHandler) {
             return SlotUtils.brewingStand(n);
         }
-        if (class_17032 instanceof class_1728) {
+        if (ScreenHandler2 instanceof MerchantScreenHandler) {
             return SlotUtils.villager(n);
         }
-        if (class_17032 instanceof class_1704) {
+        if (ScreenHandler2 instanceof BeaconScreenHandler) {
             return SlotUtils.beacon(n);
         }
-        if (class_17032 instanceof class_1706) {
+        if (ScreenHandler2 instanceof AnvilScreenHandler) {
             return SlotUtils.anvil(n);
         }
-        if (class_17032 instanceof class_1722) {
+        if (ScreenHandler2 instanceof HopperScreenHandler) {
             return SlotUtils.hopper(n);
         }
-        if (class_17032 instanceof class_1733) {
+        if (ScreenHandler2 instanceof ShulkerBoxScreenHandler) {
             return SlotUtils.genericContainer(n, 3);
         }
-        if (class_17032 instanceof class_1724) {
-            return SlotUtils.horse(class_17032, n);
+        if (ScreenHandler2 instanceof HorseScreenHandler) {
+            return SlotUtils.horse(ScreenHandler2, n);
         }
-        if (class_17032 instanceof class_3910) {
+        if (ScreenHandler2 instanceof CartographyTableScreenHandler) {
             return SlotUtils.cartographyTable(n);
         }
-        if (class_17032 instanceof class_3803) {
+        if (ScreenHandler2 instanceof GrindstoneScreenHandler) {
             return SlotUtils.grindstone(n);
         }
-        if (class_17032 instanceof class_3916) {
+        if (ScreenHandler2 instanceof LecternScreenHandler) {
             return SlotUtils.lectern();
         }
-        if (class_17032 instanceof class_1726) {
+        if (ScreenHandler2 instanceof LoomScreenHandler) {
             return SlotUtils.loom(n);
         }
-        if (class_17032 instanceof class_3971) {
+        if (ScreenHandler2 instanceof StonecutterScreenHandler) {
             return SlotUtils.stonecutter(n);
         }
         return -1;
@@ -281,25 +281,25 @@ public class SlotUtils {
         return -1;
     }
 
-    private static int horse(class_1703 class_17032, int n) {
-        class_1496 class_14962 = ((HorseScreenHandlerAccessor)class_17032).getEntity();
-        if (class_14962 instanceof class_1501) {
-            int n2 = ((class_1501)class_14962).method_6803();
+    private static int horse(ScreenHandler ScreenHandler2, int n) {
+        HorseBaseEntity HorseBaseEntity2 = ((HorseScreenHandlerAccessor)ScreenHandler2).getEntity();
+        if (HorseBaseEntity2 instanceof LlamaEntity) {
+            int n2 = ((LlamaEntity)HorseBaseEntity2).getStrength();
             if (SlotUtils.isHotbar(n)) {
                 return 2 + 3 * n2 + 28 + n;
             }
             if (SlotUtils.isMain(n)) {
                 return 2 + 3 * n2 + 1 + (n - 9);
             }
-        } else if (class_14962 instanceof class_1498 || class_14962 instanceof class_1506 || class_14962 instanceof class_1507) {
+        } else if (HorseBaseEntity2 instanceof HorseEntity || HorseBaseEntity2 instanceof SkeletonHorseEntity || HorseBaseEntity2 instanceof ZombieHorseEntity) {
             if (SlotUtils.isHotbar(n)) {
                 return 29 + n;
             }
             if (SlotUtils.isMain(n)) {
                 return 2 + (n - 9);
             }
-        } else if (class_14962 instanceof class_1492) {
-            boolean bl = ((class_1492)class_14962).method_6703();
+        } else if (HorseBaseEntity2 instanceof AbstractDonkeyEntity) {
+            boolean bl = ((AbstractDonkeyEntity)HorseBaseEntity2).hasChest();
             if (SlotUtils.isHotbar(n)) {
                 return (bl ? 44 : 29) + n;
             }

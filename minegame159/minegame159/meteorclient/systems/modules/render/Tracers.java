@@ -24,14 +24,14 @@ import minegame159.meteorclient.utils.entity.Target;
 import minegame159.meteorclient.utils.render.RenderUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1297;
-import net.minecraft.class_1299;
-import net.minecraft.class_1657;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class Tracers
 extends Module {
     public final Setting<Boolean> distance;
-    private final Setting<Object2BooleanMap<class_1299<?>>> entities;
+    private final Setting<Object2BooleanMap<EntityType<?>>> entities;
     private final Setting<Integer> maxDist;
     public final Setting<Boolean> showInvis;
     private final Setting<SettingColor> waterAnimalsColor;
@@ -59,7 +59,7 @@ extends Module {
         this.sgGeneral = this.settings.getDefaultGroup();
         this.sgAppearance = this.settings.createGroup("Appearance");
         this.sgColors = this.settings.createGroup("Colors");
-        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entites").description("Select specific entities.").defaultValue((Object2BooleanMap<class_1299<?>>)Utils.asObject2BooleanOpenHashMap(class_1299.field_6097)).build());
+        this.entities = this.sgGeneral.add(new EntityTypeListSetting.Builder().name("entites").description("Select specific entities.").defaultValue((Object2BooleanMap<EntityType<?>>)Utils.asObject2BooleanOpenHashMap(EntityType.PLAYER)).build());
         this.target = this.sgAppearance.add(new EnumSetting.Builder().name("target").description("What part of the entity to target.").defaultValue(Target.Body).build());
         this.stem = this.sgAppearance.add(new BoolSetting.Builder().name("stem").description("Draw a line through the center of the tracer target.").defaultValue(true).build());
         this.maxDist = this.sgAppearance.add(new IntSetting.Builder().name("max-distance").description("Maximum distance for tracers to show.").defaultValue(256).min(0).sliderMax(256).build());
@@ -75,10 +75,10 @@ extends Module {
         this.distanceColor = new Color(255, 255, 255);
     }
 
-    private Color getColorFromDistance(class_1657 class_16572) {
+    private Color getColorFromDistance(PlayerEntity PlayerEntity2) {
         int n;
         int n2;
-        double d = this.mc.field_1724.method_5739((class_1297)class_16572);
+        double d = this.mc.player.distanceTo((Entity)PlayerEntity2);
         double d2 = d / 60.0;
         if (d2 < 0.0 || d2 > 1.0) {
             this.distanceColor.set(0, 255, 0, 255);
@@ -98,10 +98,10 @@ extends Module {
     @EventHandler
     private void onRender(RenderEvent renderEvent) {
         this.count = 0;
-        for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-            if (this.mc.field_1724.method_5739(class_12972) > (float)this.maxDist.get().intValue() || class_12972 instanceof class_1657 && Friends.get().get((class_1657)class_12972) != null && !Friends.get().show((class_1657)class_12972) || !Modules.get().isActive(Freecam.class) && class_12972 == this.mc.field_1724 || !this.entities.get().getBoolean((Object)class_12972.method_5864()) || !this.showInvis.get().booleanValue() && class_12972.method_5767() || !EntityUtils.isInRenderDistance(class_12972)) continue;
-            Color color = this.distance.get() == false || !(class_12972 instanceof class_1657) || Friends.get().contains(Friends.get().get((class_1657)class_12972)) ? EntityUtils.getEntityColor(class_12972, this.playersColor.get(), this.animalsColor.get(), this.waterAnimalsColor.get(), this.monstersColor.get(), this.ambientColor.get(), this.miscColor.get(), this.useNameColor.get()) : this.getColorFromDistance((class_1657)class_12972);
-            RenderUtils.drawTracerToEntity(renderEvent, class_12972, color, this.target.get(), this.stem.get());
+        for (Entity Entity2 : this.mc.world.getEntities()) {
+            if (this.mc.player.distanceTo(Entity2) > (float)this.maxDist.get().intValue() || Entity2 instanceof PlayerEntity && Friends.get().get((PlayerEntity)Entity2) != null && !Friends.get().show((PlayerEntity)Entity2) || !Modules.get().isActive(Freecam.class) && Entity2 == this.mc.player || !this.entities.get().getBoolean((Object)Entity2.getType()) || !this.showInvis.get().booleanValue() && Entity2.isInvisible() || !EntityUtils.isInRenderDistance(Entity2)) continue;
+            Color color = this.distance.get() == false || !(Entity2 instanceof PlayerEntity) || Friends.get().contains(Friends.get().get((PlayerEntity)Entity2)) ? EntityUtils.getEntityColor(Entity2, this.playersColor.get(), this.animalsColor.get(), this.waterAnimalsColor.get(), this.monstersColor.get(), this.ambientColor.get(), this.miscColor.get(), this.useNameColor.get()) : this.getColorFromDistance((PlayerEntity)Entity2);
+            RenderUtils.drawTracerToEntity(renderEvent, Entity2, color, this.target.get(), this.stem.get());
             ++this.count;
         }
     }

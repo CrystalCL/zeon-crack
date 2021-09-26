@@ -12,12 +12,12 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2396;
+import net.minecraft.particle.ParticleType;
 
 public class ParticleBlocker
 extends Module {
     private final SettingGroup sgGeneral;
-    private final Setting<List<class_2396<?>>> particles;
+    private final Setting<List<ParticleType<?>>> particles;
 
     public ParticleBlocker() {
         super(Categories.Render, "particle-blocker", "Stops specified particles from rendering.");

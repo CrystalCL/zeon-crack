@@ -19,11 +19,11 @@ import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.systems.commands.Command;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_124;
-import net.minecraft.class_2172;
-import net.minecraft.class_2596;
-import net.minecraft.class_2639;
-import net.minecraft.class_2805;
+import net.minecraft.util.Formatting;
+import net.minecraft.command.CommandSource;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.CommandSuggestionsS2CPacket;
+import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
 
 public class PluginsCommand
 extends Command {
@@ -33,12 +33,12 @@ extends Command {
     private int lambda$build$0(CommandContext commandContext) throws CommandSyntaxException {
         this.ticks = 0;
         MeteorClient.EVENT_BUS.subscribe(this);
-        PluginsCommand.mc.field_1724.field_3944.method_2883((class_2596)new class_2805(0, "/"));
+        PluginsCommand.mc.player.networkHandler.sendPacket((Packet)new RequestCommandCompletionsC2SPacket(0, "/"));
         return 1;
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.executes(this::lambda$build$0);
     }
 
@@ -60,10 +60,10 @@ extends Command {
     @EventHandler
     public void onReadPacket(PacketEvent.Receive receive) {
         try {
-            if (receive.packet instanceof class_2639) {
-                class_2639 class_26392 = (class_2639)receive.packet;
+            if (receive.packet instanceof CommandSuggestionsS2CPacket) {
+                CommandSuggestionsS2CPacket CommandSuggestionsS2CPacket2 = (CommandSuggestionsS2CPacket)receive.packet;
                 ArrayList<String> arrayList = new ArrayList<String>();
-                Suggestions suggestions = class_26392.method_11397();
+                Suggestions suggestions = CommandSuggestionsS2CPacket2.getSuggestions();
                 if (suggestions == null) {
                     ChatUtils.error("Invalid Packet.", new Object[0]);
                     return;
@@ -98,10 +98,10 @@ extends Command {
 
     private String formatName(String string) {
         if (ANTICHEAT_LIST.contains(string)) {
-            return String.format("%s%s(default)", class_124.field_1061, string);
+            return String.format("%s%s(default)", Formatting.RED, string);
         }
         if (string.contains("exploit") || string.contains("cheat") || string.contains("illegal")) {
-            return String.format("%s%s(default)", class_124.field_1061, string);
+            return String.format("%s%s(default)", Formatting.RED, string);
         }
         return String.format("(highlight)%s(default)", string);
     }

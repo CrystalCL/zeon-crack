@@ -3,14 +3,14 @@
  */
 package minegame159.meteorclient.events.packets;
 
-import net.minecraft.class_2653;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 
 public class ContainerSlotUpdateEvent {
-    public class_2653 packet;
+    public ScreenHandlerSlotUpdateS2CPacket packet;
     private static final ContainerSlotUpdateEvent INSTANCE = new ContainerSlotUpdateEvent();
 
-    public static ContainerSlotUpdateEvent get(class_2653 class_26532) {
-        ContainerSlotUpdateEvent.INSTANCE.packet = class_26532;
+    public static ContainerSlotUpdateEvent get(ScreenHandlerSlotUpdateS2CPacket ScreenHandlerSlotUpdateS2CPacket2) {
+        ContainerSlotUpdateEvent.INSTANCE.packet = ScreenHandlerSlotUpdateS2CPacket2;
         return INSTANCE;
     }
 }

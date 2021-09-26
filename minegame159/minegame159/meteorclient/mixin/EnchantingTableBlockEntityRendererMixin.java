@@ -5,20 +5,20 @@ package minegame159.meteorclient.mixin;
 
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.NoRender;
-import net.minecraft.class_4587;
-import net.minecraft.class_4588;
-import net.minecraft.class_557;
-import net.minecraft.class_828;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.model.BookModel;
+import net.minecraft.client.render.block.entity.EnchantingTableBlockEntityRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(value={class_828.class})
+@Mixin(value={EnchantingTableBlockEntityRenderer.class})
 public class EnchantingTableBlockEntityRendererMixin {
-    @Redirect(method={"render"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/render/entity/model/BookModel;method_24184(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"))
-    private void onRenderBookModelRenderProxy(class_557 class_5572, class_4587 class_45872, class_4588 class_45882, int n, int n2, float f, float f2, float f3, float f4) {
+    @Redirect(method={"render"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/render/entity/model/BookModel;renderBook(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"))
+    private void onRenderBookModelRenderProxy(BookModel BookModel2, MatrixStack MatrixStack2, VertexConsumer VertexConsumer2, int n, int n2, float f, float f2, float f3, float f4) {
         if (!Modules.get().get(NoRender.class).noEnchTableBook()) {
-            class_5572.method_24184(class_45872, class_45882, n, n2, f, f2, f3, f4);
+            BookModel2.renderBook(MatrixStack2, VertexConsumer2, n, n2, f, f2, f3, f4);
         }
     }
 }

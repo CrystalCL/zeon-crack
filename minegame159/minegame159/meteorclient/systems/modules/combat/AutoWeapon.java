@@ -12,11 +12,11 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1310;
-import net.minecraft.class_1743;
-import net.minecraft.class_1799;
-import net.minecraft.class_1829;
-import net.minecraft.class_1890;
+import net.minecraft.entity.EntityGroup;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
+import net.minecraft.enchantment.EnchantmentHelper;
 
 public class AutoWeapon
 extends Module {
@@ -27,14 +27,14 @@ extends Module {
 
     private int getBestWeapon() {
         int n;
-        int n2 = this.mc.field_1724.field_7514.field_7545;
-        int n3 = this.mc.field_1724.field_7514.field_7545;
-        int n4 = this.mc.field_1724.field_7514.field_7545;
+        int n2 = this.mc.player.inventory.selectedSlot;
+        int n3 = this.mc.player.inventory.selectedSlot;
+        int n4 = this.mc.player.inventory.selectedSlot;
         double d = 0.0;
         double d2 = 0.0;
         for (n = 0; n < 9; ++n) {
             double d3;
-            if (!(this.mc.field_1724.field_7514.method_5438(n).method_7909() instanceof class_1829) || this.antiBreak.get().booleanValue() && this.mc.field_1724.field_7514.method_5438(n).method_7936() - this.mc.field_1724.field_7514.method_5438(n).method_7919() <= 10 || !((d3 = (double)(((class_1829)this.mc.field_1724.field_7514.method_5438(n).method_7909()).method_8022().method_8028() + class_1890.method_8218((class_1799)this.mc.field_1724.field_7514.method_5438(n), (class_1310)class_1310.field_6290) + 2.0f)) > d)) continue;
+            if (!(this.mc.player.inventory.getStack(n).getItem() instanceof SwordItem) || this.antiBreak.get().booleanValue() && this.mc.player.inventory.getStack(n).getMaxDamage() - this.mc.player.inventory.getStack(n).getDamage() <= 10 || !((d3 = (double)(((SwordItem)this.mc.player.inventory.getStack(n).getItem()).getMaterial().getAttackDamage() + EnchantmentHelper.getAttackDamage((ItemStack)this.mc.player.inventory.getStack(n), (EntityGroup)EntityGroup.DEFAULT) + 2.0f)) > d)) continue;
             d = d3;
             n2 = n;
             if (4 >= -1) continue;
@@ -42,7 +42,7 @@ extends Module {
         }
         for (n = 0; n < 9; ++n) {
             double d4;
-            if (!(this.mc.field_1724.field_7514.method_5438(n).method_7909() instanceof class_1743) || this.antiBreak.get().booleanValue() && this.mc.field_1724.field_7514.method_5438(n).method_7936() - this.mc.field_1724.field_7514.method_5438(n).method_7919() <= 10 || !((d4 = (double)(((class_1743)this.mc.field_1724.field_7514.method_5438(n).method_7909()).method_8022().method_8028() + class_1890.method_8218((class_1799)this.mc.field_1724.field_7514.method_5438(n), (class_1310)class_1310.field_6290) + 2.0f)) > d2)) continue;
+            if (!(this.mc.player.inventory.getStack(n).getItem() instanceof AxeItem) || this.antiBreak.get().booleanValue() && this.mc.player.inventory.getStack(n).getMaxDamage() - this.mc.player.inventory.getStack(n).getDamage() <= 10 || !((d4 = (double)(((AxeItem)this.mc.player.inventory.getStack(n).getItem()).getMaterial().getAttackDamage() + EnchantmentHelper.getAttackDamage((ItemStack)this.mc.player.inventory.getStack(n), (EntityGroup)EntityGroup.DEFAULT) + 2.0f)) > d2)) continue;
             d2 = d4;
             n3 = n;
             if (-1 <= 4) continue;
@@ -62,7 +62,7 @@ extends Module {
 
     @EventHandler
     private void onAttack(AttackEntityEvent attackEntityEvent) {
-        this.mc.field_1724.field_7514.field_7545 = this.getBestWeapon();
+        this.mc.player.inventory.selectedSlot = this.getBestWeapon();
     }
 
     public AutoWeapon() {

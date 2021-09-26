@@ -12,12 +12,12 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.player.PlayerUtils;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1747;
-import net.minecraft.class_1792;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_2680;
+import net.minecraft.util.Hand;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.BlockState;
 
 public class Surround
 extends Module {
@@ -26,7 +26,7 @@ extends Module {
     private final Setting<Boolean> HelpUp;
     private final Setting<Boolean> fullHeight;
     private final Setting<Boolean> disableOnJump;
-    private final class_2338.class_2339 blockPos;
+    private final Mutable blockPos;
     private final Setting<Boolean> antiFastKill;
     private final SettingGroup sgGeneral;
     private boolean return_;
@@ -37,7 +37,7 @@ extends Module {
     private final Setting<Boolean> onlyOnGround;
 
     private void setBlockPos(int n, int n2, int n3) {
-        this.blockPos.method_10102(this.mc.field_1724.method_23317() + (double)n, this.mc.field_1724.method_23318() + (double)n2, this.mc.field_1724.method_23321() + (double)n3);
+        this.blockPos.set(this.mc.player.getX() + (double)n, this.mc.player.getY() + (double)n2, this.mc.player.getZ() + (double)n3);
     }
 
     public Surround() {
@@ -54,13 +54,13 @@ extends Module {
         this.center = this.sgGeneral.add(new BoolSetting.Builder().name("center").description("Teleports you to the center of the block.").defaultValue(true).build());
         this.disableOnJump = this.sgGeneral.add(new BoolSetting.Builder().name("disable-on-jump").description("Automatically disables when you jump.").defaultValue(true).build());
         this.rotate = this.sgGeneral.add(new BoolSetting.Builder().name("rotate").description("Automatically faces towards the obsidian being placed.").defaultValue(true).build());
-        this.blockPos = new class_2338.class_2339();
+        this.blockPos = new Mutable();
     }
 
     private int findSlot() {
         for (int i = 0; i < 9; ++i) {
-            class_1792 class_17922 = this.mc.field_1724.field_7514.method_5438(i).method_7909();
-            if (!(class_17922 instanceof class_1747) || class_17922 != class_1802.field_8281) continue;
+            Item Item2 = this.mc.player.inventory.getStack(i).getItem();
+            if (!(Item2 instanceof BlockItem) || Item2 != Items.OBSIDIAN) continue;
             return i;
         }
         return -1;
@@ -75,14 +75,14 @@ extends Module {
         boolean bl5;
         boolean bl6;
         boolean bl7;
-        if (this.disableOnJump.get().booleanValue() && (this.mc.field_1690.field_1903.method_1434() || this.mc.field_1724.field_3913.field_3904) || this.mc.field_1724.field_6036 < this.mc.field_1724.method_23318()) {
+        if (this.disableOnJump.get().booleanValue() && (this.mc.options.keyJump.isPressed() || this.mc.player.input.jumping) || this.mc.player.prevY < this.mc.player.getY()) {
             this.toggle();
             return;
         }
-        if (this.onlyOnGround.get().booleanValue() && !this.mc.field_1724.method_24828()) {
+        if (this.onlyOnGround.get().booleanValue() && !this.mc.player.isOnGround()) {
             return;
         }
-        if (this.onlyWhenSneaking.get().booleanValue() && !this.mc.field_1690.field_1832.method_1434()) {
+        if (this.onlyWhenSneaking.get().booleanValue() && !this.mc.options.keySneak.isPressed()) {
             return;
         }
         this.return_ = false;
@@ -269,12 +269,12 @@ extends Module {
 
     private boolean place(int n, int n2, int n3) {
         this.setBlockPos(n, n2, n3);
-        class_2680 class_26802 = this.mc.field_1687.method_8320((class_2338)this.blockPos);
-        if (!class_26802.method_26207().method_15800()) {
+        BlockState BlockState2 = this.mc.world.getBlockState((BlockPos)this.blockPos);
+        if (!BlockState2.getMaterial().isReplaceable()) {
             return true;
         }
         int n4 = this.findSlot();
-        if (BlockUtils.place((class_2338)this.blockPos, class_1268.field_5808, n4, this.rotate.get(), 100, true)) {
+        if (BlockUtils.place((BlockPos)this.blockPos, Hand.MAIN_HAND, n4, this.rotate.get(), 100, true)) {
             this.return_ = true;
         }
         return false;

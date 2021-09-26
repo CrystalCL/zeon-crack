@@ -18,16 +18,16 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1724.field_6250 > 0.0f && !this.whenStationary.get().booleanValue()) {
-            this.mc.field_1724.method_5728(true);
+        if (this.mc.player.forwardSpeed > 0.0f && !this.whenStationary.get().booleanValue()) {
+            this.mc.player.setSprinting(true);
         } else if (this.whenStationary.get().booleanValue()) {
-            this.mc.field_1724.method_5728(true);
+            this.mc.player.setSprinting(true);
         }
     }
 
     @Override
     public void onDeactivate() {
-        this.mc.field_1724.method_5728(false);
+        this.mc.player.setSprinting(false);
     }
 
     public Sprint() {

@@ -12,7 +12,7 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.player.FakePlayer;
 import minegame159.meteorclient.utils.entity.FakePlayerUtils;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_2172;
+import net.minecraft.command.CommandSource;
 
 public class FakePlayerCommand
 extends Command {
@@ -53,7 +53,7 @@ extends Command {
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         ((LiteralArgumentBuilder)((LiteralArgumentBuilder)literalArgumentBuilder.then(FakePlayerCommand.literal("spawn").executes(this::lambda$build$0))).then(FakePlayerCommand.literal("remove").then(FakePlayerCommand.argument("id", IntegerArgumentType.integer()).executes(this::lambda$build$1)))).then(FakePlayerCommand.literal("clear").executes(this::lambda$build$2));
     }
 }

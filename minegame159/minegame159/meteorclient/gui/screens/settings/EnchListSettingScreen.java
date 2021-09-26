@@ -9,33 +9,33 @@ import minegame159.meteorclient.gui.screens.settings.LeftRightListSettingScreen;
 import minegame159.meteorclient.gui.widgets.WWidget;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.misc.Names;
-import net.minecraft.class_1887;
-import net.minecraft.class_2378;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.util.registry.Registry;
 
 public class EnchListSettingScreen
-extends LeftRightListSettingScreen<class_1887> {
-    public EnchListSettingScreen(GuiTheme guiTheme, Setting<List<class_1887>> setting) {
-        super(guiTheme, "Select items", setting, class_2378.field_11160);
+extends LeftRightListSettingScreen<Enchantment> {
+    public EnchListSettingScreen(GuiTheme guiTheme, Setting<List<Enchantment>> setting) {
+        super(guiTheme, "Select items", setting, Registry.ENCHANTMENT);
     }
 
     @Override
-    protected String getValueName(class_1887 class_18872) {
-        return Names.get(class_18872);
+    protected String getValueName(Enchantment Enchantment2) {
+        return Names.get(Enchantment2);
     }
 
     @Override
     protected WWidget getValueWidget(Object object) {
-        return this.getValueWidget((class_1887)object);
+        return this.getValueWidget((Enchantment)object);
     }
 
     @Override
-    protected WWidget getValueWidget(class_1887 class_18872) {
-        return this.theme.label(this.getValueName(class_18872));
+    protected WWidget getValueWidget(Enchantment Enchantment2) {
+        return this.theme.label(this.getValueName(Enchantment2));
     }
 
     @Override
     protected String getValueName(Object object) {
-        return this.getValueName((class_1887)object);
+        return this.getValueName((Enchantment)object);
     }
 }
 

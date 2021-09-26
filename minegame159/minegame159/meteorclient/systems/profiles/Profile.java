@@ -16,10 +16,10 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.profiles.Profiles;
 import minegame159.meteorclient.systems.waypoints.Waypoints;
 import minegame159.meteorclient.utils.misc.ISerializable;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
 import org.apache.commons.io.FileUtils;
 
 /*
@@ -60,20 +60,20 @@ implements ISerializable<Profile> {
     }
 
     @Override
-    public Profile fromTag(class_2487 class_24872) {
-        this.name = class_24872.method_10558("name");
-        this.onLaunch = class_24872.method_10545("onLaunch") && class_24872.method_10577("onLaunch");
-        this.accounts = class_24872.method_10545("accounts") && class_24872.method_10577("accounts");
-        this.config = class_24872.method_10545("config") && class_24872.method_10577("config");
-        this.friends = class_24872.method_10545("friends") && class_24872.method_10577("friends");
-        this.macros = class_24872.method_10545("macros") && class_24872.method_10577("macros");
-        this.modules = class_24872.method_10545("modules") && class_24872.method_10577("modules");
-        this.waypoints = class_24872.method_10545("waypoints") && class_24872.method_10577("waypoints");
+    public Profile fromTag(NbtCompound NbtCompound2) {
+        this.name = NbtCompound2.getString("name");
+        this.onLaunch = NbtCompound2.contains("onLaunch") && NbtCompound2.getBoolean("onLaunch");
+        this.accounts = NbtCompound2.contains("accounts") && NbtCompound2.getBoolean("accounts");
+        this.config = NbtCompound2.contains("config") && NbtCompound2.getBoolean("config");
+        this.friends = NbtCompound2.contains("friends") && NbtCompound2.getBoolean("friends");
+        this.macros = NbtCompound2.contains("macros") && NbtCompound2.getBoolean("macros");
+        this.modules = NbtCompound2.contains("modules") && NbtCompound2.getBoolean("modules");
+        this.waypoints = NbtCompound2.contains("waypoints") && NbtCompound2.getBoolean("waypoints");
         this.loadOnJoinIps.clear();
-        if (class_24872.method_10545("loadOnJoinIps")) {
-            class_2499 class_24992 = class_24872.method_10554("loadOnJoinIps", 8);
-            for (class_2520 class_25202 : class_24992) {
-                this.loadOnJoinIps.add(class_25202.method_10714());
+        if (NbtCompound2.contains("loadOnJoinIps")) {
+            NbtList NbtList2 = NbtCompound2.getList("loadOnJoinIps", 8);
+            for (NbtElement NbtElement2 : NbtList2) {
+                this.loadOnJoinIps.add(NbtElement2.asString());
             }
         }
         return this;
@@ -85,8 +85,8 @@ implements ISerializable<Profile> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public void load(System<?> system) {
@@ -117,23 +117,23 @@ implements ISerializable<Profile> {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("name", this.name);
-        class_24872.method_10556("onLaunch", this.onLaunch);
-        class_24872.method_10556("accounts", this.accounts);
-        class_24872.method_10556("config", this.config);
-        class_24872.method_10556("friends", this.friends);
-        class_24872.method_10556("macros", this.macros);
-        class_24872.method_10556("modules", this.modules);
-        class_24872.method_10556("waypoints", this.waypoints);
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("name", this.name);
+        NbtCompound2.putBoolean("onLaunch", this.onLaunch);
+        NbtCompound2.putBoolean("accounts", this.accounts);
+        NbtCompound2.putBoolean("config", this.config);
+        NbtCompound2.putBoolean("friends", this.friends);
+        NbtCompound2.putBoolean("macros", this.macros);
+        NbtCompound2.putBoolean("modules", this.modules);
+        NbtCompound2.putBoolean("waypoints", this.waypoints);
         this.loadOnJoinIps.removeIf(String::isEmpty);
-        class_2499 class_24992 = new class_2499();
+        NbtList NbtList2 = new NbtList();
         for (String string : this.loadOnJoinIps) {
-            class_24992.add((Object)class_2519.method_23256((String)string));
+            NbtList2.add((Object)NbtString.of((String)string));
         }
-        class_24872.method_10566("loadOnJoinIps", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("loadOnJoinIps", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     public void delete() {

@@ -15,7 +15,7 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.entity.FakePlayerEntity;
 import minegame159.meteorclient.utils.player.ChatUtils;
-import net.minecraft.class_1657;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class VisualRange
 extends Module {
@@ -27,10 +27,10 @@ extends Module {
 
     @EventHandler
     private void onEntityRemoved(EntityRemovedEvent entityRemovedEvent) {
-        if (entityRemovedEvent.entity.equals((Object)this.mc.field_1724) || !(entityRemovedEvent.entity instanceof class_1657) || !Friends.get().attack((class_1657)entityRemovedEvent.entity) && this.ignoreFriends.get().booleanValue() || entityRemovedEvent.entity instanceof FakePlayerEntity && this.ignoreFakes.get().booleanValue()) {
+        if (entityRemovedEvent.entity.equals((Object)this.mc.player) || !(entityRemovedEvent.entity instanceof PlayerEntity) || !Friends.get().attack((PlayerEntity)entityRemovedEvent.entity) && this.ignoreFriends.get().booleanValue() || entityRemovedEvent.entity instanceof FakePlayerEntity && this.ignoreFakes.get().booleanValue()) {
             return;
         }
-        String string = this.leaveMessage.get().replace("{player}", ((class_1657)entityRemovedEvent.entity).method_7334().getName());
+        String string = this.leaveMessage.get().replace("{player}", ((PlayerEntity)entityRemovedEvent.entity).getGameProfile().getName());
         ChatUtils.moduleInfo(this, string, new Object[0]);
     }
 
@@ -45,10 +45,10 @@ extends Module {
 
     @EventHandler
     private void onEntityAdded(EntityAddedEvent entityAddedEvent) {
-        if (entityAddedEvent.entity.equals((Object)this.mc.field_1724) || !(entityAddedEvent.entity instanceof class_1657) || !Friends.get().attack((class_1657)entityAddedEvent.entity) && this.ignoreFriends.get().booleanValue() || entityAddedEvent.entity instanceof FakePlayerEntity && this.ignoreFakes.get().booleanValue()) {
+        if (entityAddedEvent.entity.equals((Object)this.mc.player) || !(entityAddedEvent.entity instanceof PlayerEntity) || !Friends.get().attack((PlayerEntity)entityAddedEvent.entity) && this.ignoreFriends.get().booleanValue() || entityAddedEvent.entity instanceof FakePlayerEntity && this.ignoreFakes.get().booleanValue()) {
             return;
         }
-        String string = this.enterMessage.get().replace("{player}", ((class_1657)entityAddedEvent.entity).method_7334().getName());
+        String string = this.enterMessage.get().replace("{player}", ((PlayerEntity)entityAddedEvent.entity).getGameProfile().getName());
         ChatUtils.moduleInfo(this, string, new Object[0]);
     }
 }

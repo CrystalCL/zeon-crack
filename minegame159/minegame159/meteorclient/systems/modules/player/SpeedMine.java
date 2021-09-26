@@ -12,8 +12,8 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1293;
-import net.minecraft.class_1294;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 
 public class SpeedMine
 extends Module {
@@ -27,14 +27,14 @@ extends Module {
         if (mode == Mode.Haste1 || mode == Mode.Haste2) {
             int n;
             int n2 = n = mode == Mode.Haste2 ? 1 : 0;
-            if (this.mc.field_1724.method_6059(class_1294.field_5917)) {
-                class_1293 class_12932 = this.mc.field_1724.method_6112(class_1294.field_5917);
-                ((StatusEffectInstanceAccessor)class_12932).setAmplifier(n);
-                if (class_12932.method_5584() < 20) {
-                    ((StatusEffectInstanceAccessor)class_12932).setDuration(20);
+            if (this.mc.player.hasStatusEffect(StatusEffects.HASTE)) {
+                StatusEffectInstance StatusEffectInstance2 = this.mc.player.getStatusEffect(StatusEffects.HASTE);
+                ((StatusEffectInstanceAccessor)StatusEffectInstance2).setAmplifier(n);
+                if (StatusEffectInstance2.getDuration() < 20) {
+                    ((StatusEffectInstanceAccessor)StatusEffectInstance2).setDuration(20);
                 }
             } else {
-                this.mc.field_1724.method_6092(new class_1293(class_1294.field_5917, 20, n, false, false, false));
+                this.mc.player.addStatusEffect(new StatusEffectInstance(StatusEffects.HASTE, 20, n, false, false, false));
             }
         }
     }

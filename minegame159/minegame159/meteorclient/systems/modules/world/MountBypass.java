@@ -9,9 +9,9 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.world.AutoMountBypassDupe;
-import net.minecraft.class_1492;
-import net.minecraft.class_1937;
-import net.minecraft.class_2824;
+import net.minecraft.entity.passive.AbstractDonkeyEntity;
+import net.minecraft.world.World;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 
 public class MountBypass
 extends Module {
@@ -30,11 +30,11 @@ extends Module {
             this.dontCancel = false;
             return;
         }
-        if (!(send.packet instanceof class_2824)) {
+        if (!(send.packet instanceof PlayerInteractEntityC2SPacket)) {
             return;
         }
-        class_2824 class_28242 = (class_2824)send.packet;
-        if (class_28242.method_12252() == class_2824.class_2825.field_12873 && class_28242.method_12248((class_1937)this.mc.field_1687) instanceof class_1492) {
+        PlayerInteractEntityC2SPacket PlayerInteractEntityC2SPacket2 = (PlayerInteractEntityC2SPacket)send.packet;
+        if (PlayerInteractEntityC2SPacket2.getType() == PlayerInteractEntityC2SPacket.class_2825.INTERACT_AT && PlayerInteractEntityC2SPacket2.getEntity((World)this.mc.world) instanceof AbstractDonkeyEntity) {
             send.cancel();
         }
     }

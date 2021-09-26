@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_2708;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_2708.class})
+@Mixin(value={PlayerPositionLookS2CPacket.class})
 public interface PlayerPositionLookS2CPacketAccessor {
     @Accessor(value="yaw")
     public void setYaw(float var1);

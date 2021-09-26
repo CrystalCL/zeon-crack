@@ -16,7 +16,7 @@ import minegame159.meteorclient.gui.widgets.input.WTextBox;
 import minegame159.meteorclient.gui.widgets.pressable.WPressable;
 import minegame159.meteorclient.settings.PacketBoolSetting;
 import minegame159.meteorclient.utils.network.PacketUtils;
-import net.minecraft.class_2596;
+import net.minecraft.network.Packet;
 import org.apache.commons.lang3.StringUtils;
 
 public class PacketBoolSettingScreen
@@ -26,7 +26,7 @@ extends WindowScreen {
     private String filterText = "";
     private final WTextBox filter;
 
-    private void widget(WTable wTable, Class<? extends class_2596<?>> clazz, String string, boolean bl) {
+    private void widget(WTable wTable, Class<? extends Packet<?>> clazz, String string, boolean bl) {
         wTable.add(this.theme.label(string)).expandCellX();
         WPressable wPressable = wTable.add(bl ? this.theme.plus() : this.theme.minus()).widget();
         wPressable.action = () -> this.lambda$widget$1(bl, clazz);

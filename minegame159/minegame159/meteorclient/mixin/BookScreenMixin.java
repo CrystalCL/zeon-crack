@@ -9,18 +9,18 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Base64;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2507;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2561;
-import net.minecraft.class_2585;
-import net.minecraft.class_310;
-import net.minecraft.class_339;
-import net.minecraft.class_3872;
-import net.minecraft.class_4185;
-import net.minecraft.class_437;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.screen.ingame.BookScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.screen.Screen;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,40 +28,40 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_3872.class})
+@Mixin(value={BookScreen.class})
 public class BookScreenMixin
-extends class_437 {
+extends Screen {
     @Shadow
-    private class_3872.class_3931 field_17418;
+    private BookScreen.class_3931 contents;
     @Shadow
-    private int field_17119;
+    private int pageIndex;
 
-    public BookScreenMixin(class_2561 class_25612) {
-        super(class_25612);
+    public BookScreenMixin(Text Text2) {
+        super(Text2);
     }
 
     @Inject(method={"init"}, at={@At(value="TAIL")})
     private void onInit(CallbackInfo callbackInfo) {
-        this.method_25411((class_339)new class_4185(4, 4, 70, 16, (class_2561)new class_2585("Copy"), this::lambda$onInit$0));
+        this.addButton((ClickableWidget)new ButtonWidget(4, 4, 70, 16, (Text)new LiteralText("Copy"), this::lambda$onInit$0));
     }
 
-    private void lambda$onInit$0(class_4185 class_41852) {
-        class_2499 class_24992 = new class_2499();
-        for (int i = 0; i < this.field_17418.method_17560(); ++i) {
-            class_24992.add((Object)class_2519.method_23256((String)this.field_17418.method_17563(i).getString()));
+    private void lambda$onInit$0(ButtonWidget ButtonWidget2) {
+        NbtList NbtList2 = new NbtList();
+        for (int i = 0; i < this.contents.getPageCount(); ++i) {
+            NbtList2.add((Object)NbtString.of((String)this.contents.getPage(i).getString()));
         }
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10566("pages", (class_2520)class_24992);
-        class_24872.method_10569("currentPage", this.field_17119);
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.put("pages", (NbtElement)NbtList2);
+        NbtCompound2.putInt("currentPage", this.pageIndex);
         FastByteArrayOutputStream fastByteArrayOutputStream = new FastByteArrayOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream((OutputStream)fastByteArrayOutputStream);
         try {
-            class_2507.method_10628((class_2487)class_24872, (DataOutput)dataOutputStream);
+            NbtIo.write((NbtCompound)NbtCompound2, (DataOutput)dataOutputStream);
         }
         catch (IOException iOException) {
             iOException.printStackTrace();
         }
-        GLFW.glfwSetClipboardString((long)class_310.method_1551().method_22683().method_4490(), (CharSequence)Base64.getEncoder().encodeToString(fastByteArrayOutputStream.array));
+        GLFW.glfwSetClipboardString((long)MinecraftClient.getInstance().getWindow().getHandle(), (CharSequence)Base64.getEncoder().encodeToString(fastByteArrayOutputStream.array));
     }
 }
 

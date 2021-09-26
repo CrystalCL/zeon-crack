@@ -3,7 +3,7 @@
  */
 package minegame159.meteorclient.utils.world;
 
-import net.minecraft.class_2350;
+import net.minecraft.util.math.Direction;
 
 public class Dir {
     public static final byte SOUTH;
@@ -13,8 +13,8 @@ public class Dir {
     public static final byte DOWN;
     public static final byte WEST;
 
-    public static byte get(class_2350 class_23502) {
-        switch (1.$SwitchMap$net$minecraft$util$math$Direction[class_23502.ordinal()]) {
+    public static byte get(Direction Direction2) {
+        switch (1.$SwitchMap$net$minecraft$util$math$Direction[Direction2.ordinal()]) {
             case 1: {
                 return 2;
             }

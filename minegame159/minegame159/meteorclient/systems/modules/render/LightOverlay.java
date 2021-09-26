@@ -21,13 +21,13 @@ import minegame159.meteorclient.utils.misc.Pool;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.BlockIterator;
-import net.minecraft.class_1922;
-import net.minecraft.class_1944;
-import net.minecraft.class_2338;
-import net.minecraft.class_2382;
-import net.minecraft.class_259;
-import net.minecraft.class_2680;
-import net.minecraft.class_290;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.LightType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.VertexFormats;
 
 public class LightOverlay
 extends Module {
@@ -37,7 +37,7 @@ extends Module {
     private final Setting<Boolean> seeThroughBlocks;
     private final SettingGroup sgColors;
     private final List<Cross> crosses;
-    private final class_2338.class_2339 bp;
+    private final Mutable bp;
     private final Setting<SettingColor> potentialColor;
     private final SettingGroup sgGeneral;
     private final Setting<Integer> verticalRange;
@@ -47,18 +47,18 @@ extends Module {
         return lightOverlay.potentialColor;
     }
 
-    private void lambda$onTick$1(class_2338 class_23382, class_2680 class_26802) {
-        if (!class_26802.method_26220((class_1922)this.mc.field_1687, class_23382).method_1110()) {
+    private void lambda$onTick$1(BlockPos BlockPos2, BlockState BlockState2) {
+        if (!BlockState2.getCollisionShape((BlockView)this.mc.world, BlockPos2).isEmpty()) {
             return;
         }
-        this.bp.method_10101((class_2382)class_23382).method_10100(0, -1, 0);
-        if (this.mc.field_1687.method_8320((class_2338)this.bp).method_26220((class_1922)this.mc.field_1687, (class_2338)this.bp) != class_259.method_1077()) {
+        this.bp.set((Vec3i)BlockPos2).move(0, -1, 0);
+        if (this.mc.world.getBlockState((BlockPos)this.bp).getCollisionShape((BlockView)this.mc.world, (BlockPos)this.bp) != VoxelShapes.fullCube()) {
             return;
         }
-        if (this.mc.field_1687.method_22346(class_23382, 0) <= 7) {
-            this.crosses.add(this.crossPool.get().set(class_23382, false));
-        } else if (this.mc.field_1687.method_8314(class_1944.field_9282, class_23382) <= 7) {
-            this.crosses.add(this.crossPool.get().set(class_23382, true));
+        if (this.mc.world.getLightLevel(BlockPos2, 0) <= 7) {
+            this.crosses.add(this.crossPool.get().set(BlockPos2, false));
+        } else if (this.mc.world.getLightLevel(LightType.BLOCK, BlockPos2) <= 7) {
+            this.crosses.add(this.crossPool.get().set(BlockPos2, true));
         }
     }
 
@@ -68,7 +68,7 @@ extends Module {
             return;
         }
         this.mb.depthTest = this.seeThroughBlocks.get() == false;
-        this.mb.begin(renderEvent, DrawMode.Lines, class_290.field_1576);
+        this.mb.begin(renderEvent, DrawMode.Lines, VertexFormats.POSITION_COLOR);
         for (Cross cross : this.crosses) {
             cross.render();
         }
@@ -107,7 +107,7 @@ extends Module {
         this.potentialColor = this.sgColors.add(new ColorSetting.Builder().name("potential-color").description("Color of places where mobs can potentially spawn (eg at night).").defaultValue(new SettingColor(225, 225, 25)).build());
         this.crossPool = new Pool<Cross>(this::lambda$new$0);
         this.crosses = new ArrayList<Cross>();
-        this.bp = new class_2338.class_2339();
+        this.bp = new Mutable();
         this.mb = new MeshBuilder();
     }
 
@@ -118,10 +118,10 @@ extends Module {
         private double z;
         private double x;
 
-        public Cross set(class_2338 class_23382, boolean bl) {
-            this.x = class_23382.method_10263();
-            this.y = (double)class_23382.method_10264() + 0.0075;
-            this.z = class_23382.method_10260();
+        public Cross set(BlockPos BlockPos2, boolean bl) {
+            this.x = BlockPos2.getX();
+            this.y = (double)BlockPos2.getY() + 0.0075;
+            this.z = BlockPos2.getZ();
             this.potential = bl;
             return this;
         }

@@ -14,29 +14,29 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2248;
+import net.minecraft.block.Block;
 
 public class WallHack
 extends Module {
     public final Setting<Integer> opacity;
     private final SettingGroup sgGeneral;
-    public final Setting<List<class_2248>> blocks;
+    public final Setting<List<Block>> blocks;
     public final Setting<Boolean> occludeChunks;
 
     @Override
     public void onActivate() {
-        this.mc.field_1769.method_3279();
+        this.mc.worldRenderer.reload();
     }
 
     private void lambda$new$0(Integer n) {
         if (this.isActive()) {
-            this.mc.field_1769.method_3279();
+            this.mc.worldRenderer.reload();
         }
     }
 
     private void lambda$new$1(List list) {
         if (this.isActive()) {
-            this.mc.field_1769.method_3279();
+            this.mc.worldRenderer.reload();
         }
     }
 
@@ -51,13 +51,13 @@ extends Module {
         super(Categories.Render, "wall-hack", "Makes blocks translucent.");
         this.sgGeneral = this.settings.getDefaultGroup();
         this.opacity = this.sgGeneral.add(new IntSetting.Builder().name("opacity").description("The opacity for rendered blocks.").defaultValue(1).min(1).max(255).sliderMax(255).onChanged(this::lambda$new$0).build());
-        this.blocks = this.sgGeneral.add(new BlockListSetting.Builder().name("blocks").description("What blocks should be targeted for Wall Hack.").defaultValue(new ArrayList<class_2248>()).onChanged(this::lambda$new$1).build());
+        this.blocks = this.sgGeneral.add(new BlockListSetting.Builder().name("blocks").description("What blocks should be targeted for Wall Hack.").defaultValue(new ArrayList<Block>()).onChanged(this::lambda$new$1).build());
         this.occludeChunks = this.sgGeneral.add(new BoolSetting.Builder().name("occlude-chunks").description("Whether caves should occlude underground (may look wonky when on).").defaultValue(false).build());
     }
 
     @Override
     public void onDeactivate() {
-        this.mc.field_1769.method_3279();
+        this.mc.worldRenderer.reload();
     }
 }
 

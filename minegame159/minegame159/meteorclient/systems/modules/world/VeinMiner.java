@@ -26,24 +26,24 @@ import minegame159.meteorclient.utils.misc.Pool;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1268;
-import net.minecraft.class_1792;
-import net.minecraft.class_1922;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2382;
-import net.minecraft.class_265;
-import net.minecraft.class_310;
+import net.minecraft.util.Hand;
+import net.minecraft.item.Item;
+import net.minecraft.world.BlockView;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.client.MinecraftClient;
 
 public class VeinMiner
 extends Module {
     private final Setting<ShapeMode> shapeMode;
     private final Pool<MyBlock> blockPool;
     private final SettingGroup sgRender;
-    private final Set<class_2382> blockNeighbours;
+    private final Set<Vec3i> blockNeighbours;
     private final SettingGroup sgGeneral;
-    private final List<class_2338> foundBlockPositions;
+    private final List<BlockPos> foundBlockPositions;
     private final Setting<Boolean> render;
     private final Setting<SettingColor> sideColor;
     private final Setting<Boolean> rotate;
@@ -53,7 +53,7 @@ extends Module {
 
     @EventHandler
     private void onStartBreakingBlock(StartBreakingBlockEvent startBreakingBlockEvent) {
-        if (this.mc.field_1687.method_8320(startBreakingBlockEvent.blockPos).method_26214((class_1922)this.mc.field_1687, startBreakingBlockEvent.blockPos) < 0.0f) {
+        if (this.mc.world.getBlockState(startBreakingBlockEvent.blockPos).getHardness((BlockView)this.mc.world, startBreakingBlockEvent.blockPos) < 0.0f) {
             return;
         }
         this.foundBlockPositions.clear();
@@ -61,59 +61,59 @@ extends Module {
             MyBlock myBlock = this.blockPool.get();
             myBlock.set(startBreakingBlockEvent);
             this.blocks.add(myBlock);
-            this.mineNearbyBlocks(myBlock.originalBlock.method_8389(), startBreakingBlockEvent.blockPos, startBreakingBlockEvent.direction, this.depth.get());
+            this.mineNearbyBlocks(myBlock.originalBlock.asItem(), startBreakingBlockEvent.blockPos, startBreakingBlockEvent.direction, this.depth.get());
         }
     }
 
-    static class_310 access$800(VeinMiner veinMiner) {
+    static MinecraftClient access$800(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$000(VeinMiner veinMiner) {
+    static MinecraftClient access$000(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$1000(VeinMiner veinMiner) {
+    static MinecraftClient access$1000(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$600(VeinMiner veinMiner) {
+    static MinecraftClient access$600(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$1400(VeinMiner veinMiner) {
+    static MinecraftClient access$1400(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$500(VeinMiner veinMiner) {
+    static MinecraftClient access$500(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$400(VeinMiner veinMiner) {
+    static MinecraftClient access$400(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    private boolean isMiningBlock(class_2338 class_23382) {
+    private boolean isMiningBlock(BlockPos BlockPos2) {
         for (MyBlock myBlock : this.blocks) {
-            if (!myBlock.blockPos.equals((Object)class_23382)) continue;
+            if (!myBlock.blockPos.equals((Object)BlockPos2)) continue;
             return true;
         }
         return false;
     }
 
-    static class_310 access$1100(VeinMiner veinMiner) {
+    static MinecraftClient access$1100(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$1500(VeinMiner veinMiner) {
+    static MinecraftClient access$1500(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$200(VeinMiner veinMiner) {
+    static MinecraftClient access$200(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$100(VeinMiner veinMiner) {
+    static MinecraftClient access$100(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
@@ -126,32 +126,32 @@ extends Module {
         }
     }
 
-    private void mineNearbyBlocks(class_1792 class_17922, class_2338 class_23382, class_2350 class_23502, int n) {
+    private void mineNearbyBlocks(Item Item2, BlockPos BlockPos2, Direction Direction2, int n) {
         if (n <= 0) {
             return;
         }
-        if (this.foundBlockPositions.contains(class_23382)) {
+        if (this.foundBlockPositions.contains(BlockPos2)) {
             return;
         }
-        this.foundBlockPositions.add(class_23382);
-        if (Utils.distance(this.mc.field_1724.method_23317() - 0.5, this.mc.field_1724.method_23318() + (double)this.mc.field_1724.method_18381(this.mc.field_1724.method_18376()), this.mc.field_1724.method_23321() - 0.5, class_23382.method_10263(), class_23382.method_10264(), class_23382.method_10260()) > (double)this.mc.field_1761.method_2904()) {
+        this.foundBlockPositions.add(BlockPos2);
+        if (Utils.distance(this.mc.player.getX() - 0.5, this.mc.player.getY() + (double)this.mc.player.getEyeHeight(this.mc.player.getPose()), this.mc.player.getZ() - 0.5, BlockPos2.getX(), BlockPos2.getY(), BlockPos2.getZ()) > (double)this.mc.interactionManager.getReachDistance()) {
             return;
         }
-        for (class_2382 class_23822 : this.blockNeighbours) {
-            class_2338 class_23383 = class_23382.method_10081(class_23822);
-            if (this.mc.field_1687.method_8320(class_23383).method_26204().method_8389() != class_17922) continue;
+        for (Vec3i Vec3i2 : this.blockNeighbours) {
+            BlockPos BlockPos3 = BlockPos2.add(Vec3i2);
+            if (this.mc.world.getBlockState(BlockPos3).getBlock().asItem() != Item2) continue;
             MyBlock myBlock = this.blockPool.get();
-            myBlock.set(class_23383, class_23502);
+            myBlock.set(BlockPos3, Direction2);
             this.blocks.add(myBlock);
-            this.mineNearbyBlocks(class_17922, class_23383, class_23502, n - 1);
+            this.mineNearbyBlocks(Item2, BlockPos3, Direction2, n - 1);
         }
     }
 
-    static class_310 access$1300(VeinMiner veinMiner) {
+    static MinecraftClient access$1300(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
-    static class_310 access$900(VeinMiner veinMiner) {
+    static MinecraftClient access$900(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
@@ -168,7 +168,7 @@ extends Module {
         this.foundBlockPositions.clear();
     }
 
-    static class_310 access$300(VeinMiner veinMiner) {
+    static MinecraftClient access$300(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
@@ -192,7 +192,7 @@ extends Module {
         super(Categories.World, "vein-miner", "Mines all nearby blocks with this type");
         this.sgGeneral = this.settings.getDefaultGroup();
         this.sgRender = this.settings.createGroup("Render");
-        this.blockNeighbours = Sets.newHashSet((Object[])new class_2382[]{new class_2382(1, -1, 1), new class_2382(0, -1, 1), new class_2382(-1, -1, 1), new class_2382(1, -1, 0), new class_2382(0, -1, 0), new class_2382(-1, -1, 0), new class_2382(1, -1, -1), new class_2382(0, -1, -1), new class_2382(-1, -1, -1), new class_2382(1, 0, 1), new class_2382(0, 0, 1), new class_2382(-1, 0, 1), new class_2382(1, 0, 0), new class_2382(-1, 0, 0), new class_2382(1, 0, -1), new class_2382(0, 0, -1), new class_2382(-1, 0, -1), new class_2382(1, 1, 1), new class_2382(0, 1, 1), new class_2382(-1, 1, 1), new class_2382(1, 1, 0), new class_2382(0, 1, 0), new class_2382(-1, 1, 0), new class_2382(1, 1, -1), new class_2382(0, 1, -1), new class_2382(-1, 1, -1)});
+        this.blockNeighbours = Sets.newHashSet((Object[])new Vec3i[]{new Vec3i(1, -1, 1), new Vec3i(0, -1, 1), new Vec3i(-1, -1, 1), new Vec3i(1, -1, 0), new Vec3i(0, -1, 0), new Vec3i(-1, -1, 0), new Vec3i(1, -1, -1), new Vec3i(0, -1, -1), new Vec3i(-1, -1, -1), new Vec3i(1, 0, 1), new Vec3i(0, 0, 1), new Vec3i(-1, 0, 1), new Vec3i(1, 0, 0), new Vec3i(-1, 0, 0), new Vec3i(1, 0, -1), new Vec3i(0, 0, -1), new Vec3i(-1, 0, -1), new Vec3i(1, 1, 1), new Vec3i(0, 1, 1), new Vec3i(-1, 1, 1), new Vec3i(1, 1, 0), new Vec3i(0, 1, 0), new Vec3i(-1, 1, 0), new Vec3i(1, 1, -1), new Vec3i(0, 1, -1), new Vec3i(-1, 1, -1)});
         this.depth = this.sgGeneral.add(new IntSetting.Builder().name("depth").description("Amount of iterations used to scan for similar blocks").defaultValue(3).min(1).sliderMax(15).build());
         this.rotate = this.sgGeneral.add(new BoolSetting.Builder().name("rotate").description("Sends rotation packets to the server when mining.").defaultValue(true).build());
         this.render = this.sgRender.add(new BoolSetting.Builder().name("render").description("Whether or not to render the block being mined.").defaultValue(true).build());
@@ -201,10 +201,10 @@ extends Module {
         this.lineColor = this.sgRender.add(new ColorSetting.Builder().name("line-color").description("The color of the lines of the blocks being rendered.").defaultValue(new SettingColor(204, 0, 0, 255)).build());
         this.blockPool = new Pool<MyBlock>(this::lambda$new$0);
         this.blocks = new ArrayList<MyBlock>();
-        this.foundBlockPositions = new ArrayList<class_2338>();
+        this.foundBlockPositions = new ArrayList<BlockPos>();
     }
 
-    static class_310 access$700(VeinMiner veinMiner) {
+    static MinecraftClient access$700(VeinMiner veinMiner) {
         return veinMiner.mc;
     }
 
@@ -218,38 +218,38 @@ extends Module {
 
     private class MyBlock {
         public boolean mining;
-        public class_2350 direction;
-        public class_2248 originalBlock;
+        public Direction direction;
+        public Block originalBlock;
         final VeinMiner this$0;
-        public class_2338 blockPos;
+        public BlockPos blockPos;
 
         public void render() {
-            class_265 class_2652 = VeinMiner.access$1500((VeinMiner)this.this$0).field_1687.method_8320(this.blockPos).method_26218((class_1922)VeinMiner.access$1400((VeinMiner)this.this$0).field_1687, this.blockPos);
-            double d = this.blockPos.method_10263();
-            double d2 = this.blockPos.method_10264();
-            double d3 = this.blockPos.method_10260();
-            double d4 = this.blockPos.method_10263() + 1;
-            double d5 = this.blockPos.method_10264() + 1;
-            double d6 = this.blockPos.method_10260() + 1;
-            if (!class_2652.method_1110()) {
-                d = (double)this.blockPos.method_10263() + class_2652.method_1091(class_2350.class_2351.field_11048);
-                d2 = (double)this.blockPos.method_10264() + class_2652.method_1091(class_2350.class_2351.field_11052);
-                d3 = (double)this.blockPos.method_10260() + class_2652.method_1091(class_2350.class_2351.field_11051);
-                d4 = (double)this.blockPos.method_10263() + class_2652.method_1105(class_2350.class_2351.field_11048);
-                d5 = (double)this.blockPos.method_10264() + class_2652.method_1105(class_2350.class_2351.field_11052);
-                d6 = (double)this.blockPos.method_10260() + class_2652.method_1105(class_2350.class_2351.field_11051);
+            VoxelShape VoxelShape2 = VeinMiner.access$1500((VeinMiner)this.this$0).world.getBlockState(this.blockPos).getOutlineShape((BlockView)VeinMiner.access$1400((VeinMiner)this.this$0).world, this.blockPos);
+            double d = this.blockPos.getX();
+            double d2 = this.blockPos.getY();
+            double d3 = this.blockPos.getZ();
+            double d4 = this.blockPos.getX() + 1;
+            double d5 = this.blockPos.getY() + 1;
+            double d6 = this.blockPos.getZ() + 1;
+            if (!VoxelShape2.isEmpty()) {
+                d = (double)this.blockPos.getX() + VoxelShape2.getMin(Direction.class_2351.X);
+                d2 = (double)this.blockPos.getY() + VoxelShape2.getMin(Direction.class_2351.Y);
+                d3 = (double)this.blockPos.getZ() + VoxelShape2.getMin(Direction.class_2351.Z);
+                d4 = (double)this.blockPos.getX() + VoxelShape2.getMax(Direction.class_2351.X);
+                d5 = (double)this.blockPos.getY() + VoxelShape2.getMax(Direction.class_2351.Y);
+                d6 = (double)this.blockPos.getZ() + VoxelShape2.getMax(Direction.class_2351.Z);
             }
             Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, d, d2, d3, d4, d5, d6, (Color)VeinMiner.access$1600(this.this$0).get(), (Color)VeinMiner.access$1700(this.this$0).get(), (ShapeMode)((Object)VeinMiner.access$1800(this.this$0).get()), 0);
         }
 
         private void updateBlockBreakingProgress() {
-            VeinMiner.access$1300((VeinMiner)this.this$0).field_1761.method_2902(this.blockPos, this.direction);
+            VeinMiner.access$1300((VeinMiner)this.this$0).interactionManager.updateBlockBreakingProgress(this.blockPos, this.direction);
         }
 
-        public void set(class_2338 class_23382, class_2350 class_23502) {
-            this.blockPos = class_23382;
-            this.direction = class_23502;
-            this.originalBlock = VeinMiner.access$100((VeinMiner)this.this$0).field_1687.method_8320(class_23382).method_26204();
+        public void set(BlockPos BlockPos2, Direction Direction2) {
+            this.blockPos = BlockPos2;
+            this.direction = Direction2;
+            this.originalBlock = VeinMiner.access$100((VeinMiner)this.this$0).world.getBlockState(BlockPos2).getBlock();
             this.mining = false;
         }
 
@@ -263,7 +263,7 @@ extends Module {
 
         public void mine() {
             if (!this.mining) {
-                VeinMiner.access$1100((VeinMiner)this.this$0).field_1724.method_6104(class_1268.field_5808);
+                VeinMiner.access$1100((VeinMiner)this.this$0).player.swingHand(Hand.MAIN_HAND);
                 this.mining = true;
             }
             if (((Boolean)VeinMiner.access$1200(this.this$0).get()).booleanValue()) {
@@ -276,16 +276,16 @@ extends Module {
         public void set(StartBreakingBlockEvent startBreakingBlockEvent) {
             this.blockPos = startBreakingBlockEvent.blockPos;
             this.direction = startBreakingBlockEvent.direction;
-            this.originalBlock = VeinMiner.access$000((VeinMiner)this.this$0).field_1687.method_8320(this.blockPos).method_26204();
+            this.originalBlock = VeinMiner.access$000((VeinMiner)this.this$0).world.getBlockState(this.blockPos).getBlock();
             this.mining = false;
         }
 
         public boolean shouldRemove() {
             boolean bl;
-            boolean bl2 = bl = VeinMiner.access$200((VeinMiner)this.this$0).field_1687.method_8320(this.blockPos).method_26204() != this.originalBlock || Utils.distance(VeinMiner.access$300((VeinMiner)this.this$0).field_1724.method_23317() - 0.5, VeinMiner.access$400((VeinMiner)this.this$0).field_1724.method_23318() + (double)VeinMiner.access$600((VeinMiner)this.this$0).field_1724.method_18381(VeinMiner.access$500((VeinMiner)this.this$0).field_1724.method_18376()), VeinMiner.access$700((VeinMiner)this.this$0).field_1724.method_23321() - 0.5, this.blockPos.method_10263() + this.direction.method_10148(), this.blockPos.method_10264() + this.direction.method_10164(), this.blockPos.method_10260() + this.direction.method_10165()) > (double)VeinMiner.access$800((VeinMiner)this.this$0).field_1761.method_2904();
+            boolean bl2 = bl = VeinMiner.access$200((VeinMiner)this.this$0).world.getBlockState(this.blockPos).getBlock() != this.originalBlock || Utils.distance(VeinMiner.access$300((VeinMiner)this.this$0).player.getX() - 0.5, VeinMiner.access$400((VeinMiner)this.this$0).player.getY() + (double)VeinMiner.access$600((VeinMiner)this.this$0).player.getEyeHeight(VeinMiner.access$500((VeinMiner)this.this$0).player.getPose()), VeinMiner.access$700((VeinMiner)this.this$0).player.getZ() - 0.5, this.blockPos.getX() + this.direction.getOffsetX(), this.blockPos.getY() + this.direction.getOffsetY(), this.blockPos.getZ() + this.direction.getOffsetZ()) > (double)VeinMiner.access$800((VeinMiner)this.this$0).interactionManager.getReachDistance();
             if (bl) {
-                VeinMiner.access$900((VeinMiner)this.this$0).field_1761.method_2925();
-                VeinMiner.access$1000((VeinMiner)this.this$0).field_1724.method_6104(class_1268.field_5808);
+                VeinMiner.access$900((VeinMiner)this.this$0).interactionManager.cancelBlockBreaking();
+                VeinMiner.access$1000((VeinMiner)this.this$0).player.swingHand(Hand.MAIN_HAND);
             }
             return bl;
         }

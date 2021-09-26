@@ -10,7 +10,7 @@ import minegame159.meteorclient.gui.utils.AlignmentX;
 import minegame159.meteorclient.gui.widgets.pressable.WPressable;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 
 public class WMeteorModule
 extends WPressable
@@ -30,7 +30,7 @@ implements MeteorWidget {
         if (n == 0) {
             this.module.doAction(Utils.canUpdate());
         } else if (n == 1) {
-            Utils.mc.method_1507((class_437)this.theme.moduleScreen(this.module));
+            Utils.mc.openScreen((Screen)this.theme.moduleScreen(this.module));
         }
     }
 

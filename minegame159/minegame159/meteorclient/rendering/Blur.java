@@ -7,31 +7,31 @@ import minegame159.meteorclient.gui.GuiThemes;
 import minegame159.meteorclient.gui.WidgetScreen;
 import minegame159.meteorclient.rendering.gl.PostProcessRenderer;
 import minegame159.meteorclient.rendering.gl.Shader;
-import net.minecraft.class_276;
-import net.minecraft.class_310;
-import net.minecraft.class_4493;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.MinecraftClient;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 public class Blur {
     private static Shader shaderDown;
     private static Shader shaderUp;
     private static final int OFFSET;
     private static final int ITERATIONS;
-    private static final class_310 mc;
+    private static final MinecraftClient mc;
 
     public static void render() {
         int n;
-        if (!GuiThemes.get().blur() || !(Blur.mc.field_1755 instanceof WidgetScreen)) {
+        if (!GuiThemes.get().blur() || !(Blur.mc.currentScreen instanceof WidgetScreen)) {
             return;
         }
-        class_276 class_2762 = mc.method_1522();
-        class_4493.method_22077((int)33984);
-        class_4493.method_22081((int)class_2762.method_30277());
+        Framebuffer Framebuffer2 = mc.getFramebuffer();
+        GlStateManager.activeTexture((int)33984);
+        GlStateManager.bindTexture((int)Framebuffer2.getColorAttachment());
         PostProcessRenderer.begin();
         shaderDown.bind();
         shaderDown.set("u_Texture", 0);
-        shaderDown.set("u_Size", class_2762.field_1482, class_2762.field_1481);
+        shaderDown.set("u_Size", Framebuffer2.textureWidth, Framebuffer2.textureHeight);
         shaderDown.set("u_Offset", 4.0f, 4.0f);
-        shaderDown.set("u_HalfPixel", 0.5f / (float)class_2762.field_1482, 0.5f / (float)class_2762.field_1481);
+        shaderDown.set("u_HalfPixel", 0.5f / (float)Framebuffer2.textureWidth, 0.5f / (float)Framebuffer2.textureHeight);
         for (n = 0; n < 4; ++n) {
             PostProcessRenderer.renderMesh();
             if (null == null) continue;
@@ -39,20 +39,20 @@ public class Blur {
         }
         shaderUp.bind();
         shaderUp.set("u_Texture", 0);
-        shaderUp.set("u_Size", class_2762.field_1482, class_2762.field_1481);
+        shaderUp.set("u_Size", Framebuffer2.textureWidth, Framebuffer2.textureHeight);
         shaderUp.set("u_Offset", 4.0f, 4.0f);
-        shaderUp.set("u_HalfPixel", 0.5f / (float)class_2762.field_1482, 0.5f / (float)class_2762.field_1481);
+        shaderUp.set("u_HalfPixel", 0.5f / (float)Framebuffer2.textureWidth, 0.5f / (float)Framebuffer2.textureHeight);
         shaderUp.set("u_Alpha", 1.0f);
         for (n = 0; n < 4; ++n) {
             if (n == 3) {
-                shaderUp.set("u_Alpha", (float)((WidgetScreen)Blur.mc.field_1755).animProgress);
+                shaderUp.set("u_Alpha", (float)((WidgetScreen)Blur.mc.currentScreen).animProgress);
             }
             PostProcessRenderer.renderMesh();
             if (2 > 0) continue;
             return;
         }
         shaderUp.unbind();
-        class_4493.method_22081((int)0);
+        GlStateManager.bindTexture((int)0);
         PostProcessRenderer.end();
     }
 
@@ -64,7 +64,7 @@ public class Blur {
     static {
         OFFSET = 4;
         ITERATIONS = 4;
-        mc = class_310.method_1551();
+        mc = MinecraftClient.getInstance();
     }
 }
 

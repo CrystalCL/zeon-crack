@@ -11,14 +11,14 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_310;
-import net.minecraft.class_642;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ServerInfo;
 
 public class AutoReconnect
 extends Module {
     public final Setting<Double> time;
     private final SettingGroup sgGeneral;
-    public class_642 lastServerInfo;
+    public ServerInfo lastServerInfo;
 
     public AutoReconnect() {
         super(Categories.Misc, "auto-reconnect", "Automatically reconnects when disconnected from a server.");
@@ -27,11 +27,11 @@ extends Module {
         MeteorClient.EVENT_BUS.subscribe(new StaticListener(this, null));
     }
 
-    static class_310 access$100(AutoReconnect autoReconnect) {
+    static MinecraftClient access$100(AutoReconnect autoReconnect) {
         return autoReconnect.mc;
     }
 
-    static class_310 access$200(AutoReconnect autoReconnect) {
+    static MinecraftClient access$200(AutoReconnect autoReconnect) {
         return autoReconnect.mc;
     }
 
@@ -44,7 +44,7 @@ extends Module {
 
         @EventHandler
         private void onConnectToServer(ConnectToServerEvent connectToServerEvent) {
-            this.this$0.lastServerInfo = AutoReconnect.access$100(this.this$0).method_1542() ? null : AutoReconnect.access$200(this.this$0).method_1558();
+            this.this$0.lastServerInfo = AutoReconnect.access$100(this.this$0).isInSingleplayer() ? null : AutoReconnect.access$200(this.this$0).getCurrentServerEntry();
         }
 
         private StaticListener(AutoReconnect autoReconnect) {

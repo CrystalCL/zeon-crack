@@ -9,55 +9,55 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import minegame159.meteorclient.settings.Setting;
-import net.minecraft.class_1792;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2960;
+import net.minecraft.item.Item;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.Identifier;
 
 public class ItemListSetting
-extends Setting<List<class_1792>> {
-    public final Predicate<class_1792> filter;
+extends Setting<List<Item>> {
+    public final Predicate<Item> filter;
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2499 class_24992 = new class_2499();
-        for (class_1792 class_17922 : (List)this.get()) {
-            class_24992.add((Object)class_2519.method_23256((String)class_2378.field_11142.method_10221((Object)class_17922).toString()));
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtList NbtList2 = new NbtList();
+        for (Item Item2 : (List)this.get()) {
+            NbtList2.add((Object)NbtString.of((String)Registry.ITEM.getId((Object)Item2).toString()));
         }
-        class_24872.method_10566("value", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     @Override
-    protected boolean isValueValid(List<class_1792> list) {
+    protected boolean isValueValid(List<Item> list) {
         return true;
     }
 
     @Override
-    public List<class_1792> fromTag(class_2487 class_24872) {
+    public List<Item> fromTag(NbtCompound NbtCompound2) {
         ((List)this.get()).clear();
-        class_2499 class_24992 = class_24872.method_10554("value", 8);
-        for (class_2520 class_25202 : class_24992) {
-            class_1792 class_17922 = (class_1792)class_2378.field_11142.method_10223(new class_2960(class_25202.method_10714()));
-            if (this.filter != null && !this.filter.test(class_17922)) continue;
-            ((List)this.get()).add(class_17922);
+        NbtList NbtList2 = NbtCompound2.getList("value", 8);
+        for (NbtElement NbtElement2 : NbtList2) {
+            Item Item2 = (Item)Registry.ITEM.get(new Identifier(NbtElement2.asString()));
+            if (this.filter != null && !this.filter.test(Item2)) continue;
+            ((List)this.get()).add(Item2);
         }
         this.changed();
         return (List)this.get();
     }
 
     @Override
-    public Iterable<class_2960> getIdentifierSuggestions() {
-        return class_2378.field_11142.method_10235();
+    public Iterable<Identifier> getIdentifierSuggestions() {
+        return Registry.ITEM.getIds();
     }
 
     @Override
@@ -66,14 +66,14 @@ extends Setting<List<class_1792>> {
     }
 
     @Override
-    protected List<class_1792> parseImpl(String string) {
+    protected List<Item> parseImpl(String string) {
         String[] stringArray = string.split(",");
-        ArrayList<class_1792> arrayList = new ArrayList<class_1792>(stringArray.length);
+        ArrayList<Item> arrayList = new ArrayList<Item>(stringArray.length);
         try {
             for (String string2 : stringArray) {
-                class_1792 class_17922 = (class_1792)ItemListSetting.parseId(class_2378.field_11142, string2);
-                if (class_17922 == null || this.filter != null && !this.filter.test(class_17922)) continue;
-                arrayList.add(class_17922);
+                Item Item2 = (Item)ItemListSetting.parseId(Registry.ITEM, string2);
+                if (Item2 == null || this.filter != null && !this.filter.test(Item2)) continue;
+                arrayList.add(Item2);
                 if (3 > 0) continue;
                 return null;
             }
@@ -89,9 +89,9 @@ extends Setting<List<class_1792>> {
         return this.isValueValid((List)object);
     }
 
-    public ItemListSetting(String string, String string2, List<class_1792> list, Consumer<List<class_1792>> consumer, Consumer<Setting<List<class_1792>>> consumer2, Predicate<class_1792> predicate) {
+    public ItemListSetting(String string, String string2, List<Item> list, Consumer<List<Item>> consumer, Consumer<Setting<List<Item>>> consumer2, Predicate<Item> predicate) {
         super(string, string2, list, consumer, consumer2);
-        this.value = new ArrayList<class_1792>(list);
+        this.value = new ArrayList<Item>(list);
         this.filter = predicate;
     }
 
@@ -104,29 +104,29 @@ extends Setting<List<class_1792>> {
     }
 
     public static class Builder {
-        private Consumer<List<class_1792>> onChanged;
-        private Consumer<Setting<List<class_1792>>> onModuleActivated;
-        private Predicate<class_1792> filter;
+        private Consumer<List<Item>> onChanged;
+        private Consumer<Setting<List<Item>>> onModuleActivated;
+        private Predicate<Item> filter;
         private String name = "undefined";
         private String description = "";
-        private List<class_1792> defaultValue;
+        private List<Item> defaultValue;
 
         public Builder description(String string) {
             this.description = string;
             return this;
         }
 
-        public Builder defaultValue(List<class_1792> list) {
+        public Builder defaultValue(List<Item> list) {
             this.defaultValue = list;
             return this;
         }
 
-        public Builder onChanged(Consumer<List<class_1792>> consumer) {
+        public Builder onChanged(Consumer<List<Item>> consumer) {
             this.onChanged = consumer;
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<List<class_1792>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<List<Item>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
@@ -135,7 +135,7 @@ extends Setting<List<class_1792>> {
             return new ItemListSetting(this.name, this.description, this.defaultValue, this.onChanged, this.onModuleActivated, this.filter);
         }
 
-        public Builder filter(Predicate<class_1792> predicate) {
+        public Builder filter(Predicate<Item> predicate) {
             this.filter = predicate;
             return this;
         }

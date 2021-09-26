@@ -10,7 +10,7 @@ import minegame159.meteorclient.systems.Systems;
 import minegame159.meteorclient.utils.Utils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.class_2487;
+import net.minecraft.nbt.NbtCompound;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -33,19 +33,19 @@ extends System<Config> {
     }
 
     @Override
-    public Config fromTag(class_2487 class_24872) {
+    public Config fromTag(NbtCompound NbtCompound2) {
         Version version;
         Version version2;
-        this.prefix = class_24872.method_10558("prefix");
-        if (class_24872.method_10545("customFont")) {
-            this.customFont = class_24872.method_10577("customFont");
+        this.prefix = NbtCompound2.getString("prefix");
+        if (NbtCompound2.contains("customFont")) {
+            this.customFont = NbtCompound2.getBoolean("customFont");
         }
-        this.chatCommandsInfo = !class_24872.method_10545("chatCommandsInfo") || class_24872.method_10577("chatCommandsInfo");
-        this.deleteChatCommandsInfo = !class_24872.method_10545("deleteChatCommandsInfo") || class_24872.method_10577("deleteChatCommandsInfo");
-        this.sendDataToApi = !class_24872.method_10545("sendDataToApi") || class_24872.method_10577("sendDataToApi");
-        this.titleScreenCredits = !class_24872.method_10545("titleScreenCredits") || class_24872.method_10577("titleScreenCredits");
-        this.windowTitle = !class_24872.method_10545("windowTitle") || class_24872.method_10577("windowTitle");
-        Version version3 = new Version(class_24872.method_10558("version"));
+        this.chatCommandsInfo = !NbtCompound2.contains("chatCommandsInfo") || NbtCompound2.getBoolean("chatCommandsInfo");
+        this.deleteChatCommandsInfo = !NbtCompound2.contains("deleteChatCommandsInfo") || NbtCompound2.getBoolean("deleteChatCommandsInfo");
+        this.sendDataToApi = !NbtCompound2.contains("sendDataToApi") || NbtCompound2.getBoolean("sendDataToApi");
+        this.titleScreenCredits = !NbtCompound2.contains("titleScreenCredits") || NbtCompound2.getBoolean("titleScreenCredits");
+        this.windowTitle = !NbtCompound2.contains("windowTitle") || NbtCompound2.getBoolean("windowTitle");
+        Version version3 = new Version(NbtCompound2.getString("version"));
         if (version3.isLowerThan(version2 = new Version("0.2.9")) && this.version.isAtLeast(version2)) {
             Fonts.reset();
         }
@@ -65,22 +65,22 @@ extends System<Config> {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = new class_2487();
-        class_24872.method_10582("version", this.version.getOriginalString());
-        class_24872.method_10582("prefix", this.prefix);
-        class_24872.method_10556("customFont", this.customFont);
-        class_24872.method_10556("chatCommandsInfo", this.chatCommandsInfo);
-        class_24872.method_10556("deleteChatCommandsInfo", this.deleteChatCommandsInfo);
-        class_24872.method_10556("sendDataToApi", this.sendDataToApi);
-        class_24872.method_10556("titleScreenCredits", this.titleScreenCredits);
-        class_24872.method_10556("windowTitle", this.windowTitle);
-        return class_24872;
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = new NbtCompound();
+        NbtCompound2.putString("version", this.version.getOriginalString());
+        NbtCompound2.putString("prefix", this.prefix);
+        NbtCompound2.putBoolean("customFont", this.customFont);
+        NbtCompound2.putBoolean("chatCommandsInfo", this.chatCommandsInfo);
+        NbtCompound2.putBoolean("deleteChatCommandsInfo", this.deleteChatCommandsInfo);
+        NbtCompound2.putBoolean("sendDataToApi", this.sendDataToApi);
+        NbtCompound2.putBoolean("titleScreenCredits", this.titleScreenCredits);
+        NbtCompound2.putBoolean("windowTitle", this.windowTitle);
+        return NbtCompound2;
     }
 
     public Config() {

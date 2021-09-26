@@ -5,7 +5,7 @@ package minegame159.meteorclient.rendering.gl;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import minegame159.meteorclient.rendering.gl.Mesh;
-import net.minecraft.class_4493;
+import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 public class PostProcessRenderer {
@@ -31,7 +31,7 @@ public class PostProcessRenderer {
 
     public static void begin() {
         RenderSystem.enableBlend();
-        RenderSystem.blendFunc((class_4493.class_4535)class_4493.class_4535.field_22541, (class_4493.class_4534)class_4493.class_4534.field_22523);
+        RenderSystem.blendFunc((GlStateManager.class_4535)GlStateManager.class_4535.SRC_ALPHA, (GlStateManager.class_4534)GlStateManager.class_4534.ONE_MINUS_SRC_ALPHA);
         RenderSystem.disableDepthTest();
         RenderSystem.disableTexture();
         RenderSystem.disableLighting();

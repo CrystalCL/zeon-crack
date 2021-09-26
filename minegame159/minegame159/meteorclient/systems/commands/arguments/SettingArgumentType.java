@@ -17,8 +17,8 @@ import java.util.stream.Stream;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2172;
-import net.minecraft.class_2585;
+import net.minecraft.command.CommandSource;
+import net.minecraft.text.LiteralText;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -55,7 +55,7 @@ implements ArgumentType<String> {
 
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder suggestionsBuilder) {
         Stream<String> stream = Streams.stream(((Module)commandContext.getArgument((String)"module", Module.class)).settings.iterator()).flatMap(SettingArgumentType::lambda$listSuggestions$1).map(SettingArgumentType::lambda$listSuggestions$2);
-        return class_2172.method_9264(stream, (SuggestionsBuilder)suggestionsBuilder);
+        return CommandSource.suggestMatching(stream, (SuggestionsBuilder)suggestionsBuilder);
     }
 
     public static SettingArgumentType setting() {
@@ -63,7 +63,7 @@ implements ArgumentType<String> {
     }
 
     private static Message lambda$static$0(Object object) {
-        return new class_2585(String.valueOf(new StringBuilder().append("No such setting '").append(object).append("'.")));
+        return new LiteralText(String.valueOf(new StringBuilder().append("No such setting '").append(object).append("'.")));
     }
 }
 

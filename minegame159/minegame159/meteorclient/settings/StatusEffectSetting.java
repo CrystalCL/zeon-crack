@@ -8,37 +8,37 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.function.Consumer;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1291;
-import net.minecraft.class_2378;
-import net.minecraft.class_2487;
-import net.minecraft.class_2520;
-import net.minecraft.class_2960;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.Identifier;
 
 public class StatusEffectSetting
-extends Setting<Object2IntMap<class_1291>> {
+extends Setting<Object2IntMap<StatusEffect>> {
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = this.saveGeneral();
-        class_2487 class_24873 = new class_2487();
-        for (class_1291 class_12912 : ((Object2IntMap)this.get()).keySet()) {
-            class_2960 class_29602 = class_2378.field_11159.method_10221((Object)class_12912);
-            if (class_29602 == null) continue;
-            class_24873.method_10569(class_29602.toString(), ((Object2IntMap)this.get()).getInt((Object)class_12912));
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = this.saveGeneral();
+        NbtCompound NbtCompound3 = new NbtCompound();
+        for (StatusEffect StatusEffect2 : ((Object2IntMap)this.get()).keySet()) {
+            Identifier Identifier2 = Registry.STATUS_EFFECT.getId((Object)StatusEffect2);
+            if (Identifier2 == null) continue;
+            NbtCompound3.putInt(Identifier2.toString(), ((Object2IntMap)this.get()).getInt((Object)StatusEffect2));
         }
-        class_24872.method_10566("value", (class_2520)class_24873);
-        return class_24872;
+        NbtCompound2.put("value", (NbtElement)NbtCompound3);
+        return NbtCompound2;
     }
 
     @Override
-    protected Object2IntMap<class_1291> parseImpl(String string) {
+    protected Object2IntMap<StatusEffect> parseImpl(String string) {
         String[] stringArray = string.split(",");
-        Object2IntMap<class_1291> object2IntMap = Utils.createStatusEffectMap();
+        Object2IntMap<StatusEffect> object2IntMap = Utils.createStatusEffectMap();
         try {
             for (String string2 : stringArray) {
                 String[] stringArray2 = string2.split(" ");
-                class_1291 class_12912 = (class_1291)StatusEffectSetting.parseId(class_2378.field_11159, stringArray2[0]);
+                StatusEffect StatusEffect2 = (StatusEffect)StatusEffectSetting.parseId(Registry.STATUS_EFFECT, stringArray2[0]);
                 int n = Integer.parseInt(stringArray2[1]);
-                object2IntMap.put((Object)class_12912, n);
+                object2IntMap.put((Object)StatusEffect2, n);
             }
         }
         catch (Exception exception) {
@@ -47,18 +47,18 @@ extends Setting<Object2IntMap<class_1291>> {
         return object2IntMap;
     }
 
-    public StatusEffectSetting(String string, String string2, Object2IntMap<class_1291> object2IntMap, Consumer<Object2IntMap<class_1291>> consumer, Consumer<Setting<Object2IntMap<class_1291>>> consumer2) {
+    public StatusEffectSetting(String string, String string2, Object2IntMap<StatusEffect> object2IntMap, Consumer<Object2IntMap<StatusEffect>> consumer, Consumer<Setting<Object2IntMap<StatusEffect>>> consumer2) {
         super(string, string2, object2IntMap, consumer, consumer2);
     }
 
     @Override
-    public Object2IntMap<class_1291> fromTag(class_2487 class_24872) {
+    public Object2IntMap<StatusEffect> fromTag(NbtCompound NbtCompound2) {
         ((Object2IntMap)this.get()).clear();
-        class_2487 class_24873 = class_24872.method_10562("value");
-        for (String string : class_24873.method_10541()) {
-            class_1291 class_12912 = (class_1291)class_2378.field_11159.method_10223(new class_2960(string));
-            if (class_12912 == null) continue;
-            ((Object2IntMap)this.get()).put((Object)class_12912, class_24873.method_10550(string));
+        NbtCompound NbtCompound3 = NbtCompound2.getCompound("value");
+        for (String string : NbtCompound3.getKeys()) {
+            StatusEffect StatusEffect2 = (StatusEffect)Registry.STATUS_EFFECT.get(new Identifier(string));
+            if (StatusEffect2 == null) continue;
+            ((Object2IntMap)this.get()).put((Object)StatusEffect2, NbtCompound3.getInt(string));
         }
         this.changed();
         return (Object2IntMap)this.get();
@@ -74,12 +74,12 @@ extends Setting<Object2IntMap<class_1291>> {
 
     @Override
     protected boolean isValueValid(Object object) {
-        return this.isValueValid((Object2IntMap<class_1291>)((Object2IntMap)object));
+        return this.isValueValid((Object2IntMap<StatusEffect>)((Object2IntMap)object));
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @Override
@@ -88,28 +88,28 @@ extends Setting<Object2IntMap<class_1291>> {
     }
 
     @Override
-    protected boolean isValueValid(Object2IntMap<class_1291> object2IntMap) {
+    protected boolean isValueValid(Object2IntMap<StatusEffect> object2IntMap) {
         return true;
     }
 
     public static class Builder {
-        private Consumer<Object2IntMap<class_1291>> onChanged;
-        private Consumer<Setting<Object2IntMap<class_1291>>> onModuleActivated;
+        private Consumer<Object2IntMap<StatusEffect>> onChanged;
+        private Consumer<Setting<Object2IntMap<StatusEffect>>> onModuleActivated;
         private String name = "undefined";
         private String description = "";
-        private Object2IntMap<class_1291> defaultValue;
+        private Object2IntMap<StatusEffect> defaultValue;
 
         public Builder name(String string) {
             this.name = string;
             return this;
         }
 
-        public Builder onModuleActivated(Consumer<Setting<Object2IntMap<class_1291>>> consumer) {
+        public Builder onModuleActivated(Consumer<Setting<Object2IntMap<StatusEffect>>> consumer) {
             this.onModuleActivated = consumer;
             return this;
         }
 
-        public Builder defaultValue(Object2IntMap<class_1291> object2IntMap) {
+        public Builder defaultValue(Object2IntMap<StatusEffect> object2IntMap) {
             this.defaultValue = object2IntMap;
             return this;
         }
@@ -123,7 +123,7 @@ extends Setting<Object2IntMap<class_1291>> {
             return this;
         }
 
-        public Builder onChanged(Consumer<Object2IntMap<class_1291>> consumer) {
+        public Builder onChanged(Consumer<Object2IntMap<StatusEffect>> consumer) {
             this.onChanged = consumer;
             return this;
         }

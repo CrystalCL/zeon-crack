@@ -7,17 +7,17 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import minegame159.meteorclient.systems.commands.Command;
-import net.minecraft.class_2172;
+import net.minecraft.command.CommandSource;
 
 public class ClearChatCommand
 extends Command {
     private static int lambda$build$0(CommandContext commandContext) throws CommandSyntaxException {
-        ClearChatCommand.mc.field_1705.method_1743().method_1808(false);
+        ClearChatCommand.mc.inGameHud.getChatHud().clear(false);
         return 1;
     }
 
     @Override
-    public void build(LiteralArgumentBuilder<class_2172> literalArgumentBuilder) {
+    public void build(LiteralArgumentBuilder<CommandSource> literalArgumentBuilder) {
         literalArgumentBuilder.executes(ClearChatCommand::lambda$build$0);
     }
 

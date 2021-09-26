@@ -15,23 +15,23 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.player.AutoTool;
 import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1887;
-import net.minecraft.class_1890;
-import net.minecraft.class_1893;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_239;
-import net.minecraft.class_2680;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class EChestFarmer
 extends Module {
-    private static final class_2680 ENDER_CHEST = class_2246.field_10443.method_9564();
+    private static final BlockState ENDER_CHEST = Blocks.ENDER_CHEST.getDefaultState();
     private int numLeft;
     private final Setting<Boolean> disableOnAmount;
     private final SettingGroup sgGeneral;
@@ -51,7 +51,7 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (this.lowerAmount.get() < InvUtils.findItemWithCount((class_1792)class_1802.field_8281).count) {
+        if (this.lowerAmount.get() < InvUtils.findItemWithCount((Item)Items.OBSIDIAN).count) {
             this.stop = false;
         }
         if (this.stop && !this.disableOnAmount.get().booleanValue()) {
@@ -63,31 +63,31 @@ extends Module {
             this.toggle();
             return;
         }
-        InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(class_1802.field_8466);
+        InvUtils.FindItemResult findItemResult = InvUtils.findItemWithCount(Items.ENDER_CHEST);
         int n = -1;
         if (findItemResult.count != 0 && findItemResult.slot < 9 && findItemResult.slot != -1) {
             for (int i = 0; i < 9; ++i) {
-                if (!Modules.get().get(AutoTool.class).isEffectiveOn(this.mc.field_1724.field_7514.method_5438(i).method_7909(), ENDER_CHEST) || class_1890.method_8225((class_1887)class_1893.field_9099, (class_1799)this.mc.field_1724.field_7514.method_5438(i)) != 0) continue;
+                if (!Modules.get().get(AutoTool.class).isEffectiveOn(this.mc.player.inventory.getStack(i).getItem(), ENDER_CHEST) || EnchantmentHelper.getLevel((Enchantment)Enchantments.SILK_TOUCH, (ItemStack)this.mc.player.inventory.getStack(i)) != 0) continue;
                 n = i;
                 if (3 >= 0) continue;
                 return;
             }
             if (n != -1 && findItemResult.slot != -1 && findItemResult.slot < 9) {
-                if (this.mc.field_1765.method_17783() != class_239.class_240.field_1332) {
+                if (this.mc.crosshairTarget.getType() != HitResult.class_240.BLOCK) {
                     return;
                 }
-                class_2338 class_23382 = ((class_3965)this.mc.field_1765).method_17777();
-                if (this.mc.field_1687.method_8320(class_23382).method_26204() == class_2246.field_10443) {
-                    if (this.mc.field_1724.field_7514.field_7545 != n) {
-                        this.mc.field_1724.field_7514.field_7545 = n;
+                BlockPos BlockPos2 = ((BlockHitResult)this.mc.crosshairTarget).getBlockPos();
+                if (this.mc.world.getBlockState(BlockPos2).getBlock() == Blocks.ENDER_CHEST) {
+                    if (this.mc.player.inventory.selectedSlot != n) {
+                        this.mc.player.inventory.selectedSlot = n;
                     }
-                    this.mc.field_1761.method_2902(class_23382, class_2350.field_11036);
+                    this.mc.interactionManager.updateBlockBreakingProgress(BlockPos2, Direction.UP);
                     --this.numLeft;
                     if (this.numLeft == 0) {
                         this.stop = true;
                     }
-                } else if (this.mc.field_1687.method_8320(class_23382.method_10084()).method_26204() == class_2246.field_10124) {
-                    BlockUtils.place(class_23382.method_10084(), class_1268.field_5808, findItemResult.slot, false, 0, true);
+                } else if (this.mc.world.getBlockState(BlockPos2.up()).getBlock() == Blocks.AIR) {
+                    BlockUtils.place(BlockPos2.up(), Hand.MAIN_HAND, findItemResult.slot, false, 0, true);
                 }
             }
         }

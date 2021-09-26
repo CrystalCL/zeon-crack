@@ -12,24 +12,24 @@ import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1746;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1822;
-import net.minecraft.class_2248;
-import net.minecraft.class_2323;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_243;
-import net.minecraft.class_2482;
-import net.minecraft.class_2517;
-import net.minecraft.class_2533;
-import net.minecraft.class_2571;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
-import net.minecraft.class_498;
+import net.minecraft.util.Hand;
+import net.minecraft.item.BannerItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.SignItem;
+import net.minecraft.block.Block;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.StoneButtonBlock;
+import net.minecraft.block.TrapdoorBlock;
+import net.minecraft.block.WoodenButtonBlock;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.client.gui.screen.ingame.SignEditScreen;
 
 public class AntiBed
 extends Module {
@@ -52,106 +52,106 @@ extends Module {
         this.closeScreen = false;
     }
 
-    private class_2338 checkBlocks() {
-        class_2338 class_23382 = null;
-        if (!this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10069(0, 1, 1)).method_26215()) {
-            class_23382 = this.mc.field_1724.method_24515().method_10069(0, 1, 1);
-        } else if (!this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10069(0, 1, -1)).method_26215()) {
-            class_23382 = this.mc.field_1724.method_24515().method_10069(0, 1, -1);
-        } else if (!this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10069(1, 1, 0)).method_26215()) {
-            class_23382 = this.mc.field_1724.method_24515().method_10069(1, 1, 0);
-        } else if (!this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10069(-1, 1, 0)).method_26215()) {
-            class_23382 = this.mc.field_1724.method_24515().method_10069(-1, 1, 0);
+    private BlockPos checkBlocks() {
+        BlockPos BlockPos2 = null;
+        if (!this.mc.world.getBlockState(this.mc.player.getBlockPos().add(0, 1, 1)).isAir()) {
+            BlockPos2 = this.mc.player.getBlockPos().add(0, 1, 1);
+        } else if (!this.mc.world.getBlockState(this.mc.player.getBlockPos().add(0, 1, -1)).isAir()) {
+            BlockPos2 = this.mc.player.getBlockPos().add(0, 1, -1);
+        } else if (!this.mc.world.getBlockState(this.mc.player.getBlockPos().add(1, 1, 0)).isAir()) {
+            BlockPos2 = this.mc.player.getBlockPos().add(1, 1, 0);
+        } else if (!this.mc.world.getBlockState(this.mc.player.getBlockPos().add(-1, 1, 0)).isAir()) {
+            BlockPos2 = this.mc.player.getBlockPos().add(-1, 1, 0);
         }
-        return class_23382;
+        return BlockPos2;
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (this.closeScreen && this.mc.field_1755 instanceof class_498) {
+        if (this.closeScreen && this.mc.currentScreen instanceof SignEditScreen) {
             this.closeScreen = false;
-            this.mc.field_1724.method_3137();
+            this.mc.player.closeScreen();
             return;
         }
         if (this.closeScreen) {
             return;
         }
-        if (!this.mc.field_1687.method_8320(this.mc.field_1724.method_24515().method_10084()).method_26215()) {
+        if (!this.mc.world.getBlockState(this.mc.player.getBlockPos().up()).isAir()) {
             return;
         }
-        if (this.onlyOnGround.get().booleanValue() && !this.mc.field_1724.method_24828()) {
+        if (this.onlyOnGround.get().booleanValue() && !this.mc.player.isOnGround()) {
             return;
         }
         if (this.place == 0) {
             --this.place;
-            this.place(this.mc.field_1724.field_7514.field_7545, true);
+            this.place(this.mc.player.inventory.selectedSlot, true);
         } else if (this.place > 0) {
             --this.place;
         }
         for (int i = 0; i < 9; ++i) {
-            class_1799 class_17992 = this.mc.field_1724.field_7514.method_5438(i);
-            class_1792 class_17922 = class_17992.method_7909();
-            class_2248 class_22482 = class_2248.method_9503((class_1792)class_17922);
-            if (class_17922 == class_1802.field_8276 || class_22482 instanceof class_2533 || class_17922 == class_1802.field_8786) {
+            ItemStack ItemStack2 = this.mc.player.inventory.getStack(i);
+            Item Item2 = ItemStack2.getItem();
+            Block Block2 = Block.getBlockFromItem((Item)Item2);
+            if (Item2 == Items.STRING || Block2 instanceof TrapdoorBlock || Item2 == Items.COBWEB) {
                 this.place(i, true);
                 return;
             }
-            if (class_22482 instanceof class_2482) {
-                this.mc.field_1724.field_7514.field_7545 = i;
-                this.mc.field_1690.field_1832.method_23481(true);
+            if (Block2 instanceof SlabBlock) {
+                this.mc.player.inventory.selectedSlot = i;
+                this.mc.options.keySneak.setPressed(true);
                 if (this.place == -1) {
                     this.place = 2;
                 }
                 return;
             }
-            if (class_22482 instanceof class_2323) {
+            if (Block2 instanceof DoorBlock) {
                 if (this.autoCenter.get().booleanValue()) {
-                    class_243 class_2432 = Utils.vec3d(this.mc.field_1724.method_24515());
-                    if (this.mc.field_1724.method_5735() == class_2350.field_11035) {
-                        class_2432 = class_2432.method_1031(0.5, 0.0, 0.7);
-                    } else if (this.mc.field_1724.method_5735() == class_2350.field_11043) {
-                        class_2432 = class_2432.method_1031(0.5, 0.0, 0.3);
-                    } else if (this.mc.field_1724.method_5735() == class_2350.field_11034) {
-                        class_2432 = class_2432.method_1031(0.7, 0.0, 0.5);
-                    } else if (this.mc.field_1724.method_5735() == class_2350.field_11039) {
-                        class_2432 = class_2432.method_1031(0.3, 0.0, 0.5);
+                    Vec3d Vec3d2 = Utils.vec3d(this.mc.player.getBlockPos());
+                    if (this.mc.player.getHorizontalFacing() == Direction.SOUTH) {
+                        Vec3d2 = Vec3d2.add(0.5, 0.0, 0.7);
+                    } else if (this.mc.player.getHorizontalFacing() == Direction.NORTH) {
+                        Vec3d2 = Vec3d2.add(0.5, 0.0, 0.3);
+                    } else if (this.mc.player.getHorizontalFacing() == Direction.EAST) {
+                        Vec3d2 = Vec3d2.add(0.7, 0.0, 0.5);
+                    } else if (this.mc.player.getHorizontalFacing() == Direction.WEST) {
+                        Vec3d2 = Vec3d2.add(0.3, 0.0, 0.5);
                     }
-                    this.mc.field_1724.method_5814(class_2432.field_1352, class_2432.field_1351, class_2432.field_1350);
-                    this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(class_2432.field_1352, class_2432.field_1351, class_2432.field_1350, this.mc.field_1724.method_24828()));
+                    this.mc.player.setPosition(Vec3d2.x, Vec3d2.y, Vec3d2.z);
+                    this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(Vec3d2.x, Vec3d2.y, Vec3d2.z, this.mc.player.isOnGround()));
                 }
                 this.place(i, true);
                 return;
             }
-            if (class_17922 == class_1802.field_8121) {
+            if (Item2 == Items.LADDER) {
                 if (this.autoCenter.get().booleanValue()) {
-                    class_243 class_2433 = Utils.vec3d(this.mc.field_1724.method_24515());
-                    class_2338 class_23382 = this.checkBlocks();
-                    if (class_23382 == null) {
+                    Vec3d Vec3d3 = Utils.vec3d(this.mc.player.getBlockPos());
+                    BlockPos BlockPos2 = this.checkBlocks();
+                    if (BlockPos2 == null) {
                         return;
                     }
-                    if (class_2433.method_1020((class_243)Utils.vec3d((class_2338)class_23382)).field_1352 > 0.0) {
-                        class_2433 = class_2433.method_1031(0.7, 0.0, 0.5);
-                    } else if (class_2433.method_1020((class_243)Utils.vec3d((class_2338)class_23382)).field_1352 < 0.0) {
-                        class_2433 = class_2433.method_1031(0.3, 0.0, 0.5);
-                    } else if (class_2433.method_1020((class_243)Utils.vec3d((class_2338)class_23382)).field_1350 > 0.0) {
-                        class_2433 = class_2433.method_1031(0.5, 0.0, 0.7);
-                    } else if (class_2433.method_1020((class_243)Utils.vec3d((class_2338)class_23382)).field_1350 < 0.0) {
-                        class_2433 = class_2433.method_1031(0.5, 0.0, 0.3);
+                    if (Vec3d3.subtract((Vec3d)Utils.vec3d((BlockPos)BlockPos2)).x > 0.0) {
+                        Vec3d3 = Vec3d3.add(0.7, 0.0, 0.5);
+                    } else if (Vec3d3.subtract((Vec3d)Utils.vec3d((BlockPos)BlockPos2)).x < 0.0) {
+                        Vec3d3 = Vec3d3.add(0.3, 0.0, 0.5);
+                    } else if (Vec3d3.subtract((Vec3d)Utils.vec3d((BlockPos)BlockPos2)).z > 0.0) {
+                        Vec3d3 = Vec3d3.add(0.5, 0.0, 0.7);
+                    } else if (Vec3d3.subtract((Vec3d)Utils.vec3d((BlockPos)BlockPos2)).z < 0.0) {
+                        Vec3d3 = Vec3d3.add(0.5, 0.0, 0.3);
                     }
-                    this.mc.field_1724.method_5814(class_2433.field_1352, class_2433.field_1351, class_2433.field_1350);
-                    this.mc.field_1724.field_3944.method_2883((class_2596)new class_2828.class_2829(class_2433.field_1352, class_2433.field_1351, class_2433.field_1350, this.mc.field_1724.method_24828()));
+                    this.mc.player.setPosition(Vec3d3.x, Vec3d3.y, Vec3d3.z);
+                    this.mc.player.networkHandler.sendPacket((Packet)new PlayerMoveC2SPacket.class_2829(Vec3d3.x, Vec3d3.y, Vec3d3.z, this.mc.player.isOnGround()));
                 }
                 this.place(i, true);
                 return;
             }
-            if (class_17922 instanceof class_1746 || class_17922 == class_1802.field_8865 || class_17922 == class_1802.field_8810 || class_17922 == class_1802.field_8530 || class_17922 instanceof class_1822 || class_17922 == class_1802.field_8366 || class_22482 instanceof class_2517 || class_22482 instanceof class_2571) {
+            if (Item2 instanceof BannerItem || Item2 == Items.LEVER || Item2 == Items.TORCH || Item2 == Items.REDSTONE_TORCH || Item2 instanceof SignItem || Item2 == Items.TRIPWIRE_HOOK || Block2 instanceof StoneButtonBlock || Block2 instanceof WoodenButtonBlock) {
                 this.place(i, true);
-                if (class_17922 instanceof class_1822) {
+                if (Item2 instanceof SignItem) {
                     this.closeScreen = true;
                 }
                 return;
             }
-            if (class_17922 != class_1802.field_16482 || class_17992.method_7947() < 2) continue;
+            if (Item2 != Items.SCAFFOLDING || ItemStack2.getCount() < 2) continue;
             this.place(i, false);
             this.place(i, true);
             return;
@@ -164,8 +164,8 @@ extends Module {
     }
 
     private void place(int n, boolean bl) {
-        class_2338 class_23382 = bl ? this.mc.field_1724.method_24515().method_10084() : this.mc.field_1724.method_24515();
-        if (BlockUtils.place(class_23382, class_1268.field_5808, n, this.rotate.get(), 100, true) && this.autoToggle.get().booleanValue()) {
+        BlockPos BlockPos2 = bl ? this.mc.player.getBlockPos().up() : this.mc.player.getBlockPos();
+        if (BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n, this.rotate.get(), 100, true) && this.autoToggle.get().booleanValue()) {
             this.toggle();
         }
     }

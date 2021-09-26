@@ -15,7 +15,7 @@ import minegame159.meteorclient.settings.Settings;
 import minegame159.meteorclient.settings.StringSetting;
 import minegame159.meteorclient.systems.config.Config;
 import minegame159.meteorclient.utils.network.OnlinePlayers;
-import net.minecraft.class_437;
+import net.minecraft.client.gui.screen.Screen;
 
 public class ConfigTab
 extends Tab {
@@ -29,8 +29,8 @@ extends Tab {
     }
 
     @Override
-    public boolean isScreen(class_437 class_4372) {
-        return class_4372 instanceof ConfigScreen;
+    public boolean isScreen(Screen Screen2) {
+        return Screen2 instanceof ConfigScreen;
     }
 
     private static class ConfigScreen

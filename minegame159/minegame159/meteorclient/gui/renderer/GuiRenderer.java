@@ -20,9 +20,9 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.Pool;
 import minegame159.meteorclient.utils.render.ByteTexture;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_1044;
-import net.minecraft.class_290;
-import net.minecraft.class_2960;
+import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
 
 public class GuiRenderer {
@@ -50,8 +50,8 @@ public class GuiRenderer {
         this.postTasks.add(runnable);
     }
 
-    public static GuiTexture addTexture(class_2960 class_29602) {
-        return TEXTURE_PACKER.add(class_29602);
+    public static GuiTexture addTexture(Identifier Identifier2) {
+        return TEXTURE_PACKER.add(Identifier2);
     }
 
     public void text(String string, double d, double d2, Color color, boolean bl) {
@@ -85,8 +85,8 @@ public class GuiRenderer {
     }
 
     private void beginRender() {
-        this.mb.begin(null, DrawMode.Triangles, class_290.field_1576);
-        this.mbTex.begin(null, DrawMode.Triangles, class_290.field_20887);
+        this.mb.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
+        this.mbTex.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR_TEXTURE);
     }
 
     public GuiRenderer() {
@@ -139,8 +139,8 @@ public class GuiRenderer {
         TEXTURE_PACKER = new TexturePacker();
     }
 
-    public void texture(double d, double d2, double d3, double d4, double d5, class_1044 class_10442) {
-        this.post(() -> this.lambda$texture$0(d, d2, d3, d4, class_10442, d5));
+    public void texture(double d, double d2, double d3, double d4, double d5, AbstractTexture AbstractTexture2) {
+        this.post(() -> this.lambda$texture$0(d, d2, d3, d4, AbstractTexture2, d5));
     }
 
     public void quad(double d, double d2, double d3, double d4, Color color, Color color2, Color color3, Color color4) {
@@ -153,7 +153,7 @@ public class GuiRenderer {
 
     private void endRender() {
         this.mb.end();
-        TEXTURE.method_23207();
+        TEXTURE.bindTexture();
         this.mbTex.texture = true;
         this.mbTex.end();
         this.theme.textRenderer().begin(this.theme.scale(1.0));
@@ -191,10 +191,10 @@ public class GuiRenderer {
     }
 
     public static void init() {
-        CIRCLE = GuiRenderer.addTexture(new class_2960("meteor-client", "gui/circle.png"));
-        TRIANGLE = GuiRenderer.addTexture(new class_2960("meteor-client", "gui/triangle.png"));
-        EDIT = GuiRenderer.addTexture(new class_2960("meteor-client", "gui/edit.png"));
-        RESET = GuiRenderer.addTexture(new class_2960("meteor-client", "gui/reset.png"));
+        CIRCLE = GuiRenderer.addTexture(new Identifier("meteor-client", "gui/circle.png"));
+        TRIANGLE = GuiRenderer.addTexture(new Identifier("meteor-client", "gui/triangle.png"));
+        EDIT = GuiRenderer.addTexture(new Identifier("meteor-client", "gui/edit.png"));
+        RESET = GuiRenderer.addTexture(new Identifier("meteor-client", "gui/reset.png"));
         TEXTURE = TEXTURE_PACKER.pack();
     }
 
@@ -240,15 +240,15 @@ public class GuiRenderer {
         this.quad(wWidget.x, wWidget.y, wWidget.width, wWidget.height, color);
     }
 
-    private void lambda$texture$0(double d, double d2, double d3, double d4, class_1044 class_10442, double d5) {
-        this.mbTex.begin(null, DrawMode.Triangles, class_290.field_20887);
+    private void lambda$texture$0(double d, double d2, double d3, double d4, AbstractTexture AbstractTexture2, double d5) {
+        this.mbTex.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR_TEXTURE);
         this.mbTex.pos(d, d2, 0.0).color(WHITE).texture(0.0, 0.0).endVertex();
         this.mbTex.pos(d + d3, d2, 0.0).color(WHITE).texture(1.0, 0.0).endVertex();
         this.mbTex.pos(d + d3, d2 + d4, 0.0).color(WHITE).texture(1.0, 1.0).endVertex();
         this.mbTex.pos(d, d2, 0.0).color(WHITE).texture(0.0, 0.0).endVertex();
         this.mbTex.pos(d + d3, d2 + d4, 0.0).color(WHITE).texture(1.0, 1.0).endVertex();
         this.mbTex.pos(d, d2 + d4, 0.0).color(WHITE).texture(0.0, 1.0).endVertex();
-        class_10442.method_23207();
+        AbstractTexture2.bindTexture();
         GL11.glPushMatrix();
         GL11.glTranslated((double)(d + d3 / 2.0), (double)(d2 + d4 / 2.0), (double)0.0);
         GL11.glRotated((double)d5, (double)0.0, (double)0.0, (double)1.0);

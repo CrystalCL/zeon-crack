@@ -12,19 +12,19 @@ import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.network.HttpUtils;
 import minegame159.meteorclient.utils.network.MeteorExecutor;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_2561;
-import net.minecraft.class_310;
-import net.minecraft.class_437;
-import net.minecraft.class_442;
-import net.minecraft.class_4587;
+import net.minecraft.text.Text;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={class_442.class})
+@Mixin(value={TitleScreen.class})
 public class TitleScreenMixin
-extends class_437 {
+extends Screen {
     private final int WHITE = Color.fromRGBA(255, 255, 255, 255);
     private final int GRAY = Color.fromRGBA(175, 175, 175, 255);
     private String text1;
@@ -41,8 +41,8 @@ extends class_437 {
     private int fullLength;
     private int prevWidth;
 
-    public TitleScreenMixin(class_2561 class_25612) {
-        super(class_25612);
+    public TitleScreenMixin(Text Text2) {
+        super(Text2);
     }
 
     @Inject(method={"init"}, at={@At(value="TAIL")})
@@ -53,18 +53,18 @@ extends class_437 {
         this.text4 = "squidoodly";
         this.text5 = " & ";
         this.text6 = "seasnail";
-        this.text1Length = this.field_22793.method_1727(this.text1);
-        this.text2Length = this.field_22793.method_1727(this.text2);
-        this.text3Length = this.field_22793.method_1727(this.text3);
-        this.text4Length = this.field_22793.method_1727(this.text4);
-        this.text5Length = this.field_22793.method_1727(this.text5);
-        int n = this.field_22793.method_1727(this.text6);
+        this.text1Length = this.textRenderer.getWidth(this.text1);
+        this.text2Length = this.textRenderer.getWidth(this.text2);
+        this.text3Length = this.textRenderer.getWidth(this.text3);
+        this.text4Length = this.textRenderer.getWidth(this.text4);
+        this.text5Length = this.textRenderer.getWidth(this.text5);
+        int n = this.textRenderer.getWidth(this.text6);
         this.fullLength = this.text1Length + this.text2Length + this.text3Length + this.text4Length + this.text5Length + n;
         this.prevWidth = 0;
     }
 
     @Inject(method={"render"}, at={@At(value="INVOKE", target="Lnet/minecraft/client/gui/screen/TitleScreen;drawStringWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V", ordinal=0)})
-    private void onRenderIdkDude(class_4587 class_45872, int n, int n2, float f, CallbackInfo callbackInfo) {
+    private void onRenderIdkDude(MatrixStack MatrixStack2, int n, int n2, float f, CallbackInfo callbackInfo) {
         if (Utils.firstTimeTitleScreen) {
             Utils.firstTimeTitleScreen = false;
             MeteorClient.LOG.info("Checking latest version of Meteor Client");
@@ -73,22 +73,22 @@ extends class_437 {
     }
 
     @Inject(method={"render"}, at={@At(value="TAIL")})
-    private void onRender(class_4587 class_45872, int n, int n2, float f, CallbackInfo callbackInfo) {
+    private void onRender(MatrixStack MatrixStack2, int n, int n2, float f, CallbackInfo callbackInfo) {
         if (!Config.get().titleScreenCredits) {
             return;
         }
         this.prevWidth = 0;
-        this.field_22793.method_1720(class_45872, this.text1, (float)(this.field_22789 - this.fullLength - 3), 3.0f, this.WHITE);
+        this.textRenderer.drawWithShadow(MatrixStack2, this.text1, (float)(this.width - this.fullLength - 3), 3.0f, this.WHITE);
         this.prevWidth += this.text1Length;
-        this.field_22793.method_1720(class_45872, this.text2, (float)(this.field_22789 - this.fullLength + this.prevWidth - 3), 3.0f, this.GRAY);
+        this.textRenderer.drawWithShadow(MatrixStack2, this.text2, (float)(this.width - this.fullLength + this.prevWidth - 3), 3.0f, this.GRAY);
         this.prevWidth += this.text2Length;
-        this.field_22793.method_1720(class_45872, this.text3, (float)(this.field_22789 - this.fullLength + this.prevWidth - 3), 3.0f, this.WHITE);
+        this.textRenderer.drawWithShadow(MatrixStack2, this.text3, (float)(this.width - this.fullLength + this.prevWidth - 3), 3.0f, this.WHITE);
         this.prevWidth += this.text3Length;
-        this.field_22793.method_1720(class_45872, this.text4, (float)(this.field_22789 - this.fullLength + this.prevWidth - 3), 3.0f, this.GRAY);
+        this.textRenderer.drawWithShadow(MatrixStack2, this.text4, (float)(this.width - this.fullLength + this.prevWidth - 3), 3.0f, this.GRAY);
         this.prevWidth += this.text4Length;
-        this.field_22793.method_1720(class_45872, this.text5, (float)(this.field_22789 - this.fullLength + this.prevWidth - 3), 3.0f, this.WHITE);
+        this.textRenderer.drawWithShadow(MatrixStack2, this.text5, (float)(this.width - this.fullLength + this.prevWidth - 3), 3.0f, this.WHITE);
         this.prevWidth += this.text5Length;
-        this.field_22793.method_1720(class_45872, this.text6, (float)(this.field_22789 - this.fullLength + this.prevWidth - 3), 3.0f, this.GRAY);
+        this.textRenderer.drawWithShadow(MatrixStack2, this.text6, (float)(this.width - this.fullLength + this.prevWidth - 3), 3.0f, this.GRAY);
     }
 
     private static void lambda$onRenderIdkDude$1() {
@@ -98,7 +98,7 @@ extends class_437 {
     private static void lambda$onRenderIdkDude$0(String string) {
         Version version = new Version(string);
         if (version.isHigherThan(Config.get().version)) {
-            class_310.method_1551().method_1507((class_437)new NewUpdateScreen(GuiThemes.get(), version));
+            MinecraftClient.getInstance().openScreen((Screen)new NewUpdateScreen(GuiThemes.get(), version));
         }
     }
 }

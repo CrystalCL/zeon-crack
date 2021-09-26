@@ -45,34 +45,34 @@ import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.render.NametagUtils;
 import minegame159.meteorclient.utils.render.color.Color;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1268;
-import net.minecraft.class_1294;
-import net.minecraft.class_1297;
-import net.minecraft.class_1299;
-import net.minecraft.class_1309;
-import net.minecraft.class_1511;
-import net.minecraft.class_1657;
-import net.minecraft.class_1743;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1812;
-import net.minecraft.class_1829;
-import net.minecraft.class_1937;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_238;
-import net.minecraft.class_2382;
-import net.minecraft.class_239;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2879;
-import net.minecraft.class_2885;
-import net.minecraft.class_3419;
-import net.minecraft.class_3532;
-import net.minecraft.class_3959;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.PotionItem;
+import net.minecraft.item.SwordItem;
+import net.minecraft.world.World;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Box2;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.RaycastContext;
+import net.minecraft.util.hit.BlockHitResult;
 
 public class CrystalAura
 extends Module {
@@ -90,7 +90,7 @@ extends Module {
     private boolean canSupport;
     private final Setting<TargetMode> targetMode;
     private final SettingGroup sgMisc;
-    private final Map<class_1511, List<Double>> crystalMap;
+    private final Map<EndCrystalEntity, List<Double>> crystalMap;
     private final Setting<Double> minDamage;
     private final Setting<Double> placeRange;
     private final Setting<Mode> breakMode;
@@ -98,16 +98,16 @@ extends Module {
     private double lastDamage;
     private final Setting<Boolean> swing;
     private final Setting<Mode> placeMode;
-    private class_1309 target;
-    private class_1511 bestBreak;
+    private LivingEntity target;
+    private EndCrystalEntity bestBreak;
     private final Setting<Boolean> ignoreWalls;
     private final Setting<Boolean> facePlace;
     private final Setting<Double> facePlaceHealth;
     private int supportDelayLeft;
     private final Setting<Boolean> surroundHold;
-    private class_1511 heldCrystal;
+    private EndCrystalEntity heldCrystal;
     private final Setting<RotationMode> rotationMode;
-    private class_243 bestBlock;
+    private Vec3d bestBlock;
     private final List<Integer> removalQueue;
     private final Setting<Integer> breakDelay;
     private final Setting<Double> damageScale;
@@ -136,7 +136,7 @@ extends Module {
     private final Pool<RenderBlock> renderBlockPool;
     static final boolean $assertionsDisabled;
     private final Setting<Boolean> antiWeakness;
-    private final Setting<Object2BooleanMap<class_1299<?>>> entities;
+    private final Setting<Object2BooleanMap<EntityType<?>>> entities;
     private final Setting<Boolean> rayTrace;
     private final Setting<Boolean> switchBack;
     private final SettingGroup sgPlace;
@@ -159,11 +159,11 @@ extends Module {
 
     @Override
     public String getInfoString() {
-        if (this.target != null && this.target instanceof class_1657) {
-            return this.target.method_5820();
+        if (this.target != null && this.target instanceof PlayerEntity) {
+            return this.target.getEntityName();
         }
         if (this.target != null) {
-            return this.target.method_5864().method_5897().getString();
+            return this.target.getType().getName().getString();
         }
         return null;
     }
@@ -175,86 +175,86 @@ extends Module {
     /*
      * Unable to fully structure code
      */
-    private class_243 findOpen(class_1309 var1_1) {
+    private Vec3d findOpen(LivingEntity var1_1) {
         block7: {
             block8: {
                 block6: {
-                    if (!CrystalAura.$assertionsDisabled && this.mc.field_1724 == null) {
+                    if (!CrystalAura.$assertionsDisabled && this.mc.player == null) {
                         throw new AssertionError();
                     }
                     var2_2 = 0;
                     var3_3 = 0;
-                    if (!this.isValid(var1_1.method_24515().method_10069(1, -1, 0))) break block6;
-                    v0 = new class_2382(var1_1.method_24515().method_10263() + 1, var1_1.method_24515().method_10264() - 1, var1_1.method_24515().method_10260());
-                    if (!(Math.sqrt(this.mc.field_1724.method_24515().method_10262(v0)) < this.placeRange.get())) break block6;
+                    if (!this.isValid(var1_1.getBlockPos().add(1, -1, 0))) break block6;
+                    v0 = new Box2(var1_1.getBlockPos().getX() + 1, var1_1.getBlockPos().getY() - 1, var1_1.getBlockPos().getZ());
+                    if (!(Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance(v0)) < this.placeRange.get())) break block6;
                     var2_2 = 1;
                     break block7;
                 }
-                if (!this.isValid(var1_1.method_24515().method_10069(-1, -1, 0))) break block8;
-                v1 = new class_2382(var1_1.method_24515().method_10263() - 1, var1_1.method_24515().method_10264() - 1, var1_1.method_24515().method_10260());
-                if (!(Math.sqrt(this.mc.field_1724.method_24515().method_10262(v1)) < this.placeRange.get())) break block8;
+                if (!this.isValid(var1_1.getBlockPos().add(-1, -1, 0))) break block8;
+                v1 = new Box2(var1_1.getBlockPos().getX() - 1, var1_1.getBlockPos().getY() - 1, var1_1.getBlockPos().getZ());
+                if (!(Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance(v1)) < this.placeRange.get())) break block8;
                 var2_2 = -1;
                 break block7;
             }
-            if (!this.isValid(var1_1.method_24515().method_10069(0, -1, 1))) ** GOTO lbl-1000
-            v2 = new class_2382(var1_1.method_24515().method_10263(), var1_1.method_24515().method_10264() - 1, var1_1.method_24515().method_10260() + 1);
-            if (Math.sqrt(this.mc.field_1724.method_24515().method_10262(v2)) < this.placeRange.get()) {
+            if (!this.isValid(var1_1.getBlockPos().add(0, -1, 1))) ** GOTO lbl-1000
+            v2 = new Box2(var1_1.getBlockPos().getX(), var1_1.getBlockPos().getY() - 1, var1_1.getBlockPos().getZ() + 1);
+            if (Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance(v2)) < this.placeRange.get()) {
                 var3_3 = 1;
-            } else if (this.isValid(var1_1.method_24515().method_10069(0, -1, -1))) {
-                v3 = new class_2382(var1_1.method_24515().method_10263(), var1_1.method_24515().method_10264() - 1, var1_1.method_24515().method_10260() - 1);
-                if (Math.sqrt(this.mc.field_1724.method_24515().method_10262(v3)) < this.placeRange.get()) {
+            } else if (this.isValid(var1_1.getBlockPos().add(0, -1, -1))) {
+                v3 = new Box2(var1_1.getBlockPos().getX(), var1_1.getBlockPos().getY() - 1, var1_1.getBlockPos().getZ() - 1);
+                if (Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance(v3)) < this.placeRange.get()) {
                     var3_3 = -1;
                 }
             }
         }
         if (var2_2 != 0 || var3_3 != 0) {
-            return new class_243((double)var1_1.method_24515().method_10263() + 0.5 + (double)var2_2, (double)(var1_1.method_24515().method_10264() - 1), (double)var1_1.method_24515().method_10260() + 0.5 + (double)var3_3);
+            return new Vec3d((double)var1_1.getBlockPos().getX() + 0.5 + (double)var2_2, (double)(var1_1.getBlockPos().getY() - 1), (double)var1_1.getBlockPos().getZ() + 0.5 + (double)var3_3);
         }
         return null;
     }
 
-    private boolean lambda$getCrystalStream$4(class_1297 class_12972) {
-        return (double)class_12972.method_5739((class_1297)this.mc.field_1724) <= this.breakRange.get();
+    private boolean lambda$getCrystalStream$4(Entity Entity2) {
+        return (double)Entity2.distanceTo((Entity)this.mc.player) <= this.breakRange.get();
     }
 
     private void lambda$onTick$1(Integer n) {
-        this.mc.field_1687.method_2945(n.intValue());
+        this.mc.world.removeEntity(n.intValue());
     }
 
     private void doSwitch() {
         int n;
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        if (this.mc.field_1724.method_6047().method_7909() != class_1802.field_8301 && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8301 && (n = InvUtils.findItemWithCount((class_1792)class_1802.field_8301).slot) != -1 && n < 9) {
-            this.preSlot = this.mc.field_1724.field_7514.field_7545;
-            this.mc.field_1724.field_7514.field_7545 = n;
+        if (this.mc.player.getMainHandStack().getItem() != Items.END_CRYSTAL && this.mc.player.getOffHandStack().getItem() != Items.END_CRYSTAL && (n = InvUtils.findItemWithCount((Item)Items.END_CRYSTAL).slot) != -1 && n < 9) {
+            this.preSlot = this.mc.player.inventory.selectedSlot;
+            this.mc.player.inventory.selectedSlot = n;
         }
     }
 
-    private boolean isValid(class_2338 class_23382) {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+    private boolean isValid(BlockPos BlockPos2) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        return (this.canSupport && this.isEmpty(class_23382) && class_23382.method_10264() - this.target.method_24515().method_10264() == -1 && this.supportDelayLeft <= 0 || this.mc.field_1687.method_8320(class_23382).method_26204() == class_2246.field_9987 || this.mc.field_1687.method_8320(class_23382).method_26204() == class_2246.field_10540) && this.isEmpty(class_23382.method_10069(0, 1, 0));
+        return (this.canSupport && this.isEmpty(BlockPos2) && BlockPos2.getY() - this.target.getBlockPos().getY() == -1 && this.supportDelayLeft <= 0 || this.mc.world.getBlockState(BlockPos2).getBlock() == Blocks.BEDROCK || this.mc.world.getBlockState(BlockPos2).getBlock() == Blocks.OBSIDIAN) && this.isEmpty(BlockPos2.add(0, 1, 0));
     }
 
-    private double lambda$singleBreak$8(class_1297 class_12972) {
-        return DamageCalcUtils.crystalDamage(this.target, class_12972.method_19538());
+    private double lambda$singleBreak$8(Entity Entity2) {
+        return DamageCalcUtils.crystalDamage(this.target, Entity2.getPos());
     }
 
-    private static boolean lambda$findTarget$13(class_1297 class_12972) {
-        return !(class_12972 instanceof class_1657) || Friends.get().attack((class_1657)class_12972);
+    private static boolean lambda$findTarget$13(Entity Entity2) {
+        return !(Entity2 instanceof PlayerEntity) || Friends.get().attack((PlayerEntity)Entity2);
     }
 
-    private class_1511 findBestCrystal(Map<class_1511, List<Double>> map) {
+    private EndCrystalEntity findBestCrystal(Map<EndCrystalEntity, List<Double>> map) {
         block7: {
             double d;
             block6: {
                 this.bestDamage = 0.0;
                 d = 0.0;
                 if (this.targetMode.get() != TargetMode.HighestXDamages) break block6;
-                for (Map.Entry<class_1511, List<Double>> entry : map.entrySet()) {
+                for (Map.Entry<EndCrystalEntity, List<Double>> entry : map.entrySet()) {
                     for (int i = 0; i < entry.getValue().size() && i < this.numberOfDamages.get(); ++i) {
                         d += entry.getValue().get(i).doubleValue();
                         if (!false) continue;
@@ -269,7 +269,7 @@ extends Module {
                 break block7;
             }
             if (this.targetMode.get() != TargetMode.MostDamage) break block7;
-            for (Map.Entry<class_1511, List<Double>> entry : map.entrySet()) {
+            for (Map.Entry<EndCrystalEntity, List<Double>> entry : map.entrySet()) {
                 for (int i = 0; i < entry.getValue().size(); ++i) {
                     d += entry.getValue().get(i).doubleValue();
                     if (!false) continue;
@@ -287,7 +287,7 @@ extends Module {
 
     @EventHandler(priority=100)
     private void onPlaySound(PlaySoundEvent playSoundEvent) {
-        if (playSoundEvent.sound.method_4774().method_14840().equals(class_3419.field_15245.method_14840()) && playSoundEvent.sound.method_4775().method_12832().equals("entity.generic.explode") && this.cancelCrystalMode.get() == CancelCrystalMode.Sound) {
+        if (playSoundEvent.sound.getCategory().getName().equals(SoundCategory.BLOCKS.getName()) && playSoundEvent.sound.getId().getPath().equals("entity.generic.explode") && this.cancelCrystalMode.get() == CancelCrystalMode.Sound) {
             this.removalQueue.forEach(this::lambda$onPlaySound$2);
             this.removalQueue.clear();
         }
@@ -311,100 +311,100 @@ extends Module {
         return crystalAura.shapeMode;
     }
 
-    private void placeBlock(class_243 class_2432, class_1268 class_12682) {
+    private void placeBlock(Vec3d Vec3d2, Hand Hand2) {
         Object object;
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1761 == null) {
+        if (!$assertionsDisabled && this.mc.interactionManager == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        if (this.mc.field_1687.method_22347(new class_2338(class_2432))) {
-            PlayerUtils.placeBlock(new class_2338(class_2432), this.supportSlot, class_1268.field_5808);
+        if (this.mc.world.isAir(new BlockPos(Vec3d2))) {
+            PlayerUtils.placeBlock(new BlockPos(Vec3d2), this.supportSlot, Hand.MAIN_HAND);
             this.supportDelayLeft = this.supportDelay.get();
         }
-        class_2338 class_23382 = new class_2338(class_2432);
-        class_2350 class_23502 = this.rayTraceCheck(class_23382, true);
+        BlockPos BlockPos2 = new BlockPos(Vec3d2);
+        Direction Direction2 = this.rayTraceCheck(BlockPos2, true);
         if (this.rotationMode.get() == RotationMode.Place || this.rotationMode.get() == RotationMode.Both) {
-            object = PlayerUtils.calculateAngle(this.strictLook.get() != false ? new class_243((double)class_23382.method_10263() + 0.5 + (double)class_23502.method_10163().method_10263() * 1.0 / 2.0, (double)class_23382.method_10264() + 0.5 + (double)class_23502.method_10163().method_10264() * 1.0 / 2.0, (double)class_23382.method_10260() + 0.5 + (double)class_23502.method_10163().method_10260() * 1.0 / 2.0) : class_2432.method_1031(0.5, 1.0, 0.5));
-            Rotations.rotate(object[0], object[1], 25, () -> this.lambda$placeBlock$19(class_12682, class_23502, class_2432));
+            object = PlayerUtils.calculateAngle(this.strictLook.get() != false ? new Vec3d((double)BlockPos2.getX() + 0.5 + (double)Direction2.getVector().getX() * 1.0 / 2.0, (double)BlockPos2.getY() + 0.5 + (double)Direction2.getVector().getY() * 1.0 / 2.0, (double)BlockPos2.getZ() + 0.5 + (double)Direction2.getVector().getZ() * 1.0 / 2.0) : Vec3d2.add(0.5, 1.0, 0.5));
+            Rotations.rotate(object[0], object[1], 25, () -> this.lambda$placeBlock$19(Hand2, Direction2, Vec3d2));
         } else {
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2885(class_12682, new class_3965(this.mc.field_1724.method_19538(), class_23502, new class_2338(class_2432), false)));
+            this.mc.player.networkHandler.sendPacket((Packet)new PlayerInteractBlockC2SPacket(Hand2, new BlockHitResult(this.mc.player.getPos(), Direction2, new BlockPos(Vec3d2), false)));
             if (this.swing.get().booleanValue()) {
-                this.mc.field_1724.method_6104(class_12682);
+                this.mc.player.swingHand(Hand2);
             } else {
-                this.mc.field_1724.field_3944.method_2883((class_2596)new class_2879(class_12682));
+                this.mc.player.networkHandler.sendPacket((Packet)new HandSwingC2SPacket(Hand2));
             }
         }
         if (this.render.get().booleanValue()) {
             object = this.renderBlockPool.get();
-            ((RenderBlock)object).reset(class_2432);
-            RenderBlock.access$002((RenderBlock)object, DamageCalcUtils.crystalDamage(this.target, this.bestBlock.method_1031(0.5, 1.0, 0.5)));
+            ((RenderBlock)object).reset(Vec3d2);
+            RenderBlock.access$002((RenderBlock)object, DamageCalcUtils.crystalDamage(this.target, this.bestBlock.add(0.5, 1.0, 0.5)));
             this.renderBlocks.add((RenderBlock)object);
         }
     }
 
-    private boolean lambda$getCrystalStream$5(class_1297 class_12972) {
-        return this.shouldBreak((class_1511)class_12972);
+    private boolean lambda$getCrystalStream$5(Entity Entity2) {
+        return this.shouldBreak((EndCrystalEntity)Entity2);
     }
 
     static Vec3 access$600() {
         return pos;
     }
 
-    private boolean lambda$findTarget$12(class_1297 class_12972) {
-        return class_12972 != this.mc.field_1724;
+    private boolean lambda$findTarget$12(Entity Entity2) {
+        return Entity2 != this.mc.player;
     }
 
-    private float getTotalHealth(class_1657 class_16572) {
-        return class_16572.method_6032() + class_16572.method_6067();
+    private float getTotalHealth(PlayerEntity PlayerEntity2) {
+        return PlayerEntity2.getHealth() + PlayerEntity2.getAbsorptionAmount();
     }
 
-    private Stream<class_1297> getCrystalStream() {
-        return Streams.stream((Iterable)this.mc.field_1687.method_18112()).filter(CrystalAura::lambda$getCrystalStream$3).filter(this::lambda$getCrystalStream$4).filter(class_1297::method_5805).filter(this::lambda$getCrystalStream$5).filter(this::lambda$getCrystalStream$6).filter(this::lambda$getCrystalStream$7);
+    private Stream<Entity> getCrystalStream() {
+        return Streams.stream((Iterable)this.mc.world.getEntities()).filter(CrystalAura::lambda$getCrystalStream$3).filter(this::lambda$getCrystalStream$4).filter(Entity::isAlive).filter(this::lambda$getCrystalStream$5).filter(this::lambda$getCrystalStream$6).filter(this::lambda$getCrystalStream$7);
     }
 
-    private static class_1309 lambda$findTarget$18(class_1297 class_12972) {
-        return (class_1309)class_12972;
+    private static LivingEntity lambda$findTarget$18(Entity Entity2) {
+        return (LivingEntity)Entity2;
     }
 
-    private boolean isEmpty(class_2338 class_23382) {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+    private boolean isEmpty(BlockPos BlockPos2) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        return this.mc.field_1687.method_8320(class_23382).method_26215() && this.mc.field_1687.method_8335(null, new class_238((double)class_23382.method_10263(), (double)class_23382.method_10264(), (double)class_23382.method_10260(), (double)class_23382.method_10263() + 1.0, (double)class_23382.method_10264() + 2.0, (double)class_23382.method_10260() + 1.0)).isEmpty();
+        return this.mc.world.getBlockState(BlockPos2).isAir() && this.mc.world.getOtherEntities(null, new Box((double)BlockPos2.getX(), (double)BlockPos2.getY(), (double)BlockPos2.getZ(), (double)BlockPos2.getX() + 1.0, (double)BlockPos2.getY() + 2.0, (double)BlockPos2.getZ() + 1.0)).isEmpty();
     }
 
-    private boolean lambda$findTarget$16(class_1297 class_12972) {
-        return (double)class_12972.method_5739((class_1297)this.mc.field_1724) <= this.targetRange.get() * 2.0;
+    private boolean lambda$findTarget$16(Entity Entity2) {
+        return (double)Entity2.distanceTo((Entity)this.mc.player) <= this.targetRange.get() * 2.0;
     }
 
-    private void hitCrystal(class_1511 class_15112) {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+    private void hitCrystal(EndCrystalEntity EndCrystalEntity2) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1761 == null) {
+        if (!$assertionsDisabled && this.mc.interactionManager == null) {
             throw new AssertionError();
         }
-        int n = this.mc.field_1724.field_7514.field_7545;
-        if (this.mc.field_1724.method_6088().containsKey(class_1294.field_5911) && this.antiWeakness.get().booleanValue()) {
+        int n = this.mc.player.inventory.selectedSlot;
+        if (this.mc.player.getActiveStatusEffects().containsKey(StatusEffects.WEAKNESS) && this.antiWeakness.get().booleanValue()) {
             for (int i = 0; i < 9; ++i) {
-                if (!(this.mc.field_1724.field_7514.method_5438(i).method_7909() instanceof class_1829) && !(this.mc.field_1724.field_7514.method_5438(i).method_7909() instanceof class_1743)) continue;
-                this.mc.field_1724.field_7514.field_7545 = i;
+                if (!(this.mc.player.inventory.getStack(i).getItem() instanceof SwordItem) && !(this.mc.player.inventory.getStack(i).getItem() instanceof AxeItem)) continue;
+                this.mc.player.inventory.selectedSlot = i;
                 break;
             }
         }
         if (this.rotationMode.get() == RotationMode.Break || this.rotationMode.get() == RotationMode.Both) {
-            float[] fArray = PlayerUtils.calculateAngle(class_15112.method_19538());
-            Rotations.rotate(fArray[0], fArray[1], 30, () -> this.lambda$hitCrystal$11(class_15112, n));
+            float[] fArray = PlayerUtils.calculateAngle(EndCrystalEntity2.getPos());
+            Rotations.rotate(fArray[0], fArray[1], 30, () -> this.lambda$hitCrystal$11(EndCrystalEntity2, n));
         } else {
-            this.attackCrystal(class_15112, n);
+            this.attackCrystal(EndCrystalEntity2, n);
         }
         this.broken = true;
         this.breakDelayLeft = this.breakDelay.get();
@@ -420,11 +420,11 @@ extends Module {
         }
     }
 
-    private boolean isSurrounded(class_1309 class_13092) {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+    private boolean isSurrounded(LivingEntity LivingEntity2) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        return !this.mc.field_1687.method_8320(class_13092.method_24515().method_10069(1, 0, 0)).method_26215() && !this.mc.field_1687.method_8320(class_13092.method_24515().method_10069(-1, 0, 0)).method_26215() && !this.mc.field_1687.method_8320(class_13092.method_24515().method_10069(0, 0, 1)).method_26215() && !this.mc.field_1687.method_8320(class_13092.method_24515().method_10069(0, 0, -1)).method_26215();
+        return !this.mc.world.getBlockState(LivingEntity2.getBlockPos().add(1, 0, 0)).isAir() && !this.mc.world.getBlockState(LivingEntity2.getBlockPos().add(-1, 0, 0)).isAir() && !this.mc.world.getBlockState(LivingEntity2.getBlockPos().add(0, 0, 1)).isAir() && !this.mc.world.getBlockState(LivingEntity2.getBlockPos().add(0, 0, -1)).isAir();
     }
 
     static {
@@ -436,80 +436,80 @@ extends Module {
         return crystalAura.renderDamage;
     }
 
-    private class_243 findOpenSurround(class_1309 class_13092) {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+    private Vec3d findOpenSurround(LivingEntity LivingEntity2) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
         int n = 0;
         int n2 = 0;
-        if (this.validSurroundBreak(class_13092, 2, 0)) {
+        if (this.validSurroundBreak(LivingEntity2, 2, 0)) {
             n = 2;
-        } else if (this.validSurroundBreak(class_13092, -2, 0)) {
+        } else if (this.validSurroundBreak(LivingEntity2, -2, 0)) {
             n = -2;
-        } else if (this.validSurroundBreak(class_13092, 0, 2)) {
+        } else if (this.validSurroundBreak(LivingEntity2, 0, 2)) {
             n2 = 2;
-        } else if (this.validSurroundBreak(class_13092, 0, -2)) {
+        } else if (this.validSurroundBreak(LivingEntity2, 0, -2)) {
             n2 = -2;
         }
         if (n != 0 || n2 != 0) {
-            return new class_243((double)class_13092.method_24515().method_10263() + 0.5 + (double)n, (double)(class_13092.method_24515().method_10264() - 1), (double)class_13092.method_24515().method_10260() + 0.5 + (double)n2);
+            return new Vec3d((double)LivingEntity2.getBlockPos().getX() + 0.5 + (double)n, (double)(LivingEntity2.getBlockPos().getY() - 1), (double)LivingEntity2.getBlockPos().getZ() + 0.5 + (double)n2);
         }
         return null;
     }
 
-    private void lambda$multiBreak$10(class_1297 class_12972) {
-        for (class_1297 class_12973 : this.mc.field_1687.method_18112()) {
-            if (class_12973 == this.mc.field_1724 || !this.entities.get().getBoolean((Object)class_12973.method_5864()) || !((double)this.mc.field_1724.method_5739(class_12973) <= this.targetRange.get()) || !class_12973.method_5805() || !(class_12973 instanceof class_1309) || class_12973 instanceof class_1657 && !Friends.get().attack((class_1657)class_12973)) continue;
-            this.crystalList.add(DamageCalcUtils.crystalDamage((class_1309)class_12973, class_12972.method_19538()));
+    private void lambda$multiBreak$10(Entity Entity2) {
+        for (Entity Entity3 : this.mc.world.getEntities()) {
+            if (Entity3 == this.mc.player || !this.entities.get().getBoolean((Object)Entity3.getType()) || !((double)this.mc.player.distanceTo(Entity3) <= this.targetRange.get()) || !Entity3.isAlive() || !(Entity3 instanceof LivingEntity) || Entity3 instanceof PlayerEntity && !Friends.get().attack((PlayerEntity)Entity3)) continue;
+            this.crystalList.add(DamageCalcUtils.crystalDamage((LivingEntity)Entity3, Entity2.getPos()));
         }
         if (!this.crystalList.isEmpty()) {
             this.crystalList.sort(Comparator.comparingDouble(Double::doubleValue));
-            this.crystalMap.put((class_1511)class_12972, new ArrayList<Double>(this.crystalList));
+            this.crystalMap.put((EndCrystalEntity)Entity2, new ArrayList<Double>(this.crystalList));
             this.crystalList.clear();
         }
     }
 
-    private void findFacePlace(class_1309 class_13092) {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+    private void findFacePlace(LivingEntity LivingEntity2) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        class_2338 class_23382 = class_13092.method_24515();
-        if (this.mc.field_1687.method_8320(class_23382.method_10069(1, 1, 0)).method_26215() && Math.sqrt(this.mc.field_1724.method_24515().method_10262((class_2382)class_23382.method_10069(1, 1, 0))) <= this.placeRange.get() && this.getDamagePlace(class_23382.method_10069(1, 1, 0))) {
-            this.bestBlock = class_13092.method_19538().method_1031(1.0, 0.0, 0.0);
-        } else if (this.mc.field_1687.method_8320(class_23382.method_10069(-1, 1, 0)).method_26215() && Math.sqrt(this.mc.field_1724.method_24515().method_10262((class_2382)class_23382.method_10069(-1, 1, 0))) <= this.placeRange.get() && this.getDamagePlace(class_23382.method_10069(-1, 1, 0))) {
-            this.bestBlock = class_13092.method_19538().method_1031(-1.0, 0.0, 0.0);
-        } else if (this.mc.field_1687.method_8320(class_23382.method_10069(0, 1, 1)).method_26215() && Math.sqrt(this.mc.field_1724.method_24515().method_10262((class_2382)class_23382.method_10069(0, 1, 1))) <= this.placeRange.get() && this.getDamagePlace(class_23382.method_10069(0, 1, 1))) {
-            this.bestBlock = class_13092.method_19538().method_1031(0.0, 0.0, 1.0);
-        } else if (this.mc.field_1687.method_8320(class_23382.method_10069(0, 1, -1)).method_26215() && Math.sqrt(this.mc.field_1724.method_24515().method_10262((class_2382)class_23382.method_10069(0, 1, -1))) <= this.placeRange.get() && this.getDamagePlace(class_23382.method_10069(0, 1, -1))) {
-            this.bestBlock = class_13092.method_19538().method_1031(0.0, 0.0, -1.0);
+        BlockPos BlockPos2 = LivingEntity2.getBlockPos();
+        if (this.mc.world.getBlockState(BlockPos2.add(1, 1, 0)).isAir() && Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance((Box2)BlockPos2.add(1, 1, 0))) <= this.placeRange.get() && this.getDamagePlace(BlockPos2.add(1, 1, 0))) {
+            this.bestBlock = LivingEntity2.getPos().add(1.0, 0.0, 0.0);
+        } else if (this.mc.world.getBlockState(BlockPos2.add(-1, 1, 0)).isAir() && Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance((Box2)BlockPos2.add(-1, 1, 0))) <= this.placeRange.get() && this.getDamagePlace(BlockPos2.add(-1, 1, 0))) {
+            this.bestBlock = LivingEntity2.getPos().add(-1.0, 0.0, 0.0);
+        } else if (this.mc.world.getBlockState(BlockPos2.add(0, 1, 1)).isAir() && Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance((Box2)BlockPos2.add(0, 1, 1))) <= this.placeRange.get() && this.getDamagePlace(BlockPos2.add(0, 1, 1))) {
+            this.bestBlock = LivingEntity2.getPos().add(0.0, 0.0, 1.0);
+        } else if (this.mc.world.getBlockState(BlockPos2.add(0, 1, -1)).isAir() && Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance((Box2)BlockPos2.add(0, 1, -1))) <= this.placeRange.get() && this.getDamagePlace(BlockPos2.add(0, 1, -1))) {
+            this.bestBlock = LivingEntity2.getPos().add(0.0, 0.0, -1.0);
         }
     }
 
-    private boolean shouldBreak(class_1511 class_15112) {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+    private boolean shouldBreak(EndCrystalEntity EndCrystalEntity2) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        return this.heldCrystal == null || this.surroundHold.get() == false && this.surroundBreak.get() == false || this.placeDelayLeft <= 0 && (!this.heldCrystal.method_24515().equals((Object)class_15112.method_24515()) || this.mc.field_1687.method_17742(new class_3959(this.target.method_19538(), this.heldCrystal.method_19538(), class_3959.class_3960.field_17558, class_3959.class_242.field_1348, (class_1297)this.target)).method_17783() == class_239.class_240.field_1333 || (double)this.target.method_5739((class_1297)this.heldCrystal) > 1.5 && !this.isSurrounded(this.target));
+        return this.heldCrystal == null || this.surroundHold.get() == false && this.surroundBreak.get() == false || this.placeDelayLeft <= 0 && (!this.heldCrystal.getBlockPos().equals((Object)EndCrystalEntity2.getBlockPos()) || this.mc.world.raycast(new RaycastContext(this.target.getPos(), this.heldCrystal.getPos(), RaycastContext.class_3960.COLLIDER, RaycastContext.class_242.NONE, (Entity)this.target)).getType() == HitResult.class_240.MISS || (double)this.target.distanceTo((Entity)this.heldCrystal) > 1.5 && !this.isSurrounded(this.target));
     }
 
     private void doHeldCrystal() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
         if (this.switchMode.get() != SwitchMode.None) {
             this.doSwitch();
         }
-        if (this.mc.field_1724.method_6047().method_7909() != class_1802.field_8301 && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8301) {
+        if (this.mc.player.getMainHandStack().getItem() != Items.END_CRYSTAL && this.mc.player.getOffHandStack().getItem() != Items.END_CRYSTAL) {
             return;
         }
-        this.bestDamage = DamageCalcUtils.crystalDamage(this.target, this.bestBlock.method_1031(0.0, 1.0, 0.0));
-        this.heldCrystal = new class_1511((class_1937)this.mc.field_1687, this.bestBlock.field_1352, this.bestBlock.field_1351 + 1.0, this.bestBlock.field_1350);
+        this.bestDamage = DamageCalcUtils.crystalDamage(this.target, this.bestBlock.add(0.0, 1.0, 0.0));
+        this.heldCrystal = new EndCrystalEntity((World)this.mc.world, this.bestBlock.x, this.bestBlock.y + 1.0, this.bestBlock.z);
         this.locked = true;
         if (!this.smartDelay.get().booleanValue()) {
             this.placeDelayLeft = this.placeDelay.get();
@@ -555,7 +555,7 @@ extends Module {
         this.breakRange = this.sgBreak.add(new DoubleSetting.Builder().name("break-range").description("The maximum range that crystals can be to be broken.").defaultValue(5.0).min(0.0).sliderMax(7.0).build());
         this.ignoreWalls = this.sgBreak.add(new BoolSetting.Builder().name("ray-trace").description("Whether or not to break through walls.").defaultValue(false).build());
         this.cancelCrystalMode = this.sgBreak.add(new EnumSetting.Builder().name("cancel-crystal").description("Mode to use for the crystals to be removed from the world.").defaultValue(CancelCrystalMode.Hit).build());
-        this.entities = this.sgTarget.add(new EntityTypeListSetting.Builder().name("entities").description("The entities to attack.").defaultValue((Object2BooleanMap<class_1299<?>>)Utils.asObject2BooleanOpenHashMap(class_1299.field_6097)).onlyAttackable().build());
+        this.entities = this.sgTarget.add(new EntityTypeListSetting.Builder().name("entities").description("The entities to attack.").defaultValue((Object2BooleanMap<EntityType<?>>)Utils.asObject2BooleanOpenHashMap(EntityType.PLAYER)).onlyAttackable().build());
         this.targetRange = this.sgTarget.add(new DoubleSetting.Builder().name("target-range").description("The maximum range the entity can be to be targeted.").defaultValue(7.0).min(0.0).sliderMax(10.0).build());
         this.targetMode = this.sgTarget.add(new EnumSetting.Builder().name("target-mode").description("The way you target multiple targets.").defaultValue(TargetMode.HighestXDamages).build());
         this.numberOfDamages = this.sgTarget.add(new IntSetting.Builder().name("number-of-damages").description("The number to replace 'x' with in HighestXDamages.").defaultValue(3).min(2).sliderMax(10).build());
@@ -591,7 +591,7 @@ extends Module {
         this.locked = false;
         this.supportSlot = 0;
         this.supportDelayLeft = this.supportDelay.get();
-        this.crystalMap = new HashMap<class_1511, List<Double>>();
+        this.crystalMap = new HashMap<EndCrystalEntity, List<Double>>();
         this.crystalList = new ArrayList<Double>();
         this.removalQueue = new ArrayList<Integer>();
         this.bestBreak = null;
@@ -604,38 +604,38 @@ extends Module {
         return crystalAura.roundDamage;
     }
 
-    private void attackCrystal(class_1511 class_15112, int n) {
-        this.mc.field_1761.method_2918((class_1657)this.mc.field_1724, (class_1297)class_15112);
-        this.removalQueue.add(class_15112.method_5628());
+    private void attackCrystal(EndCrystalEntity EndCrystalEntity2, int n) {
+        this.mc.interactionManager.attackEntity((PlayerEntity)this.mc.player, (Entity)EndCrystalEntity2);
+        this.removalQueue.add(EndCrystalEntity2.getEntityId());
         if (this.swing.get().booleanValue()) {
-            this.mc.field_1724.method_6104(this.getHand());
+            this.mc.player.swingHand(this.getHand());
         } else {
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2879(this.getHand()));
+            this.mc.player.networkHandler.sendPacket((Packet)new HandSwingC2SPacket(this.getHand()));
         }
-        this.mc.field_1724.field_7514.field_7545 = n;
-        if (this.heldCrystal != null && class_15112.method_24515().equals((Object)this.heldCrystal.method_24515())) {
+        this.mc.player.inventory.selectedSlot = n;
+        if (this.heldCrystal != null && EndCrystalEntity2.getBlockPos().equals((Object)this.heldCrystal.getBlockPos())) {
             this.heldCrystal = null;
             this.locked = false;
         }
     }
 
-    private boolean lambda$getCrystalStream$6(class_1297 class_12972) {
-        return this.ignoreWalls.get() == false || this.mc.field_1724.method_6057(class_12972);
+    private boolean lambda$getCrystalStream$6(Entity Entity2) {
+        return this.ignoreWalls.get() == false || this.mc.player.canSee(Entity2);
     }
 
     /*
      * Enabled force condition propagation
      * Lifted jumps to return sites
      */
-    private boolean getDamagePlace(class_2338 class_23382) {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+    private boolean getDamagePlace(BlockPos BlockPos2) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
         if (this.placeMode.get() == Mode.Suicide) return true;
-        class_243 class_2432 = new class_243((double)class_23382.method_10263() + 0.5, (double)class_23382.method_10264(), (double)class_23382.method_10260() + 0.5);
-        if (!(DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_2432) <= this.maxDamage.get())) return false;
-        class_243 class_2433 = new class_243((double)class_23382.method_10263() + 0.5, (double)class_23382.method_10264(), (double)class_23382.method_10260() + 0.5);
-        if (!((double)this.getTotalHealth((class_1657)this.mc.field_1724) - DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_2433) >= this.minHealth.get())) return false;
+        Vec3d Vec3d2 = new Vec3d((double)BlockPos2.getX() + 0.5, (double)BlockPos2.getY(), (double)BlockPos2.getZ() + 0.5);
+        if (!(DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Vec3d2) <= this.maxDamage.get())) return false;
+        Vec3d Vec3d3 = new Vec3d((double)BlockPos2.getX() + 0.5, (double)BlockPos2.getY(), (double)BlockPos2.getZ() + 0.5);
+        if (!((double)this.getTotalHealth((PlayerEntity)this.mc.player) - DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Vec3d3) >= this.minHealth.get())) return false;
         return true;
     }
 
@@ -655,21 +655,21 @@ extends Module {
             this.heldCrystal = null;
             this.locked = false;
         }
-        if (this.mc.field_1724.method_6115() && (this.mc.field_1724.method_6047().method_7909().method_19263() || this.mc.field_1724.method_6079().method_7909().method_19263()) && this.pauseOnEat.get().booleanValue() || this.mc.field_1761.method_2923() && this.pauseOnMine.get().booleanValue() || this.mc.field_1724.method_6115() && (this.mc.field_1724.method_6047().method_7909() instanceof class_1812 || this.mc.field_1724.method_6079().method_7909() instanceof class_1812) && this.pauseOnDrink.get().booleanValue()) {
+        if (this.mc.player.isUsingItem() && (this.mc.player.getMainHandStack().getItem().isFood() || this.mc.player.getOffHandStack().getItem().isFood()) && this.pauseOnEat.get().booleanValue() || this.mc.interactionManager.isBreakingBlock() && this.pauseOnMine.get().booleanValue() || this.mc.player.isUsingItem() && (this.mc.player.getMainHandStack().getItem() instanceof PotionItem || this.mc.player.getOffHandStack().getItem() instanceof PotionItem) && this.pauseOnDrink.get().booleanValue()) {
             return;
         }
-        if (this.locked && this.heldCrystal != null && (!this.surroundBreak.get().booleanValue() && this.target.method_24515().method_10262(new class_2382(this.heldCrystal.method_23317(), this.heldCrystal.method_23318(), this.heldCrystal.method_23321())) == 4.0 || !this.surroundHold.get().booleanValue() && this.target.method_24515().method_10262(new class_2382(this.heldCrystal.method_23317(), this.heldCrystal.method_23318(), this.heldCrystal.method_23321())) == 2.0)) {
+        if (this.locked && this.heldCrystal != null && (!this.surroundBreak.get().booleanValue() && this.target.getBlockPos().getSquaredDistance(new Box2(this.heldCrystal.getX(), this.heldCrystal.getY(), this.heldCrystal.getZ())) == 4.0 || !this.surroundHold.get().booleanValue() && this.target.getBlockPos().getSquaredDistance(new Box2(this.heldCrystal.getX(), this.heldCrystal.getY(), this.heldCrystal.getZ())) == 2.0)) {
             this.heldCrystal = null;
             this.locked = false;
         }
-        if (this.heldCrystal != null && (double)this.mc.field_1724.method_5739((class_1297)this.heldCrystal) > this.breakRange.get()) {
+        if (this.heldCrystal != null && (double)this.mc.player.distanceTo((Entity)this.heldCrystal) > this.breakRange.get()) {
             this.heldCrystal = null;
             this.locked = false;
         }
         boolean bl = false;
         if (this.heldCrystal != null) {
-            for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-                if (!(class_12972 instanceof class_1511) || this.heldCrystal == null || !class_12972.method_24515().equals((Object)this.heldCrystal.method_24515())) continue;
+            for (Entity Entity2 : this.mc.world.getEntities()) {
+                if (!(Entity2 instanceof EndCrystalEntity) || this.heldCrystal == null || !Entity2.getBlockPos().equals((Object)this.heldCrystal.getBlockPos())) continue;
                 bl = true;
                 break;
             }
@@ -679,10 +679,10 @@ extends Module {
             }
         }
         boolean bl2 = false;
-        if ((double)this.getTotalHealth((class_1657)this.mc.field_1724) <= this.minHealth.get() && this.placeMode.get() != Mode.Suicide) {
+        if ((double)this.getTotalHealth((PlayerEntity)this.mc.player) <= this.minHealth.get() && this.placeMode.get() != Mode.Suicide) {
             return;
         }
-        if (this.target != null && this.heldCrystal != null && this.placeDelayLeft <= 0 && this.mc.field_1687.method_17742(new class_3959(this.target.method_19538(), this.heldCrystal.method_19538(), class_3959.class_3960.field_17558, class_3959.class_242.field_1348, (class_1297)this.target)).method_17783() == class_239.class_240.field_1333) {
+        if (this.target != null && this.heldCrystal != null && this.placeDelayLeft <= 0 && this.mc.world.raycast(new RaycastContext(this.target.getPos(), this.heldCrystal.getPos(), RaycastContext.class_3960.COLLIDER, RaycastContext.class_242.NONE, (Entity)this.target)).getType() == HitResult.class_240.MISS) {
             this.locked = false;
         }
         if (this.heldCrystal == null) {
@@ -709,7 +709,7 @@ extends Module {
         if (!(this.smartDelay.get().booleanValue() || this.placeDelayLeft <= 0 || (this.surroundHold.get().booleanValue() || this.target == null || this.surroundBreak.get().booleanValue() && this.isSurrounded(this.target)) && this.heldCrystal == null || this.spamFacePlace.get().booleanValue())) {
             return;
         }
-        if (this.switchMode.get() == SwitchMode.None && this.mc.field_1724.method_6047().method_7909() != class_1802.field_8301 && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8301) {
+        if (this.switchMode.get() == SwitchMode.None && this.mc.player.getMainHandStack().getItem() != Items.END_CRYSTAL && this.mc.player.getOffHandStack().getItem() != Items.END_CRYSTAL) {
             return;
         }
         if (this.place.get().booleanValue()) {
@@ -722,21 +722,21 @@ extends Module {
             if (!this.multiPlace.get().booleanValue() && this.getCrystalStream().count() > 0L) {
                 return;
             }
-            if (this.surroundHold.get().booleanValue() && this.heldCrystal == null && ((n3 = InvUtils.findItemWithCount((class_1792)class_1802.field_8301).slot) != -1 && n3 < 9 || this.mc.field_1724.method_6079().method_7909() == class_1802.field_8301)) {
+            if (this.surroundHold.get().booleanValue() && this.heldCrystal == null && ((n3 = InvUtils.findItemWithCount((Item)Items.END_CRYSTAL).slot) != -1 && n3 < 9 || this.mc.player.getOffHandStack().getItem() == Items.END_CRYSTAL)) {
                 this.bestBlock = this.findOpen(this.target);
                 if (this.bestBlock != null) {
                     this.doHeldCrystal();
                     return;
                 }
             }
-            if (this.surroundBreak.get().booleanValue() && this.heldCrystal == null && this.isSurrounded(this.target) && ((n2 = InvUtils.findItemWithCount((class_1792)class_1802.field_8301).slot) != -1 && n2 < 9 || this.mc.field_1724.method_6079().method_7909() == class_1802.field_8301)) {
+            if (this.surroundBreak.get().booleanValue() && this.heldCrystal == null && this.isSurrounded(this.target) && ((n2 = InvUtils.findItemWithCount((Item)Items.END_CRYSTAL).slot) != -1 && n2 < 9 || this.mc.player.getOffHandStack().getItem() == Items.END_CRYSTAL)) {
                 this.bestBlock = this.findOpenSurround(this.target);
                 if (this.bestBlock != null) {
                     this.doHeldCrystal();
                     return;
                 }
             }
-            if (((n = InvUtils.findItemWithCount((class_1792)class_1802.field_8301).slot) == -1 || n > 9) && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8301) {
+            if (((n = InvUtils.findItemWithCount((Item)Items.END_CRYSTAL).slot) == -1 || n > 9) && this.mc.player.getOffHandStack().getItem() != Items.END_CRYSTAL) {
                 return;
             }
             this.findValidBlocks(this.target);
@@ -746,13 +746,13 @@ extends Module {
             if (this.bestBlock == null) {
                 return;
             }
-            if (this.facePlace.get().booleanValue() && Math.sqrt(this.target.method_5707(this.bestBlock)) <= 2.0) {
-                if ((double)(this.target.method_6032() + this.target.method_6067()) < this.facePlaceHealth.get()) {
+            if (this.facePlace.get().booleanValue() && Math.sqrt(this.target.squaredDistanceTo(this.bestBlock)) <= 2.0) {
+                if ((double)(this.target.getHealth() + this.target.getAbsorptionAmount()) < this.facePlaceHealth.get()) {
                     bl2 = true;
                 } else {
-                    Iterable iterable = this.target.method_5661();
-                    for (class_1799 class_17992 : iterable) {
-                        if (class_17992 == null || class_17992.method_7960() || !((double)(class_17992.method_7936() - class_17992.method_7919()) / (double)class_17992.method_7936() * 100.0 <= this.facePlaceDurability.get())) continue;
+                    Iterable iterable = this.target.getArmorItems();
+                    for (ItemStack ItemStack2 : iterable) {
+                        if (ItemStack2 == null || ItemStack2.isEmpty() || !((double)(ItemStack2.getMaxDamage() - ItemStack2.getDamage()) / (double)ItemStack2.getMaxDamage() * 100.0 <= this.facePlaceDurability.get())) continue;
                         bl2 = true;
                     }
                 }
@@ -761,7 +761,7 @@ extends Module {
                 if (this.switchMode.get() != SwitchMode.None) {
                     this.doSwitch();
                 }
-                if (this.mc.field_1724.method_6047().method_7909() != class_1802.field_8301 && this.mc.field_1724.method_6079().method_7909() != class_1802.field_8301) {
+                if (this.mc.player.getMainHandStack().getItem() != Items.END_CRYSTAL && this.mc.player.getOffHandStack().getItem() != Items.END_CRYSTAL) {
                     return;
                 }
                 if (!this.smartDelay.get().booleanValue()) {
@@ -775,107 +775,107 @@ extends Module {
                     }
                 }
             }
-            if (this.switchMode.get() == SwitchMode.Spoof && this.preSlot != this.mc.field_1724.field_7514.field_7545 && this.preSlot != -1) {
-                this.mc.field_1724.field_7514.field_7545 = this.preSlot;
+            if (this.switchMode.get() == SwitchMode.Spoof && this.preSlot != this.mc.player.inventory.selectedSlot && this.preSlot != -1) {
+                this.mc.player.inventory.selectedSlot = this.preSlot;
             }
         }
     }
 
-    private static boolean lambda$getCrystalStream$3(class_1297 class_12972) {
-        return class_12972 instanceof class_1511;
+    private static boolean lambda$getCrystalStream$3(Entity Entity2) {
+        return Entity2 instanceof EndCrystalEntity;
     }
 
     static Setting access$700(CrystalAura crystalAura) {
         return crystalAura.damageScale;
     }
 
-    private void lambda$placeBlock$19(class_1268 class_12682, class_2350 class_23502, class_243 class_2432) {
-        this.mc.field_1724.field_3944.method_2883((class_2596)new class_2885(class_12682, new class_3965(this.mc.field_1724.method_19538(), class_23502, new class_2338(class_2432), false)));
+    private void lambda$placeBlock$19(Hand Hand2, Direction Direction2, Vec3d Vec3d2) {
+        this.mc.player.networkHandler.sendPacket((Packet)new PlayerInteractBlockC2SPacket(Hand2, new BlockHitResult(this.mc.player.getPos(), Direction2, new BlockPos(Vec3d2), false)));
         if (this.swing.get().booleanValue()) {
-            this.mc.field_1724.method_6104(class_12682);
+            this.mc.player.swingHand(Hand2);
         } else {
-            this.mc.field_1724.field_3944.method_2883((class_2596)new class_2879(class_12682));
+            this.mc.player.networkHandler.sendPacket((Packet)new HandSwingC2SPacket(Hand2));
         }
     }
 
     private void multiBreak() {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
         this.crystalMap.clear();
         this.crystalList.clear();
         this.getCrystalStream().forEach(this::lambda$multiBreak$10);
-        class_1511 class_15112 = this.findBestCrystal(this.crystalMap);
-        if (class_15112 != null) {
-            this.hitCrystal(class_15112);
+        EndCrystalEntity EndCrystalEntity2 = this.findBestCrystal(this.crystalMap);
+        if (EndCrystalEntity2 != null) {
+            this.hitCrystal(EndCrystalEntity2);
         }
     }
 
-    private double lambda$findTarget$17(class_1297 class_12972) {
-        return class_12972.method_5739((class_1297)this.mc.field_1724);
+    private double lambda$findTarget$17(Entity Entity2) {
+        return Entity2.distanceTo((Entity)this.mc.player);
     }
 
-    private void findValidBlocks(class_1309 class_13092) {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+    private void findValidBlocks(LivingEntity LivingEntity2) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        this.bestBlock = new class_243(0.0, 0.0, 0.0);
+        this.bestBlock = new Vec3d(0.0, 0.0, 0.0);
         this.bestDamage = 0.0;
-        class_243 class_2432 = new class_243(0.0, 0.0, 0.0);
+        Vec3d Vec3d2 = new Vec3d(0.0, 0.0, 0.0);
         double d = 0.0;
-        class_2338 class_23382 = this.mc.field_1724.method_24515();
+        BlockPos BlockPos2 = this.mc.player.getBlockPos();
         this.canSupport = false;
         this.crystalMap.clear();
         this.crystalList.clear();
         if (this.support.get().booleanValue()) {
             for (int i = 0; i < 9; ++i) {
-                if (this.mc.field_1724.field_7514.method_5438(i).method_7909() != class_1802.field_8281) continue;
+                if (this.mc.player.inventory.getStack(i).getItem() != Items.OBSIDIAN) continue;
                 this.canSupport = true;
                 this.supportSlot = i;
                 break;
             }
         }
-        for (double d2 = (double)class_23382.method_10263() - this.placeRange.get(); d2 < (double)class_23382.method_10263() + this.placeRange.get(); d2 += 1.0) {
-            for (double d3 = (double)class_23382.method_10260() - this.placeRange.get(); d3 < (double)class_23382.method_10260() + this.placeRange.get(); d3 += 1.0) {
-                for (double d4 = (double)class_23382.method_10264() - this.verticalRange.get(); d4 < (double)class_23382.method_10264() + this.verticalRange.get(); d4 += 1.0) {
-                    class_243 class_2433 = new class_243(Math.floor(d2), Math.floor(d4), Math.floor(d3));
-                    if (!this.isValid(new class_2338(class_2433)) || !this.getDamagePlace(new class_2338(class_2433).method_10084()) || this.oldPlace.get().booleanValue() && !this.isEmpty(new class_2338(class_2433.method_1031(0.0, 2.0, 0.0))) || this.rayTrace.get().booleanValue() && !(class_2433.method_1022(new class_243(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + (double)this.mc.field_1724.method_18381(this.mc.field_1724.method_18376()), this.mc.field_1724.method_23321())) <= this.placeWallsRange.get()) && this.rayTraceCheck(new class_2338(class_2433), false) == null) continue;
+        for (double d2 = (double)BlockPos2.getX() - this.placeRange.get(); d2 < (double)BlockPos2.getX() + this.placeRange.get(); d2 += 1.0) {
+            for (double d3 = (double)BlockPos2.getZ() - this.placeRange.get(); d3 < (double)BlockPos2.getZ() + this.placeRange.get(); d3 += 1.0) {
+                for (double d4 = (double)BlockPos2.getY() - this.verticalRange.get(); d4 < (double)BlockPos2.getY() + this.verticalRange.get(); d4 += 1.0) {
+                    Vec3d Vec3d3 = new Vec3d(Math.floor(d2), Math.floor(d4), Math.floor(d3));
+                    if (!this.isValid(new BlockPos(Vec3d3)) || !this.getDamagePlace(new BlockPos(Vec3d3).up()) || this.oldPlace.get().booleanValue() && !this.isEmpty(new BlockPos(Vec3d3.add(0.0, 2.0, 0.0))) || this.rayTrace.get().booleanValue() && !(Vec3d3.distanceTo(new Vec3d(this.mc.player.getX(), this.mc.player.getY() + (double)this.mc.player.getEyeHeight(this.mc.player.getPose()), this.mc.player.getZ())) <= this.placeWallsRange.get()) && this.rayTraceCheck(new BlockPos(Vec3d3), false) == null) continue;
                     if (!this.multiTarget.get().booleanValue()) {
-                        if (this.isEmpty(new class_2338(class_2433)) && d < DamageCalcUtils.crystalDamage(class_13092, class_2433.method_1031(0.5, 1.0, 0.5))) {
-                            class_2432 = class_2433;
-                            d = DamageCalcUtils.crystalDamage(class_13092, class_2433.method_1031(0.5, 1.0, 0.5));
+                        if (this.isEmpty(new BlockPos(Vec3d3)) && d < DamageCalcUtils.crystalDamage(LivingEntity2, Vec3d3.add(0.5, 1.0, 0.5))) {
+                            Vec3d2 = Vec3d3;
+                            d = DamageCalcUtils.crystalDamage(LivingEntity2, Vec3d3.add(0.5, 1.0, 0.5));
                             continue;
                         }
-                        if (this.isEmpty(new class_2338(class_2433)) || !(this.bestDamage < DamageCalcUtils.crystalDamage(class_13092, class_2433.method_1031(0.5, 1.0, 0.5)))) continue;
-                        this.bestBlock = class_2433;
-                        this.bestDamage = DamageCalcUtils.crystalDamage(class_13092, this.bestBlock.method_1031(0.5, 1.0, 0.5));
+                        if (this.isEmpty(new BlockPos(Vec3d3)) || !(this.bestDamage < DamageCalcUtils.crystalDamage(LivingEntity2, Vec3d3.add(0.5, 1.0, 0.5)))) continue;
+                        this.bestBlock = Vec3d3;
+                        this.bestDamage = DamageCalcUtils.crystalDamage(LivingEntity2, this.bestBlock.add(0.5, 1.0, 0.5));
                         continue;
                     }
-                    for (class_1297 class_12972 : this.mc.field_1687.method_18112()) {
-                        if (class_12972 == this.mc.field_1724 || !this.entities.get().getBoolean((Object)class_12972.method_5864()) || !((double)this.mc.field_1724.method_5739(class_12972) <= this.targetRange.get()) || !class_12972.method_5805() || !(class_12972 instanceof class_1309) || class_12972 instanceof class_1657 && !Friends.get().attack((class_1657)class_12972)) continue;
-                        this.crystalList.add(DamageCalcUtils.crystalDamage((class_1309)class_12972, class_2433.method_1031(0.5, 1.0, 0.5)));
+                    for (Entity Entity2 : this.mc.world.getEntities()) {
+                        if (Entity2 == this.mc.player || !this.entities.get().getBoolean((Object)Entity2.getType()) || !((double)this.mc.player.distanceTo(Entity2) <= this.targetRange.get()) || !Entity2.isAlive() || !(Entity2 instanceof LivingEntity) || Entity2 instanceof PlayerEntity && !Friends.get().attack((PlayerEntity)Entity2)) continue;
+                        this.crystalList.add(DamageCalcUtils.crystalDamage((LivingEntity)Entity2, Vec3d3.add(0.5, 1.0, 0.5)));
                     }
                     if (this.crystalList.isEmpty()) continue;
                     this.crystalList.sort(Comparator.comparingDouble(Double::doubleValue));
-                    this.crystalMap.put(new class_1511((class_1937)this.mc.field_1687, class_2433.field_1352, class_2433.field_1351, class_2433.field_1350), new ArrayList<Double>(this.crystalList));
+                    this.crystalMap.put(new EndCrystalEntity((World)this.mc.world, Vec3d3.x, Vec3d3.y, Vec3d3.z), new ArrayList<Double>(this.crystalList));
                     this.crystalList.clear();
                 }
             }
         }
         if (this.multiTarget.get().booleanValue()) {
-            class_1511 class_15112 = this.findBestCrystal(this.crystalMap);
-            this.bestBlock = class_15112 != null && this.bestDamage > this.minDamage.get() ? class_15112.method_19538() : null;
+            EndCrystalEntity EndCrystalEntity2 = this.findBestCrystal(this.crystalMap);
+            this.bestBlock = EndCrystalEntity2 != null && this.bestDamage > this.minDamage.get() ? EndCrystalEntity2.getPos() : null;
         } else if (this.bestDamage < this.minDamage.get()) {
             this.bestBlock = null;
         }
         if (this.support.get().booleanValue() && (this.bestBlock == null || this.bestDamage < d && !this.supportBackup.get().booleanValue())) {
-            this.bestBlock = class_2432;
+            this.bestBlock = Vec3d2;
         }
     }
 
@@ -884,32 +884,32 @@ extends Module {
     }
 
     private void lambda$onPlaySound$2(Integer n) {
-        this.mc.field_1687.method_2945(n.intValue());
+        this.mc.world.removeEntity(n.intValue());
     }
 
     private void singleBreak() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
         this.getCrystalStream().max(Comparator.comparingDouble(this::lambda$singleBreak$8)).ifPresent(this::lambda$singleBreak$9);
     }
 
-    private boolean lambda$getCrystalStream$7(class_1297 class_12972) {
-        return this.isSafe(class_12972.method_19538());
+    private boolean lambda$getCrystalStream$7(Entity Entity2) {
+        return this.isSafe(Entity2.getPos());
     }
 
-    public class_1268 getHand() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+    public Hand getHand() {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        class_1268 class_12682 = class_1268.field_5808;
-        if (this.mc.field_1724.method_6047().method_7909() != class_1802.field_8301 && this.mc.field_1724.method_6079().method_7909() == class_1802.field_8301) {
-            class_12682 = class_1268.field_5810;
+        Hand Hand2 = Hand.MAIN_HAND;
+        if (this.mc.player.getMainHandStack().getItem() != Items.END_CRYSTAL && this.mc.player.getOffHandStack().getItem() == Items.END_CRYSTAL) {
+            Hand2 = Hand.OFF_HAND;
         }
-        return class_12682;
+        return Hand2;
     }
 
     private RenderBlock lambda$new$0() {
@@ -918,23 +918,23 @@ extends Module {
 
     @Override
     public void onDeactivate() {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
         if (this.switchBack.get().booleanValue() && this.preSlot != -1) {
-            this.mc.field_1724.field_7514.field_7545 = this.preSlot;
+            this.mc.player.inventory.selectedSlot = this.preSlot;
         }
         for (RenderBlock renderBlock : this.renderBlocks) {
             this.renderBlockPool.free(renderBlock);
         }
         this.renderBlocks.clear();
         if (this.target != null && this.resetRotations.get().booleanValue() && (this.rotationMode.get() == RotationMode.Both || this.rotationMode.get() == RotationMode.Place || this.rotationMode.get() == RotationMode.Break)) {
-            RotationUtils.packetRotate(this.mc.field_1724.field_6031, this.mc.field_1724.field_5965);
+            RotationUtils.packetRotate(this.mc.player.yaw, this.mc.player.pitch);
         }
     }
 
-    private boolean lambda$findTarget$15(class_1297 class_12972) {
-        return this.entities.get().getBoolean((Object)class_12972.method_5864());
+    private boolean lambda$findTarget$15(Entity Entity2) {
+        return this.entities.get().getBoolean((Object)Entity2.getType());
     }
 
     @EventHandler
@@ -942,17 +942,17 @@ extends Module {
         if (this.heldCrystal == null) {
             return;
         }
-        if (entityRemovedEvent.entity.method_24515().equals((Object)this.heldCrystal.method_24515())) {
+        if (entityRemovedEvent.entity.getBlockPos().equals((Object)this.heldCrystal.getBlockPos())) {
             this.heldCrystal = null;
             this.locked = false;
         }
     }
 
-    private boolean isSafe(class_243 class_2432) {
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+    private boolean isSafe(Vec3d Vec3d2) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        return this.breakMode.get() != Mode.Safe || (double)this.getTotalHealth((class_1657)this.mc.field_1724) - DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_2432) > this.minHealth.get() && DamageCalcUtils.crystalDamage((class_1309)this.mc.field_1724, class_2432) < this.maxDamage.get();
+        return this.breakMode.get() != Mode.Safe || (double)this.getTotalHealth((PlayerEntity)this.mc.player) - DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Vec3d2) > this.minHealth.get() && DamageCalcUtils.crystalDamage((LivingEntity)this.mc.player, Vec3d2) < this.maxDamage.get();
     }
 
     static Setting access$300(CrystalAura crystalAura) {
@@ -973,29 +973,29 @@ extends Module {
      * Enabled force condition propagation
      * Lifted jumps to return sites
      */
-    private boolean validSurroundBreak(class_1309 class_13092, int n, int n2) {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+    private boolean validSurroundBreak(LivingEntity LivingEntity2, int n, int n2) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        if (!$assertionsDisabled && this.mc.field_1724 == null) {
+        if (!$assertionsDisabled && this.mc.player == null) {
             throw new AssertionError();
         }
-        class_243 class_2432 = new class_243((double)class_13092.method_24515().method_10263() + 0.5, (double)class_13092.method_24515().method_10264(), (double)class_13092.method_24515().method_10260() + 0.5);
-        if (!this.isValid(class_13092.method_24515().method_10069(n, -1, n2))) return false;
-        if (this.mc.field_1687.method_8320(class_13092.method_24515().method_10069(n / 2, 0, n2 / 2)).method_26204() == class_2246.field_9987) return false;
-        if (!this.isSafe(class_2432.method_1031((double)n, 0.0, (double)n2))) return false;
-        class_2382 class_23822 = new class_2382(class_13092.method_24515().method_10263() + n, class_13092.method_24515().method_10264() - 1, class_13092.method_24515().method_10260() + n2);
-        if (!(Math.sqrt(this.mc.field_1724.method_24515().method_10262(class_23822)) < this.placeRange.get())) return false;
-        if (this.mc.field_1687.method_17742(new class_3959(class_13092.method_19538(), class_13092.method_19538().method_1031((double)n, 0.0, (double)n2), class_3959.class_3960.field_17558, class_3959.class_242.field_1348, (class_1297)class_13092)).method_17783() == class_239.class_240.field_1333) return false;
+        Vec3d Vec3d2 = new Vec3d((double)LivingEntity2.getBlockPos().getX() + 0.5, (double)LivingEntity2.getBlockPos().getY(), (double)LivingEntity2.getBlockPos().getZ() + 0.5);
+        if (!this.isValid(LivingEntity2.getBlockPos().add(n, -1, n2))) return false;
+        if (this.mc.world.getBlockState(LivingEntity2.getBlockPos().add(n / 2, 0, n2 / 2)).getBlock() == Blocks.BEDROCK) return false;
+        if (!this.isSafe(Vec3d2.add((double)n, 0.0, (double)n2))) return false;
+        Box2 Box22 = new Box2(LivingEntity2.getBlockPos().getX() + n, LivingEntity2.getBlockPos().getY() - 1, LivingEntity2.getBlockPos().getZ() + n2);
+        if (!(Math.sqrt(this.mc.player.getBlockPos().getSquaredDistance(Box22)) < this.placeRange.get())) return false;
+        if (this.mc.world.raycast(new RaycastContext(LivingEntity2.getPos(), LivingEntity2.getPos().add((double)n, 0.0, (double)n2), RaycastContext.class_3960.COLLIDER, RaycastContext.class_242.NONE, (Entity)LivingEntity2)).getType() == HitResult.class_240.MISS) return false;
         return true;
     }
 
-    private void lambda$singleBreak$9(class_1297 class_12972) {
-        this.hitCrystal((class_1511)class_12972);
+    private void lambda$singleBreak$9(Entity Entity2) {
+        this.hitCrystal((EndCrystalEntity)Entity2);
     }
 
-    private void lambda$hitCrystal$11(class_1511 class_15112, int n) {
-        this.attackCrystal(class_15112, n);
+    private void lambda$hitCrystal$11(EndCrystalEntity EndCrystalEntity2, int n) {
+        this.attackCrystal(EndCrystalEntity2, n);
     }
 
     @EventHandler(priority=100)
@@ -1006,32 +1006,32 @@ extends Module {
         }
     }
 
-    private static boolean lambda$findTarget$14(class_1297 class_12972) {
-        return class_12972 instanceof class_1309;
+    private static boolean lambda$findTarget$14(Entity Entity2) {
+        return Entity2 instanceof LivingEntity;
     }
 
-    private class_2350 rayTraceCheck(class_2338 class_23382, boolean bl) {
-        class_243 class_2432 = new class_243(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + (double)this.mc.field_1724.method_18381(this.mc.field_1724.method_18376()), this.mc.field_1724.method_23321());
-        for (class_2350 class_23502 : class_2350.values()) {
-            class_3959 class_39592 = new class_3959(class_2432, new class_243((double)class_23382.method_10263() + 0.5 + (double)class_23502.method_10163().method_10263() * 0.5, (double)class_23382.method_10264() + 0.5 + (double)class_23502.method_10163().method_10264() * 0.5, (double)class_23382.method_10260() + 0.5 + (double)class_23502.method_10163().method_10260() * 0.5), class_3959.class_3960.field_17558, class_3959.class_242.field_1348, (class_1297)this.mc.field_1724);
-            class_3965 class_39652 = this.mc.field_1687.method_17742(class_39592);
-            if (class_39652 == null || class_39652.method_17783() != class_239.class_240.field_1332 || !class_39652.method_17777().equals((Object)class_23382)) continue;
-            return class_23502;
+    private Direction rayTraceCheck(BlockPos BlockPos2, boolean bl) {
+        Vec3d Vec3d2 = new Vec3d(this.mc.player.getX(), this.mc.player.getY() + (double)this.mc.player.getEyeHeight(this.mc.player.getPose()), this.mc.player.getZ());
+        for (Direction Direction2 : Direction.values()) {
+            RaycastContext RaycastContext2 = new RaycastContext(Vec3d2, new Vec3d((double)BlockPos2.getX() + 0.5 + (double)Direction2.getVector().getX() * 0.5, (double)BlockPos2.getY() + 0.5 + (double)Direction2.getVector().getY() * 0.5, (double)BlockPos2.getZ() + 0.5 + (double)Direction2.getVector().getZ() * 0.5), RaycastContext.class_3960.COLLIDER, RaycastContext.class_242.NONE, (Entity)this.mc.player);
+            BlockHitResult BlockHitResult2 = this.mc.world.raycast(RaycastContext2);
+            if (BlockHitResult2 == null || BlockHitResult2.getType() != HitResult.class_240.BLOCK || !BlockHitResult2.getBlockPos().equals((Object)BlockPos2)) continue;
+            return Direction2;
         }
         if (bl) {
-            if ((double)class_23382.method_10264() > class_2432.field_1351) {
-                return class_2350.field_11033;
+            if ((double)BlockPos2.getY() > Vec3d2.y) {
+                return Direction.DOWN;
             }
-            return class_2350.field_11036;
+            return Direction.UP;
         }
         return null;
     }
 
     private void findTarget() {
-        if (!$assertionsDisabled && this.mc.field_1687 == null) {
+        if (!$assertionsDisabled && this.mc.world == null) {
             throw new AssertionError();
         }
-        Optional<class_1309> optional = Streams.stream((Iterable)this.mc.field_1687.method_18112()).filter(class_1297::method_5805).filter(this::lambda$findTarget$12).filter(CrystalAura::lambda$findTarget$13).filter(CrystalAura::lambda$findTarget$14).filter(this::lambda$findTarget$15).filter(this::lambda$findTarget$16).min(Comparator.comparingDouble(this::lambda$findTarget$17)).map(CrystalAura::lambda$findTarget$18);
+        Optional<LivingEntity> optional = Streams.stream((Iterable)this.mc.world.getEntities()).filter(Entity::isAlive).filter(this::lambda$findTarget$12).filter(CrystalAura::lambda$findTarget$13).filter(CrystalAura::lambda$findTarget$14).filter(this::lambda$findTarget$15).filter(this::lambda$findTarget$16).min(Comparator.comparingDouble(this::lambda$findTarget$17)).map(CrystalAura::lambda$findTarget$18);
         if (!optional.isPresent()) {
             this.target = null;
             return;
@@ -1125,10 +1125,10 @@ extends Module {
             this(crystalAura);
         }
 
-        public void reset(class_243 class_2432) {
-            this.x = class_3532.method_15357((double)class_2432.method_10216());
-            this.y = class_3532.method_15357((double)class_2432.method_10214());
-            this.z = class_3532.method_15357((double)class_2432.method_10215());
+        public void reset(Vec3d Vec3d2) {
+            this.x = MathHelper.floor((double)Vec3d2.getX());
+            this.y = MathHelper.floor((double)Vec3d2.getY());
+            this.z = MathHelper.floor((double)Vec3d2.getZ());
             this.timer = (Integer)CrystalAura.access$100(this.this$0).get();
         }
 

@@ -9,11 +9,11 @@ import minegame159.meteorclient.systems.modules.render.WallHack;
 import net.fabricmc.fabric.impl.client.indigo.renderer.mesh.MutableQuadViewImpl;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.AbstractQuadRenderer;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
-import net.minecraft.class_1159;
-import net.minecraft.class_1160;
-import net.minecraft.class_1921;
-import net.minecraft.class_4581;
-import net.minecraft.class_4588;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.util.math.Matrix3f;
+import net.minecraft.client.render.VertexConsumer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,61 +28,61 @@ public abstract class AbstractQuadRendererMixin {
     protected BlockRenderInfo blockInfo;
     @Final
     @Shadow
-    protected Function<class_1921, class_4588> bufferFunc;
+    protected Function<RenderLayer, VertexConsumer> bufferFunc;
     @Final
     @Shadow
-    protected class_1160 normalVec;
+    protected Vec3f normalVec;
 
     @Shadow
-    public static void bufferQuad(class_4588 class_45882, MutableQuadViewImpl mutableQuadViewImpl, class_1159 class_11592, int n, class_4581 class_45812, class_1160 class_11602) {
+    public static void bufferQuad(VertexConsumer VertexConsumer2, MutableQuadViewImpl mutableQuadViewImpl, Matrix4f Matrix4f2, int n, Matrix3f Matrix3f2, Vec3f Vec3f2) {
     }
 
     @Shadow
-    protected abstract class_1159 matrix();
+    protected abstract Matrix4f matrix();
 
     @Shadow
     protected abstract int overlay();
 
     @Shadow
-    protected abstract class_4581 normalMatrix();
+    protected abstract Matrix3f normalMatrix();
 
-    @Inject(method={"bufferQuad(Lnet/fabricmc/fabric/impl/client/indigo/renderer/mesh/MutableQuadViewImpl;Lnet/minecraft/class_1921;)V"}, at={@At(value="HEAD")}, cancellable=true, remap=false)
-    private void onBufferQuad(MutableQuadViewImpl mutableQuadViewImpl, class_1921 class_19212, CallbackInfo callbackInfo) {
+    @Inject(method={"bufferQuad(Lnet/fabricmc/fabric/impl/client/indigo/renderer/mesh/MutableQuadViewImpl;Lnet/minecraft/RenderLayer;)V"}, at={@At(value="HEAD")}, cancellable=true, remap=false)
+    private void onBufferQuad(MutableQuadViewImpl mutableQuadViewImpl, RenderLayer RenderLayer2, CallbackInfo callbackInfo) {
         WallHack wallHack = Modules.get().get(WallHack.class);
         if (wallHack.isActive()) {
-            if (wallHack.blocks.get().contains(this.blockInfo.blockState.method_26204())) {
-                AbstractQuadRendererMixin.whBufferQuad(this.bufferFunc.apply(class_19212), mutableQuadViewImpl, this.matrix(), this.overlay(), this.normalMatrix(), this.normalVec, wallHack);
+            if (wallHack.blocks.get().contains(this.blockInfo.blockState.getBlock())) {
+                AbstractQuadRendererMixin.whBufferQuad(this.bufferFunc.apply(RenderLayer2), mutableQuadViewImpl, this.matrix(), this.overlay(), this.normalMatrix(), this.normalVec, wallHack);
             } else {
-                AbstractQuadRendererMixin.bufferQuad(this.bufferFunc.apply(class_19212), mutableQuadViewImpl, this.matrix(), this.overlay(), this.normalMatrix(), this.normalVec);
+                AbstractQuadRendererMixin.bufferQuad(this.bufferFunc.apply(RenderLayer2), mutableQuadViewImpl, this.matrix(), this.overlay(), this.normalMatrix(), this.normalVec);
             }
         } else {
-            AbstractQuadRendererMixin.bufferQuad(this.bufferFunc.apply(class_19212), mutableQuadViewImpl, this.matrix(), this.overlay(), this.normalMatrix(), this.normalVec);
+            AbstractQuadRendererMixin.bufferQuad(this.bufferFunc.apply(RenderLayer2), mutableQuadViewImpl, this.matrix(), this.overlay(), this.normalMatrix(), this.normalVec);
         }
         callbackInfo.cancel();
     }
 
-    private static void whBufferQuad(class_4588 class_45882, MutableQuadViewImpl mutableQuadViewImpl, class_1159 class_11592, int n, class_4581 class_45812, class_1160 class_11602, WallHack wallHack) {
+    private static void whBufferQuad(VertexConsumer VertexConsumer2, MutableQuadViewImpl mutableQuadViewImpl, Matrix4f Matrix4f2, int n, Matrix3f Matrix3f2, Vec3f Vec3f2, WallHack wallHack) {
         boolean bl = mutableQuadViewImpl.hasVertexNormals();
         if (bl) {
             mutableQuadViewImpl.populateMissingNormals();
         } else {
-            class_1160 class_11603 = mutableQuadViewImpl.faceNormal();
-            class_11602.method_4949(class_11603.method_4943(), class_11603.method_4945(), class_11603.method_4947());
-            class_11602.method_23215(class_45812);
+            Vec3f Vec3f3 = mutableQuadViewImpl.faceNormal();
+            Vec3f2.set(Vec3f3.getX(), Vec3f3.getY(), Vec3f3.getZ());
+            Vec3f2.transform(Matrix3f2);
         }
         for (int i = 0; i < 4; ++i) {
-            class_45882.method_22918(class_11592, mutableQuadViewImpl.x(i), mutableQuadViewImpl.y(i), mutableQuadViewImpl.z(i));
+            VertexConsumer2.vertex(Matrix4f2, mutableQuadViewImpl.x(i), mutableQuadViewImpl.y(i), mutableQuadViewImpl.z(i));
             int n2 = mutableQuadViewImpl.spriteColor(i, 0);
-            class_45882.method_1336(n2 & 0xFF, n2 >> 8 & 0xFF, n2 >> 16 & 0xFF, wallHack.opacity.get().intValue());
-            class_45882.method_22913(mutableQuadViewImpl.spriteU(i, 0), mutableQuadViewImpl.spriteV(i, 0));
-            class_45882.method_22922(n);
-            class_45882.method_22916(mutableQuadViewImpl.lightmap(i));
+            VertexConsumer2.color(n2 & 0xFF, n2 >> 8 & 0xFF, n2 >> 16 & 0xFF, wallHack.opacity.get().intValue());
+            VertexConsumer2.texture(mutableQuadViewImpl.spriteU(i, 0), mutableQuadViewImpl.spriteV(i, 0));
+            VertexConsumer2.overlay(n);
+            VertexConsumer2.light(mutableQuadViewImpl.lightmap(i));
             if (bl) {
-                class_11602.method_4949(mutableQuadViewImpl.normalX(i), mutableQuadViewImpl.normalY(i), mutableQuadViewImpl.normalZ(i));
-                class_11602.method_23215(class_45812);
+                Vec3f2.set(mutableQuadViewImpl.normalX(i), mutableQuadViewImpl.normalY(i), mutableQuadViewImpl.normalZ(i));
+                Vec3f2.transform(Matrix3f2);
             }
-            class_45882.method_22914(class_11602.method_4943(), class_11602.method_4945(), class_11602.method_4947());
-            class_45882.method_1344();
+            VertexConsumer2.normal(Vec3f2.getX(), Vec3f2.getY(), Vec3f2.getZ());
+            VertexConsumer2.next();
         }
     }
 }

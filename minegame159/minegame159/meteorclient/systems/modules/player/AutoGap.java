@@ -22,10 +22,10 @@ import minegame159.meteorclient.systems.modules.combat.BedAura;
 import minegame159.meteorclient.systems.modules.combat.CrystalAura;
 import minegame159.meteorclient.systems.modules.combat.KillAura;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_1294;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
 public class AutoGap
 extends Module {
@@ -50,7 +50,7 @@ extends Module {
     private final Setting<Boolean> pauseAuras;
 
     private void setPressed(boolean bl) {
-        this.mc.field_1690.field_1904.method_23481(bl);
+        this.mc.options.keyUse.setPressed(bl);
     }
 
     private void stopEating() {
@@ -112,28 +112,28 @@ extends Module {
             bl = true;
         }
         int n = -1;
-        class_1792 class_17922 = null;
+        Item Item2 = null;
         for (int i = 0; i < 9; ++i) {
-            class_1799 class_17992 = this.mc.field_1724.field_7514.method_5438(i);
-            if (class_17992.method_7960() || this.isNotGapOrEGap(class_17992)) continue;
-            class_1792 class_17923 = class_17992.method_7909();
-            if (class_17922 == null) {
+            ItemStack ItemStack2 = this.mc.player.inventory.getStack(i);
+            if (ItemStack2.isEmpty() || this.isNotGapOrEGap(ItemStack2)) continue;
+            Item Item3 = ItemStack2.getItem();
+            if (Item2 == null) {
                 n = i;
-                class_17922 = class_17923;
+                Item2 = Item3;
                 continue;
             }
-            if (class_17922 == class_17923) continue;
-            if (class_17923 == class_1802.field_8367 && bl) {
+            if (Item2 == Item3) continue;
+            if (Item3 == Items.ENCHANTED_GOLDEN_APPLE && bl) {
                 n = i;
-                class_17922 = class_17923;
+                Item2 = Item3;
                 break;
             }
-            if (class_17923 != class_1802.field_8463 || bl) continue;
+            if (Item3 != Items.GOLDEN_APPLE || bl) continue;
             n = i;
-            class_17922 = class_17923;
+            Item2 = Item3;
             break;
         }
-        if (this.requiresEGap && class_17922 != class_1802.field_8367) {
+        if (this.requiresEGap && Item2 != Items.ENCHANTED_GOLDEN_APPLE) {
             return -1;
         }
         return n;
@@ -143,7 +143,7 @@ extends Module {
     private void onTick(TickEvent.Pre pre) {
         if (this.eating) {
             if (this.shouldEat()) {
-                if (this.isNotGapOrEGap(this.mc.field_1724.field_7514.method_5438(this.slot))) {
+                if (this.isNotGapOrEGap(this.mc.player.inventory.getStack(this.slot))) {
                     int n = this.findSlot();
                     if (n == -1) {
                         this.stopEating();
@@ -168,7 +168,7 @@ extends Module {
     }
 
     private void startEating() {
-        this.prevSlot = this.mc.field_1724.field_7514.field_7545;
+        this.prevSlot = this.mc.player.inventory.selectedSlot;
         this.eat();
         this.wasAura.clear();
         if (this.pauseAuras.get().booleanValue()) {
@@ -196,15 +196,15 @@ extends Module {
     }
 
     private boolean shouldEatPotions() {
-        Map map = this.mc.field_1724.method_6088();
-        if (this.potionsRegeneration.get().booleanValue() && !map.containsKey(class_1294.field_5924)) {
+        Map map = this.mc.player.getActiveStatusEffects();
+        if (this.potionsRegeneration.get().booleanValue() && !map.containsKey(StatusEffects.REGENERATION)) {
             return true;
         }
-        if (this.potionsFireResistance.get().booleanValue() && !map.containsKey(class_1294.field_5918)) {
+        if (this.potionsFireResistance.get().booleanValue() && !map.containsKey(StatusEffects.FIRE_RESISTANCE)) {
             this.requiresEGap = true;
             return true;
         }
-        if (this.potionsResistance.get().booleanValue() && !map.containsKey(class_1294.field_5907)) {
+        if (this.potionsResistance.get().booleanValue() && !map.containsKey(StatusEffects.RESISTANCE)) {
             this.requiresEGap = true;
             return true;
         }
@@ -215,27 +215,27 @@ extends Module {
         if (!this.healthEnabled.get().booleanValue()) {
             return false;
         }
-        int n = Math.round(this.mc.field_1724.method_6032() + this.mc.field_1724.method_6067());
+        int n = Math.round(this.mc.player.getHealth() + this.mc.player.getAbsorptionAmount());
         return n < this.healthThreshold.get();
     }
 
     private void eat() {
         this.changeSlot(this.slot);
         this.setPressed(true);
-        if (!this.mc.field_1724.method_6115()) {
+        if (!this.mc.player.isUsingItem()) {
             Utils.rightClick();
         }
         this.eating = true;
     }
 
     private void changeSlot(int n) {
-        this.mc.field_1724.field_7514.field_7545 = n;
+        this.mc.player.inventory.selectedSlot = n;
         this.slot = n;
     }
 
-    private boolean isNotGapOrEGap(class_1799 class_17992) {
-        class_1792 class_17922 = class_17992.method_7909();
-        return class_17922 != class_1802.field_8463 && class_17922 != class_1802.field_8367;
+    private boolean isNotGapOrEGap(ItemStack ItemStack2) {
+        Item Item2 = ItemStack2.getItem();
+        return Item2 != Items.GOLDEN_APPLE && Item2 != Items.ENCHANTED_GOLDEN_APPLE;
     }
 }
 

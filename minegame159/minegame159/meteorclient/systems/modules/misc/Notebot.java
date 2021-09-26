@@ -39,31 +39,31 @@ import minegame159.meteorclient.utils.player.InvUtils;
 import minegame159.meteorclient.utils.player.Rotations;
 import minegame159.meteorclient.utils.render.color.SettingColor;
 import minegame159.meteorclient.utils.world.BlockUtils;
-import net.minecraft.class_1268;
-import net.minecraft.class_1297;
-import net.minecraft.class_1802;
-import net.minecraft.class_2246;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2374;
-import net.minecraft.class_2382;
-import net.minecraft.class_239;
-import net.minecraft.class_2428;
-import net.minecraft.class_243;
-import net.minecraft.class_2596;
-import net.minecraft.class_2680;
-import net.minecraft.class_2769;
-import net.minecraft.class_2885;
-import net.minecraft.class_3417;
-import net.minecraft.class_3959;
-import net.minecraft.class_3965;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.Items;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Position;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.block.NoteBlock;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.Packet;
+import net.minecraft.block.BlockState;
+import net.minecraft.state.property.Property;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.world.RaycastContext;
+import net.minecraft.util.hit.BlockHitResult;
 import org.apache.commons.io.FilenameUtils;
 
 public class Notebot
 extends Module {
     private int offset;
-    private final List<class_2338> possibleBlockPos;
-    private final HashMap<Integer, class_2338> blockPositions;
+    private final List<BlockPos> possibleBlockPos;
+    private final HashMap<Integer, BlockPos> blockPositions;
     private final List<Integer> uniqueNotes;
     private final Setting<Boolean> render;
     private final Setting<SettingColor> sideColor;
@@ -79,7 +79,7 @@ extends Module {
     private final HashMap<Integer, Integer> song;
     private boolean isPlaying;
     private final Setting<SettingColor> lineColor;
-    private final List<class_2338> scannedNoteblocks;
+    private final List<BlockPos> scannedNoteblocks;
 
     public void loadSong(File file) {
         if (!this.isActive()) {
@@ -162,31 +162,31 @@ extends Module {
         }
     }
 
-    private boolean tuneBlock(class_2338 class_23382, int n) {
-        if (this.mc.field_1687 == null || this.mc.field_1724 == null) {
+    private boolean tuneBlock(BlockPos BlockPos2, int n) {
+        if (this.mc.world == null || this.mc.player == null) {
             return false;
         }
-        class_2680 class_26802 = this.mc.field_1687.method_8320(class_23382);
-        if (class_26802.method_26204() != class_2246.field_10179) {
+        BlockState BlockState2 = this.mc.world.getBlockState(BlockPos2);
+        if (BlockState2.getBlock() != Blocks.NOTE_BLOCK) {
             ++this.offset;
             this.stage = Stage.SetUp;
             return true;
         }
-        if (((Integer)class_26802.method_11654((class_2769)class_2428.field_11324)).equals(n)) {
+        if (((Integer)BlockState2.get((Property)NoteBlock.NOTE)).equals(n)) {
             ++this.currentNote;
             this.stage = Stage.SetUp;
             return true;
         }
-        this.mc.field_1724.field_3944.method_2883((class_2596)new class_2885(class_1268.field_5808, new class_3965(this.mc.field_1724.method_19538(), this.rayTraceCheck(class_23382, true), class_23382, true)));
-        this.mc.field_1724.method_6104(class_1268.field_5808);
+        this.mc.player.networkHandler.sendPacket((Packet)new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, new BlockHitResult(this.mc.player.getPos(), this.rayTraceCheck(BlockPos2, true), BlockPos2, true)));
+        this.mc.player.swingHand(Hand.MAIN_HAND);
         return true;
     }
 
     public void Play() {
-        if (this.mc.field_1724 == null) {
+        if (this.mc.player == null) {
             return;
         }
-        if (this.mc.field_1724.field_7503.field_7477 && this.stage != Stage.Preview) {
+        if (this.mc.player.abilities.creativeMode && this.stage != Stage.Preview) {
             ChatUtils.moduleError(this, "You need to be in survival mode.", new Object[0]);
         } else if (this.stage == Stage.Preview || this.stage == Stage.Playing) {
             this.isPlaying = true;
@@ -222,13 +222,13 @@ extends Module {
     }
 
     private void playRotate() {
-        if (this.mc.field_1761 == null) {
+        if (this.mc.interactionManager == null) {
             return;
         }
         try {
             int n = this.song.get(this.currentNote);
-            class_2338 class_23382 = this.blockPositions.get(n);
-            this.mc.field_1761.method_2910(class_23382, class_2350.field_11033);
+            BlockPos BlockPos2 = this.blockPositions.get(n);
+            this.mc.interactionManager.attackBlock(BlockPos2, Direction.DOWN);
             ++this.currentNote;
         }
         catch (NullPointerException nullPointerException) {
@@ -286,8 +286,8 @@ extends Module {
         }
         if (this.song.containsKey(this.currentNote)) {
             int n = this.song.get(this.currentNote);
-            class_2338 class_23382 = this.blockPositions.get(n);
-            Rotations.rotate(Rotations.getYaw(class_23382), Rotations.getPitch(class_23382), 100, this::playRotate);
+            BlockPos BlockPos2 = this.blockPositions.get(n);
+            Rotations.rotate(Rotations.getYaw(BlockPos2), Rotations.getPitch(BlockPos2), 100, this::playRotate);
         } else {
             ++this.currentNote;
         }
@@ -323,19 +323,19 @@ extends Module {
         return string.equals("nbs");
     }
 
-    private static int lambda$new$0(class_2338 class_23382, class_2338 class_23383) {
-        double d = class_23382.method_10262(new class_2382(0, 0, 0));
-        double d2 = class_23383.method_10262(new class_2382(0, 0, 0));
+    private static int lambda$new$0(BlockPos BlockPos2, BlockPos BlockPos3) {
+        double d = BlockPos2.getSquaredDistance(new Vec3i(0, 0, 0));
+        double d2 = BlockPos3.getSquaredDistance(new Vec3i(0, 0, 0));
         return Double.compare(d, d2);
     }
 
     private void onTickPreview() {
-        if (this.isPlaying && this.mc.field_1724 != null) {
+        if (this.isPlaying && this.mc.player != null) {
             if (this.currentNote >= this.lastKey) {
                 this.Stop();
             }
             if (this.song.containsKey(this.currentNote)) {
-                this.mc.field_1724.method_5783(class_3417.field_15114, 2.0f, (float)Math.pow(2.0, (double)(this.song.get(this.currentNote) - 12) / 12.0));
+                this.mc.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_HARP, 2.0f, (float)Math.pow(2.0, (double)(this.song.get(this.currentNote) - 12) / 12.0));
             }
             ++this.currentNote;
         }
@@ -351,11 +351,11 @@ extends Module {
     }
 
     private void tuneRotate() {
-        class_2338 class_23382 = this.blockPositions.get(this.uniqueNotes.get(this.currentNote));
-        if (class_23382 == null) {
+        BlockPos BlockPos2 = this.blockPositions.get(this.uniqueNotes.get(this.currentNote));
+        if (BlockPos2 == null) {
             return;
         }
-        if (!this.tuneBlock(class_23382, this.uniqueNotes.get(this.currentNote))) {
+        if (!this.tuneBlock(BlockPos2, this.uniqueNotes.get(this.currentNote))) {
             this.Disable();
         }
     }
@@ -382,16 +382,16 @@ extends Module {
         this.song = new HashMap();
         this.uniqueNotes = new ArrayList(Collections.emptyList());
         this.blockPositions = new HashMap();
-        this.scannedNoteblocks = new ArrayList<class_2338>();
+        this.scannedNoteblocks = new ArrayList<BlockPos>();
         this.currentNote = 0;
         this.lastKey = -1;
         this.offset = 0;
         this.ticks = 0;
         for (int i = -5; i < 5; ++i) {
             for (int j = -5; j < 5; ++j) {
-                class_2338 class_23382;
-                if (i == 0 && j == 0 || !((class_23382 = new class_2338(j, 0, i)).method_10268(0.0, 0.0, 0.0, true) < 17.99)) continue;
-                this.possibleBlockPos.add(class_23382);
+                BlockPos BlockPos2;
+                if (i == 0 && j == 0 || !((BlockPos2 = new BlockPos(j, 0, i)).getSquaredDistance(0.0, 0.0, 0.0, true) < 17.99)) continue;
+                this.possibleBlockPos.add(BlockPos2);
                 if (-4 <= 0) continue;
                 throw null;
             }
@@ -402,7 +402,7 @@ extends Module {
     }
 
     private void onTickSetup() {
-        class_2338 class_23382;
+        BlockPos BlockPos2;
         if (this.ticks < this.tickDelay.get()) {
             return;
         }
@@ -415,16 +415,16 @@ extends Module {
         }
         int n = this.currentNote + this.offset;
         if (n < this.scannedNoteblocks.size()) {
-            class_2338 class_23383 = this.scannedNoteblocks.get(n);
-            if (this.mc.field_1687.method_8320(class_23383).method_26204() != class_2246.field_10179) {
+            BlockPos BlockPos3 = this.scannedNoteblocks.get(n);
+            if (this.mc.world.getBlockState(BlockPos3).getBlock() != Blocks.NOTE_BLOCK) {
                 ++this.offset;
             } else {
-                this.blockPositions.put(this.uniqueNotes.get(this.currentNote), class_23383);
+                this.blockPositions.put(this.uniqueNotes.get(this.currentNote), BlockPos3);
                 this.stage = Stage.Tune;
             }
             return;
         }
-        int n2 = InvUtils.findItemInHotbar(class_1802.field_8643);
+        int n2 = InvUtils.findItemInHotbar(Items.NOTE_BLOCK);
         if (n2 == -1) {
             ChatUtils.moduleError(this, "Not enough noteblocks", new Object[0]);
             this.Disable();
@@ -432,32 +432,32 @@ extends Module {
         }
         n -= this.scannedNoteblocks.size();
         try {
-            class_23382 = this.mc.field_1724.method_24515().method_10081((class_2382)this.possibleBlockPos.get(n));
+            BlockPos2 = this.mc.player.getBlockPos().add((Vec3i)this.possibleBlockPos.get(n));
         }
         catch (IndexOutOfBoundsException indexOutOfBoundsException) {
             ChatUtils.moduleError(this, "Not enough valid positions.", new Object[0]);
             this.Disable();
             return;
         }
-        if (this.mc.field_1687.method_8320(class_23382.method_10074()).method_26204() == class_2246.field_10179) {
+        if (this.mc.world.getBlockState(BlockPos2.down()).getBlock() == Blocks.NOTE_BLOCK) {
             ++this.offset;
             return;
         }
-        if (!BlockUtils.place(class_23382, class_1268.field_5808, n2, true, 100, true)) {
+        if (!BlockUtils.place(BlockPos2, Hand.MAIN_HAND, n2, true, 100, true)) {
             ++this.offset;
             return;
         }
-        this.blockPositions.put(this.uniqueNotes.get(this.currentNote), class_23382);
+        this.blockPositions.put(this.uniqueNotes.get(this.currentNote), BlockPos2);
         this.stage = Stage.Tune;
     }
 
-    private void lambda$onRender$1(class_2338 class_23382) {
-        double d = class_23382.method_10263();
-        double d2 = class_23382.method_10264();
-        double d3 = class_23382.method_10260();
-        double d4 = class_23382.method_10263() + 1;
-        double d5 = class_23382.method_10264() + 1;
-        double d6 = class_23382.method_10260() + 1;
+    private void lambda$onRender$1(BlockPos BlockPos2) {
+        double d = BlockPos2.getX();
+        double d2 = BlockPos2.getY();
+        double d3 = BlockPos2.getZ();
+        double d4 = BlockPos2.getX() + 1;
+        double d5 = BlockPos2.getY() + 1;
+        double d6 = BlockPos2.getZ() + 1;
         Renderer.boxWithLines(Renderer.NORMAL, Renderer.LINES, d, d2, d3, d4, d5, d6, this.sideColor.get(), this.lineColor.get(), this.shapeMode.get(), 0);
     }
 
@@ -466,29 +466,29 @@ extends Module {
             return;
         }
         this.ticks = 0;
-        class_2338 class_23382 = this.blockPositions.get(this.uniqueNotes.get(this.currentNote));
-        if (class_23382 == null) {
+        BlockPos BlockPos2 = this.blockPositions.get(this.uniqueNotes.get(this.currentNote));
+        if (BlockPos2 == null) {
             return;
         }
-        Rotations.rotate(Rotations.getYaw(class_23382), Rotations.getPitch(class_23382), 100, this::tuneRotate);
+        Rotations.rotate(Rotations.getYaw(BlockPos2), Rotations.getPitch(BlockPos2), 100, this::tuneRotate);
     }
 
     private void scanForNoteblocks() {
-        if (this.mc.field_1761 == null || this.mc.field_1687 == null || this.mc.field_1724 == null) {
+        if (this.mc.interactionManager == null || this.mc.world == null || this.mc.player == null) {
             return;
         }
         this.scannedNoteblocks.clear();
-        int n = (int)(-this.mc.field_1761.method_2904()) - 1;
-        int n2 = (int)this.mc.field_1761.method_2904() + 1;
+        int n = (int)(-this.mc.interactionManager.getReachDistance()) - 1;
+        int n2 = (int)this.mc.interactionManager.getReachDistance() + 1;
         for (int i = n; i < n2; ++i) {
             for (int j = n; j < n2; ++j) {
                 for (int k = n; k < n2; ++k) {
-                    class_2338 class_23382 = this.mc.field_1724.method_24515().method_10069(i, j, k);
-                    if (this.mc.field_1687.method_8320(class_23382).method_26204() != class_2246.field_10179) continue;
-                    float f = this.mc.field_1761.method_2904();
+                    BlockPos BlockPos2 = this.mc.player.getBlockPos().add(i, j, k);
+                    if (this.mc.world.getBlockState(BlockPos2).getBlock() != Blocks.NOTE_BLOCK) continue;
+                    float f = this.mc.interactionManager.getReachDistance();
                     f *= f;
-                    if (class_23382.method_19770((class_2374)this.mc.field_1724.method_19538(), false) > (double)f) continue;
-                    this.scannedNoteblocks.add(class_23382);
+                    if (BlockPos2.getSquaredDistance((Position)this.mc.player.getPos(), false) > (double)f) continue;
+                    this.scannedNoteblocks.add(BlockPos2);
                 }
                 if (3 != 4) continue;
                 return;
@@ -509,19 +509,19 @@ extends Module {
         }
     }
 
-    private class_2350 rayTraceCheck(class_2338 class_23382, boolean bl) {
-        class_243 class_2432 = new class_243(this.mc.field_1724.method_23317(), this.mc.field_1724.method_23318() + (double)this.mc.field_1724.method_18381(this.mc.field_1724.method_18376()), this.mc.field_1724.method_23321());
-        for (class_2350 class_23502 : class_2350.values()) {
-            class_3959 class_39592 = new class_3959(class_2432, new class_243((double)class_23382.method_10263() + 0.5 + (double)class_23502.method_10163().method_10263() * 0.5, (double)class_23382.method_10264() + 0.5 + (double)class_23502.method_10163().method_10264() * 0.5, (double)class_23382.method_10260() + 0.5 + (double)class_23502.method_10163().method_10260() * 0.5), class_3959.class_3960.field_17558, class_3959.class_242.field_1348, (class_1297)this.mc.field_1724);
-            class_3965 class_39652 = this.mc.field_1687.method_17742(class_39592);
-            if (class_39652 == null || class_39652.method_17783() != class_239.class_240.field_1332 || !class_39652.method_17777().equals((Object)class_23382)) continue;
-            return class_23502;
+    private Direction rayTraceCheck(BlockPos BlockPos2, boolean bl) {
+        Vec3d Vec3d2 = new Vec3d(this.mc.player.getX(), this.mc.player.getY() + (double)this.mc.player.getEyeHeight(this.mc.player.getPose()), this.mc.player.getZ());
+        for (Direction Direction2 : Direction.values()) {
+            RaycastContext RaycastContext2 = new RaycastContext(Vec3d2, new Vec3d((double)BlockPos2.getX() + 0.5 + (double)Direction2.getVector().getX() * 0.5, (double)BlockPos2.getY() + 0.5 + (double)Direction2.getVector().getY() * 0.5, (double)BlockPos2.getZ() + 0.5 + (double)Direction2.getVector().getZ() * 0.5), RaycastContext.class_3960.COLLIDER, RaycastContext.class_242.NONE, (Entity)this.mc.player);
+            BlockHitResult BlockHitResult2 = this.mc.world.raycast(RaycastContext2);
+            if (BlockHitResult2 == null || BlockHitResult2.getType() != HitResult.class_240.BLOCK || !BlockHitResult2.getBlockPos().equals((Object)BlockPos2)) continue;
+            return Direction2;
         }
         if (bl) {
-            if ((double)class_23382.method_10264() > class_2432.field_1351) {
-                return class_2350.field_11033;
+            if ((double)BlockPos2.getY() > Vec3d2.y) {
+                return Direction.DOWN;
             }
-            return class_2350.field_11036;
+            return Direction.UP;
         }
         return null;
     }

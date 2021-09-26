@@ -9,44 +9,44 @@ import minegame159.meteorclient.gui.screens.settings.LeftRightListSettingScreen;
 import minegame159.meteorclient.gui.widgets.WWidget;
 import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.utils.misc.Names;
-import net.minecraft.class_2378;
-import net.minecraft.class_2394;
-import net.minecraft.class_2396;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleType;
 
 public class ParticleTypeListSettingScreen
-extends LeftRightListSettingScreen<class_2396<?>> {
+extends LeftRightListSettingScreen<ParticleType<?>> {
     @Override
     protected boolean skipValue(Object object) {
-        return this.skipValue((class_2396)object);
+        return this.skipValue((ParticleType)object);
     }
 
     @Override
     protected WWidget getValueWidget(Object object) {
-        return this.getValueWidget((class_2396)object);
+        return this.getValueWidget((ParticleType)object);
     }
 
     @Override
-    protected WWidget getValueWidget(class_2396<?> class_23962) {
-        return this.theme.label(this.getValueName(class_23962));
+    protected WWidget getValueWidget(ParticleType<?> ParticleType2) {
+        return this.theme.label(this.getValueName(ParticleType2));
     }
 
     @Override
     protected String getValueName(Object object) {
-        return this.getValueName((class_2396)object);
+        return this.getValueName((ParticleType)object);
     }
 
     @Override
-    protected String getValueName(class_2396<?> class_23962) {
-        return Names.get(class_23962);
+    protected String getValueName(ParticleType<?> ParticleType2) {
+        return Names.get(ParticleType2);
     }
 
     @Override
-    protected boolean skipValue(class_2396<?> class_23962) {
-        return !(class_23962 instanceof class_2394);
+    protected boolean skipValue(ParticleType<?> ParticleType2) {
+        return !(ParticleType2 instanceof ParticleEffect);
     }
 
-    public ParticleTypeListSettingScreen(GuiTheme guiTheme, Setting<List<class_2396<?>>> setting) {
-        super(guiTheme, "Select particles", setting, class_2378.field_11141);
+    public ParticleTypeListSettingScreen(GuiTheme guiTheme, Setting<List<ParticleType<?>>> setting) {
+        super(guiTheme, "Select particles", setting, Registry.PARTICLE_TYPE);
     }
 }
 

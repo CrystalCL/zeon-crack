@@ -6,8 +6,8 @@ package minegame159.meteorclient.utils.misc.input;
 import minegame159.meteorclient.gui.GuiKeyEvents;
 import minegame159.meteorclient.utils.misc.CursorStyle;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.class_304;
-import net.minecraft.class_310;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
 
 public class Input {
@@ -21,8 +21,8 @@ public class Input {
         lastCursorStyle = CursorStyle.Default;
     }
 
-    public static void setKeyState(class_304 class_3042, boolean bl) {
-        Input.setKeyState(KeyBindingHelper.getBoundKeyOf((class_304)class_3042).method_1444(), bl);
+    public static void setKeyState(KeyBinding KeyBinding2, boolean bl) {
+        Input.setKeyState(KeyBindingHelper.getBoundKeyOf((KeyBinding)KeyBinding2).getCode(), bl);
     }
 
     public static boolean isKeyPressed(int n) {
@@ -35,8 +35,8 @@ public class Input {
         return n < keys.length && keys[n];
     }
 
-    public static boolean isPressed(class_304 class_3042) {
-        int n = KeyBindingHelper.getBoundKeyOf((class_304)class_3042).method_1444();
+    public static boolean isPressed(KeyBinding KeyBinding2) {
+        int n = KeyBindingHelper.getBoundKeyOf((KeyBinding)KeyBinding2).getCode();
         return Input.isKeyPressed(n);
     }
 
@@ -55,7 +55,7 @@ public class Input {
 
     public static void setCursorStyle(CursorStyle cursorStyle) {
         if (lastCursorStyle != cursorStyle) {
-            GLFW.glfwSetCursor((long)class_310.method_1551().method_22683().method_4490(), (long)cursorStyle.getGlfwCursor());
+            GLFW.glfwSetCursor((long)MinecraftClient.getInstance().getWindow().getHandle(), (long)cursorStyle.getGlfwCursor());
             lastCursorStyle = cursorStyle;
         }
     }

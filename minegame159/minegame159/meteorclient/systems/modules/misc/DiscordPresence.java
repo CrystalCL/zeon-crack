@@ -43,11 +43,11 @@ extends Module {
     }
 
     private String getName() {
-        return this.mc.field_1724.method_7334().getName();
+        return this.mc.player.getGameProfile().getName();
     }
 
     private String getServer() {
-        if (this.mc.method_1542()) {
+        if (this.mc.isInSingleplayer()) {
             return "SinglePlayer";
         }
         return Utils.getWorldName();

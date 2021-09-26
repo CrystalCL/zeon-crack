@@ -12,9 +12,9 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
-import net.minecraft.class_2848;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 
 public class AntiHunger
 extends Module {
@@ -27,34 +27,34 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (this.mc.field_1724.method_24828() && !this.lastOnGround && !this.sendOnGroundTruePacket) {
+        if (this.mc.player.isOnGround() && !this.lastOnGround && !this.sendOnGroundTruePacket) {
             this.sendOnGroundTruePacket = true;
         }
-        if (this.mc.field_1724.method_24828() && this.sendOnGroundTruePacket && this.onGround.get().booleanValue()) {
+        if (this.mc.player.isOnGround() && this.sendOnGroundTruePacket && this.onGround.get().booleanValue()) {
             this.ignorePacket = true;
-            this.mc.method_1562().method_2883((class_2596)new class_2828(true));
+            this.mc.getNetworkHandler().sendPacket((Packet)new PlayerMoveC2SPacket(true));
             this.ignorePacket = false;
             this.sendOnGroundTruePacket = false;
         }
-        this.lastOnGround = this.mc.field_1724.method_24828();
+        this.lastOnGround = this.mc.player.isOnGround();
     }
 
     @Override
     public void onActivate() {
-        this.lastOnGround = this.mc.field_1724.method_24828();
+        this.lastOnGround = this.mc.player.isOnGround();
         this.sendOnGroundTruePacket = true;
     }
 
     @EventHandler
     private void onSendPacket(PacketEvent.Send send) {
-        class_2848.class_2849 class_28492;
+        ClientCommandC2SPacket.class_2849 class_28492;
         if (this.ignorePacket) {
             return;
         }
-        if (send.packet instanceof class_2848 && this.sprint.get().booleanValue() && ((class_28492 = ((class_2848)send.packet).method_12365()) == class_2848.class_2849.field_12981 || class_28492 == class_2848.class_2849.field_12985)) {
+        if (send.packet instanceof ClientCommandC2SPacket && this.sprint.get().booleanValue() && ((class_28492 = ((ClientCommandC2SPacket)send.packet).getMode()) == ClientCommandC2SPacket.class_2849.START_SPRINTING || class_28492 == ClientCommandC2SPacket.class_2849.STOP_SPRINTING)) {
             send.cancel();
         }
-        if (send.packet instanceof class_2828 && this.onGround.get().booleanValue() && this.mc.field_1724.method_24828() && (double)this.mc.field_1724.field_6017 <= 0.0 && !this.mc.field_1761.method_2923()) {
+        if (send.packet instanceof PlayerMoveC2SPacket && this.onGround.get().booleanValue() && this.mc.player.isOnGround() && (double)this.mc.player.fallDistance <= 0.0 && !this.mc.interactionManager.isBreakingBlock()) {
             ((PlayerMoveC2SPacketAccessor)send.packet).setOnGround(false);
         }
     }

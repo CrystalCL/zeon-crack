@@ -45,25 +45,25 @@ import minegame159.meteorclient.systems.commands.commands.SwarmCommand;
 import minegame159.meteorclient.systems.commands.commands.ToggleCommand;
 import minegame159.meteorclient.systems.commands.commands.VClipCommand;
 import minegame159.meteorclient.systems.modules.Exclusive.Count;
-import net.minecraft.class_2172;
-import net.minecraft.class_310;
-import net.minecraft.class_637;
+import net.minecraft.command.CommandSource;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientCommandSource;
 
 public class Commands
 extends System<Commands> {
-    private final class_2172 COMMAND_SOURCE;
-    private final CommandDispatcher<class_2172> DISPATCHER = new CommandDispatcher();
+    private final CommandSource COMMAND_SOURCE;
+    private final CommandDispatcher<CommandSource> DISPATCHER = new CommandDispatcher();
     private final Map<Class<? extends Command>, Command> commandInstances;
     private final List<Command> commands;
 
-    public void dispatch(String string, class_2172 class_21722) throws CommandSyntaxException {
-        ParseResults parseResults = this.DISPATCHER.parse(string, (Object)class_21722);
+    public void dispatch(String string, CommandSource CommandSource2) throws CommandSyntaxException {
+        ParseResults parseResults = this.DISPATCHER.parse(string, (Object)CommandSource2);
         this.DISPATCHER.execute(parseResults);
     }
 
     public Commands() {
         super(null);
-        this.COMMAND_SOURCE = new ChatCommandSource(class_310.method_1551());
+        this.COMMAND_SOURCE = new ChatCommandSource(MinecraftClient.getInstance());
         this.commands = new ArrayList<Command>();
         this.commandInstances = new HashMap<Class<? extends Command>, Command>();
     }
@@ -80,7 +80,7 @@ extends System<Commands> {
         return command2.getName().equals(command.getName());
     }
 
-    public CommandDispatcher<class_2172> getDispatcher() {
+    public CommandDispatcher<CommandSource> getDispatcher() {
         return this.DISPATCHER;
     }
 
@@ -124,7 +124,7 @@ extends System<Commands> {
         this.commands.sort(Comparator.comparing(Command::getName));
     }
 
-    public class_2172 getCommandSource() {
+    public CommandSource getCommandSource() {
         return this.COMMAND_SOURCE;
     }
 
@@ -145,13 +145,13 @@ extends System<Commands> {
     }
 
     public void dispatch(String string) throws CommandSyntaxException {
-        this.dispatch(string, (class_2172)new ChatCommandSource(class_310.method_1551()));
+        this.dispatch(string, (CommandSource)new ChatCommandSource(MinecraftClient.getInstance()));
     }
 
     private static final class ChatCommandSource
-    extends class_637 {
-        public ChatCommandSource(class_310 class_3102) {
-            super(null, class_3102);
+    extends ClientCommandSource {
+        public ChatCommandSource(MinecraftClient MinecraftClient2) {
+            super(null, MinecraftClient2);
         }
     }
 }

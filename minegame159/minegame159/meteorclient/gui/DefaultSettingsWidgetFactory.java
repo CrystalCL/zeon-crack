@@ -60,8 +60,8 @@ import minegame159.meteorclient.settings.StringSetting;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.Keybind;
 import minegame159.meteorclient.utils.render.color.Color;
-import net.minecraft.class_2248;
-import net.minecraft.class_437;
+import net.minecraft.block.Block;
+import net.minecraft.client.gui.screen.Screen;
 import org.apache.commons.lang3.StringUtils;
 
 public class DefaultSettingsWidgetFactory
@@ -70,7 +70,7 @@ implements SettingsWidgetFactory {
     private final GuiTheme theme;
 
     private void lambda$storageBlockListW$43(StorageBlockListSetting storageBlockListSetting) {
-        Utils.mc.method_1507((class_437)new StorageBlockListSettingScreen(this.theme, storageBlockListSetting));
+        Utils.mc.openScreen((Screen)new StorageBlockListSettingScreen(this.theme, storageBlockListSetting));
     }
 
     private static void lambda$doubleW$25(WDoubleEdit wDoubleEdit, DoubleSetting doubleSetting) {
@@ -78,11 +78,11 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$enchListW$37(EnchListSetting enchListSetting) {
-        Utils.mc.method_1507((class_437)new EnchListSettingScreen(this.theme, enchListSetting));
+        Utils.mc.openScreen((Screen)new EnchListSettingScreen(this.theme, enchListSetting));
     }
 
     private void lambda$colorW$28(ColorSetting colorSetting) {
-        Utils.mc.method_1507((class_437)new ColorSettingScreen(this.theme, colorSetting));
+        Utils.mc.openScreen((Screen)new ColorSettingScreen(this.theme, colorSetting));
     }
 
     private static void lambda$stringW$31(WTextBox wTextBox, StringSetting stringSetting) {
@@ -113,7 +113,7 @@ implements SettingsWidgetFactory {
 
     private void blockW(WTable wTable, BlockSetting blockSetting) {
         WHorizontalList wHorizontalList = wTable.add(this.theme.horizontalList()).expandX().widget();
-        WItem wItem = wHorizontalList.add(this.theme.item(((class_2248)blockSetting.get()).method_8389().method_7854())).widget();
+        WItem wItem = wHorizontalList.add(this.theme.item(((Block)blockSetting.get()).asItem().getDefaultStack())).widget();
         WButton wButton = wHorizontalList.add(this.theme.button("Select")).widget();
         wButton.action = () -> this.lambda$blockW$32(blockSetting);
         this.reset(wTable, blockSetting, () -> DefaultSettingsWidgetFactory.lambda$blockW$33(wItem, blockSetting));
@@ -141,11 +141,11 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$itemListW$35(ItemListSetting itemListSetting) {
-        Utils.mc.method_1507((class_437)new ItemListSettingScreen(this.theme, itemListSetting));
+        Utils.mc.openScreen((Screen)new ItemListSettingScreen(this.theme, itemListSetting));
     }
 
     private void lambda$soundEventListW$41(SoundEventListSetting soundEventListSetting) {
-        Utils.mc.method_1507((class_437)new SoundEventListSettingScreen(this.theme, soundEventListSetting));
+        Utils.mc.openScreen((Screen)new SoundEventListSettingScreen(this.theme, soundEventListSetting));
     }
 
     private void lambda$new$13(WTable wTable, Setting setting) {
@@ -179,7 +179,7 @@ implements SettingsWidgetFactory {
     }
 
     private static void lambda$blockW$33(WItem wItem, BlockSetting blockSetting) {
-        wItem.set(((class_2248)blockSetting.get()).method_8389().method_7854());
+        wItem.set(((Block)blockSetting.get()).asItem().getDefaultStack());
     }
 
     private void packetBoolW(WTable wTable, PacketBoolSetting packetBoolSetting) {
@@ -199,7 +199,7 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$packetBoolW$39(PacketBoolSetting packetBoolSetting) {
-        Utils.mc.method_1507((class_437)new PacketBoolSettingScreen(this.theme, packetBoolSetting));
+        Utils.mc.openScreen((Screen)new PacketBoolSettingScreen(this.theme, packetBoolSetting));
     }
 
     private void enchListW(WTable wTable, EnchListSetting enchListSetting) {
@@ -297,7 +297,7 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$moduleListW$38(ModuleListSetting moduleListSetting) {
-        Utils.mc.method_1507((class_437)new ModuleListSettingScreen(this.theme, moduleListSetting));
+        Utils.mc.openScreen((Screen)new ModuleListSettingScreen(this.theme, moduleListSetting));
     }
 
     private void lambda$new$0(WTable wTable, Setting setting) {
@@ -343,7 +343,7 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$particleEffectListW$40(ParticleTypeListSetting particleTypeListSetting) {
-        Utils.mc.method_1507((class_437)new ParticleTypeListSettingScreen(this.theme, particleTypeListSetting));
+        Utils.mc.openScreen((Screen)new ParticleTypeListSettingScreen(this.theme, particleTypeListSetting));
     }
 
     private void storageBlockListW(WTable wTable, StorageBlockListSetting storageBlockListSetting) {
@@ -355,7 +355,7 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$blockW$32(BlockSetting blockSetting) {
-        Utils.mc.method_1507((class_437)new BlockSettingScreen(this.theme, blockSetting));
+        Utils.mc.openScreen((Screen)new BlockSettingScreen(this.theme, blockSetting));
     }
 
     private void lambda$new$3(WTable wTable, Setting setting) {
@@ -363,7 +363,7 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$statusEffectW$42(StatusEffectSetting statusEffectSetting) {
-        Utils.mc.method_1507((class_437)new StatusEffectSettingScreen(this.theme, statusEffectSetting));
+        Utils.mc.openScreen((Screen)new StatusEffectSettingScreen(this.theme, statusEffectSetting));
     }
 
     private void lambda$new$16(WTable wTable, Setting setting) {
@@ -383,7 +383,7 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$blockListW$34(BlockListSetting blockListSetting) {
-        Utils.mc.method_1507((class_437)new BlockListSettingScreen(this.theme, blockListSetting));
+        Utils.mc.openScreen((Screen)new BlockListSettingScreen(this.theme, blockListSetting));
     }
 
     private void stringW(WTable wTable, StringSetting stringSetting) {
@@ -416,7 +416,7 @@ implements SettingsWidgetFactory {
     }
 
     private void lambda$entityTypeListW$36(EntityTypeListSetting entityTypeListSetting) {
-        Utils.mc.method_1507((class_437)new EntityTypeListSettingScreen(this.theme, entityTypeListSetting));
+        Utils.mc.openScreen((Screen)new EntityTypeListSettingScreen(this.theme, entityTypeListSetting));
     }
 
     private void particleEffectListW(WTable wTable, ParticleTypeListSetting particleTypeListSetting) {

@@ -7,9 +7,9 @@ import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.render.CameraClip;
 import minegame159.meteorclient.systems.modules.render.FreeRotate;
 import minegame159.meteorclient.systems.modules.render.Freecam;
-import net.minecraft.class_1297;
-import net.minecraft.class_1922;
-import net.minecraft.class_4184;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.BlockView;
+import net.minecraft.client.render.Camera;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,10 +20,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(value={class_4184.class})
+@Mixin(value={Camera.class})
 public abstract class CameraMixin {
     @Shadow
-    private boolean field_18719;
+    private boolean thirdPerson;
     @Unique
     private float tickDelta;
 
@@ -35,14 +35,14 @@ public abstract class CameraMixin {
     }
 
     @Inject(method={"update"}, at={@At(value="HEAD")})
-    private void onUpdateHead(class_1922 class_19222, class_1297 class_12972, boolean bl, boolean bl2, float f, CallbackInfo callbackInfo) {
+    private void onUpdateHead(BlockView BlockView2, Entity Entity2, boolean bl, boolean bl2, float f, CallbackInfo callbackInfo) {
         this.tickDelta = f;
     }
 
     @Inject(method={"update"}, at={@At(value="TAIL")})
-    private void onUpdateTail(class_1922 class_19222, class_1297 class_12972, boolean bl, boolean bl2, float f, CallbackInfo callbackInfo) {
+    private void onUpdateTail(BlockView BlockView2, Entity Entity2, boolean bl, boolean bl2, float f, CallbackInfo callbackInfo) {
         if (Modules.get().isActive(Freecam.class)) {
-            this.field_18719 = true;
+            this.thirdPerson = true;
         }
     }
 

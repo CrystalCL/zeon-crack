@@ -20,10 +20,10 @@ import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.utils.Utils;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
 
 /*
  * Duplicate member names - consider using --renamedupmembers true
@@ -64,7 +64,7 @@ extends Module {
                 }
                 n = this.messageI++;
             }
-            this.mc.field_1724.method_3142(this.messages.get(n));
+            this.mc.player.sendChatMessage(this.messages.get(n));
             this.timer = this.delay.get() * 20;
         } else {
             --this.timer;
@@ -82,15 +82,15 @@ extends Module {
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = super.toTag();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = super.toTag();
         this.messages.removeIf(String::isEmpty);
-        class_2499 class_24992 = new class_2499();
+        NbtList NbtList2 = new NbtList();
         for (String string : this.messages) {
-            class_24992.add((Object)class_2519.method_23256((String)string));
+            NbtList2.add((Object)NbtString.of((String)string));
         }
-        class_24872.method_10566("messages", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("messages", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 
     private void fillTable(GuiTheme guiTheme, WTable wTable) {
@@ -112,8 +112,8 @@ extends Module {
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     public Spam() {
@@ -133,17 +133,17 @@ extends Module {
     }
 
     @Override
-    public Module fromTag(class_2487 class_24872) {
+    public Module fromTag(NbtCompound NbtCompound2) {
         this.messages.clear();
-        if (class_24872.method_10545("messages")) {
-            class_2499 class_24992 = class_24872.method_10554("messages", 8);
-            for (class_2520 class_25202 : class_24992) {
-                this.messages.add(class_25202.method_10714());
+        if (NbtCompound2.contains("messages")) {
+            NbtList NbtList2 = NbtCompound2.getList("messages", 8);
+            for (NbtElement NbtElement2 : NbtList2) {
+                this.messages.add(NbtElement2.asString());
             }
         } else {
             this.messages.add("Meteor on Crack!");
         }
-        return super.fromTag(class_24872);
+        return super.fromTag(NbtCompound2);
     }
 }
 

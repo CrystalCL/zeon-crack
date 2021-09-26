@@ -44,9 +44,9 @@ extends HudElement {
             this.box.setSize(this.left1Width + hudRenderer.textWidth(this.right1), hudRenderer.textHeight() * 2.0 + 2.0);
             return;
         }
-        double d = this.mc.field_1773.method_19418().method_19326().field_1352;
-        double d2 = this.mc.field_1773.method_19418().method_19326().field_1351 - (double)this.mc.field_1724.method_18381(this.mc.field_1724.method_18376());
-        double d3 = this.mc.field_1773.method_19418().method_19326().field_1350;
+        double d = this.mc.gameRenderer.getCamera().getPos().x;
+        double d2 = this.mc.gameRenderer.getCamera().getPos().y - (double)this.mc.player.getEyeHeight(this.mc.player.getPose());
+        double d3 = this.mc.gameRenderer.getCamera().getPos().z;
         this.right1 = String.format("%.1f %.1f %.1f", d, d2, d3);
         switch (1.$SwitchMap$minegame159$meteorclient$utils$world$Dimension[Utils.getDimension().ordinal()]) {
             case 1: {

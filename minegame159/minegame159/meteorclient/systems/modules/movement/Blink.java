@@ -10,12 +10,12 @@ import minegame159.meteorclient.events.packets.PacketEvent;
 import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_2596;
-import net.minecraft.class_2828;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 
 public class Blink
 extends Module {
-    private final List<class_2828> packets = new ArrayList<class_2828>();
+    private final List<PlayerMoveC2SPacket> packets = new ArrayList<PlayerMoveC2SPacket>();
     private int timer = 0;
 
     @Override
@@ -30,7 +30,7 @@ extends Module {
      */
     @Override
     public void onDeactivate() {
-        List<class_2828> list = this.packets;
+        List<PlayerMoveC2SPacket> list = this.packets;
         synchronized (list) {
             this.packets.forEach(this::lambda$onDeactivate$0);
             this.packets.clear();
@@ -46,19 +46,19 @@ extends Module {
      */
     @EventHandler
     private void onSendPacket(PacketEvent.Send send) {
-        if (!(send.packet instanceof class_2828)) {
+        if (!(send.packet instanceof PlayerMoveC2SPacket)) {
             return;
         }
         send.cancel();
-        List<class_2828> list = this.packets;
+        List<PlayerMoveC2SPacket> list = this.packets;
         synchronized (list) {
-            class_2828 class_28282;
-            class_2828 class_28283 = (class_2828)send.packet;
-            class_2828 class_28284 = class_28282 = this.packets.size() == 0 ? null : this.packets.get(this.packets.size() - 1);
-            if (class_28282 != null && class_28283.method_12273() == class_28282.method_12273() && class_28283.method_12271(-1.0f) == class_28282.method_12271(-1.0f) && class_28283.method_12270(-1.0f) == class_28282.method_12270(-1.0f) && class_28283.method_12269(-1.0) == class_28282.method_12269(-1.0) && class_28283.method_12268(-1.0) == class_28282.method_12268(-1.0) && class_28283.method_12274(-1.0) == class_28282.method_12274(-1.0)) {
+            PlayerMoveC2SPacket PlayerMoveC2SPacket2;
+            PlayerMoveC2SPacket PlayerMoveC2SPacket3 = (PlayerMoveC2SPacket)send.packet;
+            PlayerMoveC2SPacket PlayerMoveC2SPacket4 = PlayerMoveC2SPacket2 = this.packets.size() == 0 ? null : this.packets.get(this.packets.size() - 1);
+            if (PlayerMoveC2SPacket2 != null && PlayerMoveC2SPacket3.isOnGround() == PlayerMoveC2SPacket2.isOnGround() && PlayerMoveC2SPacket3.getYaw(-1.0f) == PlayerMoveC2SPacket2.getYaw(-1.0f) && PlayerMoveC2SPacket3.getPitch(-1.0f) == PlayerMoveC2SPacket2.getPitch(-1.0f) && PlayerMoveC2SPacket3.getX(-1.0) == PlayerMoveC2SPacket2.getX(-1.0) && PlayerMoveC2SPacket3.getY(-1.0) == PlayerMoveC2SPacket2.getY(-1.0) && PlayerMoveC2SPacket3.getZ(-1.0) == PlayerMoveC2SPacket2.getZ(-1.0)) {
                 return;
             }
-            this.packets.add(class_28283);
+            this.packets.add(PlayerMoveC2SPacket3);
             return;
         }
     }
@@ -67,8 +67,8 @@ extends Module {
         super(Categories.Movement, "blink", "Allows you to essentially teleport while suspending motion updates.");
     }
 
-    private void lambda$onDeactivate$0(class_2828 class_28282) {
-        this.mc.field_1724.field_3944.method_2883((class_2596)class_28282);
+    private void lambda$onDeactivate$0(PlayerMoveC2SPacket PlayerMoveC2SPacket2) {
+        this.mc.player.networkHandler.sendPacket((Packet)PlayerMoveC2SPacket2);
     }
 
     @EventHandler

@@ -18,20 +18,20 @@ import minegame159.meteorclient.systems.modules.Module;
 import minegame159.meteorclient.systems.modules.Modules;
 import minegame159.meteorclient.systems.modules.combat.AutoTotem;
 import minegame159.meteorclient.utils.player.InvUtils;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_1935;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.ItemConvertible;
 
 public class AutoReplenish
 extends Module {
     private final Setting<Boolean> searchHotbar;
     private final Setting<Integer> tickDelay;
     private int tickDelayLeft;
-    private final Setting<List<class_1792>> excludedItems;
+    private final Setting<List<Item>> excludedItems;
     private boolean prevHadOpenScreen;
     private final SettingGroup sgGeneral;
-    private final class_1799[] items;
+    private final ItemStack[] items;
     private final Setting<Integer> threshold;
     private final Setting<Boolean> unstackable;
     private final Setting<Boolean> offhand;
@@ -40,22 +40,22 @@ extends Module {
     public void onActivate() {
         this.fillItems();
         this.tickDelayLeft = this.tickDelay.get();
-        this.prevHadOpenScreen = this.mc.field_1755 != null;
+        this.prevHadOpenScreen = this.mc.currentScreen != null;
     }
 
-    private void checkSlot(int n, class_1799 class_17992) {
-        class_1799 class_17993 = this.getItem(n);
-        if (!class_17992.method_7960() && class_17992.method_7946() && !this.excludedItems.get().contains(class_17992.method_7909()) && class_17992.method_7947() <= this.threshold.get()) {
-            this.addSlots(n, this.findItem(class_17992, n, this.threshold.get() - class_17992.method_7947() + 1));
+    private void checkSlot(int n, ItemStack ItemStack2) {
+        ItemStack ItemStack3 = this.getItem(n);
+        if (!ItemStack2.isEmpty() && ItemStack2.isStackable() && !this.excludedItems.get().contains(ItemStack2.getItem()) && ItemStack2.getCount() <= this.threshold.get()) {
+            this.addSlots(n, this.findItem(ItemStack2, n, this.threshold.get() - ItemStack2.getCount() + 1));
         }
-        if (class_17992.method_7960() && !class_17993.method_7960() && !this.excludedItems.get().contains(class_17993.method_7909())) {
-            if (class_17993.method_7946()) {
-                this.addSlots(n, this.findItem(class_17993, n, this.threshold.get() - class_17992.method_7947() + 1));
+        if (ItemStack2.isEmpty() && !ItemStack3.isEmpty() && !this.excludedItems.get().contains(ItemStack3.getItem())) {
+            if (ItemStack3.isStackable()) {
+                this.addSlots(n, this.findItem(ItemStack3, n, this.threshold.get() - ItemStack2.getCount() + 1));
             } else if (this.unstackable.get().booleanValue()) {
-                this.addSlots(n, this.findItem(class_17993, n, 1));
+                this.addSlots(n, this.findItem(ItemStack3, n, 1));
             }
         }
-        this.setItem(n, class_17992);
+        this.setItem(n, ItemStack2);
     }
 
     public AutoReplenish() {
@@ -66,10 +66,10 @@ extends Module {
         this.offhand = this.sgGeneral.add(new BoolSetting.Builder().name("offhand").description("Whether or not to refill your offhand with items.").defaultValue(true).build());
         this.unstackable = this.sgGeneral.add(new BoolSetting.Builder().name("unstackable").description("Replenishes unstackable items.").defaultValue(true).build());
         this.searchHotbar = this.sgGeneral.add(new BoolSetting.Builder().name("search-hotbar").description("Uses items in your hotbar to replenish if they are the only ones left.").defaultValue(true).build());
-        this.excludedItems = this.sgGeneral.add(new ItemListSetting.Builder().name("excluded-items").description("Items that WILL NOT replenish.").defaultValue(new ArrayList<class_1792>()).build());
-        this.items = new class_1799[10];
+        this.excludedItems = this.sgGeneral.add(new ItemListSetting.Builder().name("excluded-items").description("Items that WILL NOT replenish.").defaultValue(new ArrayList<Item>()).build());
+        this.items = new ItemStack[10];
         for (int i = 0; i < this.items.length; ++i) {
-            this.items[i] = new class_1799((class_1935)class_1802.field_8162);
+            this.items[i] = new ItemStack((ItemConvertible)Items.AIR);
             if (-2 < 0) continue;
             throw null;
         }
@@ -77,31 +77,31 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre pre) {
-        if (this.mc.field_1755 == null && this.prevHadOpenScreen) {
+        if (this.mc.currentScreen == null && this.prevHadOpenScreen) {
             this.fillItems();
         }
-        boolean bl = this.prevHadOpenScreen = this.mc.field_1755 != null;
-        if (this.mc.field_1724.field_7512.method_7602().size() != 46 || this.mc.field_1755 != null) {
+        boolean bl = this.prevHadOpenScreen = this.mc.currentScreen != null;
+        if (this.mc.player.currentScreenHandler.getStacks().size() != 46 || this.mc.currentScreen != null) {
             return;
         }
         if (this.tickDelayLeft <= 0) {
             this.tickDelayLeft = this.tickDelay.get();
             for (int i = 0; i < 9; ++i) {
-                class_1799 class_17992 = this.mc.field_1724.field_7514.method_5438(i);
-                this.checkSlot(i, class_17992);
+                ItemStack ItemStack2 = this.mc.player.inventory.getStack(i);
+                this.checkSlot(i, ItemStack2);
                 if (-1 <= 3) continue;
                 return;
             }
             if (this.offhand.get().booleanValue() && !Modules.get().get(AutoTotem.class).getLocked()) {
-                class_1799 class_17993 = this.mc.field_1724.method_6079();
-                this.checkSlot(45, class_17993);
+                ItemStack ItemStack3 = this.mc.player.getOffHandStack();
+                this.checkSlot(45, ItemStack3);
             }
         } else {
             --this.tickDelayLeft;
         }
     }
 
-    private class_1799 getItem(int n) {
+    private ItemStack getItem(int n) {
         if (n == 45) {
             n = 9;
         }
@@ -110,32 +110,32 @@ extends Module {
 
     private void fillItems() {
         for (int i = 0; i < 9; ++i) {
-            this.setItem(i, this.mc.field_1724.field_7514.method_5438(i));
+            this.setItem(i, this.mc.player.inventory.getStack(i));
             if (null == null) continue;
             return;
         }
-        this.setItem(45, this.mc.field_1724.method_6079());
+        this.setItem(45, this.mc.player.getOffHandStack());
     }
 
-    private void setItem(int n, class_1799 class_17992) {
+    private void setItem(int n, ItemStack ItemStack2) {
         if (n == 45) {
             n = 9;
         }
-        class_1799 class_17993 = this.items[n];
-        ((ItemStackAccessor)class_17993).setItem(class_17992.method_7909());
-        class_17993.method_7939(class_17992.method_7947());
-        class_17993.method_7980(class_17992.method_7969());
-        ((ItemStackAccessor)class_17993).setEmpty(class_17992.method_7960());
+        ItemStack ItemStack3 = this.items[n];
+        ((ItemStackAccessor)ItemStack3).setItem(ItemStack2.getItem());
+        ItemStack3.setCount(ItemStack2.getCount());
+        ItemStack3.setTag(ItemStack2.getTag());
+        ((ItemStackAccessor)ItemStack3).setEmpty(ItemStack2.isEmpty());
     }
 
-    private int findItem(class_1799 class_17992, int n, int n2) {
+    private int findItem(ItemStack ItemStack2, int n, int n2) {
         int n3 = -1;
         int n4 = 0;
-        for (int i = this.mc.field_1724.field_7514.method_5439() - 2; i >= (this.searchHotbar.get() != false ? 0 : 9); --i) {
-            class_1799 class_17993 = this.mc.field_1724.field_7514.method_5438(i);
-            if (i == n || class_17993.method_7909() != class_17992.method_7909() || !class_1799.method_7975((class_1799)class_17992, (class_1799)class_17993) || class_17993.method_7947() <= n4) continue;
+        for (int i = this.mc.player.inventory.size() - 2; i >= (this.searchHotbar.get() != false ? 0 : 9); --i) {
+            ItemStack ItemStack3 = this.mc.player.inventory.getStack(i);
+            if (i == n || ItemStack3.getItem() != ItemStack2.getItem() || !ItemStack.areTagsEqual((ItemStack)ItemStack2, (ItemStack)ItemStack3) || ItemStack3.getCount() <= n4) continue;
             n3 = i;
-            n4 = class_17993.method_7947();
+            n4 = ItemStack3.getCount();
             if (n4 >= n2) break;
             if (!false) continue;
             return 0;

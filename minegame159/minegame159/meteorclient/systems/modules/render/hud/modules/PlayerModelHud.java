@@ -16,11 +16,11 @@ import minegame159.meteorclient.systems.modules.render.hud.HudRenderer;
 import minegame159.meteorclient.systems.modules.render.hud.modules.HudElement;
 import minegame159.meteorclient.utils.misc.FakeClientPlayer;
 import minegame159.meteorclient.utils.render.color.SettingColor;
-import net.minecraft.class_1309;
-import net.minecraft.class_290;
-import net.minecraft.class_3532;
-import net.minecraft.class_490;
-import net.minecraft.class_746;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.network.ClientPlayerEntity;
 
 public class PlayerModelHud
 extends HudElement {
@@ -38,17 +38,17 @@ extends HudElement {
         double d = this.box.getX();
         double d2 = this.box.getY();
         if (this.background.get().booleanValue()) {
-            Renderer.NORMAL.begin(null, DrawMode.Triangles, class_290.field_1576);
+            Renderer.NORMAL.begin(null, DrawMode.Triangles, VertexFormats.POSITION_COLOR);
             Renderer.NORMAL.quad(d, d2, this.box.width, this.box.height, this.backgroundColor.get());
             Renderer.NORMAL.end();
         }
-        class_746 class_7462 = this.mc.field_1724;
+        ClientPlayerEntity ClientPlayerEntity2 = this.mc.player;
         if (this.isInEditor()) {
-            class_7462 = FakeClientPlayer.getPlayer();
+            ClientPlayerEntity2 = FakeClientPlayer.getPlayer();
         }
-        float f = this.copyYaw.get() != false ? class_3532.method_15393((float)(class_7462.field_5982 + (class_7462.field_6031 - class_7462.field_5982) * this.mc.method_1488())) : (float)this.customYaw.get().intValue();
-        float f2 = this.copyPitch.get() != false ? class_7462.field_5965 : (float)this.customPitch.get().intValue();
-        class_490.method_2486((int)((int)(d + 25.0 * this.scale.get())), (int)((int)(d2 + 66.0 * this.scale.get())), (int)((int)(30.0 * this.scale.get())), (float)(-f), (float)(-f2), (class_1309)class_7462);
+        float f = this.copyYaw.get() != false ? MathHelper.wrapDegrees((float)(ClientPlayerEntity2.prevYaw + (ClientPlayerEntity2.yaw - ClientPlayerEntity2.prevYaw) * this.mc.getTickDelta())) : (float)this.customYaw.get().intValue();
+        float f2 = this.copyPitch.get() != false ? ClientPlayerEntity2.pitch : (float)this.customPitch.get().intValue();
+        InventoryScreen.drawEntity((int)((int)(d + 25.0 * this.scale.get())), (int)((int)(d2 + 66.0 * this.scale.get())), (int)((int)(30.0 * this.scale.get())), (float)(-f), (float)(-f2), (LivingEntity)ClientPlayerEntity2);
     }
 
     public PlayerModelHud(HUD hUD) {

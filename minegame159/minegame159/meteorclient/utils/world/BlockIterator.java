@@ -12,14 +12,14 @@ import minegame159.meteorclient.MeteorClient;
 import minegame159.meteorclient.events.world.TickEvent;
 import minegame159.meteorclient.utils.Utils;
 import minegame159.meteorclient.utils.misc.Pool;
-import net.minecraft.class_2338;
-import net.minecraft.class_2680;
-import net.minecraft.class_310;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 
 public class BlockIterator {
     private static int vRadius;
     private static boolean disableCurrent;
-    private static final class_2338.class_2339 blockPos;
+    private static final Mutable blockPos;
     private static final List<Runnable> afterCallbacks;
     private static final List<Callback> callbacks;
     private static int hRadius;
@@ -45,7 +45,7 @@ public class BlockIterator {
         callbackPool = new Pool<Callback>(BlockIterator::lambda$static$0);
         callbacks = new ArrayList<Callback>();
         afterCallbacks = new ArrayList<Runnable>();
-        blockPos = new class_2338.class_2339();
+        blockPos = new Mutable();
     }
 
     @EventHandler(priority=-201)
@@ -53,15 +53,15 @@ public class BlockIterator {
         if (!Utils.canUpdate()) {
             return;
         }
-        class_310 class_3102 = class_310.method_1551();
-        int n = (int)class_3102.field_1724.method_23317();
-        int n2 = (int)class_3102.field_1724.method_23318();
-        int n3 = (int)class_3102.field_1724.method_23321();
+        MinecraftClient MinecraftClient2 = MinecraftClient.getInstance();
+        int n = (int)MinecraftClient2.player.getX();
+        int n2 = (int)MinecraftClient2.player.getY();
+        int n3 = (int)MinecraftClient2.player.getZ();
         for (int i = n - hRadius; i <= n + hRadius; ++i) {
             for (int j = n3 - hRadius; j <= n3 + hRadius; ++j) {
                 for (int k = Math.max(0, n2 - vRadius); k <= n2 + vRadius && k <= 255; ++k) {
-                    blockPos.method_10103(i, k, j);
-                    class_2680 class_26802 = class_3102.field_1687.method_8320((class_2338)blockPos);
+                    blockPos.set(i, k, j);
+                    BlockState BlockState2 = MinecraftClient2.world.getBlockState((BlockPos)blockPos);
                     int n4 = Math.abs(i - n);
                     int n5 = Math.abs(k - n2);
                     int n6 = Math.abs(j - n3);
@@ -70,7 +70,7 @@ public class BlockIterator {
                         Callback callback = iterator.next();
                         if (n4 > callback.hRadius || n5 > callback.vRadius || n6 > callback.hRadius) continue;
                         disableCurrent = false;
-                        callback.function.accept((class_2338)blockPos, class_26802);
+                        callback.function.accept((BlockPos)blockPos, BlockState2);
                         if (!disableCurrent) continue;
                         iterator.remove();
                     }
@@ -95,7 +95,7 @@ public class BlockIterator {
         afterCallbacks.clear();
     }
 
-    public static void register(int n, int n2, BiConsumer<class_2338, class_2680> biConsumer) {
+    public static void register(int n, int n2, BiConsumer<BlockPos, BlockState> biConsumer) {
         hRadius = Math.max(hRadius, n);
         vRadius = Math.max(vRadius, n2);
         Callback callback = callbackPool.get();
@@ -108,7 +108,7 @@ public class BlockIterator {
     private static class Callback {
         public int hRadius;
         public int vRadius;
-        public BiConsumer<class_2338, class_2680> function;
+        public BiConsumer<BlockPos, BlockState> function;
 
         private Callback() {
         }

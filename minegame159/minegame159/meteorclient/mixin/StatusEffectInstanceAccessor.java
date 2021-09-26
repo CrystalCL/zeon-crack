@@ -3,11 +3,11 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_1293;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value={class_1293.class})
+@Mixin(value={StatusEffectInstance.class})
 public interface StatusEffectInstanceAccessor {
     @Accessor(value="duration")
     public void setDuration(int var1);

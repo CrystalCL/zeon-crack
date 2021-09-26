@@ -3,17 +3,17 @@
  */
 package minegame159.meteorclient.mixin;
 
-import net.minecraft.class_1720;
-import net.minecraft.class_1799;
+import net.minecraft.screen.AbstractFurnaceScreenHandler;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(value={class_1720.class})
+@Mixin(value={AbstractFurnaceScreenHandler.class})
 public interface AbstractFurnaceScreenHandlerAccessor {
     @Invoker(value="isSmeltable")
-    public boolean isSmeltable(class_1799 var1);
+    public boolean isSmeltable(ItemStack var1);
 
     @Invoker(value="isFuel")
-    public boolean isFuel(class_1799 var1);
+    public boolean isFuel(ItemStack var1);
 }
 

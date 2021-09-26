@@ -8,10 +8,10 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.render.hud.HUD;
 import minegame159.meteorclient.systems.modules.render.hud.modules.DoubleTextHudElement;
-import net.minecraft.class_239;
-import net.minecraft.class_243;
-import net.minecraft.class_3965;
-import net.minecraft.class_3966;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 
 public class LookingAtHud
 extends DoubleTextHudElement {
@@ -31,15 +31,15 @@ extends DoubleTextHudElement {
         if (this.isInEditor()) {
             return this.blockPosition.get() != false ? "Obsidian [0, 0, 0]" : "Obsidian";
         }
-        if (this.mc.field_1765.method_17783() == class_239.class_240.field_1332) {
-            String string = this.mc.field_1687.method_8320(((class_3965)this.mc.field_1765).method_17777()).method_26204().method_9518().getString();
-            class_243 class_2432 = this.mc.field_1765.method_17784();
-            return this.blockPosition.get() != false ? String.format("%s [%d, %d, %d]", string, (int)class_2432.field_1352, (int)class_2432.field_1351, (int)class_2432.field_1350) : string;
+        if (this.mc.crosshairTarget.getType() == HitResult.class_240.BLOCK) {
+            String string = this.mc.world.getBlockState(((BlockHitResult)this.mc.crosshairTarget).getBlockPos()).getBlock().getName().getString();
+            Vec3d Vec3d2 = this.mc.crosshairTarget.getPos();
+            return this.blockPosition.get() != false ? String.format("%s [%d, %d, %d]", string, (int)Vec3d2.x, (int)Vec3d2.y, (int)Vec3d2.z) : string;
         }
-        if (this.mc.field_1765.method_17783() == class_239.class_240.field_1331) {
-            String string = ((class_3966)this.mc.field_1765).method_17782().method_5476().getString();
-            class_243 class_2433 = this.mc.field_1765.method_17784();
-            return this.entityPosition.get() != false ? String.format("%s [%d, %d, %d]", string, (int)class_2433.field_1352, (int)class_2433.field_1351, (int)class_2433.field_1350) : string;
+        if (this.mc.crosshairTarget.getType() == HitResult.class_240.ENTITY) {
+            String string = ((EntityHitResult)this.mc.crosshairTarget).getEntity().getDisplayName().getString();
+            Vec3d Vec3d3 = this.mc.crosshairTarget.getPos();
+            return this.entityPosition.get() != false ? String.format("%s [%d, %d, %d]", string, (int)Vec3d3.x, (int)Vec3d3.y, (int)Vec3d3.z) : string;
         }
         return "";
     }

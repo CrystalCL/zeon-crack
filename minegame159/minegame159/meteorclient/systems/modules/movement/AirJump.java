@@ -25,11 +25,11 @@ extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post post) {
-        if (Modules.get().isActive(Freecam.class) || !this.onGround.get().booleanValue() && this.mc.field_1724.method_24828()) {
+        if (Modules.get().isActive(Freecam.class) || !this.onGround.get().booleanValue() && this.mc.player.isOnGround()) {
             return;
         }
-        if (this.maintainY.get().booleanValue() && this.mc.field_1724.method_24515().method_10264() == this.level) {
-            this.mc.field_1724.method_6043();
+        if (this.maintainY.get().booleanValue() && this.mc.player.getBlockPos().getY() == this.level) {
+            this.mc.player.jump();
         }
     }
 
@@ -44,14 +44,14 @@ extends Module {
 
     @EventHandler
     private void onKey(KeyEvent keyEvent) {
-        if (Modules.get().isActive(Freecam.class) || this.mc.field_1755 != null || !this.onGround.get().booleanValue() && this.mc.field_1724.method_24828()) {
+        if (Modules.get().isActive(Freecam.class) || this.mc.currentScreen != null || !this.onGround.get().booleanValue() && this.mc.player.isOnGround()) {
             return;
         }
-        if ((keyEvent.action == KeyAction.Press || keyEvent.action == KeyAction.Repeat && this.onHold.get().booleanValue()) && this.mc.field_1690.field_1903.method_1417(keyEvent.key, 0)) {
-            this.mc.field_1724.method_6043();
-            this.level = this.mc.field_1724.method_24515().method_10264();
+        if ((keyEvent.action == KeyAction.Press || keyEvent.action == KeyAction.Repeat && this.onHold.get().booleanValue()) && this.mc.options.keyJump.matchesKey(keyEvent.key, 0)) {
+            this.mc.player.jump();
+            this.level = this.mc.player.getBlockPos().getY();
         }
-        if ((keyEvent.action == KeyAction.Press || keyEvent.action == KeyAction.Repeat && this.onHold.get().booleanValue()) && this.mc.field_1690.field_1832.method_1417(keyEvent.key, 0)) {
+        if ((keyEvent.action == KeyAction.Press || keyEvent.action == KeyAction.Repeat && this.onHold.get().booleanValue()) && this.mc.options.keySneak.matchesKey(keyEvent.key, 0)) {
             --this.level;
         }
     }

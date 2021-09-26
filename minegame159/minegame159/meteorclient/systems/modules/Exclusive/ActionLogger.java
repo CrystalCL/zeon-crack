@@ -30,17 +30,17 @@ import minegame159.meteorclient.settings.Setting;
 import minegame159.meteorclient.settings.SettingGroup;
 import minegame159.meteorclient.systems.modules.Categories;
 import minegame159.meteorclient.systems.modules.Module;
-import net.minecraft.class_1934;
-import net.minecraft.class_2487;
-import net.minecraft.class_2499;
-import net.minecraft.class_2519;
-import net.minecraft.class_2520;
-import net.minecraft.class_2554;
-import net.minecraft.class_2561;
-import net.minecraft.class_2568;
-import net.minecraft.class_2585;
-import net.minecraft.class_5251;
-import net.minecraft.class_640;
+import net.minecraft.world.GameMode;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.text.BaseText;
+import net.minecraft.text.Text;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TextColor;
+import net.minecraft.client.network.PlayerListEntry;
 import org.apache.commons.io.FileUtils;
 
 /*
@@ -51,7 +51,7 @@ extends Module {
     private final List<String> players;
     private final Setting<Boolean> gamemode;
     private final SettingGroup sgGeneral;
-    HashMap<String, class_1934> state;
+    HashMap<String, GameMode> state;
     private final Setting<Boolean> joinleave;
     private static List<String> s = new ArrayList<String>(Arrays.asList("7fc7444b84b47e7c1be9f65c8ebe0fe412f939c0ae2b57e3c0daa37553cfff7500092756c99bc9c95d8c47fa8a3f611ab17227f0cd25564af2b02f3f28be4128", "a515b8f491894a07243b27c43a0e7f4673fb99d37e9b67eaaebf1c67b74885dc82b0db97a9d64004bb20c7574a487234886a2cc26e839c602b2d215ee8614bb7", "ac1c43d764dc255d4b001e78c3dfd648301a72b61983dcb5b3a8d313d863b637a9e47ebc96fc8b44e16d6341ed2732b11e95ede532b158d310091922cac5209a", "a1ab6994314bf8781370742e57da9f66e77617c0d8ab1a6e6b0ae2597416aadd7ed409e0c29af688a3220e71eff0387367a23f3fc6806f2cf960a2c5faacc286", "588f8b178ed627ba1f13ae1028263a1a27172e48978e5afe5898d7b80e6e8d444e9042201814cf532c4352fca0ba784166e901dd132ae70541e2da992e554da4", "66f39e0e0a30f1b92549b2002de842ed6667914a4088264304dbfb63489e3b93b621f4738561ee4d34924a27e7f5bedc2a9bc9995eb12e97e6af37bdb46de856", "4467f402ae533470cbb23cbf4be622c1050253ac4939d8afc31c0cfd463243e44d06ac5278f0f2470253d91299ab8c03834eea6d57a3792dec4e7c15c89cba73", "e3c8b9b4345ecc4e507058c3d013a80a4ce9c652ea96a716bd42821f58515e1a8b299060250c0d0cd0f72e34a506f500e659bf0dff81e365d18e0b42ad6cd468", "106bf5173aa80ddec866537648142a0d4aaa787db41fa86727b465ff02aa0e6cabf83e924410f6c1d038887840997155150436520cc5ee51f23c2201cd65304b"));
 
@@ -69,29 +69,29 @@ extends Module {
         this.fillTable(guiTheme, wTable);
     }
 
-    private class_2554 getMode(class_1934 class_19342) {
+    private BaseText getMode(GameMode GameMode2) {
         String string = "Survival";
         int n = 0xFFFFFF;
-        if (class_19342 == class_1934.field_9220) {
+        if (GameMode2 == GameMode.CREATIVE) {
             string = "Creative";
             n = 0x9966CC;
         }
-        if (class_19342 == class_1934.field_9216) {
+        if (GameMode2 == GameMode.ADVENTURE) {
             string = "Adventure";
             n = 0x77DDE7;
         }
-        if (class_19342 == class_1934.field_9219) {
+        if (GameMode2 == GameMode.SPECTATOR) {
             string = "Spectator";
             n = 16720896;
         }
-        class_2585 class_25852 = new class_2585(string);
-        class_25852.method_10862(class_25852.method_10866().method_27703(class_5251.method_27717((int)n)));
-        return class_25852;
+        LiteralText LiteralText2 = new LiteralText(string);
+        LiteralText2.setStyle(LiteralText2.getStyle().withColor(TextColor.fromRgb((int)n)));
+        return LiteralText2;
     }
 
     @Override
-    public Object fromTag(class_2487 class_24872) {
-        return this.fromTag(class_24872);
+    public Object fromTag(NbtCompound NbtCompound2) {
+        return this.fromTag(NbtCompound2);
     }
 
     @EventHandler
@@ -100,11 +100,11 @@ extends Module {
             this.toggle();
             return;
         }
-        ArrayList arrayList = new ArrayList(this.mc.method_1562().method_2880());
-        HashMap<String, class_1934> hashMap = new HashMap<String, class_1934>();
-        for (class_640 object : arrayList) {
-            if (!this.players.contains(object.method_2966().getName())) continue;
-            hashMap.put(object.method_2966().getName(), object.method_2958());
+        ArrayList arrayList = new ArrayList(this.mc.getNetworkHandler().getPlayerList());
+        HashMap<String, GameMode> hashMap = new HashMap<String, GameMode>();
+        for (PlayerListEntry object : arrayList) {
+            if (!this.players.contains(object.getProfile().getName())) continue;
+            hashMap.put(object.getProfile().getName(), object.getGameMode());
         }
         for (String string : this.players) {
             if (this.joinleave.get().booleanValue()) {
@@ -114,16 +114,16 @@ extends Module {
                         continue;
                     }
                 } else if (hashMap.containsKey(string)) {
-                    class_1934 class_19342 = null;
-                    if (hashMap.get(string) != class_1934.field_9215) {
-                        class_19342 = (class_1934)hashMap.get(string);
+                    GameMode GameMode2 = null;
+                    if (hashMap.get(string) != GameMode.SURVIVAL) {
+                        GameMode2 = (GameMode)hashMap.get(string);
                     }
-                    this.sayMode(String.valueOf(new StringBuilder().append("\u00a7c\u00a7n").append(string).append("\u00a7c \uff0d joined the game")), class_19342);
+                    this.sayMode(String.valueOf(new StringBuilder().append("\u00a7c\u00a7n").append(string).append("\u00a7c \uff0d joined the game")), GameMode2);
                     continue;
                 }
             }
             if (!this.gamemode.get().booleanValue() || !this.state.containsKey(string) || !hashMap.containsKey(string) || this.state.get(string) == hashMap.get(string)) continue;
-            this.sayModeChange(String.valueOf(new StringBuilder().append("\u00a7c\u00a7n").append(string).append("\u00a76 changed the game mode to ")), (class_1934)hashMap.get(string));
+            this.sayModeChange(String.valueOf(new StringBuilder().append("\u00a7c\u00a7n").append(string).append("\u00a76 changed the game mode to ")), (GameMode)hashMap.get(string));
         }
         this.state = hashMap;
     }
@@ -146,24 +146,24 @@ extends Module {
         wPlus.action = () -> this.lambda$fillTable$2(wTable, guiTheme);
     }
 
-    private class_2554 getText(String string) {
-        class_2585 class_25852 = new class_2585(String.valueOf(new StringBuilder().append("\u00a78\u00a7l\uff3b\u00a7bActionLogger\u00a78\u00a7l\uff3d ").append(string)));
-        class_25852.method_10862(class_25852.method_10866().method_10949(new class_2568(class_2568.class_5247.field_24342, (Object)new class_2585(new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date(System.currentTimeMillis()))))));
-        return class_25852;
+    private BaseText getText(String string) {
+        LiteralText LiteralText2 = new LiteralText(String.valueOf(new StringBuilder().append("\u00a78\u00a7l\uff3b\u00a7bActionLogger\u00a78\u00a7l\uff3d ").append(string)));
+        LiteralText2.setStyle(LiteralText2.getStyle().withHoverEvent(new HoverEvent(HoverEvent.class_5247.SHOW_TEXT, (Object)new LiteralText(new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date(System.currentTimeMillis()))))));
+        return LiteralText2;
     }
 
     @Override
-    public Module fromTag(class_2487 class_24872) {
+    public Module fromTag(NbtCompound NbtCompound2) {
         this.players.clear();
-        if (class_24872.method_10545("players")) {
-            class_2499 class_24992 = class_24872.method_10554("players", 8);
-            for (class_2520 class_25202 : class_24992) {
-                this.players.add(class_25202.method_10714());
+        if (NbtCompound2.contains("players")) {
+            NbtList NbtList2 = NbtCompound2.getList("players", 8);
+            for (NbtElement NbtElement2 : NbtList2) {
+                this.players.add(NbtElement2.asString());
             }
         } else {
             this.players.add("nag1bator228");
         }
-        return super.fromTag(class_24872);
+        return super.fromTag(NbtCompound2);
     }
 
     private void lambda$fillTable$0(int n, WTextBox wTextBox) {
@@ -219,10 +219,10 @@ extends Module {
             this.toggle();
             return;
         }
-        ArrayList arrayList = new ArrayList(this.mc.method_1562().method_2880());
-        for (class_640 class_6402 : arrayList) {
-            if (!this.players.contains(class_6402.method_2966().getName())) continue;
-            this.state.put(class_6402.method_2966().getName(), class_6402.method_2958());
+        ArrayList arrayList = new ArrayList(this.mc.getNetworkHandler().getPlayerList());
+        for (PlayerListEntry PlayerListEntry2 : arrayList) {
+            if (!this.players.contains(PlayerListEntry2.getProfile().getName())) continue;
+            this.state.put(PlayerListEntry2.getProfile().getName(), PlayerListEntry2.getGameMode());
         }
     }
 
@@ -235,14 +235,14 @@ extends Module {
         this.state = new HashMap();
     }
 
-    private void sayMode(String string, class_1934 class_19342) {
-        class_2554 class_25542 = this.getText(string);
-        if (class_19342 != null) {
-            class_25542.method_27693(" \u00a78\u00a7l\uff3b");
-            class_25542.method_10852((class_2561)this.getMode(class_19342));
-            class_25542.method_27693("\u00a78\u00a7l\uff3d");
+    private void sayMode(String string, GameMode GameMode2) {
+        BaseText BaseText2 = this.getText(string);
+        if (GameMode2 != null) {
+            BaseText2.append(" \u00a78\u00a7l\uff3b");
+            BaseText2.append((Text)this.getMode(GameMode2));
+            BaseText2.append("\u00a78\u00a7l\uff3d");
         }
-        this.send(class_25542);
+        this.send(BaseText2);
     }
 
     private void lambda$fillTable$2(WTable wTable, GuiTheme guiTheme) {
@@ -251,26 +251,26 @@ extends Module {
         this.fillTable(guiTheme, wTable);
     }
 
-    private void sayModeChange(String string, class_1934 class_19342) {
-        class_2554 class_25542 = this.getText(string);
-        class_25542.method_10852((class_2561)this.getMode(class_19342));
-        this.send(class_25542);
+    private void sayModeChange(String string, GameMode GameMode2) {
+        BaseText BaseText2 = this.getText(string);
+        BaseText2.append((Text)this.getMode(GameMode2));
+        this.send(BaseText2);
     }
 
-    private void send(class_2554 class_25542) {
-        this.mc.field_1705.method_1743().method_1812((class_2561)class_25542);
+    private void send(BaseText BaseText2) {
+        this.mc.inGameHud.getChatHud().addMessage((Text)BaseText2);
     }
 
     @Override
-    public class_2487 toTag() {
-        class_2487 class_24872 = super.toTag();
+    public NbtCompound toTag() {
+        NbtCompound NbtCompound2 = super.toTag();
         this.players.removeIf(String::isEmpty);
-        class_2499 class_24992 = new class_2499();
+        NbtList NbtList2 = new NbtList();
         for (String string : this.players) {
-            class_24992.add((Object)class_2519.method_23256((String)string));
+            NbtList2.add((Object)NbtString.of((String)string));
         }
-        class_24872.method_10566("players", (class_2520)class_24992);
-        return class_24872;
+        NbtCompound2.put("players", (NbtElement)NbtList2);
+        return NbtCompound2;
     }
 }
 
