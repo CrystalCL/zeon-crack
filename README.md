@@ -4,11 +4,9 @@ bedtrap owns you
 
 the worst addon when i even seen, 6+ modules was skidded, crystal aura fucks ur fps and other modules works bad asf
 how i cracked it? retarded dev forgot to put obfuscation on it
-
 ![image](https://user-images.githubusercontent.com/58750228/147372863-06b9fc48-e69d-41b6-832f-d37149e7e0f0.png)
 
-skidded modules which i know where it got skidded
-
+# skidded modules which i know where it got skidded
 [ElytraBot](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/elytra/bot/ElytraBaritone.java) from [CookieClient](https://github.com/bebeli555/CookieClient/blob/main/src/main/java/me/bebeli555/cookieclient/mods/bots/elytrabot/ElytraBot.java).  
 [AntiVanish](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/NotiferPlus.java) from [Meteor Reject](https://github.com/AntiCope/meteor-rejects/blob/master/src/main/java/anticope/rejects/modules/AntiVanish.java).  
 [NewChunks](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/NewChunks.java) from [Meteor Reject](https://github.com/AntiCope/meteor-rejects/blob/master/src/main/java/anticope/rejects/modules/NewChunks.java).  
