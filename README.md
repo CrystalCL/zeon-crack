@@ -1,3 +1,5 @@
-# crystal-client-crack
+# crystal-cl-for-everyone
 
-SIKE
+dat shit is not worth ur money
+
+feel free to skid

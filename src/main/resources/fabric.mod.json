@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "crystal-client",
+  "version": "0.3",
+  "name": "CrystalCL Addon",
+  "description": "An addon for Meteor Client.",
+  "authors": [
+    "Artik",
+    "ZX"
+  ],
+  "contact": {
+    "repo": "https://github.com/MeteorDevelopment/meteor-addon-template"
+  },
+  "icon": "assets/crystal/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "meteor": [
+      "crystal.addons.CrystalCL"
+    ]
+  },
+  "mixins": [
+    "crystal.mixins.json"
+  ],
+  "custom": {
+    "meteor-client:color": "225,25,25"
+  },
+  "depends": {
+    "java": ">=16",
+    "minecraft": ">=1.17.1",
+    "meteor-client": ">=0.4.3"
+  }
+}

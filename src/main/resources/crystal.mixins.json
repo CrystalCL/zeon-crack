@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "crystal.addons.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "REMOVE_HUDS",
+    "PREFIX",
+    "PlayerMoveC2SPacketAccessor2"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "addon-template-refmap.json"
+}
