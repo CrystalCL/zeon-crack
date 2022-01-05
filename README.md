@@ -1,4 +1,5 @@
-# crystal cl crack + buildable src
+# zeon crack + buildable src
+previous names: crystal cl, artikhack
 
 bedtrap owns you
 
