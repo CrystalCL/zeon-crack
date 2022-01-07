@@ -16,7 +16,7 @@ thanks to Wyrm and [Meowcher](https://github.com/Jackesparragos) for the jar fil
 [CoordLogger](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/NotiferPlus.java) from [Meteor Reject](https://github.com/AntiCope/meteor-rejects/blob/master/src/main/java/anticope/rejects/modules/CoordLogger.java).  
 [AntiGhost](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/AntiGhost.java) from l1te.  
 [CevBreaker](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/CevBreakerTest.java) from [FishHack](https://github.com/PlutoSolutions/FishHack-public/blob/main/src/main/java/cat/cattyn/fishhack/client/modules/combat/CevBreaker.java).  
-[AutoEz](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/AutoEz.java) from [MatHax](https://github.com/MatHax/Legacy/blob/master/src/main/java/mathax/legacy/client/systems/modules/chat/AutoEZ.java).  
+[AutoEz](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/NewAutoEz.java) from [Old MatHax](https://github.com/Zapzter/Legacy/blob/master/src/main/java/mathax/legacy/client/systems/modules/chat/AutoEZ.java).  
 [Spinner](https://github.com/EurekaEffect/crystal-cl-crack/blob/main/src/main/java/crystal/addons/modules/Spinner.java) from [BedTrap](https://github.com/PlutoSolutions/bedtrap-rip/blob/main/src/minegame159/meteorclient/systems/modules/bedtrap/SevilaMode.java).  
 ![Безымянный1](https://user-images.githubusercontent.com/58750228/147372868-753eba50-a6c6-4e25-86a5-c7ba80d8ed14.png)
 
